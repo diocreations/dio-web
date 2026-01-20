@@ -1,0 +1,167 @@
+import AdminLayout from "../../components/AdminLayout";
+import { useState, useEffect } from "react";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Textarea } from "../../components/ui/textarea";
+import { Label } from "../../components/ui/label";
+import { Switch } from "../../components/ui/switch";
+import { Card, CardContent } from "../../components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../../components/ui/dialog";
+import { toast } from "sonner";
+import { Plus, Pencil, Trash2, GripVertical, Star } from "lucide-react";
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+const AdminProducts = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [formData, setFormData] = useState({
+    title: "", slug: "", short_description: "", description: "", icon: "Globe",
+    price: "", price_unit: "per month", features: "", is_popular: false,
+    cta_text: "Get Started", cta_link: "", order: 0, is_active: true,
+  });
+
+  const fetchProducts = () => {
+    fetch(`${API_URL}/api/products`, { credentials: "include" })
+      .then((r) => r.json())
+      .then((data) => { setProducts(data); setLoading(false); })
+      .catch(() => setLoading(false));
+  };
+
+  useEffect(() => { fetchProducts(); }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev, [name]: value,
+      ...(name === "title" && !editingProduct
+        ? { slug: value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") } : {}),
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const features = formData.features.split("\n").filter((f) => f.trim());
+    try {
+      const body = { ...formData, features };
+      const url = editingProduct ? `${API_URL}/api/products/${editingProduct.product_id}` : `${API_URL}/api/products`;
+      const response = await fetch(url, {
+        method: editingProduct ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", body: JSON.stringify(body),
+      });
+      if (response.ok) {
+        toast.success(editingProduct ? "Product updated!" : "Product created!");
+        setDialogOpen(false); resetForm(); fetchProducts();
+      } else throw new Error("Failed");
+    } catch { toast.error("Failed to save product"); }
+  };
+
+  const handleEdit = (product) => {
+    setEditingProduct(product);
+    setFormData({
+      title: product.title, slug: product.slug, short_description: product.short_description,
+      description: product.description, icon: product.icon, price: product.price || "",
+      price_unit: product.price_unit || "per month", features: product.features?.join("\n") || "",
+      is_popular: product.is_popular, cta_text: product.cta_text, cta_link: product.cta_link || "",
+      order: product.order, is_active: product.is_active,
+    });
+    setDialogOpen(true);
+  };
+
+  const handleDelete = async (productId) => {
+    if (!window.confirm("Delete this product?")) return;
+    try {
+      await fetch(`${API_URL}/api/products/${productId}`, { method: "DELETE", credentials: "include" });
+      toast.success("Product deleted!"); fetchProducts();
+    } catch { toast.error("Failed to delete"); }
+  };
+
+  const resetForm = () => {
+    setEditingProduct(null);
+    setFormData({
+      title: "", slug: "", short_description: "", description: "", icon: "Globe",
+      price: "", price_unit: "per month", features: "", is_popular: false,
+      cta_text: "Get Started", cta_link: "", order: 0, is_active: true,
+    });
+  };
+
+  const iconOptions = ["Globe", "Server", "Shield", "Layout", "Cloud", "CloudCog", "Database", "Lock"];
+
+  return (
+    <AdminLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="font-heading font-bold text-2xl text-foreground">Products</h1>
+            <p className="text-muted-foreground">Manage your products</p>
+          </div>
+          <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
+            <DialogTrigger asChild>
+              <Button className="rounded-full" data-testid="add-product-btn"><Plus className="mr-2" size={18} /> Add Product</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader><DialogTitle>{editingProduct ? "Edit Product" : "Add New Product"}</DialogTitle></DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2"><Label htmlFor="title">Title *</Label><Input id="title" name="title" value={formData.title} onChange={handleChange} required data-testid="product-title" /></div>
+                  <div className="space-y-2"><Label htmlFor="slug">Slug *</Label><Input id="slug" name="slug" value={formData.slug} onChange={handleChange} required data-testid="product-slug" /></div>
+                </div>
+                <div className="space-y-2"><Label htmlFor="short_description">Short Description *</Label><Input id="short_description" name="short_description" value={formData.short_description} onChange={handleChange} required /></div>
+                <div className="space-y-2"><Label htmlFor="description">Full Description *</Label><Textarea id="description" name="description" value={formData.description} onChange={handleChange} rows={3} required /></div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2"><Label htmlFor="price">Price</Label><Input id="price" name="price" value={formData.price} onChange={handleChange} placeholder="9.99" /></div>
+                  <div className="space-y-2"><Label htmlFor="price_unit">Price Unit</Label><Input id="price_unit" name="price_unit" value={formData.price_unit} onChange={handleChange} /></div>
+                  <div className="space-y-2"><Label htmlFor="icon">Icon</Label>
+                    <select id="icon" name="icon" value={formData.icon} onChange={handleChange} className="w-full h-10 rounded-md border px-3">{iconOptions.map((i) => (<option key={i} value={i}>{i}</option>))}</select>
+                  </div>
+                </div>
+                <div className="space-y-2"><Label htmlFor="features">Features (one per line)</Label><Textarea id="features" name="features" value={formData.features} onChange={handleChange} rows={4} /></div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2"><Label htmlFor="cta_text">CTA Text</Label><Input id="cta_text" name="cta_text" value={formData.cta_text} onChange={handleChange} /></div>
+                  <div className="space-y-2"><Label htmlFor="order">Order</Label><Input id="order" name="order" type="number" value={formData.order} onChange={handleChange} /></div>
+                </div>
+                <div className="flex gap-6">
+                  <div className="flex items-center gap-2"><Switch id="is_popular" checked={formData.is_popular} onCheckedChange={(c) => setFormData((p) => ({ ...p, is_popular: c }))} /><Label htmlFor="is_popular">Popular</Label></div>
+                  <div className="flex items-center gap-2"><Switch id="is_active" checked={formData.is_active} onCheckedChange={(c) => setFormData((p) => ({ ...p, is_active: c }))} /><Label htmlFor="is_active">Active</Label></div>
+                </div>
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button type="button" variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
+                  <Button type="submit" data-testid="save-product-btn">{editingProduct ? "Update" : "Create"}</Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {loading ? (<div className="space-y-4">{[1, 2, 3].map((i) => (<div key={i} className="animate-pulse bg-slate-200 h-20 rounded-lg" />))}</div>)
+          : products.length === 0 ? (<Card><CardContent className="py-12 text-center text-muted-foreground">No products yet.</CardContent></Card>)
+          : (<div className="space-y-4">
+            {products.map((product) => (
+              <Card key={product.product_id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <GripVertical className="text-muted-foreground cursor-grab" size={20} />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-foreground">{product.title}</h3>
+                      {product.is_popular && (<span className="flex items-center gap-1 px-2 py-0.5 rounded bg-primary/10 text-primary text-xs"><Star size={12} />Popular</span>)}
+                      {!product.is_active && (<span className="px-2 py-0.5 rounded bg-slate-200 text-xs">Inactive</span>)}
+                    </div>
+                    <p className="text-sm text-muted-foreground">{product.price ? `$${product.price}/${product.price_unit}` : "Contact for pricing"}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}><Pencil size={16} /></Button>
+                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(product.product_id)}><Trash2 size={16} /></Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>)}
+      </div>
+    </AdminLayout>
+  );
+};
+
+export default AdminProducts;
