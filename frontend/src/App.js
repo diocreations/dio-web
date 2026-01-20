@@ -1,53 +1,263 @@
-import { useEffect } from "react";
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "./components/ui/sonner";
+import { useState, useEffect, createContext, useContext, useRef } from "react";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+// Public Pages
+import HomePage from "./pages/HomePage";
+import AboutPage from "./pages/AboutPage";
+import ServicesPage from "./pages/ServicesPage";
+import ServiceDetailPage from "./pages/ServiceDetailPage";
+import ProductsPage from "./pages/ProductsPage";
+import PortfolioPage from "./pages/PortfolioPage";
+import PortfolioDetailPage from "./pages/PortfolioDetailPage";
+import BlogPage from "./pages/BlogPage";
+import BlogPostPage from "./pages/BlogPostPage";
+import ContactPage from "./pages/ContactPage";
 
-const Home = () => {
-  const helloWorldApi = async () => {
+// Admin Pages
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminServices from "./pages/admin/AdminServices";
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminPortfolio from "./pages/admin/AdminPortfolio";
+import AdminBlog from "./pages/admin/AdminBlog";
+import AdminTestimonials from "./pages/admin/AdminTestimonials";
+import AdminContacts from "./pages/admin/AdminContacts";
+import AdminSettings from "./pages/admin/AdminSettings";
+
+const queryClient = new QueryClient();
+const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+// Auth Context
+export const AuthContext = createContext(null);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  return context;
+};
+
+// Auth Provider
+const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const checkAuth = async () => {
     try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
+      const response = await fetch(`${API_URL}/api/auth/me`, {
+        credentials: "include",
+      });
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    helloWorldApi();
+    checkAuth();
   }, []);
 
+  const login = (userData) => {
+    setUser(userData);
+  };
+
+  const logout = async () => {
+    try {
+      await fetch(`${API_URL}/api/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+    setUser(null);
+  };
+
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
+    <AuthContext.Provider value={{ user, loading, login, logout, checkAuth }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+// Auth Callback Component
+const AuthCallback = () => {
+  const hasProcessed = useRef(false);
+  const { login } = useAuth();
+
+  useEffect(() => {
+    if (hasProcessed.current) return;
+    hasProcessed.current = true;
+
+    const processSession = async () => {
+      const hash = window.location.hash;
+      const sessionIdMatch = hash.match(/session_id=([^&]+)/);
+      
+      if (sessionIdMatch) {
+        const sessionId = sessionIdMatch[1];
+        try {
+          const response = await fetch(`${API_URL}/api/auth/session`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ session_id: sessionId }),
+          });
+          
+          if (response.ok) {
+            const userData = await response.json();
+            login(userData);
+            window.location.href = "/admin";
+          } else {
+            window.location.href = "/admin/login";
+          }
+        } catch (error) {
+          console.error("Session exchange error:", error);
+          window.location.href = "/admin/login";
+        }
+      }
+    };
+
+    processSession();
+  }, [login]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
     </div>
+  );
+};
+
+// Protected Route
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/admin/login" replace />;
+  }
+
+  return children;
+};
+
+// App Router
+const AppRouter = () => {
+  const location = useLocation();
+
+  // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+  // Check URL fragment for session_id synchronously during render
+  if (location.hash?.includes("session_id=")) {
+    return <AuthCallback />;
+  }
+
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<HomePage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/services" element={<ServicesPage />} />
+      <Route path="/services/:slug" element={<ServiceDetailPage />} />
+      <Route path="/products" element={<ProductsPage />} />
+      <Route path="/portfolio" element={<PortfolioPage />} />
+      <Route path="/portfolio/:slug" element={<PortfolioDetailPage />} />
+      <Route path="/blog" element={<BlogPage />} />
+      <Route path="/blog/:slug" element={<BlogPostPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+
+      {/* Admin Routes */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/services"
+        element={
+          <ProtectedRoute>
+            <AdminServices />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/products"
+        element={
+          <ProtectedRoute>
+            <AdminProducts />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/portfolio"
+        element={
+          <ProtectedRoute>
+            <AdminPortfolio />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/blog"
+        element={
+          <ProtectedRoute>
+            <AdminBlog />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/testimonials"
+        element={
+          <ProtectedRoute>
+            <AdminTestimonials />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/contacts"
+        element={
+          <ProtectedRoute>
+            <AdminContacts />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/settings"
+        element={
+          <ProtectedRoute>
+            <AdminSettings />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
 };
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRouter />
+          <Toaster position="top-right" richColors />
+        </BrowserRouter>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
