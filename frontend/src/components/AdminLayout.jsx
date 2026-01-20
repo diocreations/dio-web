@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "../../App";
+import { useAuth } from "@/App";
 import {
   LayoutDashboard,
   Briefcase,
@@ -14,7 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 const AdminLayout = ({ children }) => {
   const { user, logout } = useAuth();
