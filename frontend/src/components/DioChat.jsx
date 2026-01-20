@@ -1,0 +1,264 @@
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { MessageCircle, X, Send, Loader2, Sparkles } from "lucide-react";
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+const DioChat = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
+  const messagesEndRef = useRef(null);
+
+  // Generate or retrieve session ID
+  useEffect(() => {
+    let storedSessionId = localStorage.getItem("dio_session_id");
+    if (!storedSessionId) {
+      storedSessionId = `dio_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem("dio_session_id", storedSessionId);
+    }
+    setSessionId(storedSessionId);
+
+    // Load chat history
+    fetch(`${API_URL}/api/chat/${storedSessionId}/history`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.history && data.history.length > 0) {
+          setMessages(data.history);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // Show welcome message when chat opens for first time
+  useEffect(() => {
+    if (isOpen && messages.length === 0) {
+      setMessages([
+        {
+          role: "assistant",
+          content:
+            "Hi! 👋 I'm Dio, your digital assistant from DioCreations. I'm here to help you find the perfect solution for your business needs.\n\nWhether you need a website, hosting, SEO services, or AI solutions - I'm here to guide you. What brings you here today?",
+        },
+      ]);
+    }
+  }, [isOpen, messages.length]);
+
+  const sendMessage = async () => {
+    if (!inputValue.trim() || isLoading || !sessionId) return;
+
+    const userMessage = inputValue.trim();
+    setInputValue("");
+    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${API_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId,
+          message: userMessage,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: data.response },
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content:
+              "Sorry, I'm having trouble connecting right now. Please try again or contact us directly!",
+          },
+        ]);
+      }
+    } catch (error) {
+      console.error("Chat error:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "Oops! Something went wrong. Please refresh and try again.",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  const clearChat = () => {
+    if (sessionId) {
+      fetch(`${API_URL}/api/chat/${sessionId}`, { method: "DELETE" }).catch(
+        console.error
+      );
+      const newSessionId = `dio_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem("dio_session_id", newSessionId);
+      setSessionId(newSessionId);
+    }
+    setMessages([]);
+    setIsOpen(false);
+  };
+
+  return (
+    <>
+      {/* Chat Toggle Button */}
+      <AnimatePresence>
+        {!isOpen && (
+          <motion.button
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsOpen(true)}
+            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full gradient-violet shadow-lg shadow-violet-500/30 flex items-center justify-center cursor-pointer"
+            data-testid="dio-chat-toggle"
+          >
+            <MessageCircle className="text-white" size={24} />
+            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-white animate-pulse" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Chat Window */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-48px)] h-[520px] max-h-[calc(100vh-100px)] bg-white rounded-2xl shadow-2xl shadow-violet-500/20 flex flex-col overflow-hidden border border-violet-100"
+            data-testid="dio-chat-window"
+          >
+            {/* Header */}
+            <div className="gradient-violet p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                  <Sparkles className="text-white" size={20} />
+                </div>
+                <div>
+                  <h3 className="font-heading font-semibold text-white">Dio</h3>
+                  <p className="text-xs text-violet-100">
+                    Your AI Assistant • Online
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={clearChat}
+                  className="text-white/70 hover:text-white text-xs underline"
+                  data-testid="clear-chat-btn"
+                >
+                  Clear
+                </button>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                  data-testid="close-chat-btn"
+                >
+                  <X className="text-white" size={18} />
+                </button>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+              {messages.map((msg, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`flex ${
+                    msg.role === "user" ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  <div
+                    className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                      msg.role === "user"
+                        ? "bg-primary text-white rounded-br-md"
+                        : "bg-white text-foreground shadow-sm border border-slate-100 rounded-bl-md"
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                      {msg.content}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+
+              {isLoading && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex justify-start"
+                >
+                  <div className="bg-white rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="animate-spin text-primary" size={16} />
+                      <span className="text-sm text-muted-foreground">
+                        Dio is typing...
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input */}
+            <div className="p-4 bg-white border-t border-slate-100">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type your message..."
+                  className="flex-1 h-11 rounded-full border-slate-200 focus:border-primary"
+                  disabled={isLoading}
+                  data-testid="dio-chat-input"
+                />
+                <Button
+                  onClick={sendMessage}
+                  disabled={!inputValue.trim() || isLoading}
+                  size="icon"
+                  className="w-11 h-11 rounded-full bg-primary hover:bg-primary/90"
+                  data-testid="dio-send-btn"
+                >
+                  <Send size={18} />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                Powered by AI • DioCreations
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+export default DioChat;
