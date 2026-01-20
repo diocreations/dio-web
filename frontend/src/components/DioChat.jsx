@@ -133,7 +133,7 @@ const DioChat = () => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full gradient-violet shadow-lg shadow-violet-500/30 flex items-center justify-center cursor-pointer"
+            className="fixed bottom-24 right-6 z-50 w-14 h-14 rounded-full gradient-violet shadow-lg shadow-violet-500/30 flex items-center justify-center cursor-pointer"
             data-testid="dio-chat-toggle"
           >
             <MessageCircle className="text-white" size={24} />
@@ -149,7 +149,7 @@ const DioChat = () => {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-48px)] h-[520px] max-h-[calc(100vh-100px)] bg-white rounded-2xl shadow-2xl shadow-violet-500/20 flex flex-col overflow-hidden border border-violet-100"
+            className="fixed bottom-24 right-6 z-50 w-[380px] max-w-[calc(100vw-48px)] h-[520px] max-h-[calc(100vh-150px)] bg-white rounded-2xl shadow-2xl shadow-violet-500/20 flex flex-col overflow-hidden border border-violet-100"
             data-testid="dio-chat-window"
           >
             {/* Header */}
