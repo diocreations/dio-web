@@ -15,6 +15,7 @@ import secrets
 import asyncio
 import resend
 import base64
+from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -28,6 +29,12 @@ db = client[os.environ['DB_NAME']]
 resend.api_key = os.environ.get('RESEND_API_KEY', '')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
 ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', '')
+
+# LLM setup for Dio chatbot
+EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
+
+# Store chat instances in memory (per session)
+chat_instances = {}
 
 # Create the main app
 app = FastAPI()
@@ -1025,6 +1032,132 @@ async def seed_data():
         await db.settings.insert_one(settings.model_dump())
     
     return {"message": "Data seeded successfully"}
+
+# ==================== CHATBOT ROUTES ====================
+
+DIO_SYSTEM_MESSAGE = """You are Dio, a friendly and helpful AI assistant for DioCreations - a digital agency specializing in web development, SEO, hosting, and AI solutions.
+
+Your personality:
+- Warm, professional, and conversational
+- Knowledgeable about digital services
+- Focused on understanding customer needs and providing solutions
+- Helpful in guiding visitors to the right services
+
+About DioCreations services:
+1. Web & Mobile App Development - Custom websites, e-commerce, mobile apps
+2. SEO Services - Search engine optimization to boost visibility
+3. Local SEO - Help local businesses rank higher
+4. Private LLMs & AI Solutions - Custom AI implementations
+5. Marketing Automation - Automated campaigns and lead nurturing
+6. Email Marketing - Professional email campaigns
+
+About DioCreations products:
+1. Domain Registration - Starting at $14.46/year
+2. Web Hosting - Starting at $1.87/month (99.9% uptime)
+3. SSL Certificates - $33/year (256-bit encryption)
+4. Website Builder - $5.50/month (drag & drop)
+5. Google Workspace - $6/user/month
+6. Cloud Hosting - $15/month (scalable)
+
+Your goals:
+1. Welcome visitors warmly
+2. Understand their needs through conversation
+3. Recommend relevant services or products
+4. Answer questions about pricing and features
+5. Encourage them to contact us or get started
+6. If they're ready, guide them to the contact page or specific service
+
+Keep responses concise, friendly, and focused on helping the visitor find what they need. Use emojis sparingly to add warmth. Always aim to convert interest into action."""
+
+class ChatMessage(BaseModel):
+    session_id: str
+    message: str
+
+class ChatResponse(BaseModel):
+    response: str
+    session_id: str
+
+@api_router.post("/chat", response_model=ChatResponse)
+async def chat_with_dio(chat_message: ChatMessage):
+    """Chat with Dio - the DioCreations AI assistant"""
+    if not EMERGENT_LLM_KEY:
+        raise HTTPException(status_code=500, detail="Chat service not configured")
+    
+    session_id = chat_message.session_id
+    
+    # Create or get chat instance for this session
+    if session_id not in chat_instances:
+        chat_instances[session_id] = {
+            "chat": LlmChat(
+                api_key=EMERGENT_LLM_KEY,
+                session_id=session_id,
+                system_message=DIO_SYSTEM_MESSAGE
+            ).with_model("gemini", "gemini-2.0-flash"),
+            "history": [],
+            "created_at": datetime.now(timezone.utc)
+        }
+    
+    chat_data = chat_instances[session_id]
+    chat = chat_data["chat"]
+    
+    # Store user message in history
+    chat_data["history"].append({
+        "role": "user",
+        "content": chat_message.message,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    })
+    
+    try:
+        # Send message to LLM
+        user_msg = UserMessage(text=chat_message.message)
+        response = await chat.send_message(user_msg)
+        
+        # Store assistant response in history
+        chat_data["history"].append({
+            "role": "assistant",
+            "content": response,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        })
+        
+        # Save chat history to database
+        await db.chat_sessions.update_one(
+            {"session_id": session_id},
+            {
+                "$set": {
+                    "session_id": session_id,
+                    "history": chat_data["history"],
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }
+            },
+            upsert=True
+        )
+        
+        return ChatResponse(response=response, session_id=session_id)
+    except Exception as e:
+        logger.error(f"Chat error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get response from Dio")
+
+@api_router.get("/chat/{session_id}/history")
+async def get_chat_history(session_id: str):
+    """Get chat history for a session"""
+    # Check memory first
+    if session_id in chat_instances:
+        return {"history": chat_instances[session_id]["history"]}
+    
+    # Then check database
+    session = await db.chat_sessions.find_one({"session_id": session_id}, {"_id": 0})
+    if session:
+        return {"history": session.get("history", [])}
+    
+    return {"history": []}
+
+@api_router.delete("/chat/{session_id}")
+async def clear_chat_session(session_id: str):
+    """Clear chat session"""
+    if session_id in chat_instances:
+        del chat_instances[session_id]
+    await db.chat_sessions.delete_one({"session_id": session_id})
+    return {"message": "Chat session cleared"}
 
 # ==================== ROOT ====================
 
