@@ -1,0 +1,156 @@
+{
+  "brand_identity": {
+    "name": "DioCreations",
+    "tone": "Professional, Innovative, Trustworthy, Enterprise-Grade",
+    "theme_mode": "light",
+    "primary_color_name": "Violet",
+    "design_archetype": "The Performance Pro (with Violet Twist)"
+  },
+  "typography": {
+    "headings": {
+      "family": "Manrope, sans-serif",
+      "weights": ["600", "700", "800"],
+      "usage": "Use for all section titles, hero headings, and card titles. Tight tracking (-0.02em)."
+    },
+    "body": {
+      "family": "Inter, sans-serif",
+      "weights": ["400", "500"],
+      "usage": "Use for all paragraph text, inputs, and UI elements. Normal tracking."
+    },
+    "mono": {
+      "family": "JetBrains Mono, monospace",
+      "usage": "Use for code snippets, technical specs, or decorative 'tech' labels."
+    }
+  },
+  "colors": {
+    "palette": {
+      "primary": {
+        "DEFAULT": "hsl(265, 80%, 50%)",
+        "foreground": "hsl(0, 0%, 100%)",
+        "hover": "hsl(265, 80%, 40%)"
+      },
+      "secondary": {
+        "DEFAULT": "hsl(265, 30%, 96%)",
+        "foreground": "hsl(265, 80%, 30%)"
+      },
+      "accent": {
+        "DEFAULT": "hsl(280, 60%, 60%)",
+        "foreground": "hsl(0, 0%, 100%)"
+      },
+      "background": "hsl(0, 0%, 100%)",
+      "foreground": "hsl(240, 10%, 3.9%)",
+      "muted": "hsl(240, 5%, 96%)",
+      "muted_foreground": "hsl(240, 4%, 46%)",
+      "border": "hsl(240, 6%, 90%)",
+      "card": "hsl(0, 0%, 100%)"
+    },
+    "gradients": {
+      "hero_glow": "radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.15), transparent 70%)",
+      "violet_mesh": "linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)"
+    }
+  },
+  "layout_strategies": {
+    "spacing": {
+      "container_padding": "px-6 md:px-12 lg:px-24",
+      "section_gap": "py-20 md:py-32",
+      "element_gap": "gap-6 md:gap-12"
+    },
+    "grids": {
+      "marketing_hero": "grid grid-cols-1 lg:grid-cols-12 gap-12 items-center",
+      "bento_grid": "grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(200px,auto)]",
+      "dashboard_grid": "grid grid-cols-1 md:grid-cols-4 gap-6"
+    },
+    "containers": {
+      "max_width": "max-w-7xl mx-auto",
+      "card_style": "bg-card border border-border/50 shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-300"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8 rounded-full font-medium transition-transform active:scale-95",
+      "secondary": "bg-secondary text-secondary-foreground hover:bg-secondary/80 h-11 px-8 rounded-full font-medium",
+      "outline": "border-2 border-primary/20 text-primary hover:bg-primary/5 h-11 px-8 rounded-full font-medium"
+    },
+    "cards": {
+      "service_card": "p-8 rounded-2xl bg-white border border-slate-100 hover:border-violet-200 hover:shadow-xl hover:shadow-violet-500/5 transition-all group",
+      "feature_card": "p-6 rounded-xl bg-slate-50/50 border border-slate-100"
+    },
+    "inputs": {
+      "style": "h-12 rounded-lg border-slate-200 focus:border-violet-500 focus:ring-violet-500/20 bg-white"
+    }
+  },
+  "visual_enhancers": {
+    "radius": "0.75rem",
+    "shadows": {
+      "soft": "0 4px 20px -2px rgba(124, 58, 237, 0.05)",
+      "glow": "0 0 40px -10px rgba(124, 58, 237, 0.3)"
+    },
+    "animations": {
+      "fade_in_up": "animate-in fade-in slide-in-from-bottom-8 duration-700",
+      "hover_lift": "hover:-translate-y-1 transition-transform duration-300"
+    }
+  },
+  "assets": {
+    "images": {
+      "hero_abstract": {
+        "url": "https://images.unsplash.com/photo-1762279389045-110301edeecc?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Abstract violet digital network lines",
+        "usage": "Hero section background or side visual"
+      },
+      "team_meeting": {
+        "url": "https://images.unsplash.com/photo-1758873271805-1ff103e28558?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Modern office team meeting",
+        "usage": "About Us or Careers section"
+      },
+      "tech_coding": {
+        "url": "https://images.unsplash.com/photo-1637937459053-c788742455be?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Web development coding screen",
+        "usage": "Services section - Web Development"
+      },
+      "server_cloud": {
+        "url": "https://images.unsplash.com/photo-1763568258226-3e3f67a6577e?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Server room cloud hosting",
+        "usage": "Products section - Hosting"
+      }
+    },
+    "logo": {
+      "placeholder": "https://placehold.co/220x100/7c3aed/ffffff?text=DioCreations",
+      "dimensions": "220x100",
+      "type": "Animated SVG (Space Reserved)"
+    }
+  },
+  "page_specific_instructions": {
+    "home": {
+      "hero": "Split layout. Left: Bold H1 'Digital Excellence for Modern Business', Subtext, CTA. Right: Abstract 3D/Geometric Violet visual.",
+      "services_preview": "3-column grid of cards. Icons in violet circles. Hover effect: Card lifts, border turns violet.",
+      "testimonials": "Carousel with client logos below. Use 'Marquee' effect for logos."
+    },
+    "services": {
+      "layout": "Detailed list view or alternating zig-zag layout (Text Left/Image Right, then swap).",
+      "icons": "Use Lucide-React icons with violet stroke."
+    },
+    "products": {
+      "layout": "Pricing-table style comparison or Grid of Product Cards with 'Get Started' buttons.",
+      "highlight": "Highlight 'Best Value' products with a violet border and 'Popular' badge."
+    },
+    "contact": {
+      "layout": "Two columns. Left: Contact Info + Map. Right: Form (Shadcn Form).",
+      "form_style": "Clean, minimal labels. Violet submit button."
+    },
+    "admin": {
+      "layout": "Sidebar navigation (Dark Violet). Main content area (Light Gray).",
+      "dashboard": "Stats cards at top. Recent activity table below. Use Recharts for data viz (Violet lines/bars)."
+    }
+  },
+  "universal_guidelines": [
+    "Do not use generic centered layouts. Use asymmetry.",
+    "Use 2-3x more spacing than typical designs (p-12, p-24).",
+    "All interactive elements must have hover states.",
+    "Use 'Manrope' for all headings to ensure brand consistency.",
+    "Primary color is Violet (hsl(265, 80%, 50%)). Do not use Blue.",
+    "Ensure all text has sufficient contrast (WCAG AA).",
+    "Add 'data-testid' to all interactive elements.",
+    "Use 'sonner' for toast notifications.",
+    "Use 'lucide-react' for icons."
+  ]
+}
