@@ -1,7 +1,7 @@
-import Layout from "../components/Layout";
+import Layout from "@/components/Layout";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Button } from "../components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Users, Award, Target, Lightbulb, ArrowRight, CheckCircle2 } from "lucide-react";
 
 const AboutPage = () => {

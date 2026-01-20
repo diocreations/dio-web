@@ -1,10 +1,10 @@
-import Layout from "../components/Layout";
+import Layout from "@/components/Layout";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Textarea } from "../components/ui/textarea";
-import { Label } from "../components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Mail, Phone, MapPin, Send, Clock } from "lucide-react";
 

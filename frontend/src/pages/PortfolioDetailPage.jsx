@@ -1,8 +1,8 @@
-import Layout from "../components/Layout";
+import Layout from "@/components/Layout";
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Button } from "../components/ui/button";
+import { Button } from "@/components/ui/button";
 import { ArrowRight, ArrowLeft, ExternalLink } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
