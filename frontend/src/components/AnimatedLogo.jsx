@@ -1,6 +1,6 @@
 import React from "react";
 
-export const AnimatedLogo = ({ className = "" }) => {
+export const AnimatedLogo = ({ className = "", textColor = "text-foreground" }) => {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <style>
