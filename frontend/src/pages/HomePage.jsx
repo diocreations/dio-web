@@ -61,7 +61,12 @@ const HomePage = () => {
   }, []);
 
   const clientLogos = [
-    "TechStart", "GrowthHub", "LocalBiz", "DataFlow", "CloudNine", "ScaleUp"
+    { name: "Luxe Fashion", logo: "LF" },
+    { name: "FinServe Bank", logo: "FS" },
+    { name: "HealthTrack", logo: "HT" },
+    { name: "InsightPro", logo: "IP" },
+    { name: "PropertyHub", logo: "PH" },
+    { name: "EduLearn", logo: "EL" }
   ];
 
   return (
