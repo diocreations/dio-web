@@ -43,6 +43,7 @@ const Footer = () => {
           <div className="space-y-6">
             <Link to="/" className="inline-block">
               <AnimatedLogo />
+            </Link>
             <p className="text-slate-400 text-sm leading-relaxed">
               {settings?.tagline || "Digital Excellence for Modern Business. We build eCommerce, AI-driven, and mobile app solutions that scale."}
             </p>
