@@ -238,6 +238,14 @@ const AppRouter = () => {
         }
       />
       <Route
+        path="/admin/leads"
+        element={
+          <ProtectedRoute>
+            <AdminLeads />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/admin/settings"
         element={
           <ProtectedRoute>
