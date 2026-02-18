@@ -196,13 +196,16 @@ const HomePage = () => {
           <p className="text-center text-sm text-muted-foreground mb-8">
             Trusted by innovative companies worldwide
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-12">
-            {clientLogos.map((logo, index) => (
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+            {clientLogos.map((client, index) => (
               <div
                 key={index}
-                className="text-xl font-heading font-semibold text-slate-400 hover:text-primary transition-colors"
+                className="flex items-center gap-2 text-slate-400 hover:text-primary transition-colors"
               >
-                {logo}
+                <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                  <span className="font-heading font-bold text-sm">{client.logo}</span>
+                </div>
+                <span className="font-medium text-sm hidden sm:block">{client.name}</span>
               </div>
             ))}
           </div>
