@@ -168,7 +168,7 @@ const HomePage = () => {
               <div className="relative">
                 <div className="absolute inset-0 gradient-violet rounded-3xl blur-2xl opacity-30 transform rotate-6" />
                 <img
-                  src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=600&q=80"
+                  src="https://images.unsplash.com/photo-1581225218177-9a18341ec628?w=600&q=80"
                   alt="Digital Solutions"
                   className="relative rounded-3xl shadow-2xl w-full"
                 />
