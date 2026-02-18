@@ -1018,6 +1018,86 @@ async def seed_data():
             test["created_at"] = datetime.now(timezone.utc).isoformat()
             await db.testimonials.insert_one(test)
     
+    # Seed Portfolio items
+    portfolio_items = [
+        {
+            "title": "TechStart E-commerce Platform",
+            "slug": "techstart-ecommerce",
+            "category": "E-commerce",
+            "description": "A full-featured e-commerce platform with custom product configurator, multi-currency support, and integrated inventory management.",
+            "image_url": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80",
+            "client_name": "TechStart Inc.",
+            "technologies": ["React", "Node.js", "MongoDB", "Stripe"],
+            "is_featured": True,
+            "order": 1
+        },
+        {
+            "title": "GrowthHub Marketing Website",
+            "slug": "growthhub-website",
+            "category": "Website",
+            "description": "Modern marketing website with lead generation forms, blog integration, and advanced analytics tracking.",
+            "image_url": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80",
+            "client_name": "GrowthHub",
+            "technologies": ["Next.js", "Tailwind CSS", "Vercel"],
+            "is_featured": True,
+            "order": 2
+        },
+        {
+            "title": "LocalBiz Mobile App",
+            "slug": "localbiz-mobile",
+            "category": "Mobile App",
+            "description": "Cross-platform mobile application for local business directory with real-time chat and booking features.",
+            "image_url": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&q=80",
+            "client_name": "LocalBiz Solutions",
+            "technologies": ["React Native", "Firebase", "Node.js"],
+            "is_featured": True,
+            "order": 3
+        },
+        {
+            "title": "DataFlow Analytics Dashboard",
+            "slug": "dataflow-dashboard",
+            "category": "Web App",
+            "description": "Real-time analytics dashboard with custom visualizations, automated reporting, and AI-powered insights.",
+            "image_url": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80",
+            "client_name": "DataFlow Inc.",
+            "technologies": ["Vue.js", "D3.js", "Python", "PostgreSQL"],
+            "is_featured": False,
+            "order": 4
+        },
+        {
+            "title": "CloudNine SaaS Platform",
+            "slug": "cloudnine-saas",
+            "category": "SaaS",
+            "description": "Multi-tenant SaaS platform with subscription management, team collaboration, and white-label options.",
+            "image_url": "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=600&q=80",
+            "client_name": "CloudNine Technologies",
+            "technologies": ["React", "AWS", "Stripe", "PostgreSQL"],
+            "is_featured": False,
+            "order": 5
+        },
+        {
+            "title": "ScaleUp Brand Identity",
+            "slug": "scaleup-branding",
+            "category": "Branding",
+            "description": "Complete brand identity package including logo design, style guide, and marketing collateral.",
+            "image_url": "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=600&q=80",
+            "client_name": "ScaleUp Ventures",
+            "technologies": ["Figma", "Adobe Creative Suite"],
+            "is_featured": False,
+            "order": 6
+        }
+    ]
+    
+    for item in portfolio_items:
+        existing = await db.portfolio.find_one({"slug": item["slug"]})
+        if not existing:
+            item["portfolio_id"] = f"port_{uuid.uuid4().hex[:12]}"
+            item["gallery_images"] = []
+            item["project_url"] = None
+            item["is_active"] = True
+            item["created_at"] = datetime.now(timezone.utc).isoformat()
+            await db.portfolio.insert_one(item)
+    
     # Seed default settings
     existing_settings = await db.settings.find_one({"settings_id": "site_settings"})
     if not existing_settings:
