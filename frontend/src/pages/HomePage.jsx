@@ -39,6 +39,7 @@ const HomePage = () => {
   const [services, setServices] = useState([]);
   const [products, setProducts] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
+  const [portfolio, setPortfolio] = useState([]);
   const [settings, setSettings] = useState(null);
 
   useEffect(() => {
@@ -49,12 +50,14 @@ const HomePage = () => {
       fetch(`${API_URL}/api/services?active_only=true`).then((r) => r.json()),
       fetch(`${API_URL}/api/products?active_only=true`).then((r) => r.json()),
       fetch(`${API_URL}/api/testimonials?active_only=true`).then((r) => r.json()),
+      fetch(`${API_URL}/api/portfolio?active_only=true`).then((r) => r.json()),
       fetch(`${API_URL}/api/settings`).then((r) => r.json()),
     ])
-      .then(([servicesData, productsData, testimonialsData, settingsData]) => {
+      .then(([servicesData, productsData, testimonialsData, portfolioData, settingsData]) => {
         setServices(servicesData.slice(0, 6));
         setProducts(productsData.slice(0, 4));
         setTestimonials(testimonialsData.slice(0, 3));
+        setPortfolio(portfolioData.filter(p => p.is_featured).slice(0, 4));
         setSettings(settingsData);
       })
       .catch(console.error);
