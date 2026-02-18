@@ -1021,70 +1021,100 @@ async def seed_data():
     # Seed Portfolio items
     portfolio_items = [
         {
-            "title": "TechStart E-commerce Platform",
-            "slug": "techstart-ecommerce",
+            "title": "Luxe Fashion E-commerce Store",
+            "slug": "luxe-fashion-ecommerce",
             "category": "E-commerce",
-            "description": "A full-featured e-commerce platform with custom product configurator, multi-currency support, and integrated inventory management.",
-            "image_url": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80",
-            "client_name": "TechStart Inc.",
-            "technologies": ["React", "Node.js", "MongoDB", "Stripe"],
+            "description": "A premium fashion e-commerce platform featuring AI-powered product recommendations, virtual try-on technology, multi-currency checkout, and seamless inventory management across 50+ retail locations.",
+            "image_url": "https://images.unsplash.com/photo-1612831661941-254341b885e9?w=800&q=80",
+            "client_name": "Luxe Fashion Group",
+            "technologies": ["React", "Node.js", "MongoDB", "Stripe", "AWS"],
+            "project_url": "https://luxefashion.com",
             "is_featured": True,
             "order": 1
         },
         {
-            "title": "GrowthHub Marketing Website",
-            "slug": "growthhub-website",
-            "category": "Website",
-            "description": "Modern marketing website with lead generation forms, blog integration, and advanced analytics tracking.",
-            "image_url": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80",
-            "client_name": "GrowthHub",
-            "technologies": ["Next.js", "Tailwind CSS", "Vercel"],
+            "title": "FinServe Banking Portal",
+            "slug": "finserve-banking",
+            "category": "Web App",
+            "description": "Secure online banking portal with real-time transaction monitoring, investment tracking, loan management, and AI-powered financial insights for over 500,000 customers.",
+            "image_url": "https://images.unsplash.com/photo-1642054220942-d3c7dd1466cb?w=800&q=80",
+            "client_name": "FinServe Bank",
+            "technologies": ["Angular", "Java Spring", "PostgreSQL", "Redis"],
+            "project_url": "https://finservebank.com",
             "is_featured": True,
             "order": 2
         },
         {
-            "title": "LocalBiz Mobile App",
-            "slug": "localbiz-mobile",
+            "title": "HealthTrack Mobile App",
+            "slug": "healthtrack-mobile",
             "category": "Mobile App",
-            "description": "Cross-platform mobile application for local business directory with real-time chat and booking features.",
-            "image_url": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&q=80",
-            "client_name": "LocalBiz Solutions",
-            "technologies": ["React Native", "Firebase", "Node.js"],
+            "description": "Comprehensive health and fitness mobile application with workout tracking, nutrition planning, telemedicine integration, and wearable device connectivity. 2M+ downloads.",
+            "image_url": "https://images.unsplash.com/photo-1762341119237-98df67c9c3c9?w=800&q=80",
+            "client_name": "HealthTrack Inc.",
+            "technologies": ["React Native", "Firebase", "Node.js", "HealthKit"],
+            "project_url": "https://healthtrackapp.com",
             "is_featured": True,
             "order": 3
         },
         {
-            "title": "DataFlow Analytics Dashboard",
-            "slug": "dataflow-dashboard",
-            "category": "Web App",
-            "description": "Real-time analytics dashboard with custom visualizations, automated reporting, and AI-powered insights.",
-            "image_url": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80",
-            "client_name": "DataFlow Inc.",
-            "technologies": ["Vue.js", "D3.js", "Python", "PostgreSQL"],
-            "is_featured": False,
+            "title": "InsightPro Analytics Dashboard",
+            "slug": "insightpro-dashboard",
+            "category": "SaaS",
+            "description": "Enterprise-grade analytics dashboard with real-time data visualization, custom reporting, predictive analytics, and automated alerts serving 1000+ business clients.",
+            "image_url": "https://images.unsplash.com/photo-1763718528755-4bca23f82ac3?w=800&q=80",
+            "client_name": "InsightPro Analytics",
+            "technologies": ["Vue.js", "D3.js", "Python", "TensorFlow", "AWS"],
+            "project_url": "https://insightpro.io",
+            "is_featured": True,
             "order": 4
         },
         {
-            "title": "CloudNine SaaS Platform",
-            "slug": "cloudnine-saas",
-            "category": "SaaS",
-            "description": "Multi-tenant SaaS platform with subscription management, team collaboration, and white-label options.",
-            "image_url": "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=600&q=80",
-            "client_name": "CloudNine Technologies",
-            "technologies": ["React", "AWS", "Stripe", "PostgreSQL"],
+            "title": "PropertyHub Real Estate Platform",
+            "slug": "propertyhub-realestate",
+            "category": "Website",
+            "description": "Full-featured real estate marketplace with virtual property tours, mortgage calculator, agent matching, and neighborhood insights. Handling $2B+ in annual transactions.",
+            "image_url": "https://images.unsplash.com/photo-1642132652860-471b4228023e?w=800&q=80",
+            "client_name": "PropertyHub Group",
+            "technologies": ["Next.js", "GraphQL", "PostgreSQL", "Mapbox"],
+            "project_url": "https://propertyhub.com",
             "is_featured": False,
             "order": 5
         },
         {
-            "title": "ScaleUp Brand Identity",
-            "slug": "scaleup-branding",
-            "category": "Branding",
-            "description": "Complete brand identity package including logo design, style guide, and marketing collateral.",
-            "image_url": "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=600&q=80",
-            "client_name": "ScaleUp Ventures",
-            "technologies": ["Figma", "Adobe Creative Suite"],
+            "title": "EduLearn Online Academy",
+            "slug": "edulearn-academy",
+            "category": "E-learning",
+            "description": "Interactive e-learning platform with live classes, progress tracking, certification management, and AI tutoring. Serving 100,000+ students across 30 countries.",
+            "image_url": "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=800&q=80",
+            "client_name": "EduLearn Global",
+            "technologies": ["React", "Node.js", "WebRTC", "MongoDB", "AWS"],
+            "project_url": "https://edulearn.academy",
             "is_featured": False,
             "order": 6
+        },
+        {
+            "title": "FoodieGo Delivery App",
+            "slug": "foodiego-delivery",
+            "category": "Mobile App",
+            "description": "On-demand food delivery application with real-time order tracking, restaurant management portal, driver app, and loyalty rewards. Processing 50,000+ orders daily.",
+            "image_url": "https://images.unsplash.com/photo-1596742578443-7682ef5251cd?w=800&q=80",
+            "client_name": "FoodieGo Inc.",
+            "technologies": ["Flutter", "Firebase", "Node.js", "Google Maps"],
+            "project_url": "https://foodiego.app",
+            "is_featured": False,
+            "order": 7
+        },
+        {
+            "title": "TravelWise Booking Platform",
+            "slug": "travelwise-booking",
+            "category": "Website",
+            "description": "Comprehensive travel booking platform integrating flights, hotels, car rentals, and experiences with AI-powered trip planning and price alerts.",
+            "image_url": "https://images.unsplash.com/photo-1642054220431-649c53b0d3de?w=800&q=80",
+            "client_name": "TravelWise Corp",
+            "technologies": ["React", "Python", "Elasticsearch", "Redis", "AWS"],
+            "project_url": "https://travelwise.com",
+            "is_featured": False,
+            "order": 8
         }
     ]
     
@@ -1093,7 +1123,6 @@ async def seed_data():
         if not existing:
             item["portfolio_id"] = f"port_{uuid.uuid4().hex[:12]}"
             item["gallery_images"] = []
-            item["project_url"] = None
             item["is_active"] = True
             item["created_at"] = datetime.now(timezone.utc).isoformat()
             await db.portfolio.insert_one(item)
