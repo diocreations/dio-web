@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Facebook, Twitter, Linkedin, Instagram, Mail, Phone, MapPin } from "lucide-react";
+import AnimatedLogo from "./AnimatedLogo";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -40,14 +41,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="space-y-6">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl gradient-violet flex items-center justify-center">
-                <span className="text-white font-bold text-xl">D</span>
-              </div>
-              <span className="font-heading font-bold text-xl">
-                {settings?.site_name || "DioCreations"}
-              </span>
-            </Link>
+            <Link to="/" className="inline-block">
+              <AnimatedLogo />
             <p className="text-slate-400 text-sm leading-relaxed">
               {settings?.tagline || "Digital Excellence for Modern Business. We build eCommerce, AI-driven, and mobile app solutions that scale."}
             </p>
