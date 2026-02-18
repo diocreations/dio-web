@@ -12,6 +12,7 @@ import {
   LogOut,
   Menu,
   X,
+  Users,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ const AdminLayout = ({ children }) => {
     { name: "Blog", path: "/admin/blog", icon: FileText },
     { name: "Testimonials", path: "/admin/testimonials", icon: Star },
     { name: "Contacts", path: "/admin/contacts", icon: MessageSquare },
+    { name: "Leads", path: "/admin/leads", icon: Users },
     { name: "Settings", path: "/admin/settings", icon: Settings },
   ];
 
