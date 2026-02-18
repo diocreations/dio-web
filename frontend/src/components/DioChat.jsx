@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, X, Send, Loader2, Sparkles } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Sparkles, ExternalLink, User, Mail, Phone } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -12,6 +13,9 @@ const DioChat = () => {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
+  const [portfolioItems, setPortfolioItems] = useState([]);
+  const [showPortfolio, setShowPortfolio] = useState(false);
+  const [leadInfo, setLeadInfo] = useState({});
   const messagesEndRef = useRef(null);
 
   // Generate or retrieve session ID
@@ -30,6 +34,9 @@ const DioChat = () => {
         if (data.history && data.history.length > 0) {
           setMessages(data.history);
         }
+        if (data.lead_info) {
+          setLeadInfo(data.lead_info);
+        }
       })
       .catch(console.error);
   }, []);
@@ -37,7 +44,7 @@ const DioChat = () => {
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, portfolioItems]);
 
   // Show welcome message when chat opens for first time
   useEffect(() => {
@@ -52,6 +59,24 @@ const DioChat = () => {
     }
   }, [isOpen, messages.length]);
 
+  // Fetch portfolio items based on category
+  const fetchPortfolio = async (category) => {
+    try {
+      let url = `${API_URL}/api/portfolio?active_only=true`;
+      if (category && category !== "all") {
+        url += `&category=${encodeURIComponent(category)}`;
+      }
+      const response = await fetch(url);
+      if (response.ok) {
+        const data = await response.json();
+        setPortfolioItems(data.slice(0, 4)); // Show max 4 items
+        setShowPortfolio(true);
+      }
+    } catch (error) {
+      console.error("Failed to fetch portfolio:", error);
+    }
+  };
+
   const sendMessage = async () => {
     if (!inputValue.trim() || isLoading || !sessionId) return;
 
@@ -59,6 +84,8 @@ const DioChat = () => {
     setInputValue("");
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setIsLoading(true);
+    setShowPortfolio(false);
+    setPortfolioItems([]);
 
     try {
       const response = await fetch(`${API_URL}/api/chat`, {
@@ -76,6 +103,16 @@ const DioChat = () => {
           ...prev,
           { role: "assistant", content: data.response },
         ]);
+
+        // Update lead info if available
+        if (data.lead_info) {
+          setLeadInfo(data.lead_info);
+        }
+
+        // Show portfolio if requested
+        if (data.show_portfolio) {
+          await fetchPortfolio(data.show_portfolio);
+        }
       } else {
         setMessages((prev) => [
           ...prev,
@@ -118,6 +155,9 @@ const DioChat = () => {
       setSessionId(newSessionId);
     }
     setMessages([]);
+    setPortfolioItems([]);
+    setShowPortfolio(false);
+    setLeadInfo({});
     setIsOpen(false);
   };
 
@@ -149,7 +189,7 @@ const DioChat = () => {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-24 right-6 z-50 w-[380px] max-w-[calc(100vw-48px)] h-[520px] max-h-[calc(100vh-150px)] bg-white rounded-2xl shadow-2xl shadow-violet-500/20 flex flex-col overflow-hidden border border-violet-100"
+            className="fixed bottom-24 right-6 z-50 w-[400px] max-w-[calc(100vw-48px)] h-[560px] max-h-[calc(100vh-150px)] bg-white rounded-2xl shadow-2xl shadow-violet-500/20 flex flex-col overflow-hidden border border-violet-100"
             data-testid="dio-chat-window"
           >
             {/* Header */}
@@ -183,6 +223,27 @@ const DioChat = () => {
               </div>
             </div>
 
+            {/* Lead Info Bar (if collected) */}
+            {(leadInfo.name || leadInfo.email || leadInfo.phone) && (
+              <div className="px-4 py-2 bg-violet-50 border-b border-violet-100 flex items-center gap-3 text-xs">
+                {leadInfo.name && (
+                  <span className="flex items-center gap-1 text-violet-700">
+                    <User size={12} /> {leadInfo.name}
+                  </span>
+                )}
+                {leadInfo.email && (
+                  <span className="flex items-center gap-1 text-violet-700">
+                    <Mail size={12} /> {leadInfo.email}
+                  </span>
+                )}
+                {leadInfo.phone && (
+                  <span className="flex items-center gap-1 text-violet-700">
+                    <Phone size={12} /> {leadInfo.phone}
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
               {messages.map((msg, index) => (
@@ -207,6 +268,55 @@ const DioChat = () => {
                   </div>
                 </motion.div>
               ))}
+
+              {/* Portfolio Display */}
+              {showPortfolio && portfolioItems.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-3"
+                >
+                  <p className="text-xs text-muted-foreground font-medium px-1">
+                    📁 Sample Works:
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {portfolioItems.map((item) => (
+                      <Link
+                        key={item.portfolio_id}
+                        to={`/portfolio/${item.slug}`}
+                        onClick={() => setIsOpen(false)}
+                        className="group block"
+                        data-testid={`portfolio-preview-${item.slug}`}
+                      >
+                        <div className="bg-white rounded-xl overflow-hidden border border-slate-200 hover:border-primary hover:shadow-md transition-all">
+                          <div className="aspect-video relative overflow-hidden">
+                            <img
+                              src={item.image_url || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&q=60"}
+                              alt={item.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                            />
+                          </div>
+                          <div className="p-2">
+                            <p className="text-xs font-medium text-foreground truncate">
+                              {item.title}
+                            </p>
+                            <p className="text-[10px] text-primary">
+                              {item.category}
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                  <Link
+                    to="/portfolio"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center justify-center gap-1 text-xs text-primary hover:underline"
+                  >
+                    View All Projects <ExternalLink size={12} />
+                  </Link>
+                </motion.div>
+              )}
 
               {isLoading && (
                 <motion.div
