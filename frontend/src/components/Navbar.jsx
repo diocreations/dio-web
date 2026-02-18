@@ -56,18 +56,6 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center" data-testid="logo-link">
             <AnimatedLogo />
-                className="h-[50px] w-auto max-w-[220px]"
-              />
-            ) : (
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-xl gradient-violet flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">D</span>
-                </div>
-                <span className="font-heading font-bold text-xl text-foreground">
-                  {settings?.site_name || "DioCreations"}
-                </span>
-              </div>
-            )}
           </Link>
 
           {/* Desktop Navigation */}
