@@ -24,6 +24,7 @@ import AdminPortfolio from "./pages/admin/AdminPortfolio";
 import AdminBlog from "./pages/admin/AdminBlog";
 import AdminTestimonials from "./pages/admin/AdminTestimonials";
 import AdminContacts from "./pages/admin/AdminContacts";
+import AdminLeads from "./pages/admin/AdminLeads";
 import AdminSettings from "./pages/admin/AdminSettings";
 
 const queryClient = new QueryClient();
