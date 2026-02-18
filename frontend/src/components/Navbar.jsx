@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import AnimatedLogo from "./AnimatedLogo";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -54,10 +55,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center" data-testid="logo-link">
-            {settings?.logo_url ? (
-              <img
-                src={settings.logo_url}
-                alt={settings?.site_name || "DioCreations"}
+            <AnimatedLogo />
                 className="h-[50px] w-auto max-w-[220px]"
               />
             ) : (
