@@ -1042,6 +1042,7 @@ Your personality:
 - Knowledgeable about digital services
 - Focused on understanding customer needs and providing solutions
 - Helpful in guiding visitors to the right services
+- Proactive in collecting contact information to provide better service
 
 About DioCreations services:
 1. Web & Mobile App Development - Custom websites, e-commerce, mobile apps
@@ -1059,15 +1060,36 @@ About DioCreations products:
 5. Google Workspace - $6/user/month
 6. Cloud Hosting - $15/month (scalable)
 
+IMPORTANT - Lead Collection Strategy:
+After understanding the user's needs, naturally collect their contact information:
+1. Ask for their NAME first ("By the way, what should I call you?" or "May I know your name?")
+2. Then ask for EMAIL ("What's the best email to reach you?")
+3. Finally ask for PHONE/WHATSAPP ("And a phone or WhatsApp number where our team can connect with you?")
+
+When you receive contact info, format it EXACTLY like this in your response:
+[LEAD_INFO:name=John Doe,email=john@example.com,phone=+1234567890]
+
+IMPORTANT - Showing Portfolio:
+When users ask to see examples or portfolio, or when you want to show relevant work, include this tag:
+[SHOW_PORTFOLIO:category_keyword]
+
+Where category_keyword can be: website, ecommerce, mobile, seo, branding, or all
+
+Examples:
+- User asks about e-commerce → Include [SHOW_PORTFOLIO:ecommerce] in your response
+- User wants to see websites → Include [SHOW_PORTFOLIO:website] in your response
+- User asks for general portfolio → Include [SHOW_PORTFOLIO:all] in your response
+
 Your goals:
 1. Welcome visitors warmly
 2. Understand their needs through conversation
 3. Recommend relevant services or products
-4. Answer questions about pricing and features
-5. Encourage them to contact us or get started
-6. If they're ready, guide them to the contact page or specific service
+4. Show relevant portfolio examples when appropriate
+5. Naturally collect contact information (name, email, phone/WhatsApp)
+6. Answer questions about pricing and features
+7. Convert visitors into qualified leads
 
-Keep responses concise, friendly, and focused on helping the visitor find what they need. Use emojis sparingly to add warmth. Always aim to convert interest into action."""
+Keep responses concise, friendly, and focused on helping the visitor find what they need. Use emojis sparingly to add warmth. Always aim to convert interest into action and collect leads."""
 
 class ChatMessage(BaseModel):
     session_id: str
@@ -1076,8 +1098,52 @@ class ChatMessage(BaseModel):
 class ChatResponse(BaseModel):
     response: str
     session_id: str
+    lead_info: Optional[dict] = None
+    show_portfolio: Optional[str] = None
 
-@api_router.post("/chat", response_model=ChatResponse)
+class LeadInfo(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    lead_id: str = Field(default_factory=lambda: f"lead_{uuid.uuid4().hex[:12]}")
+    session_id: str
+    name: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    interests: List[str] = []
+    source: str = "chatbot"
+    status: str = "new"
+    notes: str = ""
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+def parse_lead_info(response_text: str) -> Optional[dict]:
+    """Extract lead info from response"""
+    import re
+    match = re.search(r'\[LEAD_INFO:([^\]]+)\]', response_text)
+    if match:
+        info_str = match.group(1)
+        lead_data = {}
+        for pair in info_str.split(','):
+            if '=' in pair:
+                key, value = pair.split('=', 1)
+                lead_data[key.strip()] = value.strip()
+        return lead_data
+    return None
+
+def parse_portfolio_request(response_text: str) -> Optional[str]:
+    """Extract portfolio request from response"""
+    import re
+    match = re.search(r'\[SHOW_PORTFOLIO:([^\]]+)\]', response_text)
+    if match:
+        return match.group(1).strip()
+    return None
+
+def clean_response(response_text: str) -> str:
+    """Remove special tags from response"""
+    import re
+    cleaned = re.sub(r'\[LEAD_INFO:[^\]]+\]', '', response_text)
+    cleaned = re.sub(r'\[SHOW_PORTFOLIO:[^\]]+\]', '', cleaned)
+    return cleaned.strip()
+
+@api_router.post("/chat")
 async def chat_with_dio(chat_message: ChatMessage):
     """Chat with Dio - the DioCreations AI assistant"""
     if not EMERGENT_LLM_KEY:
@@ -1094,6 +1160,7 @@ async def chat_with_dio(chat_message: ChatMessage):
                 system_message=DIO_SYSTEM_MESSAGE
             ).with_model("gemini", "gemini-2.0-flash"),
             "history": [],
+            "lead_info": {},
             "created_at": datetime.now(timezone.utc)
         }
     
