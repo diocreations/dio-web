@@ -367,6 +367,88 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Portfolio Section */}
+      <section className="py-20 md:py-32">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
+          <div className="text-center mb-16">
+            <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm mb-4">
+              Our Work
+            </span>
+            <h2 className="font-heading font-bold text-3xl md:text-4xl text-foreground mb-4">
+              Featured Projects
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              See how we've helped businesses transform their digital presence
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {portfolio.map((item, index) => (
+              <motion.div
+                key={item.portfolio_id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <Link to={`/portfolio/${item.slug}`} data-testid={`portfolio-${item.slug}`}>
+                  <Card className="overflow-hidden border border-slate-100 hover:border-violet-200 hover:shadow-xl transition-all group h-full">
+                    <div className="relative aspect-video overflow-hidden">
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                        <span className="text-white font-medium flex items-center gap-2">
+                          View Project <ExternalLink size={16} />
+                        </span>
+                      </div>
+                    </div>
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-primary text-sm font-medium">{item.category}</span>
+                        <span className="text-muted-foreground text-sm">• {item.client_name}</span>
+                      </div>
+                      <h3 className="font-heading font-semibold text-xl text-foreground group-hover:text-primary transition-colors">
+                        {item.title}
+                      </h3>
+                      <p className="text-muted-foreground text-sm mt-2 line-clamp-2">
+                        {item.description}
+                      </p>
+                      {item.technologies && item.technologies.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-4">
+                          {item.technologies.slice(0, 4).map((tech, i) => (
+                            <span key={i} className="px-2 py-1 rounded bg-slate-100 text-xs text-muted-foreground">
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="rounded-full px-8"
+              data-testid="view-all-portfolio"
+            >
+              <Link to="/portfolio">
+                View All Projects
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Testimonials Section */}
       <section className="py-20 md:py-32">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
