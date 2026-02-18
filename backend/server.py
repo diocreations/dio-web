@@ -1127,6 +1127,208 @@ async def seed_data():
             item["created_at"] = datetime.now(timezone.utc).isoformat()
             await db.portfolio.insert_one(item)
     
+    # Seed Blog Posts
+    blog_posts = [
+        {
+            "title": "10 Web Design Trends Dominating 2025",
+            "slug": "web-design-trends-2025",
+            "excerpt": "Discover the cutting-edge design trends that are shaping the digital landscape in 2025, from AI-driven personalization to immersive 3D experiences.",
+            "content": """The web design landscape is constantly evolving, and 2025 brings exciting new trends that are reshaping how we create digital experiences.
+
+**1. AI-Driven Personalization**
+Websites now adapt in real-time to user behavior, creating unique experiences for each visitor.
+
+**2. Immersive 3D Elements**
+WebGL and Three.js are enabling stunning 3D visuals that engage users like never before.
+
+**3. Dark Mode by Default**
+More sites are adopting dark mode as the primary theme for better battery life and reduced eye strain.
+
+**4. Micro-Interactions Everywhere**
+Subtle animations and feedback make interfaces feel more alive and responsive.
+
+**5. Voice User Interfaces**
+Voice navigation is becoming a standard feature, making websites more accessible.
+
+**6. Glassmorphism 2.0**
+The frosted glass effect continues to evolve with more sophisticated implementations.
+
+**7. Sustainable Web Design**
+Optimizing for lower carbon footprints through efficient code and green hosting.
+
+**8. AI-Generated Content**
+Dynamic content that adapts to user interests and preferences.
+
+**9. Motion Design**
+Sophisticated animations that tell stories and guide users through experiences.
+
+**10. Accessibility-First Design**
+WCAG compliance is now a baseline requirement, not an afterthought.
+
+Contact DioCreations to implement these trends in your next project!""",
+            "featured_image": "https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&q=80",
+            "category": "Web Design",
+            "tags": ["design", "trends", "2025", "web development"],
+            "author": "DioCreations Team",
+            "is_published": True
+        },
+        {
+            "title": "How AI is Revolutionizing SEO in 2025",
+            "slug": "ai-revolutionizing-seo-2025",
+            "excerpt": "Artificial intelligence is transforming search engine optimization. Learn how to leverage AI tools to boost your rankings and outperform competitors.",
+            "content": """Search engine optimization has entered a new era with AI at its core. Here's how to stay ahead.
+
+**The AI SEO Revolution**
+
+Google's algorithms are now primarily AI-driven, understanding context and intent better than ever. This means traditional keyword stuffing is dead, and quality content reigns supreme.
+
+**Key AI SEO Strategies:**
+
+1. **Content Optimization with AI**
+Use AI tools to analyze top-ranking content and identify gaps in your strategy.
+
+2. **Predictive Analytics**
+AI can forecast trending topics before they peak, giving you a first-mover advantage.
+
+3. **Voice Search Optimization**
+With 50% of searches being voice-based, conversational content is essential.
+
+4. **Automated Technical SEO**
+AI crawlers can identify and fix technical issues in real-time.
+
+5. **Personalized User Experiences**
+AI-driven personalization improves engagement metrics that search engines love.
+
+**Tools We Recommend:**
+- Surfer SEO for content optimization
+- Clearscope for semantic analysis
+- MarketMuse for content planning
+
+At DioCreations, we combine AI tools with human expertise to deliver SEO results that matter. Contact us for a free SEO audit!""",
+            "featured_image": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80",
+            "category": "SEO",
+            "tags": ["seo", "ai", "marketing", "search"],
+            "author": "DioCreations Team",
+            "is_published": True
+        },
+        {
+            "title": "The Ultimate Guide to E-commerce Success",
+            "slug": "ultimate-guide-ecommerce-success",
+            "excerpt": "Everything you need to know to build and scale a successful e-commerce business in today's competitive market.",
+            "content": """Building a successful e-commerce business requires more than just a good product. Here's our comprehensive guide.
+
+**1. Choose the Right Platform**
+
+Your platform choice affects everything from performance to scalability:
+- Shopify: Best for beginners
+- WooCommerce: Best for WordPress users
+- Custom Solutions: Best for unique requirements
+
+**2. Optimize for Mobile**
+
+Over 70% of e-commerce traffic comes from mobile devices. Ensure:
+- Fast loading times (under 3 seconds)
+- Easy navigation with thumb-friendly buttons
+- Simplified checkout process
+
+**3. Build Trust**
+
+Essential trust signals include:
+- SSL certificates
+- Customer reviews
+- Clear return policies
+- Multiple payment options
+
+**4. SEO for E-commerce**
+
+Product pages need:
+- Unique, detailed descriptions
+- High-quality images with alt text
+- Schema markup for rich snippets
+
+**5. Marketing Strategies**
+
+Effective channels:
+- Email marketing (highest ROI)
+- Social media advertising
+- Influencer partnerships
+- Google Shopping ads
+
+**6. Analytics and Optimization**
+
+Track key metrics:
+- Conversion rate
+- Average order value
+- Customer acquisition cost
+- Lifetime value
+
+Ready to launch your e-commerce store? DioCreations can help you build a scalable, conversion-optimized platform.""",
+            "featured_image": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80",
+            "category": "E-commerce",
+            "tags": ["ecommerce", "business", "online store", "sales"],
+            "author": "DioCreations Team",
+            "is_published": True
+        },
+        {
+            "title": "Why Your Business Needs a Mobile App in 2025",
+            "slug": "business-needs-mobile-app-2025",
+            "excerpt": "Mobile apps are no longer optional for businesses. Discover why having a dedicated app can transform your customer engagement and revenue.",
+            "content": """In 2025, mobile apps have become essential for businesses of all sizes. Here's why you need one.
+
+**The Mobile-First World**
+
+Statistics show:
+- Average person spends 4+ hours daily on mobile apps
+- Mobile commerce accounts for 73% of total e-commerce sales
+- Push notifications have 50% higher open rates than email
+
+**Benefits of a Mobile App:**
+
+1. **Direct Customer Access**
+Unlike websites, apps live on your customers' phones, providing instant access to your brand.
+
+2. **Enhanced User Experience**
+Apps are faster, more responsive, and can work offline.
+
+3. **Push Notifications**
+Reach customers directly with personalized messages and offers.
+
+4. **Increased Loyalty**
+App users are 3x more likely to make repeat purchases.
+
+5. **Competitive Advantage**
+Many competitors still don't have apps, giving you an edge.
+
+**Types of Apps to Consider:**
+
+- **E-commerce Apps**: Direct sales channel
+- **Service Apps**: Booking and appointments
+- **Loyalty Apps**: Rewards programs
+- **Content Apps**: News and updates
+
+**Development Options:**
+
+1. Native Apps (iOS/Android)
+2. Cross-Platform (React Native, Flutter)
+3. Progressive Web Apps (PWAs)
+
+DioCreations specializes in mobile app development. Let's discuss your app idea!""",
+            "featured_image": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&q=80",
+            "category": "Mobile Development",
+            "tags": ["mobile", "app development", "business", "technology"],
+            "author": "DioCreations Team",
+            "is_published": True
+        }
+    ]
+    
+    for post in blog_posts:
+        existing = await db.blog.find_one({"slug": post["slug"]})
+        if not existing:
+            post["post_id"] = f"blog_{uuid.uuid4().hex[:12]}"
+            post["published_at"] = datetime.now(timezone.utc).isoformat()
+            post["created_at"] = datetime.now(timezone.utc).isoformat()
+            await db.blog.insert_one(post)
+    
     # Seed default settings
     existing_settings = await db.settings.find_one({"settings_id": "site_settings"})
     if not existing_settings:
