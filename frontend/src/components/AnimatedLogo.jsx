@@ -124,7 +124,7 @@ S6.03,17.39,7.3,16.11z"
           </g>
         </svg>
       </div>
-      <span className="font-heading font-bold text-xl text-foreground">
+      <span className={`font-heading font-bold text-xl ${textColor}`}>
         DioCreations
       </span>
     </div>
