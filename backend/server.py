@@ -1199,7 +1199,35 @@ async def chat_with_dio(chat_message: ChatMessage):
             upsert=True
         )
         
-        return ChatResponse(response=response, session_id=session_id)
+        # Parse lead info and portfolio request from response
+        lead_info = parse_lead_info(response)
+        show_portfolio = parse_portfolio_request(response)
+        cleaned_response = clean_response(response)
+        
+        # Save lead info if found
+        if lead_info:
+            # Update session lead info
+            chat_data["lead_info"].update(lead_info)
+            
+            # Save to database
+            existing_lead = await db.leads.find_one({"session_id": session_id})
+            if existing_lead:
+                await db.leads.update_one(
+                    {"session_id": session_id},
+                    {"$set": {**lead_info, "updated_at": datetime.now(timezone.utc).isoformat()}}
+                )
+            else:
+                lead_obj = LeadInfo(session_id=session_id, **lead_info)
+                lead_doc = lead_obj.model_dump()
+                lead_doc["created_at"] = lead_doc["created_at"].isoformat()
+                await db.leads.insert_one(lead_doc)
+        
+        return {
+            "response": cleaned_response,
+            "session_id": session_id,
+            "lead_info": chat_data.get("lead_info") if chat_data.get("lead_info") else None,
+            "show_portfolio": show_portfolio
+        }
     except Exception as e:
         logger.error(f"Chat error: {e}")
         raise HTTPException(status_code=500, detail="Failed to get response from Dio")
@@ -1209,14 +1237,19 @@ async def get_chat_history(session_id: str):
     """Get chat history for a session"""
     # Check memory first
     if session_id in chat_instances:
-        return {"history": chat_instances[session_id]["history"]}
+        return {
+            "history": chat_instances[session_id]["history"],
+            "lead_info": chat_instances[session_id].get("lead_info", {})
+        }
     
     # Then check database
     session = await db.chat_sessions.find_one({"session_id": session_id}, {"_id": 0})
-    if session:
-        return {"history": session.get("history", [])}
+    lead = await db.leads.find_one({"session_id": session_id}, {"_id": 0})
     
-    return {"history": []}
+    return {
+        "history": session.get("history", []) if session else [],
+        "lead_info": lead if lead else {}
+    }
 
 @api_router.delete("/chat/{session_id}")
 async def clear_chat_session(session_id: str):
@@ -1225,6 +1258,33 @@ async def clear_chat_session(session_id: str):
         del chat_instances[session_id]
     await db.chat_sessions.delete_one({"session_id": session_id})
     return {"message": "Chat session cleared"}
+
+# ==================== LEADS ROUTES ====================
+
+@api_router.get("/leads")
+async def get_leads(user: dict = Depends(get_current_user)):
+    """Get all leads from chatbot"""
+    leads = await db.leads.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return leads
+
+@api_router.put("/leads/{lead_id}")
+async def update_lead(lead_id: str, update: dict, user: dict = Depends(get_current_user)):
+    """Update lead status or notes"""
+    update.pop("_id", None)
+    update.pop("lead_id", None)
+    update["updated_at"] = datetime.now(timezone.utc).isoformat()
+    result = await db.leads.update_one({"lead_id": lead_id}, {"$set": update})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    return await db.leads.find_one({"lead_id": lead_id}, {"_id": 0})
+
+@api_router.delete("/leads/{lead_id}")
+async def delete_lead(lead_id: str, user: dict = Depends(get_current_user)):
+    """Delete a lead"""
+    result = await db.leads.delete_one({"lead_id": lead_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    return {"message": "Lead deleted"}
 
 # ==================== ROOT ====================
 
