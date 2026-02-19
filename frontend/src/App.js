@@ -30,6 +30,11 @@ import AdminSettings from "./pages/admin/AdminSettings";
 const queryClient = new QueryClient();
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
+// Set document title (override any external scripts)
+const setPageTitle = () => {
+  document.title = "DIOCREATIONS | Digital Excellence for Modern Business";
+};
+
 // Auth Context
 export const AuthContext = createContext(null);
 
