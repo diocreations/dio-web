@@ -125,7 +125,7 @@ S6.03,17.39,7.3,16.11z"
         </svg>
       </div>
       <span className={`font-bold text-xl ${textColor}`} style={{ fontFamily: "'Exo 2', sans-serif" }}>
-        DioCreations
+        DIOCREATIONS
       </span>
     </div>
   );
