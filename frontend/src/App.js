@@ -263,6 +263,15 @@ const AppRouter = () => {
 };
 
 function App() {
+  // Set title on mount and with interval to override external scripts
+  useEffect(() => {
+    setPageTitle();
+    const interval = setInterval(setPageTitle, 1000);
+    // Stop after 5 seconds
+    setTimeout(() => clearInterval(interval), 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
