@@ -298,6 +298,13 @@ class SiteSettings(BaseModel):
 
 # ==================== HELPERS ====================
 
+async def get_stripe_api_key() -> str:
+    """Get Stripe API key from database settings, fallback to env"""
+    settings = await db.settings.find_one({"settings_id": "site_settings"})
+    if settings and settings.get("stripe_api_key"):
+        return settings["stripe_api_key"]
+    return STRIPE_API_KEY
+
 def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
 
