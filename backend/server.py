@@ -134,14 +134,17 @@ class Product(BaseModel):
     short_description: str
     description: str
     icon: str
-    price: Optional[str] = None
-    price_unit: Optional[str] = None
+    price: Optional[float] = None  # Base price in EUR
+    price_unit: Optional[str] = None  # e.g., "/month", "/year", "one-time"
+    pricing_type: str = "one_time"  # "one_time" or "subscription"
+    billing_period: Optional[str] = None  # "monthly", "yearly" for subscriptions
     features: List[str] = []
     is_popular: bool = False
     cta_text: str = "Get Started"
     cta_link: Optional[str] = None
     order: int = 0
     is_active: bool = True
+    is_purchasable: bool = True
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ProductCreate(BaseModel):
@@ -150,14 +153,17 @@ class ProductCreate(BaseModel):
     short_description: str
     description: str
     icon: str
-    price: Optional[str] = None
+    price: Optional[float] = None
     price_unit: Optional[str] = None
+    pricing_type: str = "one_time"
+    billing_period: Optional[str] = None
     features: List[str] = []
     is_popular: bool = False
     cta_text: str = "Get Started"
     cta_link: Optional[str] = None
     order: int = 0
     is_active: bool = True
+    is_purchasable: bool = True
 
 class PortfolioItem(BaseModel):
     model_config = ConfigDict(extra="ignore")
