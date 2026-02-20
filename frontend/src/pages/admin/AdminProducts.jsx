@@ -136,10 +136,26 @@ const AdminProducts = () => {
                 <div className="space-y-2"><Label htmlFor="short_description">Short Description *</Label><Input id="short_description" name="short_description" value={formData.short_description} onChange={handleChange} required /></div>
                 <div className="space-y-2"><Label htmlFor="description">Full Description *</Label><Textarea id="description" name="description" value={formData.description} onChange={handleChange} rows={3} required /></div>
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2"><Label htmlFor="price">Price</Label><Input id="price" name="price" value={formData.price} onChange={handleChange} placeholder="9.99" /></div>
-                  <div className="space-y-2"><Label htmlFor="price_unit">Price Unit</Label><Input id="price_unit" name="price_unit" value={formData.price_unit} onChange={handleChange} /></div>
+                  <div className="space-y-2"><Label htmlFor="price">Price (EUR)</Label><Input id="price" name="price" type="number" step="0.01" value={formData.price} onChange={handleChange} placeholder="9.99" /></div>
+                  <div className="space-y-2"><Label htmlFor="price_unit">Price Unit</Label><Input id="price_unit" name="price_unit" value={formData.price_unit} onChange={handleChange} placeholder="month, year, one-time" /></div>
+                  <div className="space-y-2"><Label htmlFor="pricing_type">Pricing Type</Label>
+                    <select id="pricing_type" name="pricing_type" value={formData.pricing_type} onChange={handleChange} className="w-full h-10 rounded-md border px-3">
+                      <option value="one_time">One-time</option>
+                      <option value="subscription">Subscription</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  {formData.pricing_type === "subscription" && (
+                    <div className="space-y-2"><Label htmlFor="billing_period">Billing Period</Label>
+                      <select id="billing_period" name="billing_period" value={formData.billing_period} onChange={handleChange} className="w-full h-10 rounded-md border px-3">
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                      </select>
+                    </div>
+                  )}
                   <div className="space-y-2"><Label htmlFor="icon">Icon</Label>
-                    <select id="icon" name="icon" value={formData.icon} onChange={handleChange} className="w-full h-10 rounded-md border px-3">{iconOptions.map((i) => (<option key={i} value={i}>{i}</option>))}</select>
+                    <select id="icon" name="icon" value={formData.icon} onChange={handleChange} className="w-full h-10 rounded-md border px-3">{iconOptions.map((i) => (<option key={i.value} value={i.value}>{i.label}</option>))}</select>
                   </div>
                 </div>
                 <div className="space-y-2"><Label htmlFor="features">Features (one per line)</Label><Textarea id="features" name="features" value={formData.features} onChange={handleChange} rows={4} /></div>
