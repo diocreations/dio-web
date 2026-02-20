@@ -83,12 +83,35 @@ const AdminProducts = () => {
     setEditingProduct(null);
     setFormData({
       title: "", slug: "", short_description: "", description: "", icon: "Globe",
-      price: "", price_unit: "per month", features: "", is_popular: false,
-      cta_text: "Get Started", cta_link: "", order: 0, is_active: true,
+      price: "", price_unit: "month", pricing_type: "one_time", billing_period: "",
+      features: "", is_popular: false, cta_text: "Get Started", cta_link: "", 
+      order: 0, is_active: true, is_purchasable: true,
     });
   };
 
-  const iconOptions = ["Globe", "Server", "Shield", "Layout", "Cloud", "CloudCog", "Database", "Lock"];
+  const iconOptions = [
+    // General
+    { value: "Globe", label: "🌐 Globe - Domain/Web" },
+    { value: "Server", label: "🖥️ Server - Hosting" },
+    { value: "Shield", label: "🛡️ Shield - SSL/Security" },
+    { value: "Cloud", label: "☁️ Cloud - Cloud Services" },
+    { value: "CloudCog", label: "⚙️ CloudCog - Cloud Config" },
+    { value: "Database", label: "🗄️ Database" },
+    { value: "Lock", label: "🔒 Lock - Security" },
+    // Design & Development
+    { value: "Monitor", label: "🖥️ Monitor - Web Design" },
+    { value: "Smartphone", label: "📱 Smartphone - Mobile App" },
+    { value: "Palette", label: "🎨 Palette - Design" },
+    { value: "Code", label: "💻 Code - Development" },
+    { value: "Layout", label: "📐 Layout - UI/UX" },
+    // E-commerce & Business
+    { value: "ShoppingBag", label: "🛍️ ShoppingBag - E-commerce" },
+    { value: "BarChart", label: "📊 BarChart - Analytics" },
+    { value: "Mail", label: "📧 Mail - Email" },
+    { value: "Headphones", label: "🎧 Headphones - Support" },
+    { value: "Zap", label: "⚡ Zap - Performance" },
+    { value: "Settings", label: "⚙️ Settings - Config" },
+  ];
 
   return (
     <AdminLayout>
