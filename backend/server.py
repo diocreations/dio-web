@@ -1458,6 +1458,29 @@ class LeadInfo(BaseModel):
     notes: str = ""
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+# Payment Models
+class PaymentTransaction(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    transaction_id: str = Field(default_factory=lambda: f"txn_{uuid.uuid4().hex[:12]}")
+    session_id: str
+    product_id: str
+    product_title: str
+    amount: float
+    currency: str
+    payment_status: str = "pending"  # pending, paid, failed, expired
+    customer_email: Optional[str] = None
+    customer_name: Optional[str] = None
+    metadata: Dict[str, str] = {}
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
+
+class CheckoutRequest(BaseModel):
+    product_id: str
+    origin_url: str
+    customer_email: Optional[str] = None
+    customer_name: Optional[str] = None
+    currency: str = "EUR"
+
 def parse_lead_info(response_text: str) -> Optional[dict]:
     """Extract lead info from response"""
     import re
