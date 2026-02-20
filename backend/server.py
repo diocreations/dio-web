@@ -1701,10 +1701,11 @@ async def create_checkout_session(request: Request, checkout_req: CheckoutReques
     success_url = f"{checkout_req.origin_url}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = f"{checkout_req.origin_url}/products"
     
-    # Initialize Stripe
+    # Initialize Stripe with key from settings or env
     host_url = str(request.base_url)
     webhook_url = f"{host_url}api/webhook/stripe"
-    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+    stripe_api_key = await get_stripe_api_key()
+    stripe_checkout = StripeCheckout(api_key=stripe_api_key, webhook_url=webhook_url)
     
     # Create checkout session
     metadata = {
