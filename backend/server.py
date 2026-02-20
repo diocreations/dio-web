@@ -1784,7 +1784,8 @@ async def stripe_webhook(request: Request):
         
         host_url = str(request.base_url)
         webhook_url = f"{host_url}api/webhook/stripe"
-        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+        stripe_api_key = await get_stripe_api_key()
+        stripe_checkout = StripeCheckout(api_key=stripe_api_key, webhook_url=webhook_url)
         
         webhook_response = await stripe_checkout.handle_webhook(body, signature)
         
