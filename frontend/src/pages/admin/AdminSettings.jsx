@@ -155,6 +155,63 @@ const AdminSettings = () => {
           </CardContent>
         </Card>
 
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Payment Settings (Stripe)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg mb-4">
+              <p className="text-sm text-amber-800">
+                <strong>Important:</strong> Enter your Stripe Secret Key to enable real payments. 
+                Get your key from <a href="https://dashboard.stripe.com/apikeys" target="_blank" rel="noopener noreferrer" className="underline">Stripe Dashboard</a>.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="stripe_api_key">Stripe Secret Key</Label>
+                <Input 
+                  id="stripe_api_key" 
+                  name="stripe_api_key" 
+                  type="password"
+                  value={settings?.stripe_api_key || ""} 
+                  onChange={handleChange} 
+                  placeholder="sk_live_..." 
+                  data-testid="stripe-api-key"
+                />
+                <p className="text-xs text-muted-foreground">Starts with sk_live_ for live mode or sk_test_ for sandbox</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="stripe_mode">Payment Mode</Label>
+                <select 
+                  id="stripe_mode" 
+                  name="stripe_mode" 
+                  value={settings?.stripe_mode || "test"} 
+                  onChange={handleChange}
+                  className="w-full h-10 rounded-md border px-3"
+                  data-testid="stripe-mode"
+                >
+                  <option value="test">🧪 Test/Sandbox Mode</option>
+                  <option value="live">🟢 Live Mode</option>
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  {settings?.stripe_mode === "live" 
+                    ? "Real payments are enabled" 
+                    : "Using test mode - no real charges"}
+                </p>
+              </div>
+            </div>
+            {settings?.stripe_api_key && (
+              <div className={`p-3 rounded-lg ${settings?.stripe_mode === "live" ? "bg-green-50 border border-green-200" : "bg-blue-50 border border-blue-200"}`}>
+                <p className={`text-sm ${settings?.stripe_mode === "live" ? "text-green-700" : "text-blue-700"}`}>
+                  {settings?.stripe_mode === "live" 
+                    ? "✅ Live payments are configured. Real charges will be processed."
+                    : "ℹ️ Sandbox mode active. Use test card 4242 4242 4242 4242 for testing."}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <div className="flex justify-end">
           <Button type="submit" disabled={saving} className="rounded-full">
             <Save className="mr-2" size={18} />
