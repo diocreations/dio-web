@@ -292,6 +292,9 @@ class SiteSettings(BaseModel):
     social_instagram: Optional[str] = None
     footer_text: str = ""
     google_analytics_id: Optional[str] = None
+    # Payment Settings
+    stripe_api_key: Optional[str] = None
+    stripe_mode: str = "test"  # "test" or "live"
 
 # ==================== HELPERS ====================
 
