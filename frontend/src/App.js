@@ -16,6 +16,7 @@ import BlogPostPage from "./pages/BlogPostPage";
 import ContactPage from "./pages/ContactPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
+import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
 
 // Admin Pages
 import AdminLogin from "./pages/admin/AdminLogin";
