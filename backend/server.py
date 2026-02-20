@@ -7,7 +7,7 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Dict
 import uuid
 from datetime import datetime, timezone, timedelta
 import hashlib
@@ -16,6 +16,7 @@ import asyncio
 import resend
 import base64
 from emergentintegrations.llm.chat import LlmChat, UserMessage
+from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -32,6 +33,22 @@ ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', '')
 
 # LLM setup for Dio chatbot
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
+
+# Stripe setup
+STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY', '')
+
+# Currency exchange rates (base: EUR)
+CURRENCY_RATES = {
+    "EUR": 1.0,
+    "USD": 1.08,
+    "GBP": 0.86,
+    "INR": 90.50,
+    "AED": 3.97,
+    "AUD": 1.65,
+    "CAD": 1.47,
+    "SGD": 1.45,
+    "CHF": 0.94
+}
 
 # Store chat instances in memory (per session)
 chat_instances = {}
