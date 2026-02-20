@@ -166,6 +166,7 @@ const AdminProducts = () => {
                 <div className="flex gap-6">
                   <div className="flex items-center gap-2"><Switch id="is_popular" checked={formData.is_popular} onCheckedChange={(c) => setFormData((p) => ({ ...p, is_popular: c }))} /><Label htmlFor="is_popular">Popular</Label></div>
                   <div className="flex items-center gap-2"><Switch id="is_active" checked={formData.is_active} onCheckedChange={(c) => setFormData((p) => ({ ...p, is_active: c }))} /><Label htmlFor="is_active">Active</Label></div>
+                  <div className="flex items-center gap-2"><Switch id="is_purchasable" checked={formData.is_purchasable} onCheckedChange={(c) => setFormData((p) => ({ ...p, is_purchasable: c }))} /><Label htmlFor="is_purchasable">Purchasable Online</Label></div>
                 </div>
                 <div className="flex justify-end gap-2 pt-4">
                   <Button type="button" variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
