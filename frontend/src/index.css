@@ -141,13 +141,13 @@
 .stagger-4 { animation-delay: 0.4s; }
 .stagger-5 { animation-delay: 0.5s; }
 
-/* Gradient backgrounds */
+/* Gradient backgrounds - uses CSS variable for dynamic accent */
 .gradient-violet {
-    background: linear-gradient(135deg, hsl(265, 80%, 50%) 0%, hsl(280, 60%, 60%) 100%);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
 }
 
 .gradient-violet-subtle {
-    background: radial-gradient(circle at 50% 50%, rgba(124, 58, 237, 0.1), transparent 70%);
+    background: radial-gradient(circle at 50% 50%, hsl(var(--primary) / 0.1), transparent 70%);
 }
 
 /* Glass effect */
