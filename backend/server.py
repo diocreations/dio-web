@@ -386,6 +386,100 @@ class DomainOrder(BaseModel):
     stripe_session_id: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+# ==================== HOMEPAGE CONTENT MODELS ====================
+
+class HeroVariant(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    variant_id: str = Field(default_factory=lambda: f"hero_{uuid.uuid4().hex[:8]}")
+    badge_text: str = "AI-Powered Website Builder"
+    title_line1: str = "Build Your Professional"
+    title_line2: str = "Website in Minutes"
+    subtitle: str = "Choose your category, describe your business, and let our AI create a stunning, SEO-optimized website ready for launch."
+    primary_cta_text: str = "Start Building Free"
+    primary_cta_link: str = "/builder"
+    secondary_cta_text: str = "View Our Services"
+    secondary_cta_link: str = "/services"
+    background_gradient_from: str = "violet-900"
+    background_gradient_via: str = "violet-800"
+    background_gradient_to: str = "slate-900"
+    accent_color: str = "violet"  # violet, blue, pink, teal, orange
+    is_active: bool = True
+    order: int = 0
+
+class ColorScheme(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    scheme_id: str = Field(default_factory=lambda: f"color_{uuid.uuid4().hex[:8]}")
+    name: str
+    primary: str  # e.g., "violet-600"
+    secondary: str  # e.g., "violet-800"
+    accent: str  # e.g., "pink-500"
+    gradient_from: str
+    gradient_via: str
+    gradient_to: str
+    is_active: bool = True
+
+class HomepageSettings(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    settings_id: str = "homepage_settings"
+    # Hero settings
+    enable_hero_rotation: bool = True
+    hero_rotation_interval: int = 10  # seconds (for carousel-style)
+    hero_rotation_type: str = "refresh"  # "refresh" = change on page load, "auto" = carousel
+    # Color settings
+    enable_color_rotation: bool = True
+    color_rotation_type: str = "refresh"  # "refresh" = change on page load
+    # Featured sections
+    show_featured_blog: bool = True
+    featured_blog_count: int = 3
+    show_featured_products: bool = True
+    featured_products_count: int = 3
+    # Section visibility
+    show_services: bool = True
+    show_products: bool = True
+    show_portfolio: bool = True
+    show_testimonials: bool = True
+    show_cta: bool = True
+    # Stats section
+    show_stats: bool = True
+    stats: List[Dict] = [
+        {"label": "Projects Completed", "value": "500+"},
+        {"label": "Happy Clients", "value": "200+"},
+        {"label": "Years Experience", "value": "10+"},
+        {"label": "Team Members", "value": "25+"}
+    ]
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class FeaturedItem(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    item_type: str  # "blog" or "product"
+    item_id: str
+    order: int = 0
+
+# GeoIP country to currency mapping
+COUNTRY_TO_CURRENCY = {
+    # Europe
+    "AT": "EUR", "BE": "EUR", "CY": "EUR", "EE": "EUR", "FI": "EUR",
+    "FR": "EUR", "DE": "EUR", "GR": "EUR", "IE": "EUR", "IT": "EUR",
+    "LV": "EUR", "LT": "EUR", "LU": "EUR", "MT": "EUR", "NL": "EUR",
+    "PT": "EUR", "SK": "EUR", "SI": "EUR", "ES": "EUR",
+    # India
+    "IN": "INR",
+    # UK
+    "GB": "GBP",
+    # USA
+    "US": "USD",
+    # UAE
+    "AE": "AED",
+    # Australia
+    "AU": "AUD",
+    # Canada
+    "CA": "CAD",
+    # Singapore
+    "SG": "SGD",
+    # Switzerland
+    "CH": "CHF"
+}
+
 # ==================== HELPERS ====================
 
 async def get_stripe_api_key() -> str:
