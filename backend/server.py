@@ -639,21 +639,29 @@ async def exchange_session(request: Request, response: Response):
         
         auth_data = auth_response.json()
     
-    user = await db.users.find_one({"email": auth_data["email"]}, {"_id": 0})
+    # Check if user has admin access
+    user_email = auth_data["email"]
+    has_access = await check_admin_access(user_email)
+    user_role = await get_admin_role(user_email)
+    
+    if not has_access:
+        raise HTTPException(status_code=403, detail="Access denied. You don't have admin privileges. Contact the super admin to get access.")
+    
+    user = await db.users.find_one({"email": user_email}, {"_id": 0})
     
     if user:
         await db.users.update_one(
-            {"email": auth_data["email"]},
-            {"$set": {"name": auth_data["name"], "picture": auth_data.get("picture")}}
+            {"email": user_email},
+            {"$set": {"name": auth_data["name"], "picture": auth_data.get("picture"), "role": user_role}}
         )
         user_id = user["user_id"]
     else:
         user_id = f"user_{uuid.uuid4().hex[:12]}"
         user_doc = {
             "user_id": user_id,
-            "email": auth_data["email"],
+            "email": user_email,
             "name": auth_data["name"],
-            "role": "admin",
+            "role": user_role,
             "picture": auth_data.get("picture"),
             "created_at": datetime.now(timezone.utc).isoformat()
         }
@@ -680,19 +688,22 @@ async def exchange_session(request: Request, response: Response):
     
     return {
         "user_id": user_id,
-        "email": auth_data["email"],
+        "email": user_email,
         "name": auth_data["name"],
+        "role": user_role,
         "picture": auth_data.get("picture"),
         "session_token": session_token
     }
 
 @api_router.get("/auth/me")
 async def get_me(user: dict = Depends(get_current_user)):
+    # Get the actual role (super_admin check)
+    user_role = await get_admin_role(user["email"])
     return {
         "user_id": user["user_id"],
         "email": user["email"],
         "name": user["name"],
-        "role": user.get("role", "admin"),
+        "role": user_role or user.get("role", "admin"),
         "picture": user.get("picture")
     }
 
