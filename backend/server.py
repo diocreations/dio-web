@@ -2278,9 +2278,10 @@ async def chat_with_dio(chat_message: ChatMessage):
             upsert=True
         )
         
-        # Parse lead info and portfolio request from response
+        # Parse lead info, portfolio request, and quick replies from response
         lead_info = parse_lead_info(response)
         show_portfolio = parse_portfolio_request(response)
+        quick_replies = parse_quick_replies(response)
         cleaned_response = clean_response(response)
         
         # Save lead info if found
@@ -2305,7 +2306,8 @@ async def chat_with_dio(chat_message: ChatMessage):
             "response": cleaned_response,
             "session_id": session_id,
             "lead_info": chat_data.get("lead_info") if chat_data.get("lead_info") else None,
-            "show_portfolio": show_portfolio
+            "show_portfolio": show_portfolio,
+            "quick_replies": quick_replies
         }
     except Exception as e:
         logger.error(f"Chat error: {e}")
