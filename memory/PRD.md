@@ -21,18 +21,20 @@ Make the existing homepage (diocreations.eu) fully dynamic and editable from a b
 
 ## What's Been Implemented
 - Dynamic Homepage CMS with all sections
-- Hero content/image rotation + accent color rotation
+- Hero content/image rotation + accent color rotation (buttons, hover states, badges all match)
 - Geo-based currency (USD/EUR/INR)
 - Admin drag-and-drop section ordering
 - SEO basics (meta tags, sitemap, robots.txt)
 - Animated butterfly favicon, chatbot mascot, email logo
 - Google Analytics integration via admin
 - Transactional emails via Resend
-- Chatbot "Dio" with conversational flow and lead capture
-- **Editable About Page** - Full admin editor with 6 tabs (Hero, Stats, Values, Timeline, Why Us, CTA)
-- **Dynamic button colors** - All homepage buttons/elements change with accent color via CSS custom properties
-- **"Chat with Dio" genie label** - Spring-animated speech bubble near the chat toggle
-- **Static message butterflies** - Only header butterfly animates; message avatars are static
+- Editable About Page with 6-tab admin editor
+- **Dio Chatbot — Smart AI with auto-greeting, knowledge base, and admin management**
+  - Auto-opens on first visit with random greeting from admin-managed pool
+  - Knowledgeable AI that can discuss any topic + DioCreations specialization
+  - Admin Chatbot Manager at `/admin/chatbot` with 3 tabs: Greetings, Knowledge Base, Personality
+  - Knowledge base entries injected into Dio's context dynamically — no code deployment needed
+  - "Chat with Dio" genie-effect label, static message avatars, animated header logo
 
 ## Key API Endpoints
 - `GET /api/homepage/content` - Public homepage data
@@ -40,6 +42,10 @@ Make the existing homepage (diocreations.eu) fully dynamic and editable from a b
 - `GET /api/about/content` - Public about page data
 - `GET /api/about/settings` - Admin about page data (auth required)
 - `PUT /api/about/settings` - Update about page (auth required)
+- `GET /api/chatbot/greeting` - Random greeting for auto-open
+- `GET /api/chatbot/settings` - Admin chatbot settings (auth required)
+- `PUT /api/chatbot/settings` - Update chatbot greetings, knowledge base, personality (auth required)
+- `POST /api/chat` - Send message to Dio (uses dynamic system message from knowledge base)
 - `GET /sitemap.xml` - Dynamic sitemap
 - `POST /webhook/stripe` - Stripe webhook + email
 
@@ -54,4 +60,5 @@ Make the existing homepage (diocreations.eu) fully dynamic and editable from a b
 ## Test Reports
 - /app/test_reports/iteration_3.json
 - /app/test_reports/iteration_4.json
-- /app/test_reports/iteration_5.json (latest - all passed)
+- /app/test_reports/iteration_5.json
+- /app/test_reports/iteration_6.json (latest - all passed)
