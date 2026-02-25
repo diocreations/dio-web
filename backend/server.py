@@ -1467,6 +1467,46 @@ async def get_visitor_currency(request: Request):
         "all_currencies": list(CURRENCY_RATES.keys())
     }
 
+# ==================== ABOUT PAGE ROUTES ====================
+
+@api_router.get("/about/content")
+async def get_about_content():
+    """Get about page content for public display"""
+    content = await db.about_page.find_one({"content_id": "about_page"}, {"_id": 0})
+    if not content:
+        # Return default content
+        default = AboutPageContent()
+        doc = default.model_dump()
+        doc["updated_at"] = doc["updated_at"].isoformat()
+        return doc
+    return content
+
+@api_router.get("/about/settings")
+async def get_about_settings(user: dict = Depends(get_current_user)):
+    """Get about page settings for admin"""
+    content = await db.about_page.find_one({"content_id": "about_page"}, {"_id": 0})
+    if not content:
+        default = AboutPageContent()
+        doc = default.model_dump()
+        doc["updated_at"] = doc["updated_at"].isoformat()
+        await db.about_page.insert_one(doc)
+        return doc
+    return content
+
+@api_router.put("/about/settings")
+async def update_about_settings(update: dict, user: dict = Depends(get_current_user)):
+    """Update about page settings"""
+    update.pop("_id", None)
+    update["content_id"] = "about_page"
+    update["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.about_page.update_one(
+        {"content_id": "about_page"},
+        {"$set": update},
+        upsert=True
+    )
+    return await db.about_page.find_one({"content_id": "about_page"}, {"_id": 0})
+
 # ==================== SEED DATA ====================
 
 @api_router.post("/seed")
