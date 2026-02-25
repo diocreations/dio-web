@@ -212,6 +212,52 @@ const AdminSettings = () => {
           </CardContent>
         </Card>
 
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">ResellerClub Settings</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+              <p className="text-sm text-blue-800">
+                <strong>ResellerClub Integration:</strong> Enter your API credentials to enable domain registration and hosting services. 
+                Get your credentials from <a href="https://manage.resellerclub.com" target="_blank" rel="noopener noreferrer" className="underline">ResellerClub Panel</a> → Settings → API.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="resellerclub_reseller_id">Reseller ID (Auth-Userid)</Label>
+                <Input 
+                  id="resellerclub_reseller_id" 
+                  name="resellerclub_reseller_id" 
+                  value={settings?.resellerclub_reseller_id || ""} 
+                  onChange={handleChange} 
+                  placeholder="Your Reseller ID" 
+                  data-testid="resellerclub-reseller-id"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="resellerclub_api_key">API Key</Label>
+                <Input 
+                  id="resellerclub_api_key" 
+                  name="resellerclub_api_key" 
+                  type="password"
+                  value={settings?.resellerclub_api_key || ""} 
+                  onChange={handleChange} 
+                  placeholder="Your API Key" 
+                  data-testid="resellerclub-api-key"
+                />
+              </div>
+            </div>
+            {settings?.resellerclub_api_key && settings?.resellerclub_reseller_id && (
+              <div className="p-3 rounded-lg bg-green-50 border border-green-200">
+                <p className="text-sm text-green-700">
+                  ✅ ResellerClub credentials configured. Domain and hosting services are enabled.
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <div className="flex justify-end">
           <Button type="submit" disabled={saving} className="rounded-full">
             <Save className="mr-2" size={18} />
