@@ -7,52 +7,51 @@ import { Link } from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-// Animated Dio Mascot SVG
-const DioMascot = ({ size = 40, animate = true }) => (
-  <svg viewBox="0 0 100 100" className={`w-${size/4} h-${size/4}`} style={{ width: size, height: size }}>
-    <defs>
-      <linearGradient id="dioGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#7c3aed" />
-        <stop offset="100%" stopColor="#a78bfa" />
-      </linearGradient>
-      <filter id="glow">
-        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-        <feMerge>
-          <feMergeNode in="coloredBlur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-    </defs>
-    {/* Background circle */}
-    <circle cx="50" cy="50" r="45" fill="url(#dioGrad)" />
-    {/* Animated ring */}
-    <circle cx="50" cy="50" r="40" fill="none" stroke="white" strokeWidth="2" opacity="0.3">
-      {animate && <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="8s" repeatCount="indefinite"/>}
-    </circle>
-    {/* Face - Happy robot */}
-    <g filter="url(#glow)">
-      {/* Eyes */}
-      <ellipse cx="35" cy="42" rx="8" ry="10" fill="white" opacity="0.9"/>
-      <ellipse cx="65" cy="42" rx="8" ry="10" fill="white" opacity="0.9"/>
-      <circle cx="35" cy="42" r="4" fill="#1e1b4b">
-        {animate && <animate attributeName="cy" values="42;40;42" dur="2s" repeatCount="indefinite"/>}
-      </circle>
-      <circle cx="65" cy="42" r="4" fill="#1e1b4b">
-        {animate && <animate attributeName="cy" values="42;40;42" dur="2s" repeatCount="indefinite"/>}
-      </circle>
-      {/* Smile */}
-      <path d="M 30 60 Q 50 75 70 60" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round">
-        {animate && <animate attributeName="d" values="M 30 60 Q 50 75 70 60;M 30 58 Q 50 78 70 58;M 30 60 Q 50 75 70 60" dur="3s" repeatCount="indefinite"/>}
-      </path>
-      {/* Cheeks */}
-      <circle cx="22" cy="55" r="6" fill="#f472b6" opacity="0.5"/>
-      <circle cx="78" cy="55" r="6" fill="#f472b6" opacity="0.5"/>
+// Animated Butterfly Logo (Dio Mascot)
+const ButterflyLogo = ({ size = 50, animate = true }) => (
+  <svg
+    viewBox="0 0 20 20"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ width: size, height: size }}
+  >
+    <style>
+      {`
+        .dio-left-wing, .dio-right-wing {
+          transform-origin: 10px 10px;
+        }
+        ${animate ? `
+        .dio-left-wing {
+          animation: dio-flap-left 0.4s ease-in-out infinite alternate;
+        }
+        .dio-right-wing {
+          animation: dio-flap-right 0.4s ease-in-out infinite alternate;
+        }
+        @keyframes dio-flap-left {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(-25deg); }
+        }
+        @keyframes dio-flap-right {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(25deg); }
+        }
+        ` : ''}
+      `}
+    </style>
+    {/* Right Wing */}
+    <g className="dio-right-wing">
+      <path fill="#4D629A" d="M12.7,16.16c-2.36-2.36-2.64-6.14-2.64-6.14s3.98,0.48,6.14,2.64c1.27,1.28,1.52,3.09,0.56,4.06S13.97,17.43,12.7,16.16z"/>
+      <path fill="#2F4977" d="M10.06,10.03c0,0,1.91,2.77,6.57,3.13c-0.25-0.33-0.52-0.63-0.83-0.9L10.06,10.03z"/>
+      <path fill="#00A096" d="M16.26,12.5c-3.34,0-6.2-2.48-6.2-2.48s3.16-2.48,6.2-2.48c1.8,0,3.26,1.11,3.26,2.48S18.07,12.5,16.26,12.5z"/>
+      <path fill="#08877A" d="M10.06,10.03c0,0,3.63,0.39,7.07-2.39c0,0-0.34-0.13-1.51-0.09L10.06,10.03z"/>
+      <path fill="#89BF4A" d="M16.19,7.39c-2.36,2.36-6.14,2.64-6.14,2.64s0.48-3.99,2.64-6.14c1.27-1.27,3.09-1.52,4.05-0.56S17.47,6.12,16.19,7.39z"/>
     </g>
-    {/* Sparkle */}
-    <g opacity="0.8">
-      <path d="M 80 20 L 82 25 L 87 25 L 83 28 L 85 33 L 80 30 L 75 33 L 77 28 L 73 25 L 78 25 Z" fill="white">
-        {animate && <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" repeatCount="indefinite"/>}
-      </path>
+    {/* Left Wing */}
+    <g className="dio-left-wing">
+      <path fill="#8F5398" d="M7.3,16.11c2.36-2.36,2.64-6.14,2.64-6.14s-3.98,0.48-6.14,2.64c-1.27,1.27-1.52,3.09-0.56,4.06S6.03,17.39,7.3,16.11z"/>
+      <path fill="#75387F" d="M9.94,9.98c0,0-1.91,2.77-6.57,3.13c0.25-0.33,0.52-0.63,0.83-0.9L9.94,9.98z"/>
+      <path fill="#E16136" d="M3.74,12.45c3.34,0,6.2-2.48,6.2-2.48S6.78,7.5,3.74,7.5c-1.8,0-3.26,1.11-3.26,2.47S1.93,12.45,3.74,12.45z"/>
+      <path fill="#C34727" d="M9.94,9.98c0,0-3.63,0.39-7.07-2.39c0,0,0.34-0.13,1.51-0.09L9.94,9.98z"/>
+      <path fill="#F3BE33" d="M3.81,7.34c2.36,2.36,6.14,2.64,6.14,2.64S9.46,6,7.3,3.84C6.03,2.57,4.21,2.32,3.25,3.29S2.53,6.07,3.81,7.34z"/>
     </g>
   </svg>
 );
