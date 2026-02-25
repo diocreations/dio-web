@@ -154,18 +154,22 @@ const DioChat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, portfolioItems]);
 
-  // Show welcome message when chat opens for first time
+  // Show welcome message when chat opens manually (not auto-opened) and no messages exist
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      setMessages([
-        {
-          role: "assistant",
-          content: "Hey there! Welcome to DioCreations! I'm Dio, your digital buddy.\n\nBefore we dive in, what should I call you?",
-        },
-      ]);
-      setShowPulse(false);
+    if (isOpen && messages.length === 0 && !hasAutoOpened) {
+      fetch(`${API_URL}/api/chatbot/greeting`)
+        .then((r) => r.json())
+        .then((g) => {
+          const greeting = g.greeting || "Hey! I'm Dio from DioCreations. How can I help you today?";
+          setMessages([{ role: "assistant", content: greeting }]);
+          setShowPulse(false);
+        })
+        .catch(() => {
+          setMessages([{ role: "assistant", content: "Hey! I'm Dio from DioCreations. How can I help you today?" }]);
+          setShowPulse(false);
+        });
     }
-  }, [isOpen, messages.length]);
+  }, [isOpen, messages.length, hasAutoOpened]);
 
   // Fetch portfolio items based on category
   const fetchPortfolio = async (category) => {
