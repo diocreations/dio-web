@@ -2341,6 +2341,21 @@ async def stripe_webhook(request: Request):
                     "updated_at": datetime.now(timezone.utc).isoformat()
                 }}
             )
+            
+            # Send purchase confirmation email on successful payment
+            if webhook_response.payment_status == "paid":
+                transaction = await db.payment_transactions.find_one(
+                    {"session_id": webhook_response.session_id},
+                    {"_id": 0}
+                )
+                if transaction:
+                    await send_purchase_email(
+                        to_email=transaction.get("customer_email", ""),
+                        customer_name=transaction.get("customer_name", ""),
+                        product_name=transaction.get("product_name", "Product"),
+                        amount=str(transaction.get("amount", "0")),
+                        currency=transaction.get("currency_symbol", "€")
+                    )
         
         return {"status": "success", "event_type": webhook_response.event_type}
     except Exception as e:
