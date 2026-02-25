@@ -79,18 +79,65 @@ const BuilderPage = () => {
   // E-commerce specific
   const [products, setProducts] = useState([{ name: "", price: "", description: "" }]);
   
+  // Domain search
+  const [domainSearch, setDomainSearch] = useState("");
+  const [domainResults, setDomainResults] = useState([]);
+  const [domainLoading, setDomainLoading] = useState(false);
+  
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  // Check URL params for pre-selected category
+  useEffect(() => {
+    const categoryParam = searchParams.get("category");
+    const templateParam = searchParams.get("template");
+    
+    if (categoryParam && categoryDefinitions[categoryParam]) {
+      const cat = categoryDefinitions[categoryParam];
+      setSelectedCategory(cat);
+      
+      // Set default pages based on category
+      if (cat.template_type === "portfolio") {
+        setSelectedPages(["home", "portfolio", "about", "contact"]);
+      } else if (cat.template_type === "ecommerce") {
+        setSelectedPages(["home", "products", "about", "contact"]);
+      } else {
+        setSelectedPages(["home", "about", "services", "contact"]);
+      }
+      
+      // Skip to step 2 (business details)
+      setStep(2);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     Promise.all([
       fetch(`${API_URL}/api/builder/categories`).then(r => r.json()),
       fetch(`${API_URL}/api/builder/pricing`).then(r => r.json())
     ]).then(([cats, prices]) => {
-      setCategories(cats);
+      // Update categories - rename Agency to Others
+      const updatedCats = cats.map(c => 
+        c.slug === "agency" ? { ...c, name: "Others", slug: "others" } : c
+      );
+      setCategories(updatedCats);
       setPricing(prices);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
+
+  // Domain search function
+  const searchDomain = async () => {
+    if (!domainSearch.trim()) return;
+    
+    setDomainLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/domains/suggest?keyword=${encodeURIComponent(domainSearch)}`);
+      const data = await response.json();
+      setDomainResults(data.suggestions || []);
+    } catch (error) {
+      toast.error("Failed to search domains");
+    }
+    setDomainLoading(false);
+  };
 
   const availablePages = [
     { id: "home", name: "Home", required: true },
