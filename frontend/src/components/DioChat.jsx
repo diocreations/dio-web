@@ -2,28 +2,57 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, X, Send, Loader2, Sparkles, ExternalLink, User, Mail, Phone, Rocket } from "lucide-react";
+import { X, Send, Loader2, ExternalLink, User, Mail, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-// Animated Logo SVG for chat button
-const AnimatedLogoIcon = () => (
-  <svg viewBox="0 0 40 40" className="w-8 h-8">
+// Animated Dio Mascot SVG
+const DioMascot = ({ size = 40, animate = true }) => (
+  <svg viewBox="0 0 100 100" className={`w-${size/4} h-${size/4}`} style={{ width: size, height: size }}>
     <defs>
-      <linearGradient id="chatGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <linearGradient id="dioGrad" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="#7c3aed" />
         <stop offset="100%" stopColor="#a78bfa" />
       </linearGradient>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
     </defs>
-    <circle cx="20" cy="20" r="18" fill="url(#chatGrad1)" />
-    <g transform="translate(10, 10)">
-      <path d="M10 2 L18 10 L10 18 L2 10 Z" fill="white" opacity="0.9">
-        <animateTransform attributeName="transform" type="rotate" from="0 10 10" to="360 10 10" dur="8s" repeatCount="indefinite"/>
-      </path>
-      <circle cx="10" cy="10" r="4" fill="white" opacity="0.7">
-        <animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite"/>
+    {/* Background circle */}
+    <circle cx="50" cy="50" r="45" fill="url(#dioGrad)" />
+    {/* Animated ring */}
+    <circle cx="50" cy="50" r="40" fill="none" stroke="white" strokeWidth="2" opacity="0.3">
+      {animate && <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="8s" repeatCount="indefinite"/>}
+    </circle>
+    {/* Face - Happy robot */}
+    <g filter="url(#glow)">
+      {/* Eyes */}
+      <ellipse cx="35" cy="42" rx="8" ry="10" fill="white" opacity="0.9"/>
+      <ellipse cx="65" cy="42" rx="8" ry="10" fill="white" opacity="0.9"/>
+      <circle cx="35" cy="42" r="4" fill="#1e1b4b">
+        {animate && <animate attributeName="cy" values="42;40;42" dur="2s" repeatCount="indefinite"/>}
       </circle>
+      <circle cx="65" cy="42" r="4" fill="#1e1b4b">
+        {animate && <animate attributeName="cy" values="42;40;42" dur="2s" repeatCount="indefinite"/>}
+      </circle>
+      {/* Smile */}
+      <path d="M 30 60 Q 50 75 70 60" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round">
+        {animate && <animate attributeName="d" values="M 30 60 Q 50 75 70 60;M 30 58 Q 50 78 70 58;M 30 60 Q 50 75 70 60" dur="3s" repeatCount="indefinite"/>}
+      </path>
+      {/* Cheeks */}
+      <circle cx="22" cy="55" r="6" fill="#f472b6" opacity="0.5"/>
+      <circle cx="78" cy="55" r="6" fill="#f472b6" opacity="0.5"/>
+    </g>
+    {/* Sparkle */}
+    <g opacity="0.8">
+      <path d="M 80 20 L 82 25 L 87 25 L 83 28 L 85 33 L 80 30 L 75 33 L 77 28 L 73 25 L 78 25 Z" fill="white">
+        {animate && <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" repeatCount="indefinite"/>}
+      </path>
     </g>
   </svg>
 );
@@ -37,7 +66,7 @@ const DioChat = () => {
   const [portfolioItems, setPortfolioItems] = useState([]);
   const [showPortfolio, setShowPortfolio] = useState(false);
   const [leadInfo, setLeadInfo] = useState({});
-  const [showBuilderCTA, setShowBuilderCTA] = useState(false);
+  const [showPulse, setShowPulse] = useState(true);
   const messagesEndRef = useRef(null);
 
   // Generate or retrieve session ID
@@ -55,6 +84,7 @@ const DioChat = () => {
       .then((data) => {
         if (data.history && data.history.length > 0) {
           setMessages(data.history);
+          setShowPulse(false);
         }
         if (data.lead_info) {
           setLeadInfo(data.lead_info);
@@ -74,12 +104,10 @@ const DioChat = () => {
       setMessages([
         {
           role: "assistant",
-          content:
-            "Hi! 👋 I'm Dio, your digital assistant from DIOCREATIONS. I'm here to help you find the perfect solution for your business needs.\n\nLooking to build a website? Try our AI Website Builder - create a professional site in minutes!\n\nOr tell me what you need: websites, hosting, SEO, or AI solutions.",
+          content: "Hey there! 👋 Welcome to DioCreations! I'm Dio, your digital buddy.\n\nBefore we dive in, what should I call you? 😊",
         },
       ]);
-      // Show builder CTA after a short delay
-      setTimeout(() => setShowBuilderCTA(true), 1000);
+      setShowPulse(false);
     }
   }, [isOpen, messages.length]);
 
@@ -93,7 +121,7 @@ const DioChat = () => {
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
-        setPortfolioItems(data.slice(0, 4)); // Show max 4 items
+        setPortfolioItems(data.slice(0, 4));
         setShowPortfolio(true);
       }
     } catch (error) {
@@ -128,12 +156,10 @@ const DioChat = () => {
           { role: "assistant", content: data.response },
         ]);
 
-        // Update lead info if available
         if (data.lead_info) {
           setLeadInfo(data.lead_info);
         }
 
-        // Show portfolio if requested
         if (data.show_portfolio) {
           await fetchPortfolio(data.show_portfolio);
         }
@@ -142,8 +168,7 @@ const DioChat = () => {
           ...prev,
           {
             role: "assistant",
-            content:
-              "Sorry, I'm having trouble connecting right now. Please try again or contact us directly!",
+            content: "Oops! 😅 I'm having a tiny hiccup. Could you try that again? Or feel free to contact us directly at info@diocreations.eu!",
           },
         ]);
       }
@@ -153,8 +178,7 @@ const DioChat = () => {
         ...prev,
         {
           role: "assistant",
-          content:
-            "Oops! Something went wrong. Please refresh and try again.",
+          content: "Uh oh! Something went wonky on my end. 🙈 Give me another shot?",
         },
       ]);
     } finally {
@@ -171,9 +195,7 @@ const DioChat = () => {
 
   const clearChat = () => {
     if (sessionId) {
-      fetch(`${API_URL}/api/chat/${sessionId}`, { method: "DELETE" }).catch(
-        console.error
-      );
+      fetch(`${API_URL}/api/chat/${sessionId}`, { method: "DELETE" }).catch(console.error);
       const newSessionId = `dio_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       localStorage.setItem("dio_session_id", newSessionId);
       setSessionId(newSessionId);
@@ -183,11 +205,35 @@ const DioChat = () => {
     setShowPortfolio(false);
     setLeadInfo({});
     setIsOpen(false);
+    setShowPulse(true);
+  };
+
+  // Parse URLs in message and make them clickable
+  const renderMessage = (content) => {
+    // Match service/product URLs
+    const urlRegex = /(\/services\/[a-z-]+|\/products|\/portfolio|\/contact|\/blog)/g;
+    const parts = content.split(urlRegex);
+    
+    return parts.map((part, i) => {
+      if (part.match(urlRegex)) {
+        return (
+          <Link 
+            key={i} 
+            to={part} 
+            onClick={() => setIsOpen(false)}
+            className="text-violet-300 hover:text-violet-200 underline font-medium"
+          >
+            {part}
+          </Link>
+        );
+      }
+      return part;
+    });
   };
 
   return (
     <>
-      {/* Chat Toggle Button with Animated Logo */}
+      {/* Chat Toggle Button with Dio Mascot */}
       <AnimatePresence>
         {!isOpen && (
           <motion.button
@@ -200,8 +246,13 @@ const DioChat = () => {
             className="fixed bottom-24 right-6 z-50 w-16 h-16 rounded-full bg-white shadow-lg shadow-violet-500/30 flex items-center justify-center cursor-pointer border-2 border-violet-200 hover:border-violet-400 transition-colors"
             data-testid="dio-chat-toggle"
           >
-            <AnimatedLogoIcon />
-            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-white animate-pulse" />
+            <DioMascot size={48} animate={true} />
+            {showPulse && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500"></span>
+              </span>
+            )}
           </motion.button>
         )}
       </AnimatePresence>
@@ -216,17 +267,15 @@ const DioChat = () => {
             className="fixed bottom-24 right-6 z-50 w-[400px] max-w-[calc(100vw-48px)] h-[560px] max-h-[calc(100vh-150px)] bg-white rounded-2xl shadow-2xl shadow-violet-500/20 flex flex-col overflow-hidden border border-violet-100"
             data-testid="dio-chat-window"
           >
-            {/* Header */}
+            {/* Header with Dio */}
             <div className="gradient-violet p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                  <Sparkles className="text-white" size={20} />
+                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center p-1">
+                  <DioMascot size={40} animate={true} />
                 </div>
                 <div>
                   <h3 className="font-heading font-semibold text-white">Dio</h3>
-                  <p className="text-xs text-violet-100">
-                    Your AI Assistant • Online
-                  </p>
+                  <p className="text-xs text-violet-100">Your Digital Buddy • Online</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -235,7 +284,7 @@ const DioChat = () => {
                   className="text-white/70 hover:text-white text-xs underline"
                   data-testid="clear-chat-btn"
                 >
-                  Clear
+                  Start Over
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
@@ -247,7 +296,7 @@ const DioChat = () => {
               </div>
             </div>
 
-            {/* Lead Info Bar (if collected) */}
+            {/* Lead Info Bar */}
             {(leadInfo.name || leadInfo.email || leadInfo.phone) && (
               <div className="px-4 py-2 bg-violet-50 border-b border-violet-100 flex items-center gap-3 text-xs">
                 {leadInfo.name && (
@@ -275,19 +324,22 @@ const DioChat = () => {
                   key={index}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`flex ${
-                    msg.role === "user" ? "justify-end" : "justify-start"
-                  }`}
+                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
+                  {msg.role === "assistant" && (
+                    <div className="w-8 h-8 rounded-full mr-2 flex-shrink-0">
+                      <DioMascot size={32} animate={false} />
+                    </div>
+                  )}
                   <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+                    className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                       msg.role === "user"
                         ? "bg-primary text-white rounded-br-md"
                         : "bg-white text-foreground shadow-sm border border-slate-100 rounded-bl-md"
                     }`}
                   >
                     <p className="text-sm whitespace-pre-wrap leading-relaxed">
-                      {msg.content}
+                      {msg.role === "assistant" ? renderMessage(msg.content) : msg.content}
                     </p>
                   </div>
                 </motion.div>
@@ -301,7 +353,7 @@ const DioChat = () => {
                   className="space-y-3"
                 >
                   <p className="text-xs text-muted-foreground font-medium px-1">
-                    📁 Sample Works:
+                    ✨ Check out some of our work:
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     {portfolioItems.map((item) => (
@@ -321,12 +373,8 @@ const DioChat = () => {
                             />
                           </div>
                           <div className="p-2">
-                            <p className="text-xs font-medium text-foreground truncate">
-                              {item.title}
-                            </p>
-                            <p className="text-[10px] text-primary">
-                              {item.category}
-                            </p>
+                            <p className="text-xs font-medium text-foreground truncate">{item.title}</p>
+                            <p className="text-[10px] text-primary">{item.category}</p>
                           </div>
                         </div>
                       </Link>
@@ -348,37 +396,15 @@ const DioChat = () => {
                   animate={{ opacity: 1 }}
                   className="flex justify-start"
                 >
+                  <div className="w-8 h-8 rounded-full mr-2 flex-shrink-0">
+                    <DioMascot size={32} animate={true} />
+                  </div>
                   <div className="bg-white rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border border-slate-100">
                     <div className="flex items-center gap-2">
                       <Loader2 className="animate-spin text-primary" size={16} />
-                      <span className="text-sm text-muted-foreground">
-                        Dio is typing...
-                      </span>
+                      <span className="text-sm text-muted-foreground">Dio is thinking...</span>
                     </div>
                   </div>
-                </motion.div>
-              )}
-
-              {/* AI Builder CTA */}
-              {showBuilderCTA && messages.length <= 2 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="my-3"
-                >
-                  <Link to="/builder" onClick={() => setIsOpen(false)}>
-                    <div className="bg-gradient-to-r from-violet-600 to-violet-800 rounded-xl p-4 text-white hover:opacity-90 transition-opacity">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
-                          <Rocket className="w-5 h-5" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-semibold text-sm">AI Website Builder</p>
-                          <p className="text-xs text-violet-100">Build your website in minutes →</p>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
                 </motion.div>
               )}
 
@@ -408,7 +434,7 @@ const DioChat = () => {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground text-center mt-2">
-                Powered by AI • DioCreations
+                Powered by AI • DioCreations 🚀
               </p>
             </div>
           </motion.div>
