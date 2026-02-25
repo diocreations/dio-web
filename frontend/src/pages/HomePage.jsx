@@ -19,6 +19,11 @@ import {
   Shield,
   Layout as LayoutIcon,
   ExternalLink,
+  Sparkles,
+  Briefcase,
+  Image,
+  ShoppingCart,
+  Rocket,
 } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -35,6 +40,13 @@ const iconMap = {
   Shield: Shield,
   Layout: LayoutIcon,
 };
+
+const builderCategories = [
+  { name: "Business Website", icon: Briefcase, color: "bg-blue-500" },
+  { name: "Portfolio", icon: Image, color: "bg-pink-500" },
+  { name: "E-commerce Store", icon: ShoppingCart, color: "bg-green-500" },
+  { name: "Agency", icon: Rocket, color: "bg-orange-500" },
+];
 
 const HomePage = () => {
   const [services, setServices] = useState([]);
@@ -64,154 +76,120 @@ const HomePage = () => {
       .catch(console.error);
   }, []);
 
-  const clientLogos = [
-    { name: "Luxe Fashion", logo: "LF" },
-    { name: "FinServe Bank", logo: "FS" },
-    { name: "HealthTrack", logo: "HT" },
-    { name: "InsightPro", logo: "IP" },
-    { name: "PropertyHub", logo: "PH" },
-    { name: "EduLearn", logo: "EL" }
-  ];
-
   return (
     <Layout>
-      {/* Hero Section */}
+      {/* AI Builder Hero Section */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
         {/* Background Glow */}
-        <div className="absolute inset-0 gradient-violet-subtle" />
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-violet-500/20 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-900 via-violet-800 to-slate-900" />
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-violet-500/30 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-accent/20 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
 
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 py-20 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Content */}
-            <div className="lg:col-span-7 space-y-8">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7 }}
-              >
-                <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm mb-6">
-                  Digital Excellence for Modern Business
-                </span>
-                <h1 className="font-heading font-bold text-4xl sm:text-5xl lg:text-6xl text-foreground leading-tight">
-                  Your{" "}
-                  <span className="text-gradient">AI-Powered</span>
-                  <br />
-                  Growth Starts Here
-                </h1>
-              </motion.div>
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.1 }}
-                className="text-lg text-muted-foreground max-w-xl"
-              >
-                From small business websites to enterprise-grade systems — we build 
-                eCommerce, AI-driven, and mobile app solutions that scale your business.
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.2 }}
-                className="flex flex-wrap gap-4"
-              >
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 h-12"
-                  data-testid="hero-cta-primary"
-                >
-                  <Link to="/contact">
-                    Get Started
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="rounded-full px-8 h-12 border-2"
-                  data-testid="hero-cta-secondary"
-                >
-                  <Link to="/services">View Services</Link>
-                </Button>
-              </motion.div>
-
-              {/* Stats */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.3 }}
-                className="flex flex-wrap gap-8 pt-8 border-t border-border mt-8"
-              >
-                <div>
-                  <p className="font-heading font-bold text-3xl text-foreground">10+</p>
-                  <p className="text-sm text-muted-foreground">Years Experience</p>
-                </div>
-                <div>
-                  <p className="font-heading font-bold text-3xl text-foreground">500+</p>
-                  <p className="text-sm text-muted-foreground">Projects Delivered</p>
-                </div>
-                <div>
-                  <p className="font-heading font-bold text-3xl text-foreground">98%</p>
-                  <p className="text-sm text-muted-foreground">Client Satisfaction</p>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Right - Hero Image/Visual */}
+          <div className="text-center max-w-4xl mx-auto">
             <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="lg:col-span-5 relative"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
             >
-              <div className="relative">
-                <div className="absolute inset-0 gradient-violet rounded-3xl blur-2xl opacity-30 transform rotate-6" />
-                <img
-                  src="https://images.unsplash.com/photo-1581225218177-9a18341ec628?w=600&q=80"
-                  alt="Digital Solutions"
-                  className="relative rounded-3xl shadow-2xl w-full"
-                />
-                {/* Floating Card */}
-                <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-4 animate-float">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full gradient-violet flex items-center justify-center">
-                      <Star className="text-white" size={24} />
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur text-white font-medium text-sm mb-6 border border-white/20">
+                <Sparkles className="w-4 h-4 text-yellow-400" />
+                AI-Powered Website Builder
+              </span>
+              <h1 className="font-heading font-bold text-4xl sm:text-5xl lg:text-6xl text-white leading-tight mb-6">
+                Build Your Professional
+                <br />
+                <span className="bg-gradient-to-r from-violet-300 to-pink-300 bg-clip-text text-transparent">
+                  Website in Minutes
+                </span>
+              </h1>
+              <p className="text-lg text-violet-100 max-w-2xl mx-auto mb-8">
+                Choose your category, describe your business, and let our AI create a stunning, 
+                SEO-optimized website ready for launch. No coding required.
+              </p>
+            </motion.div>
+
+            {/* Category Cards */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+            >
+              {builderCategories.map((cat, index) => (
+                <Link to="/builder" key={index}>
+                  <div className="bg-white/10 backdrop-blur border border-white/20 rounded-xl p-4 hover:bg-white/20 transition-all cursor-pointer group">
+                    <div className={`w-12 h-12 ${cat.color} rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform`}>
+                      <cat.icon className="w-6 h-6 text-white" />
                     </div>
-                    <div>
-                      <p className="font-heading font-bold text-lg">4.9/5</p>
-                      <p className="text-xs text-muted-foreground">Client Rating</p>
-                    </div>
+                    <p className="text-white font-medium text-sm">{cat.name}</p>
                   </div>
+                </Link>
+              ))}
+            </motion.div>
+
+            {/* CTA Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="flex flex-wrap justify-center gap-4"
+            >
+              <Button
+                asChild
+                size="lg"
+                className="bg-white text-violet-900 hover:bg-white/90 rounded-full px-8 h-14 text-lg font-semibold shadow-lg"
+                data-testid="hero-cta-primary"
+              >
+                <Link to="/builder">
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Start Building Free
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="rounded-full px-8 h-14 border-2 border-white/30 text-white hover:bg-white/10 text-lg"
+                data-testid="hero-cta-secondary"
+              >
+                <Link to="/services">View Our Services</Link>
+              </Button>
+            </motion.div>
+
+            {/* Features */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.4 }}
+              className="flex flex-wrap justify-center gap-6 mt-12 text-violet-200"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                  <ChevronRight className="w-3 h-3 text-white" />
                 </div>
+                <span className="text-sm">5-Page Website</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                  <ChevronRight className="w-3 h-3 text-white" />
+                </div>
+                <span className="text-sm">Mobile Responsive</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                  <ChevronRight className="w-3 h-3 text-white" />
+                </div>
+                <span className="text-sm">SEO Optimized</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                  <ChevronRight className="w-3 h-3 text-white" />
+                </div>
+                <span className="text-sm">Ready in Minutes</span>
               </div>
             </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Trusted By Section */}
-      <section className="py-12 bg-slate-50 border-y border-border">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
-          <p className="text-center text-sm text-muted-foreground mb-8">
-            Trusted by innovative companies worldwide
-          </p>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-            {clientLogos.map((client, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-2 text-slate-400 hover:text-primary transition-colors"
-              >
-                <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
-                  <span className="font-heading font-bold text-sm">{client.logo}</span>
-                </div>
-                <span className="font-medium text-sm hidden sm:block">{client.name}</span>
-              </div>
-            ))}
           </div>
         </div>
       </section>
