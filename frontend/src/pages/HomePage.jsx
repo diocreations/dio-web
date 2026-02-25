@@ -1,7 +1,7 @@
 import Layout from "@/components/Layout";
 import { Link } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -19,11 +19,9 @@ import {
   Shield,
   Layout as LayoutIcon,
   ExternalLink,
-  Sparkles,
-  Briefcase,
-  Image,
-  ShoppingCart,
-  Rocket,
+  Users,
+  Award,
+  ThumbsUp,
   Calendar,
 } from "lucide-react";
 
@@ -42,21 +40,15 @@ const iconMap = {
   Layout: LayoutIcon,
 };
 
-const builderCategories = [
-  { name: "Business Website", slug: "business", icon: Briefcase, color: "bg-blue-500", template_type: "basic" },
-  { name: "Portfolio", slug: "portfolio", icon: Image, color: "bg-pink-500", template_type: "portfolio" },
-  { name: "E-commerce Store", slug: "ecommerce", icon: ShoppingCart, color: "bg-green-500", template_type: "ecommerce" },
-  { name: "Others", slug: "others", icon: Rocket, color: "bg-orange-500", template_type: "basic" },
+// Trust logos placeholder - these would come from admin
+const trustLogos = [
+  { name: "User Focused", icon: Users },
+  { name: "Premium Work", icon: Award },
+  { name: "Award-Winning", icon: Award },
+  { name: "Trustworthy", icon: ThumbsUp },
+  { name: "Innovative", icon: Brain },
+  { name: "Global Reach", icon: Globe },
 ];
-
-// Color mapping for dynamic gradients - using safe static classes
-const colorGradients = {
-  violet: { from: "from-violet-900", via: "via-violet-800", to: "to-slate-900", accent: "violet", textGradient: "from-violet-300 to-pink-300" },
-  blue: { from: "from-blue-900", via: "via-blue-800", to: "to-slate-900", accent: "blue", textGradient: "from-blue-300 to-cyan-300" },
-  teal: { from: "from-teal-900", via: "via-teal-800", to: "to-slate-900", accent: "teal", textGradient: "from-teal-300 to-emerald-300" },
-  pink: { from: "from-pink-900", via: "via-pink-800", to: "to-slate-900", accent: "pink", textGradient: "from-pink-300 to-rose-300" },
-  orange: { from: "from-orange-900", via: "via-orange-800", to: "to-slate-900", accent: "orange", textGradient: "from-orange-300 to-amber-300" },
-};
 
 const HomePage = () => {
   const [services, setServices] = useState([]);
@@ -65,7 +57,6 @@ const HomePage = () => {
   const [portfolio, setPortfolio] = useState([]);
   const [siteSettings, setSiteSettings] = useState(null);
   const [homepageContent, setHomepageContent] = useState(null);
-  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
   // Get random index based on session storage to persist across page
@@ -85,25 +76,18 @@ const HomePage = () => {
     Promise.all([
       fetch(`${API_URL}/api/homepage/content`).then((r) => r.json()),
       fetch(`${API_URL}/api/services?active_only=true`).then((r) => r.json()),
+      fetch(`${API_URL}/api/products?active_only=true`).then((r) => r.json()),
       fetch(`${API_URL}/api/testimonials?active_only=true`).then((r) => r.json()),
       fetch(`${API_URL}/api/portfolio?active_only=true`).then((r) => r.json()),
       fetch(`${API_URL}/api/settings`).then((r) => r.json()),
     ])
-      .then(([homepageData, servicesData, testimonialsData, portfolioData, settingsData]) => {
+      .then(([homepageData, servicesData, productsData, testimonialsData, portfolioData, settingsData]) => {
         setHomepageContent(homepageData);
         setServices(servicesData.slice(0, 6));
+        setProducts(productsData.slice(0, 4));
         setTestimonials(testimonialsData.slice(0, 3));
         setPortfolio(portfolioData.filter(p => p.is_featured).slice(0, 4));
         setSiteSettings(settingsData);
-        
-        // Set initial hero index based on rotation settings
-        const heroVariants = homepageData?.hero_variants || [];
-        if (heroVariants.length > 0) {
-          if (homepageData?.settings?.hero_rotation_type === "refresh") {
-            setCurrentHeroIndex(getRandomIndex("hero_idx", heroVariants.length));
-          }
-        }
-        
         setLoading(false);
       })
       .catch((err) => {
@@ -112,69 +96,46 @@ const HomePage = () => {
       });
   }, []);
 
-  // Auto-rotate hero if carousel mode
-  useEffect(() => {
-    const settings = homepageContent?.settings;
-    const heroVariants = homepageContent?.hero_variants || [];
-    
-    if (settings?.enable_hero_rotation && settings?.hero_rotation_type === "auto" && heroVariants.length > 1) {
-      const interval = setInterval(() => {
-        setCurrentHeroIndex((prev) => (prev + 1) % heroVariants.length);
-      }, (settings?.hero_rotation_interval || 10) * 1000);
-      return () => clearInterval(interval);
-    }
-  }, [homepageContent]);
-
-  // Get current color scheme
-  const currentColorScheme = useMemo(() => {
-    const schemes = homepageContent?.color_schemes?.filter(s => s.is_active) || [];
-    if (schemes.length === 0) return colorGradients.violet;
-    
-    if (homepageContent?.settings?.enable_color_rotation) {
-      const idx = getRandomIndex("color_idx", schemes.length);
-      const scheme = schemes[idx];
-      return colorGradients[scheme?.name?.toLowerCase()] || colorGradients.violet;
-    }
-    return colorGradients.violet;
-  }, [homepageContent]);
-
   // Get current hero content
   const currentHero = useMemo(() => {
     const variants = homepageContent?.hero_variants?.filter(v => v.is_active) || [];
     if (variants.length === 0) {
+      // Default matching LIVE site
       return {
-        badge_text: "AI-Powered Website Builder",
-        title_line1: "Build Your Professional",
-        title_line2: "Website in Minutes",
-        subtitle: "Choose your category, describe your business, and let our AI create a stunning, SEO-optimized website ready for launch.",
-        primary_cta_text: "Start Building Free",
-        primary_cta_link: "/builder",
-        secondary_cta_text: "View Our Services",
+        badge_text: "Digital Excellence for Modern Business",
+        title_line1: "Your AI-Powered",
+        title_line2: "Growing Partner",
+        subtitle: "From small business websites to enterprise-grade systems - we build eCommerce, AI-driven, and mobile app solutions that scale your business",
+        primary_cta_text: "Get Started",
+        primary_cta_link: "/contact",
+        secondary_cta_text: "View Services",
         secondary_cta_link: "/services",
       };
     }
-    return variants[currentHeroIndex % variants.length];
-  }, [homepageContent, currentHeroIndex]);
+    const idx = homepageContent?.settings?.enable_hero_rotation 
+      ? getRandomIndex("hero_idx", variants.length) 
+      : 0;
+    return variants[idx];
+  }, [homepageContent]);
 
   // Currency formatting
   const currency = homepageContent?.visitor_currency || "EUR";
   const currencySymbol = homepageContent?.currency_symbol || "€";
   const currencyRate = homepageContent?.currency_rate || 1;
 
-  const formatPrice = (price, priceUnit) => {
+  const formatPrice = (price) => {
     if (!price) return null;
     const converted = (parseFloat(price) * currencyRate).toFixed(2);
-    return `${currencySymbol}${converted}${priceUnit ? `/${priceUnit}` : ""}`;
+    return `${currencySymbol}${converted}`;
   };
 
-  // Featured products with converted prices
-  const featuredProducts = homepageContent?.featured_products || [];
-  
-  // Featured blog posts
-  const featuredBlog = homepageContent?.featured_blog || [];
-  
   // Homepage settings
   const hpSettings = homepageContent?.settings || {};
+  const stats = hpSettings.stats || [
+    { value: "10+", label: "Years Experience" },
+    { value: "500+", label: "Projects Delivered" },
+    { value: "98%", label: "Client Satisfaction" },
+  ];
 
   if (loading) {
     return (
@@ -188,150 +149,112 @@ const HomePage = () => {
 
   return (
     <Layout>
-      {/* Dynamic Hero Section */}
-      <section className={`relative min-h-[90vh] flex items-center overflow-hidden`}>
-        {/* Background Gradient - Dynamic */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${currentColorScheme.from} ${currentColorScheme.via} ${currentColorScheme.to}`} />
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-violet-500/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-pink-400/20 rounded-full blur-3xl" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 py-20 relative z-10">
-          <div className="text-center max-w-4xl mx-auto">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentHeroIndex}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-              >
-                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur text-white font-medium text-sm mb-6 border border-white/20">
-                  <Sparkles className="w-4 h-4 text-yellow-400" />
-                  {currentHero.badge_text}
+      {/* Hero Section - Matching LIVE Site */}
+      <section className="relative bg-gradient-to-br from-violet-50 via-white to-violet-50 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 py-16 md:py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7 }}
+            >
+              <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm mb-6">
+                {currentHero.badge_text}
+              </span>
+              <h1 className="font-heading font-bold text-4xl sm:text-5xl lg:text-6xl text-foreground leading-tight mb-6">
+                {currentHero.title_line1}
+                <br />
+                <span className="bg-gradient-to-r from-violet-600 to-violet-800 bg-clip-text text-transparent">
+                  {currentHero.title_line2}
                 </span>
-                <h1 className="font-heading font-bold text-4xl sm:text-5xl lg:text-6xl text-white leading-tight mb-6">
-                  {currentHero.title_line1}
-                  <br />
-                  <span className={`bg-gradient-to-r ${currentColorScheme.textGradient} bg-clip-text text-transparent`}>
-                    {currentHero.title_line2}
-                  </span>
-                </h1>
-                <p className="text-lg text-white/80 max-w-2xl mx-auto mb-8">
-                  {currentHero.subtitle}
-                </p>
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Category Cards */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
-            >
-              {builderCategories.map((cat, index) => (
-                <Link 
-                  to={`/builder?category=${cat.slug}&template=${cat.template_type}`} 
-                  key={index}
+              </h1>
+              <p className="text-lg text-muted-foreground mb-8 max-w-lg">
+                {currentHero.subtitle}
+              </p>
+              
+              {/* CTA Buttons */}
+              <div className="flex flex-wrap gap-4 mb-10">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-primary hover:bg-primary/90 rounded-full px-8 h-12"
+                  data-testid="hero-cta-primary"
                 >
-                  <div className="bg-white/10 backdrop-blur border border-white/20 rounded-xl p-4 hover:bg-white/20 transition-all cursor-pointer group">
-                    <div className={`w-12 h-12 ${cat.color} rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform`}>
-                      <cat.icon className="w-6 h-6 text-white" />
+                  <Link to={currentHero.primary_cta_link}>
+                    {currentHero.primary_cta_text}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="rounded-full px-8 h-12 border-2"
+                  data-testid="hero-cta-secondary"
+                >
+                  <Link to={currentHero.secondary_cta_link}>{currentHero.secondary_cta_text}</Link>
+                </Button>
+              </div>
+
+              {/* Stats */}
+              {hpSettings.show_stats !== false && (
+                <div className="flex flex-wrap gap-8">
+                  {stats.slice(0, 3).map((stat, index) => (
+                    <div key={index} className="text-center">
+                      <p className="font-heading font-bold text-2xl md:text-3xl text-primary">{stat.value}</p>
+                      <p className="text-sm text-muted-foreground">{stat.label}</p>
                     </div>
-                    <p className="text-white font-medium text-sm">{cat.name}</p>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+
+            {/* Right - Hero Image */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="relative"
+            >
+              <div className="relative">
+                <img
+                  src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80"
+                  alt="Digital Solutions"
+                  className="rounded-2xl shadow-2xl w-full"
+                />
+                {/* Floating Badge */}
+                <div className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                    <Star className="text-green-600" size={20} />
                   </div>
-                </Link>
-              ))}
-            </motion.div>
-
-            {/* CTA Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-              className="flex flex-wrap justify-center gap-4"
-            >
-              <Button
-                asChild
-                size="lg"
-                className="bg-white text-violet-900 hover:bg-white/90 rounded-full px-8 h-14 text-lg font-semibold shadow-lg"
-                data-testid="hero-cta-primary"
-              >
-                <Link to={currentHero.primary_cta_link}>
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  {currentHero.primary_cta_text}
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="rounded-full px-8 h-14 border-2 border-white/30 text-white hover:bg-white/10 text-lg"
-                data-testid="hero-cta-secondary"
-              >
-                <Link to={currentHero.secondary_cta_link}>{currentHero.secondary_cta_text}</Link>
-              </Button>
-            </motion.div>
-
-            {/* Features */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.4 }}
-              className="flex flex-wrap justify-center gap-6 mt-12 text-white/80"
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                  <ChevronRight className="w-3 h-3 text-white" />
+                  <div>
+                    <p className="font-semibold text-sm">4.9/5</p>
+                    <p className="text-xs text-muted-foreground">Client Rating</p>
+                  </div>
                 </div>
-                <span className="text-sm">5-Page Website</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                  <ChevronRight className="w-3 h-3 text-white" />
-                </div>
-                <span className="text-sm">Mobile Responsive</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                  <ChevronRight className="w-3 h-3 text-white" />
-                </div>
-                <span className="text-sm">SEO Optimized</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                  <ChevronRight className="w-3 h-3 text-white" />
-                </div>
-                <span className="text-sm">Ready in Minutes</span>
               </div>
             </motion.div>
           </div>
         </div>
-      </section>
 
-      {/* Stats Section */}
-      {hpSettings.show_stats !== false && hpSettings.stats?.length > 0 && (
-        <section className="py-12 bg-slate-900">
-          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {hpSettings.stats.map((stat, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="text-center"
-                >
-                  <p className="font-heading font-bold text-3xl md:text-4xl text-white mb-2">{stat.value}</p>
-                  <p className="text-slate-400 text-sm">{stat.label}</p>
-                </motion.div>
+        {/* Trust Badges */}
+        <div className="border-t border-slate-100 bg-white/50 backdrop-blur">
+          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 py-6">
+            <p className="text-center text-sm text-muted-foreground mb-4">
+              Trusted by innovative companies worldwide
+            </p>
+            <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
+              {trustLogos.map((logo, index) => (
+                <div key={index} className="flex items-center gap-2 text-slate-400">
+                  <logo.icon size={20} />
+                  <span className="text-sm font-medium">{logo.name}</span>
+                </div>
               ))}
             </div>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* Services Section */}
       {hpSettings.show_services !== false && (
@@ -402,13 +325,13 @@ const HomePage = () => {
         </section>
       )}
 
-      {/* Featured Products Section */}
-      {hpSettings.show_featured_products !== false && featuredProducts.length > 0 && (
+      {/* Products Section */}
+      {hpSettings.show_products !== false && (
         <section className="py-20 md:py-32 bg-slate-50">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
             <div className="text-center mb-16">
               <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm mb-4">
-                Featured Products
+                Our Products
               </span>
               <h2 className="font-heading font-bold text-3xl md:text-4xl text-foreground mb-4">
                 Everything You Need to Go Online
@@ -423,8 +346,8 @@ const HomePage = () => {
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredProducts.map((product, index) => {
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {products.map((product, index) => {
                 const IconComponent = iconMap[product.icon] || Globe;
                 return (
                   <motion.div
@@ -453,7 +376,7 @@ const HomePage = () => {
                         {product.price && (
                           <div className="pt-2">
                             <span className="font-heading font-bold text-2xl text-foreground">
-                              {product.display_currency ? `${product.currency_symbol}${product.display_price}` : formatPrice(product.price, "")}
+                              {formatPrice(product.price)}
                             </span>
                             <span className="text-muted-foreground text-sm">
                               /{product.price_unit}
@@ -493,93 +416,9 @@ const HomePage = () => {
         </section>
       )}
 
-      {/* Featured Blog Section */}
-      {hpSettings.show_featured_blog !== false && featuredBlog.length > 0 && (
-        <section className="py-20 md:py-32">
-          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
-            <div className="text-center mb-16">
-              <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm mb-4">
-                Latest Insights
-              </span>
-              <h2 className="font-heading font-bold text-3xl md:text-4xl text-foreground mb-4">
-                From Our Blog
-              </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Stay updated with the latest trends and insights in digital technology
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredBlog.map((post, index) => (
-                <motion.div
-                  key={post.post_id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <Link to={`/blog/${post.slug}`} data-testid={`blog-card-${post.slug}`}>
-                    <Card className="overflow-hidden border border-slate-100 hover:border-violet-200 hover:shadow-xl transition-all group h-full">
-                      {post.featured_image && (
-                        <div className="relative aspect-video overflow-hidden">
-                          <img
-                            src={post.featured_image}
-                            alt={post.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                        </div>
-                      )}
-                      <CardContent className="p-6">
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-primary text-sm font-medium">{post.category}</span>
-                          {post.published_at && (
-                            <>
-                              <span className="text-muted-foreground">•</span>
-                              <span className="text-muted-foreground text-sm flex items-center gap-1">
-                                <Calendar size={12} />
-                                {new Date(post.published_at).toLocaleDateString()}
-                              </span>
-                            </>
-                          )}
-                        </div>
-                        <h3 className="font-heading font-semibold text-lg text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-2">
-                          {post.title}
-                        </h3>
-                        <p className="text-muted-foreground text-sm line-clamp-3">
-                          {post.excerpt}
-                        </p>
-                        <div className="flex items-center text-primary text-sm font-medium mt-4">
-                          Read More
-                          <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="text-center mt-12">
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="rounded-full px-8"
-                data-testid="view-all-blog"
-              >
-                <Link to="/blog">
-                  View All Articles
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Portfolio Section */}
       {hpSettings.show_portfolio !== false && (
-        <section className="py-20 md:py-32 bg-slate-50">
+        <section className="py-20 md:py-32">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
             <div className="text-center mb-16">
               <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm mb-4">
@@ -663,7 +502,7 @@ const HomePage = () => {
 
       {/* Testimonials Section */}
       {hpSettings.show_testimonials !== false && (
-        <section className="py-20 md:py-32">
+        <section className="py-20 md:py-32 bg-slate-50">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
             <div className="text-center mb-16">
               <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm mb-4">
@@ -708,8 +547,8 @@ const HomePage = () => {
                             className="w-12 h-12 rounded-full object-cover"
                           />
                         ) : (
-                          <div className="w-12 h-12 rounded-full gradient-violet flex items-center justify-center">
-                            <span className="text-white font-semibold">
+                          <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center">
+                            <span className="text-primary font-semibold">
                               {testimonial.client_name.charAt(0)}
                             </span>
                           </div>
@@ -734,7 +573,7 @@ const HomePage = () => {
 
       {/* CTA Section */}
       {hpSettings.show_cta !== false && (
-        <section className={`py-20 md:py-32 bg-gradient-to-r from-violet-600 to-violet-800`}>
+        <section className="py-20 md:py-32 bg-gradient-to-r from-violet-600 to-violet-800">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
