@@ -2,10 +2,31 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, X, Send, Loader2, Sparkles, ExternalLink, User, Mail, Phone } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Sparkles, ExternalLink, User, Mail, Phone, Rocket } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+// Animated Logo SVG for chat button
+const AnimatedLogoIcon = () => (
+  <svg viewBox="0 0 40 40" className="w-8 h-8">
+    <defs>
+      <linearGradient id="chatGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#7c3aed" />
+        <stop offset="100%" stopColor="#a78bfa" />
+      </linearGradient>
+    </defs>
+    <circle cx="20" cy="20" r="18" fill="url(#chatGrad1)" />
+    <g transform="translate(10, 10)">
+      <path d="M10 2 L18 10 L10 18 L2 10 Z" fill="white" opacity="0.9">
+        <animateTransform attributeName="transform" type="rotate" from="0 10 10" to="360 10 10" dur="8s" repeatCount="indefinite"/>
+      </path>
+      <circle cx="10" cy="10" r="4" fill="white" opacity="0.7">
+        <animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+  </svg>
+);
 
 const DioChat = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,6 +37,7 @@ const DioChat = () => {
   const [portfolioItems, setPortfolioItems] = useState([]);
   const [showPortfolio, setShowPortfolio] = useState(false);
   const [leadInfo, setLeadInfo] = useState({});
+  const [showBuilderCTA, setShowBuilderCTA] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Generate or retrieve session ID
@@ -53,9 +75,11 @@ const DioChat = () => {
         {
           role: "assistant",
           content:
-            "Hi! 👋 I'm Dio, your digital assistant from DioCreations. I'm here to help you find the perfect solution for your business needs.\n\nWhether you need a website, hosting, SEO services, or AI solutions - I'm here to guide you. What brings you here today?",
+            "Hi! 👋 I'm Dio, your digital assistant from DIOCREATIONS. I'm here to help you find the perfect solution for your business needs.\n\nLooking to build a website? Try our AI Website Builder - create a professional site in minutes!\n\nOr tell me what you need: websites, hosting, SEO, or AI solutions.",
         },
       ]);
+      // Show builder CTA after a short delay
+      setTimeout(() => setShowBuilderCTA(true), 1000);
     }
   }, [isOpen, messages.length]);
 
