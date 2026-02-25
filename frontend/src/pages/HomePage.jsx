@@ -256,7 +256,7 @@ const HomePage = () => {
   };
 
   return (
-    <div style={{ "--primary": currentAccent.hsl, "--ring": currentAccent.ring }}>
+    <div style={currentAccent.css}>
     <Layout>
       {/* Hero Section */}
       <section className={`relative bg-gradient-to-br ${currentAccent.light} via-white to-violet-50 overflow-hidden`}>
