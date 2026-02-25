@@ -2727,42 +2727,6 @@ async def get_resellerclub_products():
 async def root():
     return {"message": "DioCreations API", "version": "1.0.0"}
 
-# Include the router in the main app
-app.include_router(api_router)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@app.on_event("startup")
-async def startup_event():
-    """Create default admin user on startup if not exists"""
-    try:
-        existing_admin = await db.users.find_one({"email": "admin@diocreations.com"})
-        if not existing_admin:
-            password_hash = hashlib.sha256("adminpassword".encode()).hexdigest()
-            user_id = f"user_{uuid.uuid4().hex[:12]}"
-            await db.users.insert_one({
-                "user_id": user_id,
-                "email": "admin@diocreations.com",
-                "password_hash": password_hash,
-                "name": "Admin",
-                "role": "admin"
-            })
-            logger.info("Default admin user created: admin@diocreations.com")
-        else:
-            logger.info("Admin user already exists")
-    except Exception as e:
-        logger.error(f"Error creating admin user: {e}")
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
-
 # ==================== SITEMAP FOR SEO ====================
 
 @api_router.get("/sitemap.xml")
@@ -2831,3 +2795,39 @@ async def get_sitemap():
     xml += '</urlset>'
     
     return Response(content=xml, media_type="application/xml")
+
+# Include the router in the main app
+app.include_router(api_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.on_event("startup")
+async def startup_event():
+    """Create default admin user on startup if not exists"""
+    try:
+        existing_admin = await db.users.find_one({"email": "admin@diocreations.com"})
+        if not existing_admin:
+            password_hash = hashlib.sha256("adminpassword".encode()).hexdigest()
+            user_id = f"user_{uuid.uuid4().hex[:12]}"
+            await db.users.insert_one({
+                "user_id": user_id,
+                "email": "admin@diocreations.com",
+                "password_hash": password_hash,
+                "name": "Admin",
+                "role": "admin"
+            })
+            logger.info("Default admin user created: admin@diocreations.com")
+        else:
+            logger.info("Admin user already exists")
+    except Exception as e:
+        logger.error(f"Error creating admin user: {e}")
+
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    client.close()
