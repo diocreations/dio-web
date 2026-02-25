@@ -2043,6 +2043,9 @@ DEFAULT_GREETINGS = [
     "Greetings! I'm Dio — part AI, part digital enthusiast, fully here to help. What's up?",
 ]
 
+# Cached system message (rebuilt when admin saves settings)
+_cached_system_message = None
+
 async def get_chatbot_settings():
     """Get chatbot settings from DB, return defaults if not found"""
     settings = await db.chatbot_settings.find_one({"settings_id": "chatbot"}, {"_id": 0})
@@ -2056,61 +2059,48 @@ async def get_chatbot_settings():
     return settings
 
 async def build_system_message():
-    """Build dynamic system message from DB knowledge base"""
+    """Build dynamic system message from DB knowledge base (with caching)"""
+    global _cached_system_message
+    if _cached_system_message:
+        return _cached_system_message
+
     settings = await get_chatbot_settings()
     knowledge_entries = settings.get("knowledge_base", [])
     custom_personality = settings.get("personality", "")
 
     kb_text = ""
     if knowledge_entries:
-        kb_text = "\n\nKNOWLEDGE BASE (Use this to answer questions about DioCreations):\n"
+        kb_text = "\n\nKNOWLEDGE BASE:\n"
         for entry in knowledge_entries:
             if entry.get("enabled", True):
-                kb_text += f"\n--- {entry.get('title', 'Info')} ---\n{entry.get('content', '')}\n"
+                kb_text += f"[{entry.get('title', 'Info')}] {entry.get('content', '')}\n"
 
     personality_text = ""
     if custom_personality.strip():
-        personality_text = f"\n\nADDITIONAL CONTEXT FROM ADMIN:\n{custom_personality}\n"
+        personality_text = f"\n\nEXTRA CONTEXT: {custom_personality}\n"
 
-    return f"""You are Dio, an intelligent and friendly AI assistant for DioCreations. You have broad knowledge about technology, business, science, culture, and the world — but you specialize in digital solutions.
+    msg = f"""You are Dio, a sharp and friendly AI assistant for DioCreations. You're knowledgeable about everything — tech, business, science, culture — but you specialize in digital solutions.
 
-YOUR PERSONALITY:
-- Warm, approachable, and genuinely helpful — like a smart friend
-- You can discuss ANY topic (tech, science, news, advice, fun facts) — you're a well-rounded AI
-- When the conversation naturally fits, you mention how DioCreations can help
-- Use the visitor's name once you know it
-- Keep responses concise and conversational
-- Be witty but professional — no forced sales pitches
+RULES:
+- Keep replies SHORT (2-4 sentences max). Be punchy and conversational.
+- Sound like a smart friend texting, not a corporate chatbot.
+- Ask ONE follow-up question to keep the conversation going.
+- Use the visitor's name after they share it.
+- Answer ANY question helpfully. When relevant, casually mention DioCreations services.
+- Never give a wall of text. Break long info into multiple messages.
 
-CONVERSATION APPROACH:
-- Start by engaging with whatever the user says — be a great conversationalist first
-- If they ask general questions (tech, coding, business, life advice), answer helpfully and knowledgeably
-- When relevant, weave in DioCreations services naturally — don't force it
-- Collect contact info (name, email, phone) smoothly when the user shows interest in services
-- Always be honest — if you don't know something, say so
+SERVICES (mention naturally when relevant):
+Web Dev: /services/web-development | Mobile Apps: /services/mobile-app-development | SEO: /services/seo-services | Local SEO: /services/local-seo | AI Solutions: /services/ai-solutions | Marketing: /services/marketing-automation | Products: /products | Portfolio: /portfolio | Contact: /contact
 
-DIOCREATIONS SERVICES & LINKS:
-- Web Development: /services/web-development - Stunning websites that convert
-- Mobile Apps: /services/mobile-app-development - Apps users love
-- SEO Services: /services/seo-services - Get found on Google
-- Local SEO: /services/local-seo - Dominate local markets
-- AI Solutions: /services/ai-solutions - Smart AI for your business
-- Marketing Automation: /services/marketing-automation - Automated marketing
-- Products (Domains, Hosting, SSL): /products
-- Portfolio: /portfolio
-- Contact: /contact
+LEAD CAPTURE: When someone's interested in services, smoothly ask for their email. Format: [LEAD_INFO:name=X,email=Y,phone=Z] (only fields provided)
+PORTFOLIO: Include [SHOW_PORTFOLIO:category] when relevant (website/ecommerce/mobile/seo/branding/all)
 
-LEAD CAPTURE (when user shows interest):
-After helping them, naturally ask for contact info:
-"I'd love for our team to follow up with you. What's the best email to reach you?"
-
-CRITICAL - LEAD INFO FORMAT:
-When user provides contact info, include: [LEAD_INFO:name=John,email=john@test.com,phone=+1234567890]
-Only include fields that were provided.
-
-SHOW PORTFOLIO (when relevant):
-Include [SHOW_PORTFOLIO:category] where category is: website, ecommerce, mobile, seo, branding, or all
+QUICK REPLIES: After your response, suggest 2-3 clickable options on a new line starting with [QUICK_REPLIES:] separated by |
+Example: [QUICK_REPLIES:See our portfolio|Get a free quote|Tell me about SEO]
 {kb_text}{personality_text}"""
+
+    _cached_system_message = msg
+    return msg
 
 @api_router.get("/chatbot/greeting")
 async def get_random_greeting():
