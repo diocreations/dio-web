@@ -13,6 +13,8 @@ import {
   Menu,
   X,
   Users,
+  Home,
+  UserCog,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +26,7 @@ const AdminLayout = ({ children }) => {
 
   const menuItems = [
     { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
+    { name: "Homepage", path: "/admin/homepage", icon: Home },
     { name: "Services", path: "/admin/services", icon: Briefcase },
     { name: "Products", path: "/admin/products", icon: Package },
     { name: "Portfolio", path: "/admin/portfolio", icon: FolderKanban },
@@ -31,6 +34,7 @@ const AdminLayout = ({ children }) => {
     { name: "Testimonials", path: "/admin/testimonials", icon: Star },
     { name: "Contacts", path: "/admin/contacts", icon: MessageSquare },
     { name: "Leads", path: "/admin/leads", icon: Users },
+    { name: "Users", path: "/admin/users", icon: UserCog },
     { name: "Settings", path: "/admin/settings", icon: Settings },
   ];
 
