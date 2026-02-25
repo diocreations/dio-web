@@ -65,4 +65,5 @@ Make the existing homepage (diocreations.eu) fully dynamic and editable from a b
 - /app/test_reports/iteration_5.json
 - /app/test_reports/iteration_6.json
 - /app/test_reports/iteration_7.json
-- /app/test_reports/iteration_8.json (latest - chatbot improvements - all passed)
+- /app/test_reports/iteration_8.json
+- /app/test_reports/iteration_9.json (latest - admin panel fixes + DnD reorder - all passed)
