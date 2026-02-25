@@ -359,6 +359,29 @@ const DioChat = () => {
                 </motion.div>
               )}
 
+              {/* AI Builder CTA */}
+              {showBuilderCTA && messages.length <= 2 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="my-3"
+                >
+                  <Link to="/builder" onClick={() => setIsOpen(false)}>
+                    <div className="bg-gradient-to-r from-violet-600 to-violet-800 rounded-xl p-4 text-white hover:opacity-90 transition-opacity">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
+                          <Rocket className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-semibold text-sm">AI Website Builder</p>
+                          <p className="text-xs text-violet-100">Build your website in minutes →</p>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              )}
+
               <div ref={messagesEndRef} />
             </div>
 
