@@ -187,7 +187,7 @@ const DioChat = () => {
 
   return (
     <>
-      {/* Chat Toggle Button */}
+      {/* Chat Toggle Button with Animated Logo */}
       <AnimatePresence>
         {!isOpen && (
           <motion.button
@@ -197,10 +197,10 @@ const DioChat = () => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-24 right-6 z-50 w-14 h-14 rounded-full gradient-violet shadow-lg shadow-violet-500/30 flex items-center justify-center cursor-pointer"
+            className="fixed bottom-24 right-6 z-50 w-16 h-16 rounded-full bg-white shadow-lg shadow-violet-500/30 flex items-center justify-center cursor-pointer border-2 border-violet-200 hover:border-violet-400 transition-colors"
             data-testid="dio-chat-toggle"
           >
-            <MessageCircle className="text-white" size={24} />
+            <AnimatedLogoIcon />
             <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-white animate-pulse" />
           </motion.button>
         )}
