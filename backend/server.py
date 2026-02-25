@@ -2122,6 +2122,7 @@ async def get_chatbot_settings_admin(user: dict = Depends(get_current_user)):
 @api_router.put("/chatbot/settings")
 async def update_chatbot_settings(update: dict, user: dict = Depends(get_current_user)):
     """Update chatbot settings"""
+    global _cached_system_message
     update["settings_id"] = "chatbot"
     update.pop("_id", None)
     await db.chatbot_settings.update_one(
@@ -2129,7 +2130,8 @@ async def update_chatbot_settings(update: dict, user: dict = Depends(get_current
         {"$set": update},
         upsert=True
     )
-    # Clear all chat instances so they pick up new system message
+    # Clear cache and chat instances so they pick up new system message
+    _cached_system_message = None
     chat_instances.clear()
     return await db.chatbot_settings.find_one({"settings_id": "chatbot"}, {"_id": 0})
 
