@@ -95,7 +95,7 @@ const AdminContacts = () => {
             {selectedSubmission && (
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                     <span className="text-primary font-semibold text-lg">{selectedSubmission.name.charAt(0)}</span>
                   </div>
                   <div>

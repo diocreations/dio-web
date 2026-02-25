@@ -42,7 +42,7 @@ const AdminDashboard = () => {
       value: stats?.services || 0,
       icon: Briefcase,
       link: "/admin/services",
-      color: "bg-violet-500",
+      color: "bg-primary",
     },
     {
       title: "Products",
@@ -175,7 +175,7 @@ const AdminDashboard = () => {
                     key={contact.submission_id}
                     className="flex items-start gap-4 p-4 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
                   >
-                    <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <span className="text-primary font-medium">
                         {contact.name.charAt(0)}
                       </span>
@@ -216,9 +216,9 @@ const AdminDashboard = () => {
             const Icon = action.icon;
             return (
               <Link key={index} to={action.link}>
-                <Card className="hover:shadow-md hover:border-violet-200 transition-all cursor-pointer">
+                <Card className="hover:shadow-md hover:border-primary/20 transition-all cursor-pointer">
                   <CardContent className="p-6 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                       <Icon className="text-primary" size={24} />
                     </div>
                     <span className="font-medium text-foreground">

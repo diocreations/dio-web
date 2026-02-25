@@ -189,10 +189,10 @@ const AdminUsers = () => {
                 >
                   <div className="flex items-center gap-4">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      admin.role === "super_admin" ? "bg-violet-100" : "bg-slate-100"
+                      admin.role === "super_admin" ? "bg-primary/10" : "bg-slate-100"
                     }`}>
                       {admin.role === "super_admin" ? (
-                        <ShieldCheck className="text-violet-600" size={20} />
+                        <ShieldCheck className="text-primary" size={20} />
                       ) : (
                         <Shield className="text-slate-600" size={20} />
                       )}
@@ -201,7 +201,7 @@ const AdminUsers = () => {
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{admin.name || "Unnamed"}</span>
                         {admin.role === "super_admin" && (
-                          <Badge variant="secondary" className="bg-violet-100 text-violet-700">
+                          <Badge variant="secondary" className="bg-primary/10 text-primary">
                             Super Admin
                           </Badge>
                         )}

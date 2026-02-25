@@ -127,7 +127,7 @@ const AdminTestimonials = () => {
                   <p className="text-muted-foreground text-sm mb-4 line-clamp-3">"{item.content}"</p>
                   <div className="flex items-center gap-3">
                     {item.client_image ? (<img src={item.client_image} alt={item.client_name} className="w-10 h-10 rounded-full object-cover" />)
-                      : (<div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center"><span className="text-primary font-medium">{item.client_name.charAt(0)}</span></div>)}
+                      : (<div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center"><span className="text-primary font-medium">{item.client_name.charAt(0)}</span></div>)}
                     <div className="flex-1">
                       <p className="font-medium text-foreground text-sm">{item.client_name}</p>
                       <p className="text-xs text-muted-foreground">{item.client_title}, {item.client_company}</p>
