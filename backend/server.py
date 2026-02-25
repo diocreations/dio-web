@@ -1035,6 +1035,13 @@ async def delete_portfolio_item(portfolio_id: str, user: dict = Depends(get_curr
         raise HTTPException(status_code=404, detail="Portfolio item not found")
     return {"message": "Portfolio item deleted"}
 
+@api_router.put("/portfolio/reorder")
+async def reorder_portfolio(data: dict, user: dict = Depends(get_current_user)):
+    order_list = data.get("order", [])
+    for idx, item_id in enumerate(order_list):
+        await db.portfolio.update_one({"portfolio_id": item_id}, {"$set": {"order": idx}})
+    return {"message": "Portfolio reordered"}
+
 # ==================== BLOG ROUTES ====================
 
 @api_router.get("/blog", response_model=List[BlogPost])
@@ -1083,6 +1090,13 @@ async def delete_blog_post(post_id: str, user: dict = Depends(get_current_user))
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Blog post not found")
     return {"message": "Blog post deleted"}
+
+@api_router.put("/blog/reorder")
+async def reorder_blog(data: dict, user: dict = Depends(get_current_user)):
+    order_list = data.get("order", [])
+    for idx, post_id in enumerate(order_list):
+        await db.blog.update_one({"post_id": post_id}, {"$set": {"order": idx}})
+    return {"message": "Blog posts reordered"}
 
 # ==================== TESTIMONIALS ROUTES ====================
 
