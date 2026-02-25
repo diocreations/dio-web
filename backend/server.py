@@ -556,6 +556,75 @@ class FeaturedItem(BaseModel):
     item_id: str
     order: int = 0
 
+# ==================== ABOUT PAGE CONTENT MODEL ====================
+
+class AboutPageContent(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    content_id: str = "about_page"
+    # Hero Section
+    hero_badge: str = "About Us"
+    hero_title_line1: str = "Building Digital"
+    hero_title_line2: str = "Excellence Since 2015"
+    hero_description: str = "DioCreations is a full-service digital agency specializing in web development, SEO, and AI-powered solutions. We help businesses of all sizes establish and grow their online presence."
+    hero_cta_text: str = "Work With Us"
+    hero_cta_link: str = "/contact"
+    hero_image: str = "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80"
+    # Stats Section
+    show_stats: bool = True
+    stats: List[Dict] = [
+        {"value": "10+", "label": "Years Experience"},
+        {"value": "500+", "label": "Projects Completed"},
+        {"value": "50+", "label": "Team Members"},
+        {"value": "20+", "label": "Countries Served"}
+    ]
+    # Values Section
+    show_values: bool = True
+    values_badge: str = "Our Values"
+    values_title: str = "What Drives Us"
+    values_subtitle: str = "Our core values shape everything we do and how we serve our clients"
+    values: List[Dict] = [
+        {"icon": "Target", "title": "Client-Focused", "description": "Your success is our priority. We work closely with you to understand your goals and deliver solutions that exceed expectations."},
+        {"icon": "Lightbulb", "title": "Innovation First", "description": "We stay ahead of technology trends to bring you cutting-edge solutions that give you a competitive advantage."},
+        {"icon": "Award", "title": "Excellence", "description": "Quality is non-negotiable. Every project we deliver meets the highest standards of performance and reliability."},
+        {"icon": "Users", "title": "Collaboration", "description": "We believe in transparent communication and partnership throughout the project lifecycle."}
+    ]
+    # Timeline/Milestones Section
+    show_timeline: bool = True
+    timeline_badge: str = "Our Journey"
+    timeline_title: str = "Milestones Along the Way"
+    milestones: List[Dict] = [
+        {"year": "2015", "title": "Founded", "description": "Started with a vision to democratize digital solutions"},
+        {"year": "2017", "title": "100+ Projects", "description": "Reached milestone of 100 successful project deliveries"},
+        {"year": "2019", "title": "Global Expansion", "description": "Extended services to clients across 20+ countries"},
+        {"year": "2021", "title": "AI Integration", "description": "Launched AI-powered development and automation services"},
+        {"year": "2023", "title": "500+ Projects", "description": "Celebrated 500+ successful digital transformations"},
+        {"year": "2025", "title": "Industry Leader", "description": "Recognized as a leading digital solutions provider"}
+    ]
+    # Why Choose Us Section
+    show_why_us: bool = True
+    why_us_badge: str = "Why Choose Us"
+    why_us_title: str = "We're Your Partners in Digital Growth"
+    why_us_description: str = "With years of experience and a dedicated team of experts, we deliver solutions that drive real results for your business."
+    why_us_image: str = "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=600&q=80"
+    why_us_points: List[str] = [
+        "Custom solutions tailored to your needs",
+        "Dedicated project managers for every project",
+        "Transparent pricing with no hidden fees",
+        "24/7 support and maintenance",
+        "Proven track record of success",
+        "Latest technologies and best practices"
+    ]
+    # CTA Section
+    show_cta: bool = True
+    cta_title: str = "Ready to Start Your Project?"
+    cta_subtitle: str = "Let's discuss how we can help you achieve your digital goals"
+    cta_button_text: str = "Get in Touch"
+    cta_button_link: str = "/contact"
+    # Metadata
+    meta_title: str = "About Us | DIOCREATIONS"
+    meta_description: str = "Learn about DIOCREATIONS - Your AI-Powered Growing Partner. 10+ years experience, 500+ projects delivered across 20+ countries."
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 # GeoIP country to currency mapping
 COUNTRY_TO_CURRENCY = {
     # Europe
