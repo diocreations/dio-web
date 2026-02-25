@@ -1065,6 +1065,227 @@ async def get_stats(user: dict = Depends(get_current_user)):
         "total_contacts": total_contacts
     }
 
+# ==================== HOMEPAGE CONTENT ROUTES ====================
+
+@api_router.get("/homepage/content")
+async def get_homepage_content(request: Request):
+    """Get all homepage content for public display with geo-based currency"""
+    # Get visitor's currency based on geo-IP
+    visitor_currency = "EUR"  # Default
+    cf_country = request.headers.get("CF-IPCountry", "")
+    x_country = request.headers.get("X-Country-Code", "")
+    country_code = cf_country or x_country or ""
+    
+    if country_code in COUNTRY_TO_CURRENCY:
+        visitor_currency = COUNTRY_TO_CURRENCY[country_code]
+    
+    # Get homepage settings
+    settings = await db.homepage_settings.find_one({"settings_id": "homepage_settings"}, {"_id": 0})
+    if not settings:
+        settings = HomepageSettings().model_dump()
+        settings["updated_at"] = settings["updated_at"].isoformat()
+    
+    # Get hero variants
+    hero_variants = await db.hero_variants.find({"is_active": True}, {"_id": 0}).sort("order", 1).to_list(20)
+    if not hero_variants:
+        # Return default hero variant
+        hero_variants = [HeroVariant().model_dump()]
+    
+    # Get color schemes
+    color_schemes = await db.color_schemes.find({"is_active": True}, {"_id": 0}).to_list(20)
+    if not color_schemes:
+        # Default color schemes
+        color_schemes = [
+            {"scheme_id": "color_violet", "name": "Violet", "primary": "violet-600", "secondary": "violet-800", "accent": "violet-400", "gradient_from": "violet-900", "gradient_via": "violet-800", "gradient_to": "slate-900", "is_active": True},
+            {"scheme_id": "color_blue", "name": "Blue", "primary": "blue-600", "secondary": "blue-800", "accent": "blue-400", "gradient_from": "blue-900", "gradient_via": "blue-800", "gradient_to": "slate-900", "is_active": True},
+            {"scheme_id": "color_teal", "name": "Teal", "primary": "teal-600", "secondary": "teal-800", "accent": "teal-400", "gradient_from": "teal-900", "gradient_via": "teal-800", "gradient_to": "slate-900", "is_active": True},
+            {"scheme_id": "color_pink", "name": "Pink", "primary": "pink-600", "secondary": "pink-800", "accent": "pink-400", "gradient_from": "pink-900", "gradient_via": "pink-800", "gradient_to": "slate-900", "is_active": True},
+            {"scheme_id": "color_orange", "name": "Orange", "primary": "orange-600", "secondary": "orange-800", "accent": "orange-400", "gradient_from": "orange-900", "gradient_via": "orange-800", "gradient_to": "slate-900", "is_active": True},
+        ]
+    
+    # Get featured blog posts
+    featured_blog = []
+    if settings.get("show_featured_blog", True):
+        featured_count = settings.get("featured_blog_count", 3)
+        # First check for manually featured
+        featured_items = await db.featured_items.find({"item_type": "blog"}, {"_id": 0}).sort("order", 1).to_list(featured_count)
+        if featured_items:
+            blog_ids = [f["item_id"] for f in featured_items]
+            featured_blog = await db.blog.find({"post_id": {"$in": blog_ids}, "is_published": True}, {"_id": 0}).to_list(featured_count)
+        else:
+            # Fallback to most recent published
+            featured_blog = await db.blog.find({"is_published": True}, {"_id": 0}).sort("published_at", -1).to_list(featured_count)
+    
+    # Get featured products with currency conversion
+    featured_products = []
+    if settings.get("show_featured_products", True):
+        featured_count = settings.get("featured_products_count", 3)
+        # First check for manually featured
+        featured_items = await db.featured_items.find({"item_type": "product"}, {"_id": 0}).sort("order", 1).to_list(featured_count)
+        if featured_items:
+            product_ids = [f["item_id"] for f in featured_items]
+            featured_products = await db.products.find({"product_id": {"$in": product_ids}, "is_active": True}, {"_id": 0}).to_list(featured_count)
+        else:
+            # Fallback to popular or first active products
+            featured_products = await db.products.find({"is_active": True, "is_popular": True}, {"_id": 0}).sort("order", 1).to_list(featured_count)
+            if len(featured_products) < featured_count:
+                more = await db.products.find({"is_active": True}, {"_id": 0}).sort("order", 1).to_list(featured_count)
+                featured_products = more[:featured_count]
+    
+    # Convert product prices to visitor's currency
+    currency_rate = CURRENCY_RATES.get(visitor_currency, 1.0)
+    currency_symbol = {"EUR": "€", "USD": "$", "GBP": "£", "INR": "₹", "AED": "د.إ", "AUD": "A$", "CAD": "C$", "SGD": "S$", "CHF": "CHF"}.get(visitor_currency, "€")
+    
+    for product in featured_products:
+        if product.get("price"):
+            product["display_price"] = round(float(product["price"]) * currency_rate, 2)
+            product["display_currency"] = visitor_currency
+            product["currency_symbol"] = currency_symbol
+    
+    return {
+        "settings": settings,
+        "hero_variants": hero_variants,
+        "color_schemes": color_schemes,
+        "featured_blog": featured_blog,
+        "featured_products": featured_products,
+        "visitor_currency": visitor_currency,
+        "currency_symbol": currency_symbol,
+        "currency_rate": currency_rate
+    }
+
+@api_router.get("/homepage/settings")
+async def get_homepage_settings(user: dict = Depends(get_current_user)):
+    """Get homepage settings for admin"""
+    settings = await db.homepage_settings.find_one({"settings_id": "homepage_settings"}, {"_id": 0})
+    if not settings:
+        default = HomepageSettings()
+        doc = default.model_dump()
+        doc["updated_at"] = doc["updated_at"].isoformat()
+        await db.homepage_settings.insert_one(doc)
+        return doc
+    return settings
+
+@api_router.put("/homepage/settings")
+async def update_homepage_settings(update: dict, user: dict = Depends(get_current_user)):
+    """Update homepage settings"""
+    update.pop("_id", None)
+    update["settings_id"] = "homepage_settings"
+    update["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.homepage_settings.update_one(
+        {"settings_id": "homepage_settings"},
+        {"$set": update},
+        upsert=True
+    )
+    return await db.homepage_settings.find_one({"settings_id": "homepage_settings"}, {"_id": 0})
+
+@api_router.get("/homepage/hero-variants")
+async def get_hero_variants(user: dict = Depends(get_current_user)):
+    """Get all hero variants for admin"""
+    variants = await db.hero_variants.find({}, {"_id": 0}).sort("order", 1).to_list(50)
+    if not variants:
+        # Create default variant
+        default = HeroVariant()
+        doc = default.model_dump()
+        await db.hero_variants.insert_one(doc)
+        variants = [doc]
+    return variants
+
+@api_router.post("/homepage/hero-variants")
+async def create_hero_variant(variant: dict, user: dict = Depends(get_current_user)):
+    """Create a new hero variant"""
+    variant_obj = HeroVariant(**variant)
+    doc = variant_obj.model_dump()
+    await db.hero_variants.insert_one(doc)
+    return doc
+
+@api_router.put("/homepage/hero-variants/{variant_id}")
+async def update_hero_variant(variant_id: str, update: dict, user: dict = Depends(get_current_user)):
+    """Update a hero variant"""
+    update.pop("_id", None)
+    update.pop("variant_id", None)
+    result = await db.hero_variants.update_one({"variant_id": variant_id}, {"$set": update})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Hero variant not found")
+    return await db.hero_variants.find_one({"variant_id": variant_id}, {"_id": 0})
+
+@api_router.delete("/homepage/hero-variants/{variant_id}")
+async def delete_hero_variant(variant_id: str, user: dict = Depends(get_current_user)):
+    """Delete a hero variant"""
+    result = await db.hero_variants.delete_one({"variant_id": variant_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Hero variant not found")
+    return {"message": "Hero variant deleted"}
+
+@api_router.get("/homepage/color-schemes")
+async def get_color_schemes(user: dict = Depends(get_current_user)):
+    """Get all color schemes for admin"""
+    schemes = await db.color_schemes.find({}, {"_id": 0}).to_list(50)
+    if not schemes:
+        # Create default schemes
+        defaults = [
+            ColorScheme(scheme_id="color_violet", name="Violet", primary="violet-600", secondary="violet-800", accent="violet-400", gradient_from="violet-900", gradient_via="violet-800", gradient_to="slate-900"),
+            ColorScheme(scheme_id="color_blue", name="Blue", primary="blue-600", secondary="blue-800", accent="blue-400", gradient_from="blue-900", gradient_via="blue-800", gradient_to="slate-900"),
+            ColorScheme(scheme_id="color_teal", name="Teal", primary="teal-600", secondary="teal-800", accent="teal-400", gradient_from="teal-900", gradient_via="teal-800", gradient_to="slate-900"),
+            ColorScheme(scheme_id="color_pink", name="Pink", primary="pink-600", secondary="pink-800", accent="pink-400", gradient_from="pink-900", gradient_via="pink-800", gradient_to="slate-900"),
+            ColorScheme(scheme_id="color_orange", name="Orange", primary="orange-600", secondary="orange-800", accent="orange-400", gradient_from="orange-900", gradient_via="orange-800", gradient_to="slate-900"),
+        ]
+        for scheme in defaults:
+            await db.color_schemes.insert_one(scheme.model_dump())
+        schemes = [s.model_dump() for s in defaults]
+    return schemes
+
+@api_router.put("/homepage/color-schemes/{scheme_id}")
+async def update_color_scheme(scheme_id: str, update: dict, user: dict = Depends(get_current_user)):
+    """Update a color scheme"""
+    update.pop("_id", None)
+    update.pop("scheme_id", None)
+    result = await db.color_schemes.update_one({"scheme_id": scheme_id}, {"$set": update})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Color scheme not found")
+    return await db.color_schemes.find_one({"scheme_id": scheme_id}, {"_id": 0})
+
+@api_router.get("/homepage/featured-items")
+async def get_featured_items(user: dict = Depends(get_current_user)):
+    """Get all featured items for admin"""
+    items = await db.featured_items.find({}, {"_id": 0}).sort("order", 1).to_list(100)
+    return items
+
+@api_router.put("/homepage/featured-items")
+async def update_featured_items(items: List[dict], user: dict = Depends(get_current_user)):
+    """Update featured items (replace all)"""
+    # Clear existing featured items
+    await db.featured_items.delete_many({})
+    # Insert new ones
+    if items:
+        for i, item in enumerate(items):
+            item["order"] = i
+            await db.featured_items.insert_one(item)
+    return {"message": "Featured items updated"}
+
+@api_router.get("/geo/currency")
+async def get_visitor_currency(request: Request):
+    """Get visitor's currency based on geo-IP"""
+    # Check various headers for country code
+    cf_country = request.headers.get("CF-IPCountry", "")
+    x_country = request.headers.get("X-Country-Code", "")
+    country_code = cf_country or x_country or ""
+    
+    visitor_currency = "EUR"  # Default
+    if country_code in COUNTRY_TO_CURRENCY:
+        visitor_currency = COUNTRY_TO_CURRENCY[country_code]
+    
+    currency_rate = CURRENCY_RATES.get(visitor_currency, 1.0)
+    currency_symbol = {"EUR": "€", "USD": "$", "GBP": "£", "INR": "₹", "AED": "د.إ", "AUD": "A$", "CAD": "C$", "SGD": "S$", "CHF": "CHF"}.get(visitor_currency, "€")
+    
+    return {
+        "country_code": country_code,
+        "currency": visitor_currency,
+        "currency_symbol": currency_symbol,
+        "currency_rate": currency_rate,
+        "all_currencies": list(CURRENCY_RATES.keys())
+    }
+
 # ==================== SEED DATA ====================
 
 @api_router.post("/seed")
