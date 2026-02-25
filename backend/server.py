@@ -306,6 +306,85 @@ class SiteSettings(BaseModel):
     # Payment Settings
     stripe_api_key: Optional[str] = None
     stripe_mode: str = "test"  # "test" or "live"
+    # ResellerClub Settings
+    resellerclub_api_key: Optional[str] = None
+    resellerclub_reseller_id: Optional[str] = None
+
+# Admin User Management
+class AdminUser(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    admin_id: str = Field(default_factory=lambda: f"admin_{uuid.uuid4().hex[:12]}")
+    email: str
+    name: Optional[str] = None
+    role: str = "admin"  # "super_admin" or "admin"
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_login: Optional[datetime] = None
+
+# AI Website Builder Models
+class WebsiteCategory(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    category_id: str = Field(default_factory=lambda: f"cat_{uuid.uuid4().hex[:12]}")
+    name: str
+    slug: str
+    description: str
+    icon: str
+    template_type: str  # "basic", "portfolio", "ecommerce"
+    is_active: bool = True
+    order: int = 0
+
+class BuilderPricing(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    tier: str  # "basic", "standard", "pro"
+    name: str
+    price: float
+    currency: str = "EUR"
+    features: List[str] = []
+    pages_limit: int = 5
+    includes_hosting: bool = False
+    includes_domain: bool = False
+    is_active: bool = True
+
+class WebsiteOrder(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    order_id: str = Field(default_factory=lambda: f"order_{uuid.uuid4().hex[:12]}")
+    customer_email: str
+    customer_name: Optional[str] = None
+    category: str
+    tier: str  # "basic", "standard", "pro"
+    business_name: str
+    business_description: Optional[str] = None
+    pages: List[str] = []  # Selected pages
+    portfolio_images: List[str] = []  # For portfolio sites
+    portfolio_videos: List[str] = []  # For portfolio sites
+    products: List[Dict] = []  # For e-commerce sites
+    generated_content: Optional[Dict] = None
+    generated_code: Optional[str] = None
+    hosting_option: str = "auto"  # "auto" or "download"
+    domain_name: Optional[str] = None
+    domain_ordered: bool = False
+    hosting_credentials: Optional[Dict] = None
+    payment_status: str = "pending"
+    order_status: str = "pending"  # pending, generating, completed, delivered
+    amount: float = 0
+    currency: str = "EUR"
+    stripe_session_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
+
+class DomainOrder(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    domain_order_id: str = Field(default_factory=lambda: f"dom_{uuid.uuid4().hex[:12]}")
+    customer_email: str
+    domain_name: str
+    years: int = 1
+    price: float
+    currency: str = "EUR"
+    resellerclub_order_id: Optional[str] = None
+    payment_status: str = "pending"
+    order_status: str = "pending"
+    stripe_session_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 # ==================== HELPERS ====================
 
@@ -315,6 +394,32 @@ async def get_stripe_api_key() -> str:
     if settings and settings.get("stripe_api_key"):
         return settings["stripe_api_key"]
     return STRIPE_API_KEY
+
+async def get_resellerclub_credentials() -> tuple:
+    """Get ResellerClub credentials from database settings, fallback to env"""
+    settings = await db.settings.find_one({"settings_id": "site_settings"})
+    api_key = RESELLERCLUB_API_KEY
+    reseller_id = RESELLERCLUB_RESELLER_ID
+    if settings:
+        if settings.get("resellerclub_api_key"):
+            api_key = settings["resellerclub_api_key"]
+        if settings.get("resellerclub_reseller_id"):
+            reseller_id = settings["resellerclub_reseller_id"]
+    return api_key, reseller_id
+
+async def check_admin_access(email: str) -> bool:
+    """Check if email has admin access"""
+    if email == SUPER_ADMIN_EMAIL:
+        return True
+    admin = await db.admin_users.find_one({"email": email, "is_active": True})
+    return admin is not None
+
+async def get_admin_role(email: str) -> str:
+    """Get admin role for email"""
+    if email == SUPER_ADMIN_EMAIL:
+        return "super_admin"
+    admin = await db.admin_users.find_one({"email": email, "is_active": True})
+    return admin.get("role", "admin") if admin else None
 
 def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
