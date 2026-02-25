@@ -192,8 +192,8 @@ const HomePage = () => {
       <section className={`relative min-h-[90vh] flex items-center overflow-hidden`}>
         {/* Background Gradient - Dynamic */}
         <div className={`absolute inset-0 bg-gradient-to-br ${currentColorScheme.from} ${currentColorScheme.via} ${currentColorScheme.to}`} />
-        <div className={`absolute top-1/4 right-1/4 w-96 h-96 bg-${currentColorScheme.accent}-500/30 rounded-full blur-3xl`} />
-        <div className={`absolute bottom-1/4 left-1/4 w-64 h-64 bg-${currentColorScheme.accent}-400/20 rounded-full blur-3xl`} />
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-violet-500/30 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-pink-400/20 rounded-full blur-3xl" />
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
 
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 py-20 relative z-10">
