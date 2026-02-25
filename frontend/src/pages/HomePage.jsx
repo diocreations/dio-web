@@ -255,7 +255,7 @@ const HomePage = () => {
               <Button
                 asChild
                 size="lg"
-                className={`bg-white text-${currentColorScheme.accent}-900 hover:bg-white/90 rounded-full px-8 h-14 text-lg font-semibold shadow-lg`}
+                className="bg-white text-violet-900 hover:bg-white/90 rounded-full px-8 h-14 text-lg font-semibold shadow-lg"
                 data-testid="hero-cta-primary"
               >
                 <Link to={currentHero.primary_cta_link}>
