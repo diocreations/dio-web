@@ -91,11 +91,14 @@ const DioChat = () => {
   const [leadInfo, setLeadInfo] = useState({});
   const [showPulse, setShowPulse] = useState(true);
   const [showLabel, setShowLabel] = useState(false);
+  const [hasAutoOpened, setHasAutoOpened] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // Generate or retrieve session ID
+  // Generate or retrieve session ID + auto-open with greeting on first visit
   useEffect(() => {
     let storedSessionId = localStorage.getItem("dio_session_id");
+    const alreadyGreeted = sessionStorage.getItem("dio_greeted");
+
     if (!storedSessionId) {
       storedSessionId = `dio_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       localStorage.setItem("dio_session_id", storedSessionId);
@@ -109,6 +112,25 @@ const DioChat = () => {
         if (data.history && data.history.length > 0) {
           setMessages(data.history);
           setShowPulse(false);
+        } else if (!alreadyGreeted) {
+          // First visit with no history — auto-open with random greeting
+          fetch(`${API_URL}/api/chatbot/greeting`)
+            .then((r) => r.json())
+            .then((g) => {
+              const greeting = g.greeting || "Hey there! I'm Dio, your digital assistant. What can I help you with?";
+              setMessages([{ role: "assistant", content: greeting }]);
+              setIsOpen(true);
+              setHasAutoOpened(true);
+              setShowPulse(false);
+              sessionStorage.setItem("dio_greeted", "1");
+            })
+            .catch(() => {
+              setMessages([{ role: "assistant", content: "Hey there! I'm Dio from DioCreations. What can I help you with today?" }]);
+              setIsOpen(true);
+              setHasAutoOpened(true);
+              setShowPulse(false);
+              sessionStorage.setItem("dio_greeted", "1");
+            });
         }
         if (data.lead_info) {
           setLeadInfo(data.lead_info);
