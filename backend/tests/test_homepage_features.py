@@ -174,6 +174,19 @@ class TestGeoCurrencyAPI:
         assert data["currency_symbol"] == "£"
         print("✓ UK currency: GBP (£)")
     
+    def test_geo_currency_italy(self):
+        """Test currency for Italy (EUR)"""
+        response = requests.get(
+            f"{BASE_URL}/api/geo/currency",
+            headers={"X-Country-Code": "IT"}
+        )
+        data = response.json()
+        
+        assert data["currency"] == "EUR"
+        assert data["currency_symbol"] == "€"
+        assert data["currency_rate"] == 1.0
+        print("✓ Italy currency: EUR (€) with rate 1.0")
+    
     def test_homepage_content_with_india_currency(self):
         """Test homepage content returns INR prices for India"""
         response = requests.get(
