@@ -1044,7 +1044,7 @@ async def get_blog_posts(published_only: bool = False, category: Optional[str] =
         query["is_published"] = True
     if category:
         query["category"] = category
-    posts = await db.blog.find(query, {"_id": 0}).sort("created_at", -1).to_list(100)
+    posts = await db.blog.find(query, {"_id": 0}).sort("order", 1).to_list(100)
     return posts
 
 @api_router.get("/blog/{slug}")
