@@ -1026,6 +1026,13 @@ async def create_portfolio_item(item: PortfolioCreate, user: dict = Depends(get_
     await db.portfolio.insert_one(doc)
     return item_obj
 
+@api_router.put("/portfolio/reorder")
+async def reorder_portfolio(data: dict, user: dict = Depends(get_current_user)):
+    order_list = data.get("order", [])
+    for idx, item_id in enumerate(order_list):
+        await db.portfolio.update_one({"portfolio_id": item_id}, {"$set": {"order": idx}})
+    return {"message": "Portfolio reordered"}
+
 @api_router.put("/portfolio/{portfolio_id}")
 async def update_portfolio_item(portfolio_id: str, update: dict, user: dict = Depends(get_current_user)):
     update.pop("_id", None)
@@ -1041,13 +1048,6 @@ async def delete_portfolio_item(portfolio_id: str, user: dict = Depends(get_curr
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Portfolio item not found")
     return {"message": "Portfolio item deleted"}
-
-@api_router.put("/portfolio/reorder")
-async def reorder_portfolio(data: dict, user: dict = Depends(get_current_user)):
-    order_list = data.get("order", [])
-    for idx, item_id in enumerate(order_list):
-        await db.portfolio.update_one({"portfolio_id": item_id}, {"$set": {"order": idx}})
-    return {"message": "Portfolio reordered"}
 
 # ==================== BLOG ROUTES ====================
 
