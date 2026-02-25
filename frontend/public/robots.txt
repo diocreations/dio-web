@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://www.diocreations.eu/sitemap.xml
+
+# Crawl-delay for bots
+Crawl-delay: 1
+
+# Disallow admin and API routes
+Disallow: /admin/*
+Disallow: /api/*
+Disallow: /builder
