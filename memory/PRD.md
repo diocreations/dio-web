@@ -31,11 +31,12 @@ Make the existing homepage (diocreations.eu) fully dynamic and editable from a b
 - Transactional emails via Resend
 - Editable About Page with 6-tab admin editor
 - **Dio Chatbot — Smart AI with auto-greeting, knowledge base, and admin management**
-  - Auto-opens on first visit with random greeting from admin-managed pool
-  - Knowledgeable AI that can discuss any topic + DioCreations specialization
+  - Auto-opens on first visit with typing indicator then random greeting
+  - Quick reply suggestion buttons after every message (dynamic from LLM + default set)
+  - Cached system prompt for faster responses
+  - Shorter, punchier responses (2-4 sentences) with follow-up questions
+  - "Online now" status indicator in header
   - Admin Chatbot Manager at `/admin/chatbot` with 3 tabs: Greetings, Knowledge Base, Personality
-  - Knowledge base entries injected into Dio's context dynamically — no code deployment needed
-  - "Chat with Dio" genie-effect label, static message avatars, animated header logo
 
 ## Key API Endpoints
 - `GET /api/homepage/content` - Public homepage data
@@ -63,4 +64,5 @@ Make the existing homepage (diocreations.eu) fully dynamic and editable from a b
 - /app/test_reports/iteration_4.json
 - /app/test_reports/iteration_5.json
 - /app/test_reports/iteration_6.json
-- /app/test_reports/iteration_7.json (latest - site-wide accent color - all passed)
+- /app/test_reports/iteration_7.json
+- /app/test_reports/iteration_8.json (latest - chatbot improvements - all passed)
