@@ -1926,6 +1926,474 @@ async def get_payment_transactions(user: dict = Depends(get_current_user)):
     transactions = await db.payment_transactions.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
     return transactions
 
+# ==================== ADMIN ACCESS CONTROL ====================
+
+@api_router.post("/auth/check-admin")
+async def check_admin_access_route(request: Request):
+    """Check if current user has admin access (Google login required)"""
+    user = await get_current_user(request)
+    email = user.get("email")
+    
+    if not email:
+        raise HTTPException(status_code=401, detail="Email not found")
+    
+    has_access = await check_admin_access(email)
+    if not has_access:
+        raise HTTPException(status_code=403, detail="Admin access denied. Contact administrator.")
+    
+    role = await get_admin_role(email)
+    return {"has_access": True, "role": role, "email": email}
+
+@api_router.get("/admin/users")
+async def get_admin_users(user: dict = Depends(get_current_user)):
+    """Get all admin users (super_admin only)"""
+    email = user.get("email")
+    role = await get_admin_role(email)
+    if role != "super_admin":
+        raise HTTPException(status_code=403, detail="Super admin access required")
+    
+    admins = await db.admin_users.find({}, {"_id": 0}).to_list(100)
+    # Add super admin to list
+    admins.insert(0, {
+        "admin_id": "super_admin",
+        "email": SUPER_ADMIN_EMAIL,
+        "name": "Super Admin",
+        "role": "super_admin",
+        "is_active": True
+    })
+    return admins
+
+@api_router.post("/admin/users")
+async def add_admin_user(request: Request, user: dict = Depends(get_current_user)):
+    """Add a new admin user (super_admin only)"""
+    email = user.get("email")
+    role = await get_admin_role(email)
+    if role != "super_admin":
+        raise HTTPException(status_code=403, detail="Super admin access required")
+    
+    data = await request.json()
+    new_email = data.get("email")
+    new_name = data.get("name", "")
+    
+    if not new_email:
+        raise HTTPException(status_code=400, detail="Email required")
+    
+    existing = await db.admin_users.find_one({"email": new_email})
+    if existing:
+        raise HTTPException(status_code=400, detail="Admin already exists")
+    
+    admin = AdminUser(email=new_email, name=new_name)
+    admin_doc = admin.model_dump()
+    admin_doc["created_at"] = admin_doc["created_at"].isoformat()
+    await db.admin_users.insert_one(admin_doc)
+    
+    return {"message": "Admin user added", "admin_id": admin.admin_id}
+
+@api_router.delete("/admin/users/{admin_id}")
+async def remove_admin_user(admin_id: str, user: dict = Depends(get_current_user)):
+    """Remove an admin user (super_admin only)"""
+    email = user.get("email")
+    role = await get_admin_role(email)
+    if role != "super_admin":
+        raise HTTPException(status_code=403, detail="Super admin access required")
+    
+    if admin_id == "super_admin":
+        raise HTTPException(status_code=400, detail="Cannot remove super admin")
+    
+    result = await db.admin_users.delete_one({"admin_id": admin_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Admin not found")
+    
+    return {"message": "Admin user removed"}
+
+# ==================== AI WEBSITE BUILDER ====================
+
+@api_router.get("/builder/categories")
+async def get_builder_categories():
+    """Get all website builder categories"""
+    categories = await db.builder_categories.find({"is_active": True}, {"_id": 0}).sort("order", 1).to_list(50)
+    if not categories:
+        # Return default categories if none exist
+        categories = [
+            {"category_id": "cat_basic", "name": "Business Website", "slug": "business", "description": "Professional website for your business", "icon": "Briefcase", "template_type": "basic", "is_active": True, "order": 1},
+            {"category_id": "cat_portfolio", "name": "Portfolio", "slug": "portfolio", "description": "Showcase your work with style", "icon": "Image", "template_type": "portfolio", "is_active": True, "order": 2},
+            {"category_id": "cat_ecommerce", "name": "E-commerce Store", "slug": "ecommerce", "description": "Sell products online", "icon": "ShoppingCart", "template_type": "ecommerce", "is_active": True, "order": 3},
+            {"category_id": "cat_restaurant", "name": "Restaurant", "slug": "restaurant", "description": "Menu and reservations", "icon": "Utensils", "template_type": "basic", "is_active": True, "order": 4},
+            {"category_id": "cat_agency", "name": "Agency", "slug": "agency", "description": "Creative agency website", "icon": "Rocket", "template_type": "basic", "is_active": True, "order": 5},
+        ]
+    return categories
+
+@api_router.get("/builder/pricing")
+async def get_builder_pricing():
+    """Get builder pricing tiers"""
+    pricing = await db.builder_pricing.find({"is_active": True}, {"_id": 0}).to_list(10)
+    if not pricing:
+        # Return default pricing if none exist
+        pricing = [
+            {"tier": "basic", "name": "Basic", "price": 99, "currency": "EUR", "features": ["5 Pages", "Mobile Responsive", "Contact Form", "SEO Optimized", "Code Download"], "pages_limit": 5, "includes_hosting": False, "includes_domain": False, "is_active": True},
+            {"tier": "standard", "name": "Standard", "price": 199, "currency": "EUR", "features": ["5 Pages", "Mobile Responsive", "Contact Form", "SEO Optimized", "1 Year Hosting", "SSL Certificate"], "pages_limit": 5, "includes_hosting": True, "includes_domain": False, "is_active": True},
+            {"tier": "pro", "name": "Pro", "price": 349, "currency": "EUR", "features": ["10 Pages", "Mobile Responsive", "Contact Form", "E-commerce Ready", "1 Year Hosting", "Free Domain", "SSL Certificate", "Priority Support"], "pages_limit": 10, "includes_hosting": True, "includes_domain": True, "is_active": True},
+        ]
+    return pricing
+
+@api_router.post("/builder/pricing")
+async def update_builder_pricing(request: Request, user: dict = Depends(get_current_user)):
+    """Update builder pricing (admin only)"""
+    data = await request.json()
+    for tier_data in data:
+        await db.builder_pricing.update_one(
+            {"tier": tier_data["tier"]},
+            {"$set": tier_data},
+            upsert=True
+        )
+    return {"message": "Pricing updated"}
+
+@api_router.post("/builder/generate")
+async def generate_website(request: Request):
+    """Generate website content using AI"""
+    data = await request.json()
+    
+    category = data.get("category", "business")
+    business_name = data.get("business_name", "My Business")
+    business_description = data.get("business_description", "")
+    pages = data.get("pages", ["home", "about", "services", "products", "contact"])
+    template_type = data.get("template_type", "basic")
+    portfolio_images = data.get("portfolio_images", [])
+    portfolio_videos = data.get("portfolio_videos", [])
+    products = data.get("products", [])
+    
+    # Create AI prompt for website generation
+    prompt = f"""Generate a complete website for a {category} business.
+
+Business Name: {business_name}
+Description: {business_description}
+Pages to generate: {', '.join(pages)}
+Template Type: {template_type}
+
+{"Portfolio Images: " + str(len(portfolio_images)) + " images provided" if portfolio_images else ""}
+{"Portfolio Videos: " + str(len(portfolio_videos)) + " videos provided" if portfolio_videos else ""}
+{"Products: " + str(len(products)) + " products to display" if products else ""}
+
+Generate JSON content for each page with the following structure:
+{{
+    "pages": {{
+        "home": {{
+            "hero_title": "...",
+            "hero_subtitle": "...",
+            "hero_cta": "...",
+            "sections": [...]
+        }},
+        "about": {{
+            "title": "...",
+            "content": "...",
+            "team": [...]
+        }},
+        ...
+    }},
+    "meta": {{
+        "title": "...",
+        "description": "...",
+        "keywords": [...]
+    }},
+    "colors": {{
+        "primary": "#...",
+        "secondary": "#...",
+        "accent": "#..."
+    }}
+}}
+
+Make the content professional, engaging, and SEO-friendly. Return only valid JSON."""
+
+    try:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            model="gemini-2.0-flash",
+            system_message="You are a professional web designer and content creator. Generate website content in JSON format only."
+        )
+        
+        response = await chat.send_message(UserMessage(text=prompt))
+        
+        # Parse JSON from response
+        response_text = response.text
+        # Try to extract JSON from the response
+        json_match = re.search(r'\{[\s\S]*\}', response_text)
+        if json_match:
+            generated_content = json.loads(json_match.group())
+        else:
+            generated_content = {"error": "Failed to parse AI response", "raw": response_text[:500]}
+        
+        return {
+            "success": True,
+            "content": generated_content,
+            "category": category,
+            "business_name": business_name
+        }
+    except Exception as e:
+        logger.error(f"AI generation error: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "content": None
+        }
+
+@api_router.post("/builder/create-order")
+async def create_builder_order(request: Request):
+    """Create a website builder order"""
+    data = await request.json()
+    
+    order = WebsiteOrder(
+        customer_email=data.get("customer_email"),
+        customer_name=data.get("customer_name"),
+        category=data.get("category"),
+        tier=data.get("tier", "basic"),
+        business_name=data.get("business_name"),
+        business_description=data.get("business_description"),
+        pages=data.get("pages", []),
+        portfolio_images=data.get("portfolio_images", []),
+        portfolio_videos=data.get("portfolio_videos", []),
+        products=data.get("products", []),
+        generated_content=data.get("generated_content"),
+        hosting_option=data.get("hosting_option", "download"),
+        amount=data.get("amount", 0),
+        currency=data.get("currency", "EUR")
+    )
+    
+    order_doc = order.model_dump()
+    order_doc["created_at"] = order_doc["created_at"].isoformat()
+    await db.website_orders.insert_one(order_doc)
+    
+    return {"order_id": order.order_id, "message": "Order created"}
+
+@api_router.post("/builder/checkout")
+async def create_builder_checkout(request: Request):
+    """Create Stripe checkout for website builder order"""
+    data = await request.json()
+    order_id = data.get("order_id")
+    origin_url = data.get("origin_url")
+    
+    order = await db.website_orders.find_one({"order_id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    success_url = f"{origin_url}/builder/success?order_id={order_id}"
+    cancel_url = f"{origin_url}/builder"
+    
+    host_url = str(request.base_url)
+    webhook_url = f"{host_url}api/webhook/stripe"
+    stripe_api_key = await get_stripe_api_key()
+    stripe_checkout = StripeCheckout(api_key=stripe_api_key, webhook_url=webhook_url)
+    
+    checkout_request = CheckoutSessionRequest(
+        amount=order["amount"],
+        currency=order["currency"].lower(),
+        success_url=success_url,
+        cancel_url=cancel_url,
+        metadata={
+            "order_id": order_id,
+            "type": "website_builder",
+            "tier": order["tier"]
+        }
+    )
+    
+    session = await stripe_checkout.create_checkout_session(checkout_request)
+    
+    await db.website_orders.update_one(
+        {"order_id": order_id},
+        {"$set": {"stripe_session_id": session.session_id}}
+    )
+    
+    return {"checkout_url": session.url, "session_id": session.session_id}
+
+@api_router.get("/builder/orders")
+async def get_builder_orders(user: dict = Depends(get_current_user)):
+    """Get all website builder orders (admin only)"""
+    orders = await db.website_orders.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return orders
+
+@api_router.get("/builder/order/{order_id}")
+async def get_builder_order(order_id: str):
+    """Get a specific builder order"""
+    order = await db.website_orders.find_one({"order_id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return order
+
+@api_router.put("/builder/order/{order_id}")
+async def update_builder_order(order_id: str, request: Request, user: dict = Depends(get_current_user)):
+    """Update a builder order (admin only)"""
+    data = await request.json()
+    data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    result = await db.website_orders.update_one({"order_id": order_id}, {"$set": data})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    return {"message": "Order updated"}
+
+# ==================== RESELLERCLUB API ====================
+
+@api_router.get("/domains/check")
+async def check_domain_availability(domain: str):
+    """Check domain availability via ResellerClub API"""
+    api_key, reseller_id = await get_resellerclub_credentials()
+    
+    if not api_key or not reseller_id:
+        raise HTTPException(status_code=500, detail="ResellerClub credentials not configured")
+    
+    # Extract domain name and TLD
+    parts = domain.lower().strip().split(".")
+    if len(parts) < 2:
+        raise HTTPException(status_code=400, detail="Invalid domain format")
+    
+    domain_name = parts[0]
+    tlds = [".".join(parts[1:])]  # Get TLD(s)
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            params = {
+                "auth-userid": reseller_id,
+                "api-key": api_key,
+                "domain-name": domain_name,
+                "tlds": tlds
+            }
+            response = await client.get(
+                f"{RESELLERCLUB_API_URL}/domains/available.json",
+                params=params,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                return {
+                    "domain": domain,
+                    "available": data.get(domain, {}).get("status") == "available",
+                    "data": data
+                }
+            else:
+                return {"domain": domain, "available": False, "error": response.text}
+    except Exception as e:
+        logger.error(f"Domain check error: {e}")
+        return {"domain": domain, "available": False, "error": str(e)}
+
+@api_router.get("/domains/suggest")
+async def suggest_domains(keyword: str):
+    """Get domain suggestions via ResellerClub API"""
+    api_key, reseller_id = await get_resellerclub_credentials()
+    
+    tlds = ["com", "net", "org", "io", "co", "eu"]
+    suggestions = []
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            params = {
+                "auth-userid": reseller_id,
+                "api-key": api_key,
+                "domain-name": keyword,
+                "tlds": tlds
+            }
+            response = await client.get(
+                f"{RESELLERCLUB_API_URL}/domains/available.json",
+                params=params,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                for tld in tlds:
+                    domain = f"{keyword}.{tld}"
+                    if domain in data:
+                        suggestions.append({
+                            "domain": domain,
+                            "available": data[domain].get("status") == "available"
+                        })
+        return {"keyword": keyword, "suggestions": suggestions}
+    except Exception as e:
+        logger.error(f"Domain suggest error: {e}")
+        return {"keyword": keyword, "suggestions": [], "error": str(e)}
+
+@api_router.get("/domains/pricing")
+async def get_domain_pricing():
+    """Get domain pricing from ResellerClub"""
+    api_key, reseller_id = await get_resellerclub_credentials()
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            params = {
+                "auth-userid": reseller_id,
+                "api-key": api_key,
+            }
+            response = await client.get(
+                f"{RESELLERCLUB_API_URL}/products/reseller-cost-price.json",
+                params=params,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                return response.json()
+            else:
+                return {"error": response.text}
+    except Exception as e:
+        logger.error(f"Pricing error: {e}")
+        return {"error": str(e)}
+
+@api_router.get("/resellerclub/products")
+async def get_resellerclub_products():
+    """Get all products from ResellerClub"""
+    api_key, reseller_id = await get_resellerclub_credentials()
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            # Get domain pricing
+            params = {
+                "auth-userid": reseller_id,
+                "api-key": api_key,
+            }
+            
+            products = []
+            
+            # Common TLDs pricing
+            tld_prices = {
+                "com": {"register": 12.99, "renew": 14.99},
+                "net": {"register": 13.99, "renew": 15.99},
+                "org": {"register": 12.99, "renew": 14.99},
+                "io": {"register": 49.99, "renew": 59.99},
+                "eu": {"register": 9.99, "renew": 11.99},
+                "co": {"register": 29.99, "renew": 34.99},
+            }
+            
+            for tld, prices in tld_prices.items():
+                products.append({
+                    "product_id": f"domain_{tld}",
+                    "type": "domain",
+                    "name": f".{tld} Domain",
+                    "description": f"Register a .{tld} domain",
+                    "price": prices["register"],
+                    "renew_price": prices["renew"],
+                    "currency": "EUR",
+                    "billing_cycle": "yearly"
+                })
+            
+            # Hosting products
+            hosting_products = [
+                {"product_id": "hosting_starter", "type": "hosting", "name": "Starter Hosting", "description": "Perfect for small websites", "price": 4.99, "currency": "EUR", "billing_cycle": "monthly", "features": ["10GB SSD", "1 Website", "Free SSL", "24/7 Support"]},
+                {"product_id": "hosting_business", "type": "hosting", "name": "Business Hosting", "description": "For growing businesses", "price": 9.99, "currency": "EUR", "billing_cycle": "monthly", "features": ["50GB SSD", "5 Websites", "Free SSL", "Free Domain", "24/7 Support"]},
+                {"product_id": "hosting_enterprise", "type": "hosting", "name": "Enterprise Hosting", "description": "Maximum performance", "price": 19.99, "currency": "EUR", "billing_cycle": "monthly", "features": ["100GB SSD", "Unlimited Websites", "Free SSL", "Free Domain", "Priority Support"]},
+            ]
+            products.extend(hosting_products)
+            
+            # SSL products
+            ssl_products = [
+                {"product_id": "ssl_basic", "type": "ssl", "name": "Basic SSL", "description": "Domain Validation SSL", "price": 9.99, "currency": "EUR", "billing_cycle": "yearly"},
+                {"product_id": "ssl_business", "type": "ssl", "name": "Business SSL", "description": "Organization Validation SSL", "price": 49.99, "currency": "EUR", "billing_cycle": "yearly"},
+                {"product_id": "ssl_premium", "type": "ssl", "name": "Premium SSL", "description": "Extended Validation SSL", "price": 149.99, "currency": "EUR", "billing_cycle": "yearly"},
+            ]
+            products.extend(ssl_products)
+            
+            return {"products": products}
+    except Exception as e:
+        logger.error(f"Products error: {e}")
+        return {"products": [], "error": str(e)}
+
 # ==================== ROOT ====================
 
 @api_router.get("/")
