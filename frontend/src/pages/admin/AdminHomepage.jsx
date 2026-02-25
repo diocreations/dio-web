@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Save, Plus, Trash2, GripVertical, Eye, Palette, Layout, BookOpen, ShoppingBag, BarChart3 } from "lucide-react";
+import { Save, Plus, Trash2, GripVertical, Eye, Palette, Layout, BookOpen, ShoppingBag, BarChart3, Image, ArrowUp, ArrowDown } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -19,6 +19,15 @@ const colorOptions = [
   { value: "pink", label: "Pink", preview: "bg-pink-600" },
   { value: "orange", label: "Orange", preview: "bg-orange-600" },
 ];
+
+const sectionLabels = {
+  services: "Services Section",
+  products: "Products Section",
+  blog: "Blog Section",
+  portfolio: "Portfolio Section",
+  testimonials: "Testimonials Section",
+  cta: "Call to Action Section",
+};
 
 const AdminHomepage = () => {
   const [settings, setSettings] = useState(null);
@@ -55,13 +64,17 @@ const AdminHomepage = () => {
         featuredRes.json(),
       ]);
 
+      // Ensure section_order exists
+      if (!settingsData.section_order) {
+        settingsData.section_order = ["services", "products", "blog", "portfolio", "testimonials", "cta"];
+      }
+
       setSettings(settingsData);
       setHeroVariants(heroData);
       setColorSchemes(colorData);
       setBlogPosts(blogData);
       setProducts(productsData);
       
-      // Separate featured items by type
       setFeaturedBlog(featuredData.filter(f => f.item_type === "blog").map(f => f.item_id));
       setFeaturedProducts(featuredData.filter(f => f.item_type === "product").map(f => f.item_id));
     } catch (error) {
@@ -131,14 +144,15 @@ const AdminHomepage = () => {
   const addNewHeroVariant = () => {
     setHeroVariants([...heroVariants, {
       variant_id: `new_${Date.now()}`,
-      badge_text: "New Feature",
-      title_line1: "Your Amazing",
-      title_line2: "Headline Here",
-      subtitle: "Your subtitle description goes here",
+      badge_text: "Digital Excellence for Modern Business",
+      title_line1: "Your AI-Powered",
+      title_line2: "Growing Partner",
+      subtitle: "From small business websites to enterprise-grade systems - we build solutions that scale your business",
       primary_cta_text: "Get Started",
       primary_cta_link: "/contact",
-      secondary_cta_text: "Learn More",
-      secondary_cta_link: "/about",
+      secondary_cta_text: "View Services",
+      secondary_cta_link: "/services",
+      hero_image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80",
       accent_color: "violet",
       is_active: true,
       order: heroVariants.length,
@@ -214,6 +228,22 @@ const AdminHomepage = () => {
     setSettings({ ...settings, stats: newStats });
   };
 
+  // Section ordering
+  const moveSectionUp = (index) => {
+    if (index === 0) return;
+    const newOrder = [...(settings?.section_order || [])];
+    [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+    setSettings({ ...settings, section_order: newOrder });
+  };
+
+  const moveSectionDown = (index) => {
+    const order = settings?.section_order || [];
+    if (index === order.length - 1) return;
+    const newOrder = [...order];
+    [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+    setSettings({ ...settings, section_order: newOrder });
+  };
+
   if (loading) {
     return (
       <AdminLayout>
@@ -241,7 +271,7 @@ const AdminHomepage = () => {
         </div>
 
         <Tabs defaultValue="hero" className="space-y-6">
-          <TabsList className="grid grid-cols-5 w-full max-w-2xl">
+          <TabsList className="grid grid-cols-6 w-full max-w-3xl">
             <TabsTrigger value="hero" className="flex items-center gap-2">
               <Layout size={16} /> Hero
             </TabsTrigger>
@@ -257,6 +287,9 @@ const AdminHomepage = () => {
             <TabsTrigger value="sections" className="flex items-center gap-2">
               <Eye size={16} /> Sections
             </TabsTrigger>
+            <TabsTrigger value="order" className="flex items-center gap-2">
+              <GripVertical size={16} /> Order
+            </TabsTrigger>
           </TabsList>
 
           {/* Hero Variants Tab */}
@@ -264,13 +297,13 @@ const AdminHomepage = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Hero Section Settings</CardTitle>
-                <CardDescription>Configure how hero content rotates on your homepage</CardDescription>
+                <CardDescription>Configure how hero content (text + image) rotates on your homepage</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>Enable Hero Rotation</Label>
-                    <p className="text-sm text-muted-foreground">Show different hero content each time</p>
+                    <p className="text-sm text-muted-foreground">Show different hero content (text + image) each time</p>
                   </div>
                   <Switch
                     checked={settings?.enable_hero_rotation}
@@ -309,7 +342,7 @@ const AdminHomepage = () => {
             </Card>
 
             <div className="flex items-center justify-between">
-              <h3 className="font-heading font-semibold text-lg">Hero Variants</h3>
+              <h3 className="font-heading font-semibold text-lg">Hero Variants (Text + Image)</h3>
               <Button onClick={addNewHeroVariant} variant="outline" size="sm">
                 <Plus size={16} className="mr-2" /> Add Variant
               </Button>
@@ -331,21 +364,11 @@ const AdminHomepage = () => {
                       <span className="text-sm text-muted-foreground mr-4">
                         {variant.is_active ? "Active" : "Inactive"}
                       </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => saveHeroVariant(variant)}
-                        data-testid={`save-hero-${index}`}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => saveHeroVariant(variant)} data-testid={`save-hero-${index}`}>
                         <Save size={16} />
                       </Button>
                       {heroVariants.length > 1 && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteHeroVariant(variant.variant_id)}
-                          className="text-red-500"
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => deleteHeroVariant(variant.variant_id)} className="text-red-500">
                           <Trash2 size={16} />
                         </Button>
                       )}
@@ -359,7 +382,7 @@ const AdminHomepage = () => {
                       <Input
                         value={variant.badge_text || ""}
                         onChange={(e) => updateHeroVariant(index, "badge_text", e.target.value)}
-                        placeholder="AI-Powered Website Builder"
+                        placeholder="Digital Excellence for Modern Business"
                       />
                     </div>
                     <div className="space-y-2">
@@ -381,7 +404,7 @@ const AdminHomepage = () => {
                       <Input
                         value={variant.title_line1 || ""}
                         onChange={(e) => updateHeroVariant(index, "title_line1", e.target.value)}
-                        placeholder="Build Your Professional"
+                        placeholder="Your AI-Powered"
                       />
                     </div>
                     <div className="space-y-2">
@@ -389,7 +412,7 @@ const AdminHomepage = () => {
                       <Input
                         value={variant.title_line2 || ""}
                         onChange={(e) => updateHeroVariant(index, "title_line2", e.target.value)}
-                        placeholder="Website in Minutes"
+                        placeholder="Growing Partner"
                       />
                     </div>
                   </div>
@@ -400,6 +423,17 @@ const AdminHomepage = () => {
                       onChange={(e) => updateHeroVariant(index, "subtitle", e.target.value)}
                       rows={2}
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2"><Image size={16} /> Hero Image URL</Label>
+                    <Input
+                      value={variant.hero_image || ""}
+                      onChange={(e) => updateHeroVariant(index, "hero_image", e.target.value)}
+                      placeholder="https://images.unsplash.com/..."
+                    />
+                    {variant.hero_image && (
+                      <img src={variant.hero_image} alt="Hero preview" className="w-48 h-32 object-cover rounded mt-2" />
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -442,14 +476,14 @@ const AdminHomepage = () => {
           <TabsContent value="colors" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Color Scheme Settings</CardTitle>
-                <CardDescription>Control which color schemes can appear on the homepage</CardDescription>
+                <CardTitle>Color Accent Settings</CardTitle>
+                <CardDescription>Control which accent colors can appear on the homepage</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>Enable Color Rotation</Label>
-                    <p className="text-sm text-muted-foreground">Show different accent colors on refresh</p>
+                    <p className="text-sm text-muted-foreground">Show different accent colors on page refresh</p>
                   </div>
                   <Switch
                     checked={settings?.enable_color_rotation}
@@ -490,11 +524,11 @@ const AdminHomepage = () => {
                     <div className="flex items-center justify-between">
                       <Label>Show Featured Blog Posts</Label>
                       <Switch
-                        checked={settings?.show_featured_blog}
-                        onCheckedChange={(v) => setSettings({ ...settings, show_featured_blog: v })}
+                        checked={settings?.show_blog !== false}
+                        onCheckedChange={(v) => setSettings({ ...settings, show_blog: v })}
                       />
                     </div>
-                    {settings?.show_featured_blog && (
+                    {settings?.show_blog !== false && (
                       <div className="space-y-2">
                         <Label>Number of posts to show</Label>
                         <Input
@@ -532,7 +566,7 @@ const AdminHomepage = () => {
               </CardContent>
             </Card>
 
-            {settings?.show_featured_blog && (
+            {settings?.show_blog !== false && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -608,7 +642,7 @@ const AdminHomepage = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Statistics Section</CardTitle>
-                <CardDescription>Display impressive numbers on your homepage</CardDescription>
+                <CardDescription>Display impressive numbers in the hero section</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between mb-4">
@@ -653,6 +687,7 @@ const AdminHomepage = () => {
                 {[
                   { key: "show_services", label: "Services Section", desc: "Display your services" },
                   { key: "show_products", label: "Products Section", desc: "Display your products" },
+                  { key: "show_blog", label: "Blog Section", desc: "Display featured blog posts" },
                   { key: "show_portfolio", label: "Portfolio Section", desc: "Display featured projects" },
                   { key: "show_testimonials", label: "Testimonials Section", desc: "Display client reviews" },
                   { key: "show_cta", label: "Call to Action Section", desc: "Display bottom CTA banner" },
@@ -668,6 +703,50 @@ const AdminHomepage = () => {
                     />
                   </div>
                 ))}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Section Order Tab */}
+          <TabsContent value="order" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Section Order</CardTitle>
+                <CardDescription>Drag and drop to reorder sections on the homepage</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {(settings?.section_order || []).map((sectionId, index) => (
+                  <div
+                    key={sectionId}
+                    className="flex items-center justify-between p-4 border rounded-lg bg-white hover:bg-slate-50"
+                  >
+                    <div className="flex items-center gap-3">
+                      <GripVertical className="text-muted-foreground" size={20} />
+                      <span className="font-medium">{sectionLabels[sectionId] || sectionId}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => moveSectionUp(index)}
+                        disabled={index === 0}
+                      >
+                        <ArrowUp size={16} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => moveSectionDown(index)}
+                        disabled={index === (settings?.section_order?.length || 0) - 1}
+                      >
+                        <ArrowDown size={16} />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                <p className="text-sm text-muted-foreground mt-4">
+                  Use the arrows to reorder sections, then click "Save All Settings" to apply changes.
+                </p>
               </CardContent>
             </Card>
           </TabsContent>
