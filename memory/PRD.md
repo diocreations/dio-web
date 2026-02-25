@@ -76,8 +76,8 @@ Build a website similar to www.diocreations.eu showing services and products fro
 7. [ ] Test Dio chatbot flow
 
 ## Access URLs
-- Public: https://creationshub.preview.emergentagent.com
-- Admin: https://creationshub.preview.emergentagent.com/admin/login
+- Public: https://editable-cms-site.preview.emergentagent.com
+- Admin: https://editable-cms-site.preview.emergentagent.com/admin/login
 
 ## Tech Stack
 - **Backend**: FastAPI + MongoDB
