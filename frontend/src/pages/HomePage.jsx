@@ -734,7 +734,7 @@ const HomePage = () => {
 
       {/* CTA Section */}
       {hpSettings.show_cta !== false && (
-        <section className={`py-20 md:py-32 bg-gradient-to-r ${currentColorScheme.from.replace('from-', 'from-')} ${currentColorScheme.to.replace('to-', 'to-')}`}>
+        <section className={`py-20 md:py-32 bg-gradient-to-r from-violet-600 to-violet-800`}>
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -746,7 +746,7 @@ const HomePage = () => {
               <h2 className="font-heading font-bold text-3xl md:text-4xl lg:text-5xl text-white">
                 Ready to Transform Your Business?
               </h2>
-              <p className={`text-${currentColorScheme.accent}-100 text-lg max-w-2xl mx-auto`}>
+              <p className="text-violet-100 text-lg max-w-2xl mx-auto">
                 Let's discuss how we can help you achieve your digital goals
               </p>
               <div className="flex flex-wrap justify-center gap-4 pt-4">
