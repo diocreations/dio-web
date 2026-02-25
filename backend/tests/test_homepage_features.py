@@ -1,6 +1,7 @@
 """
 Test suite for DioCreations CMS Homepage Features
-Tests: Homepage content API, Geo-based currency, Hero variants, Color schemes, Admin homepage settings
+Tests: Homepage content API, Geo-based currency, Hero variants with hero_image, Color schemes, 
+       Section ordering, Admin homepage settings with 6 tabs
 """
 import pytest
 import requests
