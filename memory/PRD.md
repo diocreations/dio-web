@@ -21,7 +21,8 @@ Make the existing homepage (diocreations.eu) fully dynamic and editable from a b
 
 ## What's Been Implemented
 - Dynamic Homepage CMS with all sections
-- Hero content/image rotation + accent color rotation (buttons, hover states, badges all match)
+- Hero content/image rotation + **site-wide accent color rotation** (all pages, buttons, hover states, badges, gradients match)
+- **Layout-level color theming**: CSS variables (`--primary`, `--accent`, `--ring`, `--secondary`) set in Layout.jsx, inherited by every page
 - Geo-based currency (USD/EUR/INR)
 - Admin drag-and-drop section ordering
 - SEO basics (meta tags, sitemap, robots.txt)
@@ -61,4 +62,5 @@ Make the existing homepage (diocreations.eu) fully dynamic and editable from a b
 - /app/test_reports/iteration_3.json
 - /app/test_reports/iteration_4.json
 - /app/test_reports/iteration_5.json
-- /app/test_reports/iteration_6.json (latest - all passed)
+- /app/test_reports/iteration_6.json
+- /app/test_reports/iteration_7.json (latest - site-wide accent color - all passed)
