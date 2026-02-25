@@ -49,13 +49,13 @@ const builderCategories = [
   { name: "Others", slug: "others", icon: Rocket, color: "bg-orange-500", template_type: "basic" },
 ];
 
-// Color mapping for dynamic gradients
+// Color mapping for dynamic gradients - using safe static classes
 const colorGradients = {
-  violet: { from: "from-violet-900", via: "via-violet-800", to: "to-slate-900", accent: "violet", text: "violet-300", btn: "bg-violet-600" },
-  blue: { from: "from-blue-900", via: "via-blue-800", to: "to-slate-900", accent: "blue", text: "blue-300", btn: "bg-blue-600" },
-  teal: { from: "from-teal-900", via: "via-teal-800", to: "to-slate-900", accent: "teal", text: "teal-300", btn: "bg-teal-600" },
-  pink: { from: "from-pink-900", via: "via-pink-800", to: "to-slate-900", accent: "pink", text: "pink-300", btn: "bg-pink-600" },
-  orange: { from: "from-orange-900", via: "via-orange-800", to: "to-slate-900", accent: "orange", text: "orange-300", btn: "bg-orange-600" },
+  violet: { from: "from-violet-900", via: "via-violet-800", to: "to-slate-900", accent: "violet", textGradient: "from-violet-300 to-pink-300" },
+  blue: { from: "from-blue-900", via: "via-blue-800", to: "to-slate-900", accent: "blue", textGradient: "from-blue-300 to-cyan-300" },
+  teal: { from: "from-teal-900", via: "via-teal-800", to: "to-slate-900", accent: "teal", textGradient: "from-teal-300 to-emerald-300" },
+  pink: { from: "from-pink-900", via: "via-pink-800", to: "to-slate-900", accent: "pink", textGradient: "from-pink-300 to-rose-300" },
+  orange: { from: "from-orange-900", via: "via-orange-800", to: "to-slate-900", accent: "orange", textGradient: "from-orange-300 to-amber-300" },
 };
 
 const HomePage = () => {
