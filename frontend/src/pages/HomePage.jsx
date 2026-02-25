@@ -118,7 +118,10 @@ const HomePage = () => {
               className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
             >
               {builderCategories.map((cat, index) => (
-                <Link to="/builder" key={index}>
+                <Link 
+                  to={`/builder?category=${cat.slug}&template=${cat.template_type}`} 
+                  key={index}
+                >
                   <div className="bg-white/10 backdrop-blur border border-white/20 rounded-xl p-4 hover:bg-white/20 transition-all cursor-pointer group">
                     <div className={`w-12 h-12 ${cat.color} rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform`}>
                       <cat.icon className="w-6 h-6 text-white" />
