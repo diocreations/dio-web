@@ -15,6 +15,7 @@ import {
   Users,
   Home,
   UserCog,
+  Info,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ const AdminLayout = ({ children }) => {
     { name: "Testimonials", path: "/admin/testimonials", icon: Star },
     { name: "Contacts", path: "/admin/contacts", icon: MessageSquare },
     { name: "Leads", path: "/admin/leads", icon: Users },
+    { name: "About Page", path: "/admin/about", icon: Info },
     { name: "Users", path: "/admin/users", icon: UserCog },
     { name: "Settings", path: "/admin/settings", icon: Settings },
   ];

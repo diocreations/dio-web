@@ -33,6 +33,7 @@ import AdminLeads from "./pages/admin/AdminLeads";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminHomepage from "./pages/admin/AdminHomepage";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminAbout from "./pages/admin/AdminAbout";
 
 const queryClient = new QueryClient();
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -275,6 +276,14 @@ const AppRouter = () => {
         element={
           <ProtectedRoute>
             <AdminHomepage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/about"
+        element={
+          <ProtectedRoute>
+            <AdminAbout />
           </ProtectedRoute>
         }
       />
