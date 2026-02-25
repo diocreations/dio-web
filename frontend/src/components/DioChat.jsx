@@ -245,7 +245,7 @@ const DioChat = () => {
             className="fixed bottom-24 right-6 z-50 w-16 h-16 rounded-full bg-white shadow-lg shadow-violet-500/30 flex items-center justify-center cursor-pointer border-2 border-violet-200 hover:border-violet-400 transition-colors"
             data-testid="dio-chat-toggle"
           >
-            <DioMascot size={48} animate={true} />
+            <ButterflyLogo size={48} animate={true} />
             {showPulse && (
               <span className="absolute -top-1 -right-1 flex h-4 w-4">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -270,7 +270,7 @@ const DioChat = () => {
             <div className="gradient-violet p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center p-1">
-                  <DioMascot size={40} animate={true} />
+                  <ButterflyLogo size={40} animate={true} />
                 </div>
                 <div>
                   <h3 className="font-heading font-semibold text-white">Dio</h3>
@@ -327,7 +327,7 @@ const DioChat = () => {
                 >
                   {msg.role === "assistant" && (
                     <div className="w-8 h-8 rounded-full mr-2 flex-shrink-0">
-                      <DioMascot size={32} animate={false} />
+                      <ButterflyLogo size={32} animate={false} />
                     </div>
                   )}
                   <div
@@ -396,7 +396,7 @@ const DioChat = () => {
                   className="flex justify-start"
                 >
                   <div className="w-8 h-8 rounded-full mr-2 flex-shrink-0">
-                    <DioMascot size={32} animate={true} />
+                    <ButterflyLogo size={32} animate={true} />
                   </div>
                   <div className="bg-white rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border border-slate-100">
                     <div className="flex items-center gap-2">
