@@ -391,17 +391,14 @@ class DomainOrder(BaseModel):
 class HeroVariant(BaseModel):
     model_config = ConfigDict(extra="ignore")
     variant_id: str = Field(default_factory=lambda: f"hero_{uuid.uuid4().hex[:8]}")
-    badge_text: str = "AI-Powered Website Builder"
-    title_line1: str = "Build Your Professional"
-    title_line2: str = "Website in Minutes"
-    subtitle: str = "Choose your category, describe your business, and let our AI create a stunning, SEO-optimized website ready for launch."
-    primary_cta_text: str = "Start Building Free"
-    primary_cta_link: str = "/builder"
-    secondary_cta_text: str = "View Our Services"
+    badge_text: str = "Digital Excellence for Modern Business"
+    title_line1: str = "Your AI-Powered"
+    title_line2: str = "Growing Partner"
+    subtitle: str = "From small business websites to enterprise-grade systems - we build eCommerce, AI-driven, and mobile app solutions that scale your business"
+    primary_cta_text: str = "Get Started"
+    primary_cta_link: str = "/contact"
+    secondary_cta_text: str = "View Services"
     secondary_cta_link: str = "/services"
-    background_gradient_from: str = "violet-900"
-    background_gradient_via: str = "violet-800"
-    background_gradient_to: str = "slate-900"
     accent_color: str = "violet"  # violet, blue, pink, teal, orange
     is_active: bool = True
     order: int = 0
