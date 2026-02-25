@@ -2144,6 +2144,7 @@ class ChatResponse(BaseModel):
     session_id: str
     lead_info: Optional[dict] = None
     show_portfolio: Optional[str] = None
+    quick_replies: Optional[List[str]] = None
 
 class LeadInfo(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -2208,7 +2209,17 @@ def clean_response(response_text: str) -> str:
     import re
     cleaned = re.sub(r'\[LEAD_INFO:[^\]]+\]', '', response_text)
     cleaned = re.sub(r'\[SHOW_PORTFOLIO:[^\]]+\]', '', cleaned)
+    cleaned = re.sub(r'\[QUICK_REPLIES:[^\]]+\]', '', cleaned)
     return cleaned.strip()
+
+def parse_quick_replies(response_text: str) -> Optional[List[str]]:
+    """Extract quick reply suggestions from response"""
+    import re
+    match = re.search(r'\[QUICK_REPLIES:([^\]]+)\]', response_text)
+    if match:
+        replies = [r.strip() for r in match.group(1).split('|') if r.strip()]
+        return replies[:3]
+    return None
 
 @api_router.post("/chat")
 async def chat_with_dio(chat_message: ChatMessage):
