@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/App";
+import { AnimatedLogo } from "@/components/AnimatedLogo";
 import {
   LayoutDashboard,
   Briefcase,
@@ -56,7 +57,7 @@ const AdminLayout = ({ children }) => {
     <div className="min-h-screen bg-slate-50">
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-slate-900 flex items-center justify-between px-4 z-50">
-        <span className="font-heading font-bold text-white">Admin Panel</span>
+        <AnimatedLogo className="scale-[0.6] origin-left" textColor="text-white" />
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="text-white p-2"
@@ -68,20 +69,19 @@ const AdminLayout = ({ children }) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-slate-900 text-white z-40 transform transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed top-0 left-0 h-full w-64 bg-slate-900 text-white z-40 flex flex-col transform transition-transform duration-300 lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="p-6 border-b border-slate-700">
-          <Link to="/admin" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-              <span className="text-white font-bold text-xl">D</span>
-            </div>
-            <span className="font-heading font-bold text-lg">DioCreations</span>
+        {/* Header with animated logo */}
+        <div className="p-5 border-b border-slate-700 flex-shrink-0">
+          <Link to="/admin" className="flex items-center gap-2">
+            <AnimatedLogo className="scale-[0.65] origin-left" textColor="text-white" />
           </Link>
         </div>
 
-        <nav className="p-4 space-y-1">
+        {/* Scrollable nav */}
+        <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -89,33 +89,28 @@ const AdminLayout = ({ children }) => {
                 key={item.path}
                 to={item.path}
                 onClick={() => setSidebarOpen(false)}
-                data-testid={`admin-nav-${item.name.toLowerCase()}`}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                data-testid={`admin-nav-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm ${
                   isActive(item.path)
                     ? "bg-white/20 text-white"
                     : "text-slate-300 hover:bg-white/10 hover:text-white"
                 }`}
               >
-                <Icon size={20} />
+                <Icon size={18} />
                 <span className="font-medium">{item.name}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700">
-          <div className="flex items-center gap-3 mb-4 px-4">
+        {/* User profile - always visible at bottom */}
+        <div className="flex-shrink-0 p-3 border-t border-slate-700">
+          <div className="flex items-center gap-3 mb-3 px-3">
             {user?.picture ? (
-              <img
-                src={user.picture}
-                alt={user.name}
-                className="w-10 h-10 rounded-full"
-              />
+              <img src={user.picture} alt={user.name} className="w-9 h-9 rounded-full" />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                <span className="text-white font-medium">
-                  {user?.name?.charAt(0) || "A"}
-                </span>
+              <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
+                <span className="text-white font-medium text-sm">{user?.name?.charAt(0) || "A"}</span>
               </div>
             )}
             <div className="flex-1 min-w-0">
@@ -125,11 +120,12 @@ const AdminLayout = ({ children }) => {
           </div>
           <Button
             variant="ghost"
+            size="sm"
             className="w-full justify-start text-slate-300 hover:text-white hover:bg-white/10"
             onClick={handleLogout}
             data-testid="admin-logout"
           >
-            <LogOut size={20} className="mr-3" />
+            <LogOut size={18} className="mr-2" />
             Logout
           </Button>
         </div>
