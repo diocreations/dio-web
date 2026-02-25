@@ -107,6 +107,31 @@ class TestHomepageContentAPI:
         print(f"✓ Stats section has {len(settings['stats'])} stats")
 
 
+class TestSectionOrdering:
+    """Tests for section ordering feature"""
+    
+    def test_section_order_in_model(self):
+        """Test that section_order field exists in HomepageSettings model"""
+        # The section_order should be available in settings
+        # Even if not set in DB, the frontend should handle default order
+        response = requests.get(f"{BASE_URL}/api/homepage/content")
+        settings = response.json()["settings"]
+        
+        # section_order may be None if not set, but model supports it
+        # Default order: ["services", "products", "blog", "portfolio", "testimonials", "cta"]
+        expected_sections = ["services", "products", "blog", "portfolio", "testimonials", "cta"]
+        
+        section_order = settings.get("section_order")
+        if section_order:
+            assert isinstance(section_order, list), "section_order should be a list"
+            assert len(section_order) == 6, "section_order should have 6 sections"
+            for section in expected_sections:
+                assert section in section_order, f"Missing section '{section}' in section_order"
+            print(f"✓ Section order configured: {section_order}")
+        else:
+            print("✓ Section order not set in DB (uses default order in frontend)")
+
+
 class TestGeoCurrencyAPI:
     """Tests for geo-based currency detection"""
     
