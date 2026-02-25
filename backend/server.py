@@ -15,6 +15,9 @@ import secrets
 import asyncio
 import resend
 import base64
+import httpx
+import re
+import json
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
 
@@ -36,6 +39,14 @@ EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
 
 # Stripe setup
 STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY', '')
+
+# ResellerClub setup
+RESELLERCLUB_API_KEY = os.environ.get('RESELLERCLUB_API_KEY', '')
+RESELLERCLUB_RESELLER_ID = os.environ.get('RESELLERCLUB_RESELLER_ID', '')
+RESELLERCLUB_API_URL = "https://httpapi.com/api"
+
+# Super Admin Email (owner)
+SUPER_ADMIN_EMAIL = "jomiejoseph@gmail.com"
 
 # Currency exchange rates (base: EUR)
 CURRENCY_RATES = {
