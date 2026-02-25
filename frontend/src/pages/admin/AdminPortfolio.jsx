@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Star, ExternalLink } from "lucide-react";
+import { SortableList, SortableItem } from "@/components/SortableList";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -53,7 +54,7 @@ const AdminPortfolio = () => {
         credentials: "include", body: JSON.stringify(body),
       });
       if (response.ok) {
-        toast.success(editingItem ? "Portfolio item updated!" : "Portfolio item created!");
+        toast.success(editingItem ? "Updated!" : "Created!");
         setDialogOpen(false); resetForm(); fetchPortfolio();
       } else throw new Error("Failed");
     } catch { toast.error("Failed to save"); }
@@ -78,13 +79,23 @@ const AdminPortfolio = () => {
     } catch { toast.error("Failed to delete"); }
   };
 
+  const handleReorder = async (newPortfolio) => {
+    setPortfolio(newPortfolio);
+    const order = newPortfolio.map((p) => p.portfolio_id);
+    try {
+      await fetch(`${API_URL}/api/portfolio/reorder`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ order }),
+      });
+      toast.success("Order saved!");
+    } catch { toast.error("Failed to save order"); }
+  };
+
   const resetForm = () => {
     setEditingItem(null);
-    setFormData({
-      title: "", slug: "", category: "", description: "", image_url: "",
-      gallery_images: "", client_name: "", technologies: "", project_url: "",
-      is_featured: false, order: 0, is_active: true,
-    });
+    setFormData({ title: "", slug: "", category: "", description: "", image_url: "", gallery_images: "", client_name: "", technologies: "", project_url: "", is_featured: false, order: 0, is_active: true });
   };
 
   return (
@@ -93,7 +104,7 @@ const AdminPortfolio = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-heading font-bold text-2xl text-foreground">Portfolio</h1>
-            <p className="text-muted-foreground">Manage your portfolio items</p>
+            <p className="text-muted-foreground">Drag to reorder. Changes save automatically.</p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
@@ -107,13 +118,13 @@ const AdminPortfolio = () => {
                   <div className="space-y-2"><Label htmlFor="slug">Slug *</Label><Input id="slug" name="slug" value={formData.slug} onChange={handleChange} required /></div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label htmlFor="category">Category *</Label><Input id="category" name="category" value={formData.category} onChange={handleChange} required placeholder="Web Design" /></div>
+                  <div className="space-y-2"><Label htmlFor="category">Category *</Label><Input id="category" name="category" value={formData.category} onChange={handleChange} required /></div>
                   <div className="space-y-2"><Label htmlFor="client_name">Client Name</Label><Input id="client_name" name="client_name" value={formData.client_name} onChange={handleChange} /></div>
                 </div>
                 <div className="space-y-2"><Label htmlFor="description">Description *</Label><Textarea id="description" name="description" value={formData.description} onChange={handleChange} rows={3} required /></div>
                 <div className="space-y-2"><Label htmlFor="image_url">Featured Image URL *</Label><Input id="image_url" name="image_url" value={formData.image_url} onChange={handleChange} required /></div>
                 <div className="space-y-2"><Label htmlFor="gallery_images">Gallery Images (one URL per line)</Label><Textarea id="gallery_images" name="gallery_images" value={formData.gallery_images} onChange={handleChange} rows={3} /></div>
-                <div className="space-y-2"><Label htmlFor="technologies">Technologies (comma separated)</Label><Input id="technologies" name="technologies" value={formData.technologies} onChange={handleChange} placeholder="React, Node.js, MongoDB" /></div>
+                <div className="space-y-2"><Label htmlFor="technologies">Technologies (comma separated)</Label><Input id="technologies" name="technologies" value={formData.technologies} onChange={handleChange} /></div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2"><Label htmlFor="project_url">Project URL</Label><Input id="project_url" name="project_url" value={formData.project_url} onChange={handleChange} /></div>
                   <div className="space-y-2"><Label htmlFor="order">Order</Label><Input id="order" name="order" type="number" value={formData.order} onChange={handleChange} /></div>
@@ -131,28 +142,38 @@ const AdminPortfolio = () => {
           </Dialog>
         </div>
 
-        {loading ? (<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{[1, 2, 3].map((i) => (<div key={i} className="animate-pulse bg-slate-200 h-48 rounded-lg" />))}</div>)
-          : portfolio.length === 0 ? (<Card><CardContent className="py-12 text-center text-muted-foreground">No portfolio items yet.</CardContent></Card>)
-          : (<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {portfolio.map((item) => (
-              <Card key={item.portfolio_id} className="overflow-hidden hover:shadow-md transition-shadow">
-                <div className="aspect-video relative">
-                  <img src={item.image_url || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&q=80"} alt={item.title} className="w-full h-full object-cover" />
-                  {item.is_featured && (<span className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded bg-primary text-white text-xs"><Star size={12} />Featured</span>)}
-                  {!item.is_active && (<span className="absolute top-2 right-2 px-2 py-1 rounded bg-slate-800/80 text-white text-xs">Inactive</span>)}
-                </div>
-                <CardContent className="p-4">
-                  <p className="text-xs text-primary font-medium">{item.category}</p>
-                  <h3 className="font-medium text-foreground mt-1">{item.title}</h3>
-                  <div className="flex gap-2 mt-3">
-                    <Button variant="ghost" size="sm" onClick={() => handleEdit(item)}><Pencil size={14} className="mr-1" />Edit</Button>
-                    {item.project_url && (<Button variant="ghost" size="sm" asChild><a href={item.project_url} target="_blank" rel="noopener noreferrer"><ExternalLink size={14} className="mr-1" />View</a></Button>)}
-                    <Button variant="ghost" size="sm" className="text-destructive ml-auto" onClick={() => handleDelete(item.portfolio_id)}><Trash2 size={14} /></Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>)}
+        {loading ? (
+          <div className="space-y-4">{[1, 2, 3].map((i) => (<div key={i} className="animate-pulse bg-slate-200 h-20 rounded-lg" />))}</div>
+        ) : portfolio.length === 0 ? (
+          <Card><CardContent className="py-12 text-center text-muted-foreground">No portfolio items yet.</CardContent></Card>
+        ) : (
+          <SortableList items={portfolio} idKey="portfolio_id" onReorder={handleReorder}>
+            <div className="space-y-3">
+              {portfolio.map((item) => (
+                <SortableItem key={item.portfolio_id} id={item.portfolio_id}>
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4 flex items-center gap-4">
+                      <img src={item.image_url || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=100&q=60"} alt={item.title} className="w-16 h-12 rounded object-cover flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-medium text-foreground truncate">{item.title}</h3>
+                          {item.is_featured && (<span className="flex items-center gap-1 px-2 py-0.5 rounded bg-primary/10 text-primary text-xs"><Star size={12} />Featured</span>)}
+                          {!item.is_active && (<span className="px-2 py-0.5 rounded bg-slate-200 text-xs">Inactive</span>)}
+                        </div>
+                        <p className="text-xs text-muted-foreground">{item.category}</p>
+                      </div>
+                      <div className="flex gap-2 flex-shrink-0">
+                        <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}><Pencil size={16} /></Button>
+                        {item.project_url && (<Button variant="ghost" size="icon" asChild><a href={item.project_url} target="_blank" rel="noopener noreferrer"><ExternalLink size={16} /></a></Button>)}
+                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(item.portfolio_id)}><Trash2 size={16} /></Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </SortableItem>
+              ))}
+            </div>
+          </SortableList>
+        )}
       </div>
     </AdminLayout>
   );

@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Eye, EyeOff, Calendar } from "lucide-react";
+import { SortableList, SortableItem } from "@/components/SortableList";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -75,12 +76,23 @@ const AdminBlog = () => {
     } catch { toast.error("Failed to delete"); }
   };
 
+  const handleReorder = async (newPosts) => {
+    setPosts(newPosts);
+    const order = newPosts.map((p) => p.post_id);
+    try {
+      await fetch(`${API_URL}/api/blog/reorder`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ order }),
+      });
+      toast.success("Order saved!");
+    } catch { toast.error("Failed to save order"); }
+  };
+
   const resetForm = () => {
     setEditingPost(null);
-    setFormData({
-      title: "", slug: "", excerpt: "", content: "", featured_image: "",
-      category: "", tags: "", author: "", is_published: false,
-    });
+    setFormData({ title: "", slug: "", excerpt: "", content: "", featured_image: "", category: "", tags: "", author: "", is_published: false });
   };
 
   const formatDate = (dateStr) => {
@@ -94,7 +106,7 @@ const AdminBlog = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-heading font-bold text-2xl text-foreground">Blog</h1>
-            <p className="text-muted-foreground">Manage your blog posts</p>
+            <p className="text-muted-foreground">Drag to reorder. Changes save automatically.</p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
@@ -107,13 +119,13 @@ const AdminBlog = () => {
                   <div className="space-y-2"><Label htmlFor="title">Title *</Label><Input id="title" name="title" value={formData.title} onChange={handleChange} required /></div>
                   <div className="space-y-2"><Label htmlFor="slug">Slug *</Label><Input id="slug" name="slug" value={formData.slug} onChange={handleChange} required /></div>
                 </div>
-                <div className="space-y-2"><Label htmlFor="excerpt">Excerpt *</Label><Textarea id="excerpt" name="excerpt" value={formData.excerpt} onChange={handleChange} rows={2} required placeholder="Brief summary of the post" /></div>
-                <div className="space-y-2"><Label htmlFor="content">Content *</Label><Textarea id="content" name="content" value={formData.content} onChange={handleChange} rows={12} required placeholder="Write your blog post content here..." /></div>
+                <div className="space-y-2"><Label htmlFor="excerpt">Excerpt *</Label><Textarea id="excerpt" name="excerpt" value={formData.excerpt} onChange={handleChange} rows={2} required /></div>
+                <div className="space-y-2"><Label htmlFor="content">Content *</Label><Textarea id="content" name="content" value={formData.content} onChange={handleChange} rows={12} required /></div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label htmlFor="category">Category *</Label><Input id="category" name="category" value={formData.category} onChange={handleChange} required placeholder="Technology" /></div>
-                  <div className="space-y-2"><Label htmlFor="author">Author *</Label><Input id="author" name="author" value={formData.author} onChange={handleChange} required placeholder="John Doe" /></div>
+                  <div className="space-y-2"><Label htmlFor="category">Category *</Label><Input id="category" name="category" value={formData.category} onChange={handleChange} required /></div>
+                  <div className="space-y-2"><Label htmlFor="author">Author *</Label><Input id="author" name="author" value={formData.author} onChange={handleChange} required /></div>
                 </div>
-                <div className="space-y-2"><Label htmlFor="tags">Tags (comma separated)</Label><Input id="tags" name="tags" value={formData.tags} onChange={handleChange} placeholder="seo, marketing, web" /></div>
+                <div className="space-y-2"><Label htmlFor="tags">Tags (comma separated)</Label><Input id="tags" name="tags" value={formData.tags} onChange={handleChange} /></div>
                 <div className="space-y-2"><Label htmlFor="featured_image">Featured Image URL</Label><Input id="featured_image" name="featured_image" value={formData.featured_image} onChange={handleChange} /></div>
                 <div className="flex items-center gap-2"><Switch id="is_published" checked={formData.is_published} onCheckedChange={(c) => setFormData((p) => ({ ...p, is_published: c }))} /><Label htmlFor="is_published">Publish immediately</Label></div>
                 <div className="flex justify-end gap-2 pt-4">
@@ -125,34 +137,45 @@ const AdminBlog = () => {
           </Dialog>
         </div>
 
-        {loading ? (<div className="space-y-4">{[1, 2, 3].map((i) => (<div key={i} className="animate-pulse bg-slate-200 h-24 rounded-lg" />))}</div>)
-          : posts.length === 0 ? (<Card><CardContent className="py-12 text-center text-muted-foreground">No blog posts yet.</CardContent></Card>)
-          : (<div className="space-y-4">
-            {posts.map((post) => (
-              <Card key={post.post_id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4 flex items-start gap-4">
-                  {post.featured_image && (<img src={post.featured_image} alt={post.title} className="w-24 h-16 rounded object-cover flex-shrink-0" />)}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-medium text-foreground truncate">{post.title}</h3>
-                      {post.is_published ? (<span className="flex items-center gap-1 px-2 py-0.5 rounded bg-green-100 text-green-700 text-xs"><Eye size={12} />Published</span>)
-                        : (<span className="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-200 text-slate-600 text-xs"><EyeOff size={12} />Draft</span>)}
-                    </div>
-                    <p className="text-sm text-muted-foreground line-clamp-1">{post.excerpt}</p>
-                    <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                      <span>{post.category}</span>
-                      <span className="flex items-center gap-1"><Calendar size={12} />{formatDate(post.published_at || post.created_at)}</span>
-                      <span>by {post.author}</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 flex-shrink-0">
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(post)}><Pencil size={16} /></Button>
-                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(post.post_id)}><Trash2 size={16} /></Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>)}
+        {loading ? (
+          <div className="space-y-4">{[1, 2, 3].map((i) => (<div key={i} className="animate-pulse bg-slate-200 h-24 rounded-lg" />))}</div>
+        ) : posts.length === 0 ? (
+          <Card><CardContent className="py-12 text-center text-muted-foreground">No blog posts yet.</CardContent></Card>
+        ) : (
+          <SortableList items={posts} idKey="post_id" onReorder={handleReorder}>
+            <div className="space-y-3">
+              {posts.map((post) => (
+                <SortableItem key={post.post_id} id={post.post_id}>
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4 flex items-start gap-4">
+                      {post.featured_image && (<img src={post.featured_image} alt={post.title} className="w-24 h-16 rounded object-cover flex-shrink-0" />)}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-medium text-foreground truncate">{post.title}</h3>
+                          {post.is_published ? (
+                            <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-green-100 text-green-700 text-xs"><Eye size={12} />Published</span>
+                          ) : (
+                            <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-200 text-slate-600 text-xs"><EyeOff size={12} />Draft</span>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-1">{post.excerpt}</p>
+                        <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                          <span>{post.category}</span>
+                          <span className="flex items-center gap-1"><Calendar size={12} />{formatDate(post.published_at || post.created_at)}</span>
+                          <span>by {post.author}</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 flex-shrink-0">
+                        <Button variant="ghost" size="icon" onClick={() => handleEdit(post)}><Pencil size={16} /></Button>
+                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(post.post_id)}><Trash2 size={16} /></Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </SortableItem>
+              ))}
+            </div>
+          </SortableList>
+        )}
       </div>
     </AdminLayout>
   );
