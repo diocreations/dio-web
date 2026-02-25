@@ -1,135 +1,57 @@
-# DioCreations CMS Website - Product Requirements Document
+# DIOCREATIONS - Product Requirements Document
 
 ## Original Problem Statement
-Build a website similar to www.diocreations.eu with a design inspired by brainvire.com using violet/shades of violet color scheme. Features include:
-- Full CMS backend to manage all website content
-- AI chatbot (Dio) for lead collection
-- Dynamic homepage with admin-editable content
-- Geo-based currency display (EUR for Europe, INR for India, USD for US)
-- Secure admin panel with Google OAuth for super admin
+Make the existing homepage (diocreations.eu) fully dynamic and editable from a backend admin panel. This expanded to include dynamic content for all homepage sections, admin panel enhancements, SEO, chatbot improvements, and an editable About page.
+
+## Core Requirements
+1. **Dynamic Homepage CMS** - All sections editable from admin panel
+2. **Dynamic Features** - Hero content rotation, accent color rotation on refresh, geo-based currency
+3. **Admin Panel** - Secure panel with drag-and-drop section ordering, show/hide toggles, user management
+4. **SEO** - Meta tags, sitemap.xml, robots.txt
+5. **Chatbot "Dio"** - Conversational AI chatbot with lead capture
+6. **Editable About Page** - Full CMS for About page content
+7. **Google Analytics** - Manageable from admin panel
+8. **Transactional Emails** - Purchase confirmations via Resend
+
+## Architecture
+- **Frontend**: React, react-router-dom, Tailwind CSS, Shadcn/UI, framer-motion, @dnd-kit/core
+- **Backend**: FastAPI, MongoDB (motor), Pydantic, resend
+- **Auth**: JWT sessions + Google OAuth (super-admin: jomiejoseph@gmail.com)
+- **Integrations**: Stripe, Google Auth, Gemini (chatbot), Resend (email)
 
 ## What's Been Implemented
+- Dynamic Homepage CMS with all sections
+- Hero content/image rotation + accent color rotation
+- Geo-based currency (USD/EUR/INR)
+- Admin drag-and-drop section ordering
+- SEO basics (meta tags, sitemap, robots.txt)
+- Animated butterfly favicon, chatbot mascot, email logo
+- Google Analytics integration via admin
+- Transactional emails via Resend
+- Chatbot "Dio" with conversational flow and lead capture
+- **Editable About Page** - Full admin editor with 6 tabs (Hero, Stats, Values, Timeline, Why Us, CTA)
+- **Dynamic button colors** - All homepage buttons/elements change with accent color via CSS custom properties
+- **"Chat with Dio" genie label** - Spring-animated speech bubble near the chat toggle
+- **Static message butterflies** - Only header butterfly animates; message avatars are static
 
-### Phase 1: Core CMS (Completed)
-- [x] Public Pages: Homepage, About, Services, Products, Portfolio, Blog, Contact
-- [x] Admin Panel: Dashboard with stats, CRUD for all content types
-- [x] Dio Chatbot: Gemini-powered AI assistant for lead capture
-- [x] Authentication: JWT + Google OAuth
-- [x] Stripe Integration: Product payments
+## Key API Endpoints
+- `GET /api/homepage/content` - Public homepage data
+- `PUT /api/admin/homepage/settings` - Update homepage settings
+- `GET /api/about/content` - Public about page data
+- `GET /api/about/settings` - Admin about page data (auth required)
+- `PUT /api/about/settings` - Update about page (auth required)
+- `GET /sitemap.xml` - Dynamic sitemap
+- `POST /webhook/stripe` - Stripe webhook + email
 
-### Phase 2: Dynamic Homepage CMS (Completed - Dec 2025)
+## Admin Credentials
+- Email: admin@diocreations.com / Password: adminpassword
+- Super Admin (Google): jomiejoseph@gmail.com
 
-#### Hero Section Management
-- [x] Multiple hero variants with text + image rotation
-- [x] Editable: badge text, title lines, subtitle, CTAs, hero image
-- [x] Rotation types: "refresh" (change on page load) or "auto" (carousel)
-- [x] Per-variant accent color selection
+## Backlog
+- **P1**: AI Website Builder (Premium Features) - AI generation of websites, domain purchasing via ResellerClub, automated hosting
+- **P2**: Backend refactoring - Split server.py (~3000 lines) into modular APIRouter files
 
-#### Color Accent Variations
-- [x] 5 color schemes: Violet, Blue, Teal, Pink, Orange
-- [x] Accent colors change: badges, gradient text, CTA buttons
-- [x] Admin can enable/disable individual color schemes
-- [x] Session-persistent color rotation on page refresh
-
-#### Section Ordering (Drag & Drop)
-- [x] Admin can reorder: Services, Products, Blog, Portfolio, Testimonials, CTA
-- [x] Up/down arrows in "Order" tab
-- [x] Order persists after save and reflects on homepage
-
-#### Section Visibility (Show/Hide Toggles)
-- [x] 6 toggles: Services, Products, Blog, Portfolio, Testimonials, CTA
-- [x] Hidden sections don't render on homepage
-
-#### Featured Items Selection
-- [x] Select specific blog posts to feature (configurable count)
-- [x] Select specific products to feature (configurable count)
-- [x] Featured items shown in homepage Blog/Products sections
-
-#### Stats Section
-- [x] Editable statistics displayed in hero
-- [x] Configurable values and labels
-- [x] Toggle visibility from admin
-
-#### Geo-Based Currency Display
-- [x] Auto-detect visitor country from headers (CF-IPCountry, X-Country-Code)
-- [x] **India (IN)** → INR (₹) with rate 90.5
-- [x] **USA (US)** → USD ($) with rate 1.08
-- [x] **Italy (IT) / Europe** → EUR (€) with rate 1.0
-- [x] **UK (GB)** → GBP (£) with rate 0.85
-- [x] Product prices auto-convert and display in visitor's currency
-
-### Phase 3: SEO Optimization (Completed - Dec 2025)
-- [x] **Animated Butterfly Favicon** - Uses the site's colorful butterfly logo with wing-flapping animation
-- [x] **Meta Tags** - Title, description, keywords, author, robots
-- [x] **Open Graph** - Facebook/social sharing tags with image
-- [x] **Twitter Cards** - Twitter-specific meta tags
-- [x] **Structured Data (JSON-LD)**:
-  - Organization schema
-  - LocalBusiness/ProfessionalService schema
-  - Service offerings
-  - Aggregate rating (4.9/5)
-- [x] **robots.txt** - Allows crawling, blocks admin/api
-- [x] **Dynamic Sitemap** - /api/sitemap.xml with all pages, services, blog posts, portfolio
-- [x] **Google Analytics via Admin** - GA ID configurable in Admin → Settings → Google Analytics ID
-
-### Phase 4: Dio Chatbot Enhancement (Completed - Dec 2025)
-- [x] **Animated Butterfly Logo** - Uses site's butterfly mascot with wing-flapping animation
-- [x] **Friendly Conversation Flow**:
-  1. Greet user and ask for name
-  2. Use name throughout conversation
-  3. Be friendly, make user laugh
-  4. Ask what service they need
-  5. Share relevant service URL
-  6. Collect contact info (email, phone/WhatsApp)
-  7. Reassure 24-hour response time
-- [x] **Lead Collection** - Captures name, email, phone automatically
-- [x] **Portfolio Preview** - Shows relevant work when discussing services
-- [x] **Service Links** - Clickable links to relevant pages
-
-### Phase 5: Purchase Emails (Completed - Dec 2025)
-- [x] **Email Template** - Professional HTML email with butterfly logo
-- [x] **Automatic Emails** - Sent on successful Stripe payment
-- [x] **Branding** - Includes DIOCREATIONS logo, gradient header, order details
-
-### Phase 5: Admin Security (Completed - Dec 2025)
-- [x] Super Admin: `jomiejoseph@gmail.com` (Google OAuth only)
-- [x] Admin Users page restricted to super admin
-- [x] Super admin can grant/revoke access to other users
-
-## Admin Homepage Manager (/admin/homepage)
-
-6 Tabs:
-1. **Hero** - Edit hero variants (text + image), rotation settings
-2. **Colors** - Enable/disable color schemes for accent rotation
-3. **Featured** - Select featured blog posts and products
-4. **Stats** - Edit statistics shown in hero section
-5. **Sections** - Show/hide toggles for each section
-6. **Order** - Drag & drop section ordering
-
-## Technical Architecture
-
-### Key API Endpoints
-- `GET /api/homepage/content` - Public homepage data with geo-currency
-- `GET /api/geo/currency` - Get visitor's currency based on location
-- `PUT /api/homepage/settings` - Update homepage settings (auth required)
-- `POST /api/homepage/hero-variants` - Create new hero variant
-- `PUT /api/homepage/featured-items` - Update featured items
-
-### Database Collections
-- `homepage_settings` - Settings including section_order, show_* toggles
-- `hero_variants` - Hero content variants with hero_image
-- `color_schemes` - Available color schemes
-- `featured_items` - Manually selected featured items
-
-## Credentials
-- **Admin**: admin@diocreations.com / adminpassword
-- **Super Admin**: jomiejoseph@gmail.com (Google OAuth only)
-
-## Test Results (Dec 2025)
-- Backend API: 100% pass rate (27 tests)
-- Frontend: 100% pass rate
-- All homepage features verified working
-
-## Future Tasks (On Hold)
-1. AI Website Builder with ResellerClub domain integration
-2. Server.py refactoring into modular routes
+## Test Reports
+- /app/test_reports/iteration_3.json
+- /app/test_reports/iteration_4.json
+- /app/test_reports/iteration_5.json (latest - all passed)
