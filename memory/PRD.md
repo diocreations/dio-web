@@ -1,103 +1,145 @@
-# DioCreations CMS Website - LAUNCH READY ✅
+# DioCreations CMS Website - Product Requirements Document
 
 ## Original Problem Statement
-Build a website similar to www.diocreations.eu showing services and products from diocreations.supersite.myorderbox.com with design like brainvire.com but using violet/shades of violet. Need full CMS backend to manage website content and images. Add Dio chatbot that collects user info and shows relevant portfolio.
+Build a website similar to www.diocreations.eu with a design inspired by brainvire.com using violet/shades of violet color scheme. Features include:
+- Full CMS backend to manage all website content
+- AI chatbot (Dio) for lead collection
+- Dynamic homepage with admin-editable content
+- Geo-based currency display (EUR for Europe, INR for India)
+- Secure admin panel with Google OAuth for super admin
 
 ## User Choices
 - Full CMS to manage everything (pages, content, images)
 - All pages: Home, About, Services, Products, Portfolio, Blog, Contact
-- Contact form with email notification (Resend integration ready)
+- Contact form with email notification
 - Both JWT auth and Google social login for admin panel
-- Logo space for animated SVG logo (220x100) - **INTEGRATED**
+- Animated SVG logo support
 - Design like brainvire.com with VIOLET color scheme
 - Dio chatbot to collect leads and show portfolio samples
+- Dynamic homepage with rotation features
+- Geo-based currency localization
 
-## Latest Updates (December 2025)
-- **Animated Logo Integration** - Custom SVG logo now displays in header and footer
-- Fixed JSX syntax error in Footer.jsx that was breaking the build
+## What's Been Implemented
 
-## What's Been Implemented (Production Ready)
+### Phase 1: Core CMS (Completed)
+- [x] **Public Pages**: Homepage, About, Services, Products, Portfolio, Blog, Contact
+- [x] **Admin Panel**: Dashboard with stats, CRUD for all content types
+- [x] **Dio Chatbot**: Gemini-powered AI assistant for lead capture
+- [x] **Authentication**: JWT + Google OAuth
+- [x] **Stripe Integration**: Product payments
 
-### Public Pages
-- [x] **Homepage** - Hero section, services preview (6), products (4), featured portfolio (4), testimonials, CTAs
-- [x] **About** - Company story, values, timeline milestones, why choose us
-- [x] **Services** - 6 services with detailed descriptions and features
-- [x] **Products** - 6 products with pricing, features, "Popular" badges
-- [x] **Portfolio** - 8 real-looking projects with category filters (E-commerce, Website, Mobile App, SaaS, etc.)
-- [x] **Blog** - 4 published articles with categories, author info, rich content
-- [x] **Contact** - Form with name, email, phone, subject, message
+### Phase 2: Dynamic Homepage (Completed - Dec 2025)
+- [x] **Hero Section Management**
+  - Multiple hero variants with badge text, titles, subtitles, CTAs
+  - Auto-rotation on page refresh (configurable in admin)
+  - Carousel-style rotation option
+  
+- [x] **Color Scheme Rotation**
+  - 5 color schemes: Violet, Blue, Teal, Pink, Orange
+  - Changes on page refresh (session-persisted)
+  - Admin can enable/disable individual schemes
+  
+- [x] **Featured Sections**
+  - Featured Blog Posts (configurable count)
+  - Featured Products with currency conversion
+  - Manual selection or automatic (most recent/popular)
+  
+- [x] **Stats Section**
+  - Editable statistics (Projects, Clients, Years, Team)
+  - Toggle visibility from admin
+  
+- [x] **Section Visibility Controls**
+  - Show/hide Services, Products, Portfolio, Testimonials, CTA sections
+  
+- [x] **Admin Homepage Manager** (`/admin/homepage`)
+  - 5 tabs: Hero, Colors, Featured, Stats, Sections
+  - Real-time preview of changes
+  
+- [x] **Geo-Based Currency**
+  - Auto-detect visitor country from headers
+  - Display prices in local currency (EUR, INR, USD, GBP, etc.)
+  - Currency conversion rates maintained in backend
 
-### Dio Chatbot (AI-Powered)
-- [x] Uses Gemini 2.0 Flash via Emergent LLM key
-- [x] Collects visitor info: Name, Email, Phone/WhatsApp
-- [x] Shows relevant portfolio items based on user needs
-- [x] Saves leads to database for admin review
-- [x] Session-based chat history persistence
-- [x] Clean UI with violet branding
+### Phase 3: Admin Security (Completed - Dec 2025)
+- [x] **Super Admin Enforcement**
+  - `jomiejoseph@gmail.com` is permanent super admin
+  - Super admin can grant/revoke access to other users
+  - Google OAuth required for admin access
+  
+- [x] **Admin Users Management** (`/admin/users`)
+  - View all admin users with roles
+  - Add new admin users (super admin only)
+  - Remove admin access (super admin only)
+  - Clear "Access Restricted" message for non-super-admins
 
-### Admin Panel (CMS)
-- [x] Dashboard with stats overview
-- [x] Services management (CRUD)
-- [x] Products management (CRUD)
-- [x] Portfolio management (CRUD)
-- [x] Blog management (CRUD)
-- [x] Testimonials management (CRUD)
-- [x] Contact submissions viewer
-- [x] **Leads management** - View/edit chatbot leads with status tracking
-- [x] Site settings (logo, contact info, social links)
+## Technical Architecture
 
-### Pre-Loaded Content
-- 6 Services (Web Dev, SEO, Local SEO, AI Solutions, Marketing Automation, Email Marketing)
-- 6 Products (Domain, Hosting, SSL, Website Builder, Google Workspace, Cloud Hosting)
-- 8 Portfolio Projects (Luxe Fashion, FinServe Bank, HealthTrack, InsightPro, PropertyHub, EduLearn, FoodieGo, TravelWise)
-- 4 Blog Posts (Web Design Trends, AI SEO, E-commerce Guide, Mobile Apps)
-- 3 Testimonials
+### Backend (FastAPI + MongoDB)
+```
+/app/backend/
+├── server.py          # All models and API routes
+├── .env               # Environment variables
+└── requirements.txt   # Python dependencies
+```
 
-### Design
-- Violet/purple color scheme (primary: violet-600)
-- Manrope (headings) + Inter (body) fonts
-- Modern animations via framer-motion
-- Fully responsive design
-- Shadcn UI components
+### Frontend (React + Tailwind + Shadcn/UI)
+```
+/app/frontend/src/
+├── App.js             # Routing and auth context
+├── pages/
+│   ├── HomePage.jsx   # Dynamic homepage
+│   └── admin/
+│       ├── AdminHomepage.jsx  # Homepage CMS
+│       ├── AdminUsers.jsx     # User management
+│       └── ...other admin pages
+└── components/
+    ├── Layout.jsx     # Public layout with header/footer
+    └── AdminLayout.jsx # Admin sidebar layout
+```
 
-## Test Results
-- Backend API: 100% pass rate
-- Frontend Public: 100% pass rate
-- Frontend Admin: 90% pass rate
-- Dio Chatbot: 100% pass rate
+### Key API Endpoints
+- `GET /api/homepage/content` - Public homepage data with currency
+- `GET /api/homepage/settings` - Admin homepage settings
+- `PUT /api/homepage/settings` - Update homepage settings
+- `GET /api/homepage/hero-variants` - List hero variants
+- `POST /api/homepage/hero-variants` - Create hero variant
+- `PUT /api/homepage/hero-variants/{id}` - Update hero variant
+- `GET /api/homepage/color-schemes` - List color schemes
+- `PUT /api/homepage/featured-items` - Update featured items
+- `GET /api/geo/currency` - Get visitor's currency
+- `GET /api/admin/users` - List admin users (super admin only)
+- `POST /api/admin/users` - Add admin user (super admin only)
 
-## Before Going Live Checklist
-1. [ ] Upload animated SVG logo via Admin Settings → Logo URL
-2. [ ] Update contact email/phone in Admin Settings
-3. [ ] Add social media links in Admin Settings
-4. [ ] Configure Resend API key for email notifications (optional)
-5. [ ] Review and customize seeded content
-6. [ ] Test contact form submission
-7. [ ] Test Dio chatbot flow
+### Database Collections
+- `homepage_settings` - Homepage configuration
+- `hero_variants` - Hero section content variants
+- `color_schemes` - Available color schemes
+- `featured_items` - Manually selected featured items
+- `admin_users` - Admin access list
+- `services`, `products`, `blog`, `portfolio`, `testimonials` - Content
 
-## Access URLs
-- Public: https://editable-cms-site.preview.emergentagent.com
-- Admin: https://editable-cms-site.preview.emergentagent.com/admin/login
+## Credentials
 
-## Tech Stack
-- **Backend**: FastAPI + MongoDB
-- **Frontend**: React + Tailwind CSS + Shadcn UI + Framer Motion
-- **Auth**: JWT + Emergent Google OAuth
-- **Chatbot**: Gemini 2.0 Flash via Emergent LLM Key
-## Phase 1 Progress - Wed Feb 25 12:43:07 UTC 2026
+### Admin Access
+- **Default Admin**: admin@diocreations.com / adminpassword
+- **Super Admin**: jomiejoseph@gmail.com (Google OAuth only)
 
-### Completed:
-- New homepage with AI Builder hero section
-- AI Website Builder page (5 categories)
-- Builder backend APIs (generate, create-order, checkout)
-- Admin access control models
-- ResellerClub API integration models
-- Domain check/suggest/pricing APIs
-- Products sync from ResellerClub
+### API Keys (in backend/.env)
+- EMERGENT_LLM_KEY - For Dio chatbot
+- STRIPE_API_KEY - For payments
+- RESELLERCLUB_API_KEY - For domain services (planned)
 
-### In Progress:
-- Admin panel updates (user management, settings)
-- Dio chatbot integration with builder
-- SEO improvements
-- Favicon generation
+## Test Results (Dec 2025)
+- Backend API: 100% pass rate (25 tests)
+- Frontend: 100% pass rate
+- All new homepage features verified working
 
+## Future Tasks (On Hold)
+1. **AI Website Builder** - Generate unique 5-page websites with AI
+2. **ResellerClub Integration** - Domain search and purchase
+3. **Automated Hosting** - Deploy generated websites
+4. **Server.py Refactoring** - Split into modular routes
+
+## Deployment
+- **Preview**: https://editable-cms-site.preview.emergentagent.com
+- **Production**: www.diocreations.eu (user-managed)
