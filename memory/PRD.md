@@ -30,22 +30,12 @@ Build a website similar to www.diocreations.eu with a design inspired by brainvi
 
 ### Phase 2: Dynamic Homepage (Completed - Dec 2025)
 - [x] **Hero Section Management**
-  - Multiple hero variants with badge text, titles, subtitles, CTAs
-  - Auto-rotation on page refresh (configurable in admin)
-  - Carousel-style rotation option
-  
-- [x] **Color Scheme Rotation**
-  - 5 color schemes: Violet, Blue, Teal, Pink, Orange
-  - Changes on page refresh (session-persisted)
-  - Admin can enable/disable individual schemes
-  
-- [x] **Featured Sections**
-  - Featured Blog Posts (configurable count)
-  - Featured Products with currency conversion
-  - Manual selection or automatic (most recent/popular)
+  - Editable badge text, title lines, subtitle, CTAs
+  - Multiple hero variants with rotation option
+  - Default matches LIVE site design (light background, left-text/right-image layout)
   
 - [x] **Stats Section**
-  - Editable statistics (Projects, Clients, Years, Team)
+  - Editable statistics displayed in hero (500+ Projects, 200+ Clients, 10+ Years)
   - Toggle visibility from admin
   
 - [x] **Section Visibility Controls**
