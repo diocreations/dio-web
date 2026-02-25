@@ -2228,11 +2228,12 @@ async def chat_with_dio(chat_message: ChatMessage):
     
     # Create or get chat instance for this session
     if session_id not in chat_instances:
+        system_msg = await build_system_message()
         chat_instances[session_id] = {
             "chat": LlmChat(
                 api_key=EMERGENT_LLM_KEY,
                 session_id=session_id,
-                system_message=DIO_SYSTEM_MESSAGE
+                system_message=system_msg
             ).with_model("gemini", "gemini-2.0-flash"),
             "history": [],
             "lead_info": {},
