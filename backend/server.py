@@ -953,6 +953,13 @@ async def delete_service(service_id: str, user: dict = Depends(get_current_user)
         raise HTTPException(status_code=404, detail="Service not found")
     return {"message": "Service deleted"}
 
+@api_router.put("/services/reorder")
+async def reorder_services(data: dict, user: dict = Depends(get_current_user)):
+    order_list = data.get("order", [])
+    for idx, service_id in enumerate(order_list):
+        await db.services.update_one({"service_id": service_id}, {"$set": {"order": idx}})
+    return {"message": "Services reordered"}
+
 # ==================== PRODUCTS ROUTES ====================
 
 @api_router.get("/products", response_model=List[Product])
