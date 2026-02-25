@@ -213,11 +213,11 @@ const HomePage = () => {
                 <h1 className="font-heading font-bold text-4xl sm:text-5xl lg:text-6xl text-white leading-tight mb-6">
                   {currentHero.title_line1}
                   <br />
-                  <span className={`bg-gradient-to-r from-${currentColorScheme.accent}-300 to-pink-300 bg-clip-text text-transparent`}>
+                  <span className={`bg-gradient-to-r ${currentColorScheme.textGradient} bg-clip-text text-transparent`}>
                     {currentHero.title_line2}
                   </span>
                 </h1>
-                <p className={`text-lg text-${currentColorScheme.accent}-100 max-w-2xl mx-auto mb-8`}>
+                <p className="text-lg text-white/80 max-w-2xl mx-auto mb-8">
                   {currentHero.subtitle}
                 </p>
               </motion.div>
