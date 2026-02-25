@@ -49,8 +49,7 @@ const accentColors = {
     light: "bg-violet-50",
     border: "border-violet-200",
     hoverBorder: "hover:border-violet-200",
-    hsl: "265 80% 50%",
-    ring: "265 80% 50%",
+    css: { "--primary": "265 80% 50%", "--ring": "265 80% 50%", "--accent": "265 60% 60%", "--secondary": "265 30% 96%", "--secondary-foreground": "265 80% 30%" },
   },
   blue: {
     badge: "bg-blue-100 text-blue-700",
@@ -59,8 +58,7 @@ const accentColors = {
     light: "bg-blue-50",
     border: "border-blue-200",
     hoverBorder: "hover:border-blue-200",
-    hsl: "221 83% 53%",
-    ring: "221 83% 53%",
+    css: { "--primary": "221 83% 53%", "--ring": "221 83% 53%", "--accent": "221 60% 60%", "--secondary": "221 30% 96%", "--secondary-foreground": "221 83% 30%" },
   },
   teal: {
     badge: "bg-teal-100 text-teal-700",
@@ -69,8 +67,7 @@ const accentColors = {
     light: "bg-teal-50",
     border: "border-teal-200",
     hoverBorder: "hover:border-teal-200",
-    hsl: "172 66% 50%",
-    ring: "172 66% 50%",
+    css: { "--primary": "172 66% 50%", "--ring": "172 66% 50%", "--accent": "172 50% 55%", "--secondary": "172 30% 96%", "--secondary-foreground": "172 66% 30%" },
   },
   pink: {
     badge: "bg-pink-100 text-pink-700",
@@ -79,8 +76,7 @@ const accentColors = {
     light: "bg-pink-50",
     border: "border-pink-200",
     hoverBorder: "hover:border-pink-200",
-    hsl: "333 71% 51%",
-    ring: "333 71% 51%",
+    css: { "--primary": "333 71% 51%", "--ring": "333 71% 51%", "--accent": "333 55% 60%", "--secondary": "333 30% 96%", "--secondary-foreground": "333 71% 30%" },
   },
   orange: {
     badge: "bg-orange-100 text-orange-700",
@@ -89,8 +85,7 @@ const accentColors = {
     light: "bg-orange-50",
     border: "border-orange-200",
     hoverBorder: "hover:border-orange-200",
-    hsl: "25 95% 53%",
-    ring: "25 95% 53%",
+    css: { "--primary": "25 95% 53%", "--ring": "25 95% 53%", "--accent": "25 70% 60%", "--secondary": "25 30% 96%", "--secondary-foreground": "25 95% 30%" },
   },
 };
 
