@@ -42,10 +42,10 @@ const iconMap = {
 };
 
 const builderCategories = [
-  { name: "Business Website", icon: Briefcase, color: "bg-blue-500" },
-  { name: "Portfolio", icon: Image, color: "bg-pink-500" },
-  { name: "E-commerce Store", icon: ShoppingCart, color: "bg-green-500" },
-  { name: "Agency", icon: Rocket, color: "bg-orange-500" },
+  { name: "Business Website", slug: "business", icon: Briefcase, color: "bg-blue-500", template_type: "basic" },
+  { name: "Portfolio", slug: "portfolio", icon: Image, color: "bg-pink-500", template_type: "portfolio" },
+  { name: "E-commerce Store", slug: "ecommerce", icon: ShoppingCart, color: "bg-green-500", template_type: "ecommerce" },
+  { name: "Others", slug: "others", icon: Rocket, color: "bg-orange-500", template_type: "basic" },
 ];
 
 const HomePage = () => {
