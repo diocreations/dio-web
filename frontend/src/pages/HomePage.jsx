@@ -279,7 +279,7 @@ const HomePage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.4 }}
-              className={`flex flex-wrap justify-center gap-6 mt-12 text-${currentColorScheme.accent}-200`}
+              className="flex flex-wrap justify-center gap-6 mt-12 text-white/80"
             >
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
