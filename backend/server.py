@@ -399,6 +399,7 @@ class HeroVariant(BaseModel):
     primary_cta_link: str = "/contact"
     secondary_cta_text: str = "View Services"
     secondary_cta_link: str = "/services"
+    hero_image: str = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80"
     accent_color: str = "violet"  # violet, blue, pink, teal, orange
     is_active: bool = True
     order: int = 0
@@ -430,12 +431,15 @@ class HomepageSettings(BaseModel):
     featured_blog_count: int = 3
     show_featured_products: bool = True
     featured_products_count: int = 3
-    # Section visibility
+    # Section visibility and ordering
     show_services: bool = True
     show_products: bool = True
     show_portfolio: bool = True
     show_testimonials: bool = True
     show_cta: bool = True
+    show_blog: bool = True
+    # Section order (drag & drop)
+    section_order: List[str] = ["services", "products", "blog", "portfolio", "testimonials", "cta"]
     # Stats section
     show_stats: bool = True
     stats: List[Dict] = [
