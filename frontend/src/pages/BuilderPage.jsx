@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ import {
   CreditCard,
   Plus,
   Trash2,
+  Search,
 } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -42,8 +43,18 @@ const iconMap = {
   Server: Server,
 };
 
+// Category definitions
+const categoryDefinitions = {
+  business: { name: "Business Website", slug: "business", description: "Professional website for your business", icon: "Briefcase", template_type: "basic" },
+  portfolio: { name: "Portfolio", slug: "portfolio", description: "Showcase your work with style", icon: "Image", template_type: "portfolio" },
+  ecommerce: { name: "E-commerce Store", slug: "ecommerce", description: "Sell products online", icon: "ShoppingCart", template_type: "ecommerce" },
+  restaurant: { name: "Restaurant", slug: "restaurant", description: "Menu and reservations", icon: "Utensils", template_type: "basic" },
+  others: { name: "Others", slug: "others", description: "Custom website for any purpose", icon: "Rocket", template_type: "basic" },
+};
+
 const BuilderPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState(1);
   const [categories, setCategories] = useState([]);
   const [pricing, setPricing] = useState([]);
