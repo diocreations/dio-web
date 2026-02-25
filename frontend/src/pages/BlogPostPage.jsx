@@ -79,7 +79,7 @@ const BlogPostPage = () => {
             className="space-y-6"
           >
             <div className="flex items-center gap-4 text-sm">
-              <span className="px-3 py-1 rounded-full bg-violet-100 text-primary font-medium">
+              <span className="px-3 py-1 rounded-full bg-primary/10 text-primary font-medium">
                 {post.category}
               </span>
               <span className="flex items-center gap-1 text-muted-foreground">

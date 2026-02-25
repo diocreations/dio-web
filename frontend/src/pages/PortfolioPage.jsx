@@ -46,7 +46,7 @@ const PortfolioPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
             >
-              <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm mb-6">
+              <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm mb-6">
                 Our Portfolio
               </span>
               <h1 className="font-heading font-bold text-4xl md:text-5xl text-foreground mb-6">
@@ -118,7 +118,7 @@ const PortfolioPage = () => {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
                   <Link to={`/portfolio/${item.slug}`} data-testid={`portfolio-item-${item.slug}`}>
-                    <Card className="overflow-hidden border border-slate-100 hover:border-violet-200 hover:shadow-xl transition-all group">
+                    <Card className="overflow-hidden border border-slate-100 hover:border-primary/20 hover:shadow-xl transition-all group">
                       <div className="relative aspect-video overflow-hidden">
                         <img
                           src={item.image_url || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80"}
@@ -170,12 +170,12 @@ const PortfolioPage = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-violet-600 to-violet-800">
+      <section className="py-20 bg-gradient-to-r from-primary to-primary/80">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 text-center">
           <h2 className="font-heading font-bold text-3xl md:text-4xl text-white mb-6">
             Want to Be Our Next Success Story?
           </h2>
-          <p className="text-violet-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-white/80 mb-8 max-w-2xl mx-auto">
             Let's discuss how we can help bring your project to life
           </p>
           <Button

@@ -56,7 +56,7 @@ const BlogPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
             >
-              <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm mb-6">
+              <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm mb-6">
                 Our Blog
               </span>
               <h1 className="font-heading font-bold text-4xl md:text-5xl text-foreground mb-6">
@@ -129,7 +129,7 @@ const BlogPage = () => {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
                   <Link to={`/blog/${post.slug}`} data-testid={`blog-post-${post.slug}`}>
-                    <Card className="overflow-hidden border border-slate-100 hover:border-violet-200 hover:shadow-xl transition-all group h-full">
+                    <Card className="overflow-hidden border border-slate-100 hover:border-primary/20 hover:shadow-xl transition-all group h-full">
                       <div className="relative aspect-video overflow-hidden">
                         <img
                           src={post.featured_image || "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600&q=80"}

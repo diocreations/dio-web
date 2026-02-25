@@ -75,7 +75,7 @@ const BuilderSuccessPage = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="bg-violet-50 rounded-lg p-4">
+                  <div className="bg-primary/5 rounded-lg p-4">
                     <Mail className="w-8 h-8 mx-auto text-primary mb-2" />
                     <p className="text-sm text-primary">
                       We're setting up your website. You'll receive an email with your login credentials within 24-48 hours.

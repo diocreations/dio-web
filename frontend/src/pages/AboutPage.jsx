@@ -101,7 +101,7 @@ const AboutPage = () => {
               transition={{ duration: 0.7 }}
               className="space-y-6"
             >
-              <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm">
+              <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm">
                 {heroContent.badge}
               </span>
               <h1 className="font-heading font-bold text-4xl md:text-5xl text-foreground leading-tight">
@@ -168,7 +168,7 @@ const AboutPage = () => {
         <section className="py-20 md:py-32">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
             <div className="text-center mb-16">
-              <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm mb-4">
+              <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm mb-4">
                 {content?.values_badge || "Our Values"}
               </span>
               <h2 className="font-heading font-bold text-3xl md:text-4xl text-foreground mb-4">
@@ -191,7 +191,7 @@ const AboutPage = () => {
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                     className="text-center space-y-4"
                   >
-                    <div className="w-16 h-16 rounded-2xl bg-violet-100 flex items-center justify-center mx-auto">
+                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
                       <Icon className="text-primary" size={32} />
                     </div>
                     <h3 className="font-heading font-semibold text-xl text-foreground">
@@ -213,7 +213,7 @@ const AboutPage = () => {
         <section className="py-20 md:py-32 bg-slate-50">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
             <div className="text-center mb-16">
-              <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm mb-4">
+              <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm mb-4">
                 {content?.timeline_badge || "Our Journey"}
               </span>
               <h2 className="font-heading font-bold text-3xl md:text-4xl text-foreground mb-4">
@@ -223,7 +223,7 @@ const AboutPage = () => {
 
             <div className="relative">
               {/* Timeline Line */}
-              <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-violet-200 hidden md:block" />
+              <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-primary/20 hidden md:block" />
 
               <div className="space-y-12">
                 {milestones.map((milestone, index) => (
@@ -266,7 +266,7 @@ const AboutPage = () => {
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
-                <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm mb-4">
+                <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm mb-4">
                   {content?.why_us_badge || "Why Choose Us"}
                 </span>
                 <h2 className="font-heading font-bold text-3xl md:text-4xl text-foreground mb-6">
@@ -298,7 +298,7 @@ const AboutPage = () => {
 
       {/* CTA Section */}
       {content?.show_cta !== false && (
-        <section className="py-20 bg-gradient-to-r from-violet-600 to-violet-800">
+        <section className="py-20 bg-gradient-to-r from-primary to-primary/80">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -309,7 +309,7 @@ const AboutPage = () => {
               <h2 className="font-heading font-bold text-3xl md:text-4xl text-white mb-6">
                 {content?.cta_title || "Ready to Start Your Project?"}
               </h2>
-              <p className="text-violet-100 mb-8 max-w-2xl mx-auto">
+              <p className="text-white/80 mb-8 max-w-2xl mx-auto">
                 {content?.cta_subtitle || "Let's discuss how we can help you achieve your digital goals"}
               </p>
               <Button

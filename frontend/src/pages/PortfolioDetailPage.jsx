@@ -68,7 +68,7 @@ const PortfolioDetailPage = () => {
               transition={{ duration: 0.7 }}
               className="space-y-6"
             >
-              <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm">
+              <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm">
                 {item.category}
               </span>
               <h1 className="font-heading font-bold text-4xl md:text-5xl text-foreground">
@@ -92,7 +92,7 @@ const PortfolioDetailPage = () => {
                     {item.technologies.map((tech, i) => (
                       <span
                         key={i}
-                        className="px-3 py-1 rounded-full bg-violet-100 text-primary text-sm font-medium"
+                        className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium"
                       >
                         {tech}
                       </span>
@@ -169,12 +169,12 @@ const PortfolioDetailPage = () => {
       )}
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-violet-600 to-violet-800">
+      <section className="py-20 bg-gradient-to-r from-primary to-primary/80">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 text-center">
           <h2 className="font-heading font-bold text-3xl md:text-4xl text-white mb-6">
             Like What You See?
           </h2>
-          <p className="text-violet-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-white/80 mb-8 max-w-2xl mx-auto">
             Let's create something amazing together
           </p>
           <Button

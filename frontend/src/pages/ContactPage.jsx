@@ -76,7 +76,7 @@ const ContactPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
             >
-              <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm mb-6">
+              <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm mb-6">
                 Contact Us
               </span>
               <h1 className="font-heading font-bold text-4xl md:text-5xl text-foreground mb-6">
@@ -118,7 +118,7 @@ const ContactPage = () => {
               <div className="space-y-6">
                 {settings?.contact_email && (
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <Mail className="text-primary" size={24} />
                     </div>
                     <div>
@@ -135,7 +135,7 @@ const ContactPage = () => {
 
                 {settings?.contact_phone && (
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <Phone className="text-primary" size={24} />
                     </div>
                     <div>
@@ -152,7 +152,7 @@ const ContactPage = () => {
 
                 {settings?.contact_address && (
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <MapPin className="text-primary" size={24} />
                     </div>
                     <div>
@@ -165,7 +165,7 @@ const ContactPage = () => {
                 )}
 
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <Clock className="text-primary" size={24} />
                   </div>
                   <div>

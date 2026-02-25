@@ -55,7 +55,7 @@ const ServicesPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
             >
-              <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm mb-6">
+              <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm mb-6">
                 Our Services
               </span>
               <h1 className="font-heading font-bold text-4xl md:text-5xl text-foreground mb-6">
@@ -97,11 +97,11 @@ const ServicesPage = () => {
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                   >
-                    <Card className="overflow-hidden border border-slate-100 hover:border-violet-200 hover:shadow-xl transition-all">
+                    <Card className="overflow-hidden border border-slate-100 hover:border-primary/20 hover:shadow-xl transition-all">
                       <CardContent className="p-0">
                         <div className={`grid grid-cols-1 lg:grid-cols-2 ${!isEven ? 'lg:flex-row-reverse' : ''}`}>
                           {/* Image Side */}
-                          <div className={`relative h-64 lg:h-auto bg-gradient-to-br from-violet-100 to-violet-50 ${!isEven ? 'lg:order-2' : ''}`}>
+                          <div className={`relative h-64 lg:h-auto bg-gradient-to-br from-primary/10 to-primary/5 ${!isEven ? 'lg:order-2' : ''}`}>
                             {service.image_url ? (
                               <img
                                 src={service.image_url}
@@ -117,7 +117,7 @@ const ServicesPage = () => {
 
                           {/* Content Side */}
                           <div className={`p-8 lg:p-12 flex flex-col justify-center ${!isEven ? 'lg:order-1' : ''}`}>
-                            <div className="w-14 h-14 rounded-2xl bg-violet-100 flex items-center justify-center mb-6">
+                            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
                               <IconComponent className="text-primary" size={28} />
                             </div>
                             <h2 className="font-heading font-bold text-2xl md:text-3xl text-foreground mb-4">
@@ -161,12 +161,12 @@ const ServicesPage = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-violet-600 to-violet-800">
+      <section className="py-20 bg-gradient-to-r from-primary to-primary/80">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 text-center">
           <h2 className="font-heading font-bold text-3xl md:text-4xl text-white mb-6">
             Not Sure Which Service You Need?
           </h2>
-          <p className="text-violet-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-white/80 mb-8 max-w-2xl mx-auto">
             Let's discuss your project requirements and find the perfect solution for your business
           </p>
           <Button

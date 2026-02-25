@@ -189,7 +189,7 @@ const ProductsPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
             >
-              <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm mb-6">
+              <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm mb-6">
                 Our Products
               </span>
               <h1 className="font-heading font-bold text-4xl md:text-5xl text-foreground mb-6">
@@ -251,7 +251,7 @@ const ProductsPage = () => {
                       className={`p-8 rounded-2xl bg-white h-full relative ${
                         product.is_popular
                           ? "border-2 border-primary shadow-xl shadow-violet-500/10"
-                          : "border border-slate-100 hover:border-violet-200"
+                          : "border border-slate-100 hover:border-primary/20"
                       } hover:shadow-xl transition-all`}
                     >
                       {product.is_popular && (
@@ -260,7 +260,7 @@ const ProductsPage = () => {
                         </span>
                       )}
                       <CardContent className="p-0 space-y-6">
-                        <div className="w-14 h-14 rounded-2xl bg-violet-100 flex items-center justify-center">
+                        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
                           <IconComponent className="text-primary" size={28} />
                         </div>
                         <div>
@@ -366,7 +366,7 @@ const ProductsPage = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="text-center p-6"
               >
-                <div className="w-16 h-16 rounded-2xl bg-violet-100 flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <CheckCircle2 className="text-primary" size={32} />
                 </div>
                 <h3 className="font-heading font-semibold text-lg text-foreground mb-2">
@@ -380,12 +380,12 @@ const ProductsPage = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-violet-600 to-violet-800">
+      <section className="py-20 bg-gradient-to-r from-primary to-primary/80">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 text-center">
           <h2 className="font-heading font-bold text-3xl md:text-4xl text-white mb-6">
             Need Help Choosing?
           </h2>
-          <p className="text-violet-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-white/80 mb-8 max-w-2xl mx-auto">
             Our team is here to help you find the perfect solution for your needs
           </p>
           <Button

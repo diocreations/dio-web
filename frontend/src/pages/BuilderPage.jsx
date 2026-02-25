@@ -280,7 +280,7 @@ const BuilderPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm mb-6">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm mb-6">
                 <Sparkles className="w-4 h-4" />
                 AI-Powered Website Builder
               </span>
@@ -327,7 +327,7 @@ const BuilderPage = () => {
                     onClick={() => handleCategorySelect(category)}
                   >
                     <CardContent className="p-6 text-center">
-                      <div className="w-16 h-16 rounded-2xl bg-violet-100 flex items-center justify-center mx-auto mb-4">
+                      <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                         <IconComponent className="w-8 h-8 text-primary" />
                       </div>
                       <h3 className="font-heading font-bold text-xl mb-2">{category.name}</h3>
@@ -650,7 +650,7 @@ const BuilderPage = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div
                         className={`p-4 rounded-lg border-2 cursor-pointer ${
-                          hostingOption === "download" ? "border-primary bg-violet-50" : "border-slate-200"
+                          hostingOption === "download" ? "border-primary bg-primary/5" : "border-slate-200"
                         }`}
                         onClick={() => setHostingOption("download")}
                       >
@@ -660,7 +660,7 @@ const BuilderPage = () => {
                       </div>
                       <div
                         className={`p-4 rounded-lg border-2 cursor-pointer ${
-                          hostingOption === "auto" ? "border-primary bg-violet-50" : "border-slate-200"
+                          hostingOption === "auto" ? "border-primary bg-primary/5" : "border-slate-200"
                         }`}
                         onClick={() => setHostingOption("auto")}
                       >

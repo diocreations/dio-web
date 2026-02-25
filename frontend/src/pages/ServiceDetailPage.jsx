@@ -68,7 +68,7 @@ const ServiceDetailPage = () => {
               transition={{ duration: 0.7 }}
               className="space-y-6"
             >
-              <span className="inline-block px-4 py-2 rounded-full bg-violet-100 text-primary font-medium text-sm">
+              <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm">
                 Service
               </span>
               <h1 className="font-heading font-bold text-4xl md:text-5xl text-foreground">
@@ -101,7 +101,7 @@ const ServiceDetailPage = () => {
                   className="rounded-3xl shadow-2xl w-full"
                 />
               ) : (
-                <div className="aspect-video rounded-3xl bg-gradient-to-br from-violet-100 to-violet-50 flex items-center justify-center">
+                <div className="aspect-video rounded-3xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
                   <div className="text-primary/20 text-9xl font-heading font-bold">
                     {service.title.charAt(0)}
                   </div>
@@ -153,12 +153,12 @@ const ServiceDetailPage = () => {
       )}
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-violet-600 to-violet-800">
+      <section className="py-20 bg-gradient-to-r from-primary to-primary/80">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 text-center">
           <h2 className="font-heading font-bold text-3xl md:text-4xl text-white mb-6">
             Ready to Get Started?
           </h2>
-          <p className="text-violet-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-white/80 mb-8 max-w-2xl mx-auto">
             Contact us today to discuss your project requirements
           </p>
           <div className="flex flex-wrap justify-center gap-4">
