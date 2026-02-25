@@ -52,7 +52,7 @@ class TestHomepageContentAPI:
         print("✓ Homepage settings has correct structure")
     
     def test_hero_variants_structure(self):
-        """Test hero variants have correct structure"""
+        """Test hero variants have correct structure including hero_image"""
         response = requests.get(f"{BASE_URL}/api/homepage/content")
         hero_variants = response.json()["hero_variants"]
         
@@ -69,7 +69,11 @@ class TestHomepageContentAPI:
         assert "secondary_cta_text" in hero
         assert "secondary_cta_link" in hero
         assert "is_active" in hero
-        print(f"✓ Hero variants structure correct (found {len(hero_variants)} variants)")
+        # NEW: Check hero_image field
+        assert "hero_image" in hero, "Missing 'hero_image' field in hero variant"
+        assert hero["hero_image"].startswith("http"), "hero_image should be a valid URL"
+        print(f"✓ Hero variants structure correct with hero_image (found {len(hero_variants)} variants)")
+        print(f"  - hero_image: {hero['hero_image'][:60]}...")
     
     def test_color_schemes_structure(self):
         """Test color schemes have correct structure"""
