@@ -40,7 +40,7 @@ const iconMap = {
   Layout: LayoutIcon,
 };
 
-// Color accent mapping
+// Color accent mapping with HSL values for CSS variable override
 const accentColors = {
   violet: {
     badge: "bg-violet-100 text-violet-700",
@@ -48,6 +48,9 @@ const accentColors = {
     primary: "bg-violet-600 hover:bg-violet-700",
     light: "bg-violet-50",
     border: "border-violet-200",
+    hoverBorder: "hover:border-violet-200",
+    hsl: "265 80% 50%",
+    ring: "265 80% 50%",
   },
   blue: {
     badge: "bg-blue-100 text-blue-700",
@@ -55,6 +58,9 @@ const accentColors = {
     primary: "bg-blue-600 hover:bg-blue-700",
     light: "bg-blue-50",
     border: "border-blue-200",
+    hoverBorder: "hover:border-blue-200",
+    hsl: "221 83% 53%",
+    ring: "221 83% 53%",
   },
   teal: {
     badge: "bg-teal-100 text-teal-700",
@@ -62,6 +68,9 @@ const accentColors = {
     primary: "bg-teal-600 hover:bg-teal-700",
     light: "bg-teal-50",
     border: "border-teal-200",
+    hoverBorder: "hover:border-teal-200",
+    hsl: "172 66% 50%",
+    ring: "172 66% 50%",
   },
   pink: {
     badge: "bg-pink-100 text-pink-700",
@@ -69,6 +78,9 @@ const accentColors = {
     primary: "bg-pink-600 hover:bg-pink-700",
     light: "bg-pink-50",
     border: "border-pink-200",
+    hoverBorder: "hover:border-pink-200",
+    hsl: "333 71% 51%",
+    ring: "333 71% 51%",
   },
   orange: {
     badge: "bg-orange-100 text-orange-700",
@@ -76,6 +88,9 @@ const accentColors = {
     primary: "bg-orange-600 hover:bg-orange-700",
     light: "bg-orange-50",
     border: "border-orange-200",
+    hoverBorder: "hover:border-orange-200",
+    hsl: "25 95% 53%",
+    ring: "25 95% 53%",
   },
 };
 
