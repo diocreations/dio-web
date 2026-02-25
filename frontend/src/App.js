@@ -31,6 +31,8 @@ import AdminTestimonials from "./pages/admin/AdminTestimonials";
 import AdminContacts from "./pages/admin/AdminContacts";
 import AdminLeads from "./pages/admin/AdminLeads";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminHomepage from "./pages/admin/AdminHomepage";
+import AdminUsers from "./pages/admin/AdminUsers";
 
 const queryClient = new QueryClient();
 const API_URL = process.env.REACT_APP_BACKEND_URL;
