@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { AnimatedLogo } from "@/components/AnimatedLogo";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -80,13 +81,8 @@ const AdminLogin = () => {
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 rounded-xl gradient-violet flex items-center justify-center">
-              <span className="text-white font-bold text-xl">D</span>
-            </div>
-            <span className="font-heading font-bold text-xl text-foreground">
-              DioCreations
-            </span>
+          <Link to="/" className="inline-flex items-center justify-center mb-6">
+            <AnimatedLogo textColor="text-foreground" />
           </Link>
           <h1 className="font-heading font-bold text-2xl text-foreground">
             Admin Panel
