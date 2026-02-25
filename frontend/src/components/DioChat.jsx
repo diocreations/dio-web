@@ -136,7 +136,28 @@ const DioChat = () => {
           setLeadInfo(data.lead_info);
         }
       })
-      .catch(console.error);
+      .catch(() => {
+        // History fetch failed — still auto-open for first-time visitors
+        if (!alreadyGreeted) {
+          fetch(`${API_URL}/api/chatbot/greeting`)
+            .then((r) => r.json())
+            .then((g) => {
+              const greeting = g.greeting || "Hey there! I'm Dio, your digital assistant. What can I help you with?";
+              setMessages([{ role: "assistant", content: greeting }]);
+              setIsOpen(true);
+              setHasAutoOpened(true);
+              setShowPulse(false);
+              sessionStorage.setItem("dio_greeted", "1");
+            })
+            .catch(() => {
+              setMessages([{ role: "assistant", content: "Hey there! I'm Dio from DioCreations. What can I help you with today?" }]);
+              setIsOpen(true);
+              setHasAutoOpened(true);
+              setShowPulse(false);
+              sessionStorage.setItem("dio_greeted", "1");
+            });
+        }
+      });
   }, []);
 
   // Show "Chat with Dio" label after a delay (genie pop-in)
