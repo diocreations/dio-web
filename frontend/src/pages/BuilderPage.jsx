@@ -671,6 +671,60 @@ const BuilderPage = () => {
                     </div>
                   </div>
 
+                  {/* Domain Search Section */}
+                  {hostingOption === "auto" && (
+                    <div className="space-y-4 p-4 bg-slate-50 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Globe className="w-5 h-5 text-primary" />
+                        <h4 className="font-semibold">Need a Domain?</h4>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Search for available domain names for your website
+                      </p>
+                      <div className="flex gap-2">
+                        <Input
+                          value={domainSearch}
+                          onChange={(e) => setDomainSearch(e.target.value)}
+                          placeholder="Enter your business name"
+                          onKeyDown={(e) => e.key === "Enter" && searchDomain()}
+                        />
+                        <Button onClick={searchDomain} disabled={domainLoading}>
+                          {domainLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                        </Button>
+                      </div>
+                      
+                      {domainResults.length > 0 && (
+                        <div className="space-y-2 mt-4">
+                          <p className="text-xs font-medium text-muted-foreground">Available Domains:</p>
+                          <div className="grid grid-cols-2 gap-2">
+                            {domainResults.map((result, idx) => (
+                              <div
+                                key={idx}
+                                className={`p-3 rounded-lg border text-sm flex items-center justify-between ${
+                                  result.available 
+                                    ? "bg-green-50 border-green-200" 
+                                    : "bg-red-50 border-red-200 opacity-60"
+                                }`}
+                              >
+                                <span className={result.available ? "text-green-700" : "text-red-700"}>
+                                  {result.domain}
+                                </span>
+                                {result.available ? (
+                                  <Check className="w-4 h-4 text-green-600" />
+                                ) : (
+                                  <span className="text-xs text-red-500">Taken</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Domain registration can be added after website purchase
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div className="flex gap-4 pt-4">
                     <Button variant="outline" onClick={() => setStep(3)}>
                       <ArrowLeft className="w-4 h-4 mr-2" /> Back
