@@ -56,6 +56,30 @@ const ButterflyLogo = ({ size = 50, animate = true }) => (
   </svg>
 );
 
+// Static butterfly for message avatars (no animation, unique class names)
+const ButterflyStatic = ({ size = 32 }) => (
+  <svg
+    viewBox="0 0 20 20"
+    xmlns="http://www.w3.org/2000/svg"
+    style={{ width: size, height: size }}
+  >
+    <g>
+      <path fill="#4D629A" d="M12.7,16.16c-2.36-2.36-2.64-6.14-2.64-6.14s3.98,0.48,6.14,2.64c1.27,1.28,1.52,3.09,0.56,4.06S13.97,17.43,12.7,16.16z"/>
+      <path fill="#2F4977" d="M10.06,10.03c0,0,1.91,2.77,6.57,3.13c-0.25-0.33-0.52-0.63-0.83-0.9L10.06,10.03z"/>
+      <path fill="#00A096" d="M16.26,12.5c-3.34,0-6.2-2.48-6.2-2.48s3.16-2.48,6.2-2.48c1.8,0,3.26,1.11,3.26,2.48S18.07,12.5,16.26,12.5z"/>
+      <path fill="#08877A" d="M10.06,10.03c0,0,3.63,0.39,7.07-2.39c0,0-0.34-0.13-1.51-0.09L10.06,10.03z"/>
+      <path fill="#89BF4A" d="M16.19,7.39c-2.36,2.36-6.14,2.64-6.14,2.64s0.48-3.99,2.64-6.14c1.27-1.27,3.09-1.52,4.05-0.56S17.47,6.12,16.19,7.39z"/>
+    </g>
+    <g>
+      <path fill="#8F5398" d="M7.3,16.11c2.36-2.36,2.64-6.14,2.64-6.14s-3.98,0.48-6.14,2.64c-1.27,1.27-1.52,3.09-0.56,4.06S6.03,17.39,7.3,16.11z"/>
+      <path fill="#75387F" d="M9.94,9.98c0,0-1.91,2.77-6.57,3.13c0.25-0.33,0.52-0.63,0.83-0.9L9.94,9.98z"/>
+      <path fill="#E16136" d="M3.74,12.45c3.34,0,6.2-2.48,6.2-2.48S6.78,7.5,3.74,7.5c-1.8,0-3.26,1.11-3.26,2.47S1.93,12.45,3.74,12.45z"/>
+      <path fill="#C34727" d="M9.94,9.98c0,0-3.63,0.39-7.07-2.39c0,0,0.34-0.13,1.51-0.09L9.94,9.98z"/>
+      <path fill="#F3BE33" d="M3.81,7.34c2.36,2.36,6.14,2.64,6.14,2.64S9.46,6,7.3,3.84C6.03,2.57,4.21,2.32,3.25,3.29S2.53,6.07,3.81,7.34z"/>
+    </g>
+  </svg>
+);
+
 const DioChat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -66,6 +90,7 @@ const DioChat = () => {
   const [showPortfolio, setShowPortfolio] = useState(false);
   const [leadInfo, setLeadInfo] = useState({});
   const [showPulse, setShowPulse] = useState(true);
+  const [showLabel, setShowLabel] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Generate or retrieve session ID
@@ -92,6 +117,16 @@ const DioChat = () => {
       .catch(console.error);
   }, []);
 
+  // Show "Chat with Dio" label after a delay (genie pop-in)
+  useEffect(() => {
+    if (!isOpen) {
+      const timer = setTimeout(() => setShowLabel(true), 1500);
+      return () => clearTimeout(timer);
+    } else {
+      setShowLabel(false);
+    }
+  }, [isOpen]);
+
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -103,7 +138,7 @@ const DioChat = () => {
       setMessages([
         {
           role: "assistant",
-          content: "Hey there! 👋 Welcome to DioCreations! I'm Dio, your digital buddy.\n\nBefore we dive in, what should I call you? 😊",
+          content: "Hey there! Welcome to DioCreations! I'm Dio, your digital buddy.\n\nBefore we dive in, what should I call you?",
         },
       ]);
       setShowPulse(false);
@@ -167,7 +202,7 @@ const DioChat = () => {
           ...prev,
           {
             role: "assistant",
-            content: "Oops! 😅 I'm having a tiny hiccup. Could you try that again? Or feel free to contact us directly at info@diocreations.eu!",
+            content: "Oops! I'm having a tiny hiccup. Could you try that again? Or feel free to contact us directly at info@diocreations.eu!",
           },
         ]);
       }
@@ -177,7 +212,7 @@ const DioChat = () => {
         ...prev,
         {
           role: "assistant",
-          content: "Uh oh! Something went wonky on my end. 🙈 Give me another shot?",
+          content: "Uh oh! Something went wonky on my end. Give me another shot?",
         },
       ]);
     } finally {
@@ -209,7 +244,6 @@ const DioChat = () => {
 
   // Parse URLs in message and make them clickable
   const renderMessage = (content) => {
-    // Match service/product URLs
     const urlRegex = /(\/services\/[a-z-]+|\/products|\/portfolio|\/contact|\/blog)/g;
     const parts = content.split(urlRegex);
     
@@ -232,27 +266,58 @@ const DioChat = () => {
 
   return (
     <>
-      {/* Chat Toggle Button with Dio Mascot */}
+      {/* Chat Toggle Button with Dio Mascot + "Chat with Dio" genie label */}
       <AnimatePresence>
         {!isOpen && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsOpen(true)}
-            className="fixed bottom-24 right-6 z-50 w-16 h-16 rounded-full bg-white shadow-lg shadow-violet-500/30 flex items-center justify-center cursor-pointer border-2 border-violet-200 hover:border-violet-400 transition-colors"
-            data-testid="dio-chat-toggle"
-          >
-            <ButterflyLogo size={48} animate={true} />
-            {showPulse && (
-              <span className="absolute -top-1 -right-1 flex h-4 w-4">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500"></span>
-              </span>
-            )}
-          </motion.button>
+          <div className="fixed bottom-24 right-6 z-50 flex items-center gap-3">
+            {/* "Chat with Dio" genie speech bubble */}
+            <AnimatePresence>
+              {showLabel && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.1, x: 40, scaleX: 0.3, scaleY: 0.1 }}
+                  animate={{ opacity: 1, scale: 1, x: 0, scaleX: 1, scaleY: 1 }}
+                  exit={{ opacity: 0, scale: 0.1, x: 40, scaleX: 0.3, scaleY: 0.1 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 20,
+                    mass: 0.8,
+                  }}
+                  style={{ transformOrigin: "right center" }}
+                  className="relative"
+                  data-testid="dio-chat-label"
+                >
+                  <div className="bg-white rounded-xl shadow-lg px-4 py-2.5 border border-violet-100 whitespace-nowrap">
+                    <p className="text-sm font-medium text-slate-700">
+                      Chat with <span className="font-bold bg-gradient-to-r from-violet-600 to-pink-500 bg-clip-text text-transparent">Dio</span>
+                    </p>
+                  </div>
+                  {/* Speech bubble arrow pointing right */}
+                  <div className="absolute top-1/2 -right-2 -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-white" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Butterfly Button */}
+            <motion.button
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsOpen(true)}
+              className="w-16 h-16 rounded-full bg-white shadow-lg shadow-violet-500/30 flex items-center justify-center cursor-pointer border-2 border-violet-200 hover:border-violet-400 transition-colors"
+              data-testid="dio-chat-toggle"
+            >
+              <ButterflyLogo size={48} animate={true} />
+              {showPulse && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500"></span>
+                </span>
+              )}
+            </motion.button>
+          </div>
         )}
       </AnimatePresence>
 
@@ -266,7 +331,7 @@ const DioChat = () => {
             className="fixed bottom-24 right-6 z-50 w-[400px] max-w-[calc(100vw-48px)] h-[560px] max-h-[calc(100vh-150px)] bg-white rounded-2xl shadow-2xl shadow-violet-500/20 flex flex-col overflow-hidden border border-violet-100"
             data-testid="dio-chat-window"
           >
-            {/* Header with Dio */}
+            {/* Header with Dio - animated logo */}
             <div className="gradient-violet p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center p-1">
@@ -274,7 +339,7 @@ const DioChat = () => {
                 </div>
                 <div>
                   <h3 className="font-heading font-semibold text-white">Dio</h3>
-                  <p className="text-xs text-violet-100">Your Digital Buddy • Online</p>
+                  <p className="text-xs text-violet-100">Your Digital Buddy</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -327,7 +392,7 @@ const DioChat = () => {
                 >
                   {msg.role === "assistant" && (
                     <div className="w-8 h-8 rounded-full mr-2 flex-shrink-0">
-                      <ButterflyLogo size={32} animate={false} />
+                      <ButterflyStatic size={32} />
                     </div>
                   )}
                   <div
@@ -352,7 +417,7 @@ const DioChat = () => {
                   className="space-y-3"
                 >
                   <p className="text-xs text-muted-foreground font-medium px-1">
-                    ✨ Check out some of our work:
+                    Check out some of our work:
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     {portfolioItems.map((item) => (
@@ -433,7 +498,7 @@ const DioChat = () => {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground text-center mt-2">
-                Powered by AI • DioCreations 🚀
+                Powered by AI &bull; DioCreations
               </p>
             </div>
           </motion.div>
