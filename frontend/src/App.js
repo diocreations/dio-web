@@ -191,6 +191,8 @@ const AppRouter = () => {
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
+      <Route path="/builder" element={<BuilderPage />} />
+      <Route path="/builder/success" element={<BuilderSuccessPage />} />
 
       {/* Admin Routes */}
       <Route path="/admin/login" element={<AdminLogin />} />
