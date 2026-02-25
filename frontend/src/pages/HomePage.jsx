@@ -256,7 +256,6 @@ const HomePage = () => {
   };
 
   return (
-    <div style={currentAccent.css}>
     <Layout>
       {/* Hero Section */}
       <section className={`relative bg-gradient-to-br ${currentAccent.light} via-white to-violet-50 overflow-hidden`}>
@@ -387,7 +386,6 @@ const HomePage = () => {
       {/* Render sections in order */}
       {sectionOrder.map((sectionId) => renderSection(sectionId))}
     </Layout>
-    </div>
   );
 };
 
