@@ -60,8 +60,8 @@ const DomainsPage = () => {
     <Layout>
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-900 via-violet-800 to-slate-900" />
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-violet-500/30 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-primary/90 to-slate-900" />
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary/30 rounded-full blur-3xl" />
         
         <div className="max-w-4xl mx-auto px-6 relative z-10">
           <motion.div
@@ -76,7 +76,7 @@ const DomainsPage = () => {
             <h1 className="font-heading font-bold text-4xl md:text-5xl text-white mb-4">
               Find Your Perfect Domain
             </h1>
-            <p className="text-lg text-violet-100 max-w-2xl mx-auto">
+            <p className="text-lg text-white/80 max-w-2xl mx-auto">
               Search for available domain names and secure your online identity today.
             </p>
           </motion.div>
@@ -197,7 +197,7 @@ const DomainsPage = () => {
                 ))}
               </div>
 
-              <Card className="mt-8 bg-violet-50 border-violet-200">
+              <Card className="mt-8 bg-primary/5 border-primary/20">
                 <CardContent className="p-6">
                   <h3 className="font-heading font-semibold text-lg mb-2">
                     Need Help Choosing a Domain?

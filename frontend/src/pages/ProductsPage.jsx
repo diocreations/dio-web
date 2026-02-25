@@ -250,7 +250,7 @@ const ProductsPage = () => {
                     <Card
                       className={`p-8 rounded-2xl bg-white h-full relative ${
                         product.is_popular
-                          ? "border-2 border-primary shadow-xl shadow-violet-500/10"
+                          ? "border-2 border-primary shadow-xl shadow-primary/10"
                           : "border border-slate-100 hover:border-primary/20"
                       } hover:shadow-xl transition-all`}
                     >
