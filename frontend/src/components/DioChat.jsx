@@ -301,7 +301,7 @@ const DioChat = () => {
             key={i} 
             to={part} 
             onClick={() => setIsOpen(false)}
-            className="text-violet-300 hover:text-violet-200 underline font-medium"
+            className="text-primary-foreground/80 hover:text-primary-foreground underline underline font-medium"
           >
             {part}
           </Link>
@@ -334,9 +334,9 @@ const DioChat = () => {
                   className="relative"
                   data-testid="dio-chat-label"
                 >
-                  <div className="bg-white rounded-xl shadow-lg px-4 py-2.5 border border-violet-100 whitespace-nowrap">
+                  <div className="bg-white rounded-xl shadow-lg px-4 py-2.5 border border-primary/20 whitespace-nowrap">
                     <p className="text-sm font-medium text-slate-700">
-                      Chat with <span className="font-bold bg-gradient-to-r from-violet-600 to-pink-500 bg-clip-text text-transparent">Dio</span>
+                      Chat with <span className="font-bold bg-gradient-to-r from-primary to-pink-500 bg-clip-text text-transparent">Dio</span>
                     </p>
                   </div>
                   {/* Speech bubble arrow pointing right */}
@@ -353,7 +353,7 @@ const DioChat = () => {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsOpen(true)}
-              className="w-16 h-16 rounded-full bg-white shadow-lg shadow-violet-500/30 flex items-center justify-center cursor-pointer border-2 border-violet-200 hover:border-violet-400 transition-colors"
+              className="w-16 h-16 rounded-full bg-white shadow-lg shadow-primary/30 flex items-center justify-center cursor-pointer border-2 border-primary/20 hover:border-primary/40 transition-colors"
               data-testid="dio-chat-toggle"
             >
               <ButterflyLogo size={48} animate={true} />
@@ -375,7 +375,7 @@ const DioChat = () => {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-24 right-6 z-50 w-[400px] max-w-[calc(100vw-48px)] h-[560px] max-h-[calc(100vh-150px)] bg-white rounded-2xl shadow-2xl shadow-violet-500/20 flex flex-col overflow-hidden border border-violet-100"
+            className="fixed bottom-24 right-6 z-50 w-[400px] max-w-[calc(100vw-48px)] h-[560px] max-h-[calc(100vh-150px)] bg-white rounded-2xl shadow-2xl shadow-primary/20 flex flex-col overflow-hidden border border-primary/20"
             data-testid="dio-chat-window"
           >
             {/* Header with Dio - animated logo */}
@@ -386,7 +386,7 @@ const DioChat = () => {
                 </div>
                 <div>
                   <h3 className="font-heading font-semibold text-white">Dio</h3>
-                  <p className="text-xs text-violet-100">Your Digital Buddy</p>
+                  <p className="text-xs text-white/80">Your Digital Buddy</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -409,19 +409,19 @@ const DioChat = () => {
 
             {/* Lead Info Bar */}
             {(leadInfo.name || leadInfo.email || leadInfo.phone) && (
-              <div className="px-4 py-2 bg-violet-50 border-b border-violet-100 flex items-center gap-3 text-xs">
+              <div className="px-4 py-2 bg-primary/5 border-b border-primary/10 flex items-center gap-3 text-xs">
                 {leadInfo.name && (
-                  <span className="flex items-center gap-1 text-violet-700">
+                  <span className="flex items-center gap-1 text-primary">
                     <User size={12} /> {leadInfo.name}
                   </span>
                 )}
                 {leadInfo.email && (
-                  <span className="flex items-center gap-1 text-violet-700">
+                  <span className="flex items-center gap-1 text-primary">
                     <Mail size={12} /> {leadInfo.email}
                   </span>
                 )}
                 {leadInfo.phone && (
-                  <span className="flex items-center gap-1 text-violet-700">
+                  <span className="flex items-center gap-1 text-primary">
                     <Phone size={12} /> {leadInfo.phone}
                   </span>
                 )}
