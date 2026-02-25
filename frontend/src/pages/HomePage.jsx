@@ -551,7 +551,7 @@ const BlogSection = ({ posts, accent }) => (
             transition={{ duration: 0.5, delay: index * 0.1 }}
           >
             <Link to={`/blog/${post.slug}`} data-testid={`blog-card-${post.slug}`}>
-              <Card className="overflow-hidden border border-slate-100 hover:border-violet-200 hover:shadow-xl transition-all group h-full">
+              <Card className={`overflow-hidden border border-slate-100 ${accent.hoverBorder} hover:shadow-xl transition-all group h-full`}>
                 {post.featured_image && (
                   <div className="relative aspect-video overflow-hidden">
                     <img src={post.featured_image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -619,7 +619,7 @@ const PortfolioSection = ({ portfolio, accent }) => (
             transition={{ duration: 0.5, delay: index * 0.1 }}
           >
             <Link to={`/portfolio/${item.slug}`} data-testid={`portfolio-${item.slug}`}>
-              <Card className="overflow-hidden border border-slate-100 hover:border-violet-200 hover:shadow-xl transition-all group h-full">
+              <Card className={`overflow-hidden border border-slate-100 ${accent.hoverBorder} hover:shadow-xl transition-all group h-full`}>
                 <div className="relative aspect-video overflow-hidden">
                   <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
