@@ -48,6 +48,106 @@ RESELLERCLUB_API_URL = "https://httpapi.com/api"
 # Super Admin Email (owner)
 SUPER_ADMIN_EMAIL = "jomiejoseph@gmail.com"
 
+# Butterfly Logo SVG for emails (inline)
+BUTTERFLY_LOGO_SVG = '''<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" width="60" height="60">
+<g><path fill="#4D629A" d="M12.7,16.16c-2.36-2.36-2.64-6.14-2.64-6.14s3.98,0.48,6.14,2.64c1.27,1.28,1.52,3.09,0.56,4.06S13.97,17.43,12.7,16.16z"/>
+<path fill="#00A096" d="M16.26,12.5c-3.34,0-6.2-2.48-6.2-2.48s3.16-2.48,6.2-2.48c1.8,0,3.26,1.11,3.26,2.48S18.07,12.5,16.26,12.5z"/>
+<path fill="#89BF4A" d="M16.19,7.39c-2.36,2.36-6.14,2.64-6.14,2.64s0.48-3.99,2.64-6.14c1.27-1.27,3.09-1.52,4.05-0.56S17.47,6.12,16.19,7.39z"/></g>
+<g><path fill="#8F5398" d="M7.3,16.11c2.36-2.36,2.64-6.14,2.64-6.14s-3.98,0.48-6.14,2.64c-1.27,1.27-1.52,3.09-0.56,4.06S6.03,17.39,7.3,16.11z"/>
+<path fill="#E16136" d="M3.74,12.45c3.34,0,6.2-2.48,6.2-2.48S6.78,7.5,3.74,7.5c-1.8,0-3.26,1.11-3.26,2.47S1.93,12.45,3.74,12.45z"/>
+<path fill="#F3BE33" d="M3.81,7.34c2.36,2.36,6.14,2.64,6.14,2.64S9.46,6,7.3,3.84C6.03,2.57,4.21,2.32,3.25,3.29S2.53,6.07,3.81,7.34z"/></g>
+</svg>'''
+
+async def send_purchase_email(to_email: str, customer_name: str, product_name: str, amount: str, currency: str):
+    """Send purchase confirmation email with butterfly logo"""
+    if not resend.api_key:
+        logger.warning("Resend API key not configured, skipping email")
+        return False
+    
+    email_html = f'''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; margin-top: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <!-- Header with Logo -->
+            <div style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); padding: 30px; text-align: center;">
+                <div style="display: inline-block; background: white; border-radius: 50%; padding: 15px; margin-bottom: 15px;">
+                    {BUTTERFLY_LOGO_SVG}
+                </div>
+                <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">DIOCREATIONS</h1>
+                <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0; font-size: 14px;">Digital Excellence for Modern Business</p>
+            </div>
+            
+            <!-- Content -->
+            <div style="padding: 40px 30px;">
+                <h2 style="color: #7c3aed; margin: 0 0 20px 0; font-size: 24px;">Thank You for Your Purchase! 🎉</h2>
+                
+                <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                    Hi <strong>{customer_name or 'Valued Customer'}</strong>,
+                </p>
+                
+                <p style="color: #666; font-size: 15px; line-height: 1.6; margin-bottom: 25px;">
+                    We're excited to confirm your purchase. Here are the details:
+                </p>
+                
+                <!-- Order Details Box -->
+                <div style="background-color: #f8f5ff; border-radius: 8px; padding: 25px; margin-bottom: 25px; border-left: 4px solid #7c3aed;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="color: #666; padding: 8px 0; font-size: 14px;">Product:</td>
+                            <td style="color: #333; padding: 8px 0; font-size: 14px; font-weight: 600; text-align: right;">{product_name}</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #666; padding: 8px 0; font-size: 14px; border-top: 1px solid #e0d4f5;">Amount Paid:</td>
+                            <td style="color: #7c3aed; padding: 8px 0; font-size: 18px; font-weight: 700; text-align: right; border-top: 1px solid #e0d4f5;">{currency}{amount}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <p style="color: #666; font-size: 15px; line-height: 1.6; margin-bottom: 25px;">
+                    Our team will be in touch within <strong>24 hours</strong> to help you get started. If you have any questions, feel free to reach out!
+                </p>
+                
+                <!-- CTA Button -->
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://www.diocreations.eu/contact" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); color: white; text-decoration: none; padding: 14px 35px; border-radius: 50px; font-weight: 600; font-size: 14px;">Contact Support</a>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div style="background-color: #f8f5ff; padding: 25px 30px; text-align: center; border-top: 1px solid #e0d4f5;">
+                <div style="margin-bottom: 15px;">
+                    {BUTTERFLY_LOGO_SVG.replace('width="60" height="60"', 'width="40" height="40"')}
+                </div>
+                <p style="color: #7c3aed; font-weight: 600; margin: 0 0 5px 0; font-size: 14px;">DIOCREATIONS</p>
+                <p style="color: #999; font-size: 12px; margin: 0 0 10px 0;">Your AI-Powered Growing Partner</p>
+                <p style="color: #999; font-size: 11px; margin: 0;">
+                    <a href="https://www.diocreations.eu" style="color: #7c3aed; text-decoration: none;">www.diocreations.eu</a>
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    '''
+    
+    try:
+        params = {
+            "from": SENDER_EMAIL,
+            "to": [to_email],
+            "subject": f"Purchase Confirmation - {product_name} | DioCreations",
+            "html": email_html
+        }
+        resend.Emails.send(params)
+        logger.info(f"Purchase email sent to {to_email}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to send email: {e}")
+        return False
+
 # Currency exchange rates (base: EUR)
 CURRENCY_RATES = {
     "EUR": 1.0,
