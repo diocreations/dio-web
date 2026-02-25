@@ -2762,3 +2762,72 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+# ==================== SITEMAP FOR SEO ====================
+
+@api_router.get("/sitemap.xml")
+async def get_sitemap():
+    """Generate dynamic sitemap for SEO"""
+    from fastapi.responses import Response
+    
+    base_url = "https://www.diocreations.eu"
+    
+    # Static pages
+    static_pages = [
+        {"loc": "/", "priority": "1.0", "changefreq": "weekly"},
+        {"loc": "/about", "priority": "0.8", "changefreq": "monthly"},
+        {"loc": "/services", "priority": "0.9", "changefreq": "weekly"},
+        {"loc": "/products", "priority": "0.9", "changefreq": "weekly"},
+        {"loc": "/portfolio", "priority": "0.8", "changefreq": "weekly"},
+        {"loc": "/blog", "priority": "0.9", "changefreq": "daily"},
+        {"loc": "/contact", "priority": "0.8", "changefreq": "monthly"},
+    ]
+    
+    # Dynamic service pages
+    services = await db.services.find({"is_active": True}, {"slug": 1}).to_list(100)
+    
+    # Dynamic blog pages
+    blog_posts = await db.blog.find({"is_published": True}, {"slug": 1, "updated_at": 1}).to_list(500)
+    
+    # Dynamic portfolio pages
+    portfolio = await db.portfolio.find({"is_active": True}, {"slug": 1}).to_list(100)
+    
+    # Build XML
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    
+    # Add static pages
+    for page in static_pages:
+        xml += f'  <url>\n'
+        xml += f'    <loc>{base_url}{page["loc"]}</loc>\n'
+        xml += f'    <changefreq>{page["changefreq"]}</changefreq>\n'
+        xml += f'    <priority>{page["priority"]}</priority>\n'
+        xml += f'  </url>\n'
+    
+    # Add services
+    for service in services:
+        xml += f'  <url>\n'
+        xml += f'    <loc>{base_url}/services/{service["slug"]}</loc>\n'
+        xml += f'    <changefreq>monthly</changefreq>\n'
+        xml += f'    <priority>0.7</priority>\n'
+        xml += f'  </url>\n'
+    
+    # Add blog posts
+    for post in blog_posts:
+        xml += f'  <url>\n'
+        xml += f'    <loc>{base_url}/blog/{post["slug"]}</loc>\n'
+        xml += f'    <changefreq>weekly</changefreq>\n'
+        xml += f'    <priority>0.6</priority>\n'
+        xml += f'  </url>\n'
+    
+    # Add portfolio
+    for item in portfolio:
+        xml += f'  <url>\n'
+        xml += f'    <loc>{base_url}/portfolio/{item["slug"]}</loc>\n'
+        xml += f'    <changefreq>monthly</changefreq>\n'
+        xml += f'    <priority>0.6</priority>\n'
+        xml += f'  </url>\n'
+    
+    xml += '</urlset>'
+    
+    return Response(content=xml, media_type="application/xml")
