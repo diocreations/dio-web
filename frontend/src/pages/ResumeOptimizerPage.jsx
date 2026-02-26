@@ -745,6 +745,7 @@ const ResumeOptimizerPage = () => {
                               templateId={activeVisualTemplate}
                               editing={isEditing}
                               onTextChange={setEditedText}
+                              fontSize={fontSize}
                             />
                           </CardContent>
                         </Card>
