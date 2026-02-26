@@ -361,6 +361,31 @@ const ResumeOptimizerPage = () => {
     finally { setLinkedinLoading(false); }
   };
 
+  const handleLinkedinScrape = async () => {
+    if (!linkedinUrl.trim()) return;
+    setLinkedinScraping(true);
+    try {
+      const res = await fetch(`${API_URL}/api/resume/linkedin-scrape`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: linkedinUrl }),
+      });
+      const data = await res.json();
+      if (data.success && (data.headline || data.about)) {
+        setLinkedinForm(prev => ({
+          headline: data.headline || prev.headline,
+          about: data.about || prev.about,
+          experience: data.experience || prev.experience,
+        }));
+      } else {
+        alert(data.note || "Could not extract. Please paste manually.");
+      }
+    } catch {
+      alert("Could not fetch LinkedIn profile");
+    } finally {
+      setLinkedinScraping(false);
+    }
+  };
+
   const handleDownloadPDF = () => {
     if (!editedText) return;
     if (!hasDownloadAccess) {
