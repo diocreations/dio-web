@@ -251,6 +251,9 @@ const ResumeOptimizerPage = () => {
   const [editedText, setEditedText] = useState("");
 
   const [linkedinForm, setLinkedinForm] = useState({ headline: "", about: "", experience: "" });
+  const [linkedinUrl, setLinkedinUrl] = useState("");
+  const [linkedinScraping, setLinkedinScraping] = useState(false);
+  const [fontSize, setFontSize] = useState(13);
 
   // Load pricing and templates
   useEffect(() => {
