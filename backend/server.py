@@ -3558,6 +3558,40 @@ async def startup_event():
     except Exception as e:
         logger.error(f"Error creating admin user: {e}")
 
+    # Start 24-hour data cleanup background task
+    import asyncio
+    asyncio.create_task(_cleanup_expired_data_loop())
+
+
+async def _cleanup_expired_data_loop():
+    """Background task: delete public user data older than 24 hours"""
+    import asyncio
+    while True:
+        try:
+            cutoff = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+            # Delete expired sessions
+            r1 = await db.public_sessions.delete_many({"expires_at": {"$lt": cutoff}})
+            # Find users created > 24h ago
+            old_users = await db.public_users.find(
+                {"created_at": {"$lt": cutoff}}, {"_id": 0, "user_id": 1, "email": 1}
+            ).to_list(500)
+            for u in old_users:
+                uid = u["user_id"]
+                email = u.get("email", "")
+                await db.resume_analyses.delete_many({"$or": [{"user_id": uid}, {"email": email}]})
+                await db.resume_uploads.delete_many({"$or": [{"user_id": uid}, {"email": email}]})
+                await db.resume_improvements.delete_many({"$or": [{"user_id": uid}, {"email": email}]})
+                await db.cover_letters.delete_many({"user_id": uid})
+                await db.resume_payments.delete_many({"$or": [{"user_id": uid}, {"email": email}]})
+                await db.public_users.delete_one({"user_id": uid})
+            if old_users:
+                logger.info(f"Cleanup: removed {len(old_users)} expired users and their data")
+            if r1.deleted_count > 0:
+                logger.info(f"Cleanup: removed {r1.deleted_count} expired sessions")
+        except Exception as e:
+            logger.error(f"Cleanup task error: {e}")
+        await asyncio.sleep(3600)  # Run every hour
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
