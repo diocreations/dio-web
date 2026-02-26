@@ -2320,15 +2320,10 @@ ORIGINAL RESUME:
 
 @api_router.post("/resume/linkedin")
 async def optimize_linkedin(data: dict):
-    """Paid: Optimize LinkedIn profile"""
+    """Optimize LinkedIn profile - now free (pay only for download/copy)"""
     resume_id = data.get("resume_id")
     if not resume_id:
         raise HTTPException(status_code=400, detail="resume_id required")
-
-    # Verify payment
-    payment = await db.resume_payments.find_one({"resume_id": resume_id, "status": "paid"}, {"_id": 0})
-    if not payment:
-        raise HTTPException(status_code=402, detail="Payment required")
 
     headline = data.get("headline", "")
     about = data.get("about", "")
