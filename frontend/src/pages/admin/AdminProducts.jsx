@@ -139,8 +139,13 @@ const AdminProducts = () => {
                 </div>
                 <div className="space-y-2"><Label htmlFor="short_description">Short Description *</Label><Input id="short_description" name="short_description" value={formData.short_description} onChange={handleChange} required /></div>
                 <div className="space-y-2"><Label htmlFor="description">Full Description *</Label><Textarea id="description" name="description" value={formData.description} onChange={handleChange} rows={3} required /></div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2"><Label htmlFor="price">Price (EUR)</Label><Input id="price" name="price" type="number" step="0.01" value={formData.price} onChange={handleChange} placeholder="9.99" /></div>
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="space-y-2"><Label htmlFor="price">Price</Label><Input id="price" name="price" type="number" step="0.01" value={formData.price} onChange={handleChange} placeholder="9.99" /></div>
+                  <div className="space-y-2"><Label htmlFor="currency">Currency</Label>
+                    <select id="currency" name="currency" value={formData.currency} onChange={handleChange} className="w-full h-10 rounded-md border px-3">
+                      {CURRENCY_OPTIONS.map((c) => (<option key={c} value={c}>{CURRENCY_SYMBOLS[c]} {c}</option>))}
+                    </select>
+                  </div>
                   <div className="space-y-2"><Label htmlFor="price_unit">Price Unit</Label><Input id="price_unit" name="price_unit" value={formData.price_unit} onChange={handleChange} placeholder="month, year, one-time" /></div>
                   <div className="space-y-2"><Label htmlFor="pricing_type">Pricing Type</Label>
                     <select id="pricing_type" name="pricing_type" value={formData.pricing_type} onChange={handleChange} className="w-full h-10 rounded-md border px-3">
