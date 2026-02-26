@@ -109,6 +109,16 @@ async def create_product(product: dict, user: dict = Depends(get_current_user)):
     return product
 
 
+@router.put("/products/bulk-currency")
+async def bulk_update_currency(data: dict, user: dict = Depends(get_current_user)):
+    currency = data.get("currency", "EUR")
+    valid = ["EUR", "USD", "GBP", "INR", "AED", "AUD", "CAD", "SGD", "CHF"]
+    if currency not in valid:
+        raise HTTPException(status_code=400, detail=f"Invalid currency. Use one of: {', '.join(valid)}")
+    result = await db.products.update_many({}, {"$set": {"currency": currency}})
+    return {"message": f"All products updated to {currency}", "updated_count": result.modified_count}
+
+
 @router.put("/products/{product_id}")
 async def update_product(product_id: str, update: dict, user: dict = Depends(get_current_user)):
     update.pop("_id", None)
@@ -125,16 +135,6 @@ async def delete_product(product_id: str, user: dict = Depends(get_current_user)
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Product not found")
     return {"message": "Product deleted"}
-
-
-@router.put("/products/bulk-currency")
-async def bulk_update_currency(data: dict, user: dict = Depends(get_current_user)):
-    currency = data.get("currency", "EUR")
-    valid = ["EUR", "USD", "GBP", "INR", "AED", "AUD", "CAD", "SGD", "CHF"]
-    if currency not in valid:
-        raise HTTPException(status_code=400, detail=f"Invalid currency. Use one of: {', '.join(valid)}")
-    result = await db.products.update_many({}, {"$set": {"currency": currency}})
-    return {"message": f"All products updated to {currency}", "updated_count": result.modified_count}
 
 
 # ==================== PORTFOLIO ====================
