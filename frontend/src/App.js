@@ -199,6 +199,7 @@ const AppRouter = () => {
       <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
       <Route path="/builder" element={<BuilderPage />} />
       <Route path="/builder/success" element={<BuilderSuccessPage />} />
+      <Route path="/resume-optimizer" element={<ResumeOptimizerPage />} />
 
       {/* Admin Routes */}
       <Route path="/admin/login" element={<AdminLogin />} />
@@ -287,6 +288,14 @@ const AppRouter = () => {
         element={
           <ProtectedRoute>
             <AdminChatbot />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/resume"
+        element={
+          <ProtectedRoute>
+            <AdminResume />
           </ProtectedRoute>
         }
       />
