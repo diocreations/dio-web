@@ -180,11 +180,27 @@ const ProtectedRoute = ({ children }) => {
 // App Router
 const AppRouter = () => {
   const location = useLocation();
+  const isResumeSubdomain = window.location.hostname.startsWith("resume.");
 
   // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
   // Check URL fragment for session_id synchronously during render
   if (location.hash?.includes("session_id=")) {
     return <AuthCallback />;
+  }
+
+  // Subdomain mode: resume.diocreations.eu -> only resume optimizer
+  if (isResumeSubdomain) {
+    return (
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
+        <Routes>
+          <Route path="/" element={<ResumeOptimizerPage />} />
+          <Route path="/login" element={<UserLoginPage />} />
+          <Route path="/dashboard" element={<UserDashboardPage />} />
+          <Route path="/cover-letter" element={<CoverLetterPage />} />
+          <Route path="*" element={<ResumeOptimizerPage />} />
+        </Routes>
+      </Suspense>
+    );
   }
 
   return (
