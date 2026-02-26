@@ -365,46 +365,43 @@ const ResumeOptimizerPage = () => {
               </motion.div>
             )}
 
-            {/* STEP 3: Payment pending */}
-            {step === 3 && !isPaid && (
-              <motion.div key="payment" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            {/* STEP 3: Optimizing */}
+            {step === 3 && !improved && (
+              <motion.div key="optimizing" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
                 <div className="text-center py-20">
                   <Loader2 className="animate-spin mx-auto mb-4 text-primary" size={40} />
-                  <p className="text-lg font-medium">Verifying payment...</p>
-                  <p className="text-muted-foreground">You'll be redirected after payment confirmation</p>
+                  <p className="text-lg font-medium">Generating your improved resume...</p>
+                  <p className="text-muted-foreground">AI is rewriting with ATS optimization</p>
                 </div>
               </motion.div>
             )}
 
-            {/* STEP 4: Pro Features */}
-            {step === 4 && isPaid && (
-              <motion.div key="pro" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            {/* STEP 4: Results (pay to download/copy) */}
+            {(step === 4 || (step === 3 && improved)) && (
+              <motion.div key="results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
                 <Tabs defaultValue="resume" className="space-y-6">
                   <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto">
-                    <TabsTrigger value="resume" className="flex items-center gap-2"><FileText size={16} /> Resume Rewrite</TabsTrigger>
+                    <TabsTrigger value="resume" className="flex items-center gap-2"><FileText size={16} /> Improved Resume</TabsTrigger>
                     <TabsTrigger value="linkedin" className="flex items-center gap-2"><Linkedin size={16} /> LinkedIn</TabsTrigger>
                   </TabsList>
 
                   {/* Resume Improvement */}
                   <TabsContent value="resume">
-                    {!improved ? (
-                      <Card className="max-w-2xl mx-auto">
-                        <CardContent className="p-8 text-center">
-                          <Sparkles size={40} className="text-primary mx-auto mb-4" />
-                          <h3 className="text-xl font-bold mb-2">Generate ATS-Optimized Resume</h3>
-                          <p className="text-muted-foreground mb-6">AI will rewrite your resume with impact-driven language, quantified achievements, and ATS-friendly keywords.</p>
-                          <Button onClick={handleImprove} disabled={improving} className="rounded-full px-8" data-testid="improve-resume-btn">
-                            {improving ? <><Loader2 className="animate-spin mr-2" size={18} />Generating...</> : <><Sparkles size={18} className="mr-2" />Generate Improved Resume</>}
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    ) : (
+                    {improved ? (
                       <div className="space-y-4">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between flex-wrap gap-3">
                           <h3 className="text-xl font-bold">Your Improved Resume</h3>
-                          <Button onClick={handleDownloadPDF} variant="outline" className="rounded-full" data-testid="download-pdf-btn">
-                            <Download size={18} className="mr-2" /> Download / Print
-                          </Button>
+                          <div className="flex gap-2">
+                            {hasDownloadAccess ? (
+                              <Button onClick={handleDownloadPDF} className="rounded-full" data-testid="download-pdf-btn">
+                                <Download size={18} className="mr-2" /> Download / Print
+                              </Button>
+                            ) : (
+                              <Button onClick={handleCheckout} className="rounded-full bg-primary" data-testid="pay-download-btn">
+                                <Lock size={16} className="mr-2" /> Pay {pricing?.currency || "EUR"} {pricing?.price || "19.99"} to Download
+                              </Button>
+                            )}
+                          </div>
                         </div>
                         <Card>
                           <CardContent className="p-6">
@@ -413,7 +410,23 @@ const ResumeOptimizerPage = () => {
                             </div>
                           </CardContent>
                         </Card>
+                        {!hasDownloadAccess && (
+                          <p className="text-center text-sm text-muted-foreground">
+                            You can view your improved resume above. Pay to download, copy, or print the final version.
+                          </p>
+                        )}
                       </div>
+                    ) : (
+                      <Card className="max-w-2xl mx-auto">
+                        <CardContent className="p-8 text-center">
+                          <Sparkles size={40} className="text-primary mx-auto mb-4" />
+                          <h3 className="text-xl font-bold mb-2">Generate ATS-Optimized Resume</h3>
+                          <p className="text-muted-foreground mb-6">AI will rewrite your resume with impact-driven language and ATS-friendly keywords.</p>
+                          <Button onClick={handleImprove} disabled={improving} className="rounded-full px-8" data-testid="improve-resume-btn">
+                            {improving ? <><Loader2 className="animate-spin mr-2" size={18} />Generating...</> : <><Sparkles size={18} className="mr-2" />Generate Improved Resume</>}
+                          </Button>
+                        </CardContent>
+                      </Card>
                     )}
                   </TabsContent>
 
