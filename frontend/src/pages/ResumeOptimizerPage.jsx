@@ -258,11 +258,17 @@ const ResumeOptimizerPage = () => {
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [linkedinScraping, setLinkedinScraping] = useState(false);
   const [fontSize, setFontSize] = useState(13);
+  const [driveConfigured, setDriveConfigured] = useState(false);
+  const [driveFiles, setDriveFiles] = useState([]);
+  const [driveToken, setDriveToken] = useState(null);
+  const [showDrivePicker, setShowDrivePicker] = useState(false);
+  const [driveImporting, setDriveImporting] = useState(false);
 
-  // Load pricing and templates
+  // Load pricing, templates, and check Drive status
   useEffect(() => {
     fetch(`${API_URL}/api/resume/pricing`).then((r) => r.json()).then(setPricing).catch(() => {});
     fetch(`${API_URL}/api/resume/templates`).then((r) => r.json()).then(setTemplates).catch(() => {});
+    fetch(`${API_URL}/api/drive/status`).then((r) => r.json()).then((d) => setDriveConfigured(d.configured)).catch(() => {});
   }, []);
 
   // Handle return from Stripe (pay-to-download)
