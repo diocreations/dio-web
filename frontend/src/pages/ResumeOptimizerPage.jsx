@@ -322,20 +322,41 @@ const ResumeOptimizerPage = () => {
                       </Card>
                     </div>
 
-                    {/* CTA to unlock */}
+                    {/* CTA to optimize (free) */}
                     <Card className="bg-gradient-to-r from-primary to-primary/80 text-white">
                       <CardContent className="p-8 text-center">
-                        <Lock size={32} className="mx-auto mb-4 opacity-80" />
-                        <h3 className="text-2xl font-bold mb-2">Unlock Pro Optimization</h3>
-                        <p className="text-white/80 mb-6">Get an ATS-optimized resume rewrite + LinkedIn profile optimization</p>
-                        <div className="flex items-center justify-center gap-3 mb-6">
-                          {pricing?.discount_percent > 0 && (
-                            <span className="text-lg line-through opacity-60">{pricing.currency} {pricing.original_price}</span>
-                          )}
-                          <span className="text-3xl font-bold">{pricing?.currency || "EUR"} {pricing?.price || "19.99"}</span>
-                        </div>
-                        <Button onClick={() => { setStep(3); handleCheckout(); }} size="lg" variant="secondary" className="rounded-full px-10" data-testid="unlock-pro-btn">
-                          <Zap size={18} className="mr-2" /> Unlock Now
+                        <Sparkles size={32} className="mx-auto mb-4 opacity-80" />
+                        <h3 className="text-2xl font-bold mb-2">Ready to Optimize?</h3>
+                        <p className="text-white/80 mb-6">AI will rewrite your resume with ATS-friendly keywords, impact-driven language, and quantified achievements — free!</p>
+                        {templates.length > 0 && (
+                          <div className="mb-6">
+                            <p className="text-sm text-white/70 mb-3">Choose a template (optional):</p>
+                            <div className="flex flex-wrap gap-2 justify-center">
+                              <Button
+                                variant={!selectedTemplate ? "secondary" : "ghost"}
+                                size="sm"
+                                onClick={() => setSelectedTemplate(null)}
+                                className={!selectedTemplate ? "" : "text-white/60 hover:text-white border-white/20"}
+                              >
+                                Default
+                              </Button>
+                              {templates.map(t => (
+                                <Button
+                                  key={t.template_id}
+                                  variant={selectedTemplate === t.template_id ? "secondary" : "ghost"}
+                                  size="sm"
+                                  onClick={() => setSelectedTemplate(t.template_id)}
+                                  className={selectedTemplate === t.template_id ? "" : "text-white/60 hover:text-white border-white/20"}
+                                  data-testid={`template-select-${t.template_id}`}
+                                >
+                                  {t.name}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        <Button onClick={() => { setStep(3); handleImprove(); }} size="lg" variant="secondary" className="rounded-full px-10" data-testid="optimize-btn">
+                          <Sparkles size={18} className="mr-2" /> Optimize My Resume
                         </Button>
                       </CardContent>
                     </Card>
