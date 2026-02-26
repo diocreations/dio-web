@@ -487,9 +487,19 @@ const ResumeOptimizerPage = () => {
                     <label className="block">
                       <input type="file" accept=".pdf,.docx" onChange={handleUpload} className="hidden" data-testid="resume-upload-input" />
                       <Button asChild disabled={uploading} className="rounded-full px-8" data-testid="resume-upload-btn">
-                        <span>{uploading ? <><Loader2 className="animate-spin mr-2" size={18} />Uploading...</> : "Choose File"}</span>
+                        <span>{uploading ? <><Loader2 className="animate-spin mr-2" size={18} />Uploading...</> : <><Upload size={16} className="mr-2" />Choose File</>}</span>
                       </Button>
                     </label>
+                    <p className="text-xs text-muted-foreground mt-4">or import from</p>
+                    <div className="flex gap-2 justify-center mt-2">
+                      <label className="cursor-pointer">
+                        <input type="file" accept=".pdf,.docx" onChange={handleUpload} className="hidden" />
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border rounded-full hover:bg-slate-50 transition-colors">
+                          <svg viewBox="0 0 87.3 78" className="w-4 h-4"><path d="M6.6 66.85L3.56 61.7c-.45-.78-.06-1.77.77-1.97l12.76-3.09-10.41-6.02a1.52 1.52 0 0 1-.56-2.07L24.5 18.1a1.52 1.52 0 0 1 2.07-.56l37.74 21.79" fill="#0066DA"/><path d="M43.65 0L6.6 66.85h18.12L62.37 0H43.65z" fill="#00AC47"/><path d="M62.37 0L24.72 66.85h18.12L80.49 0H62.37z" fill="#EA4335"/><path d="M80.49 0L43.65 66.85h18.12L87.3 12.85V0H80.49z" fill="#00832D"/></svg>
+                          Google Drive
+                        </span>
+                      </label>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
