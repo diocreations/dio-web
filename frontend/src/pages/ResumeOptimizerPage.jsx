@@ -44,65 +44,179 @@ const ScoreRing = ({ score, label, size = 100 }) => {
   );
 };
 
-// Resume preview renderer - converts plain text to styled HTML
-const ResumePreview = ({ text }) => {
-  if (!text) return null;
-  const lines = text.split("\n");
-  const elements = [];
-  let i = 0;
+// Resume preview renderer with multiple visual templates + inline editing
+const VISUAL_TEMPLATES = [
+  {
+    id: "classic",
+    name: "Classic",
+    desc: "Traditional serif layout with clean lines",
+    preview: { bg: "#fff", accent: "#1a1a2e", font: "serif", layout: "centered" },
+  },
+  {
+    id: "modern",
+    name: "Modern",
+    desc: "Clean sans-serif with color accents",
+    preview: { bg: "#fff", accent: "#2563eb", font: "sans", layout: "left" },
+  },
+  {
+    id: "executive",
+    name: "Executive",
+    desc: "Dark header bar, premium two-tone feel",
+    preview: { bg: "#1e293b", accent: "#f59e0b", font: "sans", layout: "dark-header" },
+  },
+  {
+    id: "minimal",
+    name: "Minimal",
+    desc: "Ultra-clean whitespace-driven design",
+    preview: { bg: "#fff", accent: "#6b7280", font: "sans", layout: "minimal" },
+  },
+  {
+    id: "bold",
+    name: "Bold",
+    desc: "Large headers with strong color blocks",
+    preview: { bg: "#fff", accent: "#dc2626", font: "sans", layout: "bold" },
+  },
+];
+
+function parseSections(text) {
+  const lines = (text || "").split("\n");
+  const sections = [];
+  let currentSection = null;
+  let nameLines = [];
+  let foundFirstSection = false;
 
   for (const line of lines) {
     const trimmed = line.trim();
-    const key = i++;
-    if (!trimmed) {
-      elements.push(<div key={key} className="h-2" />);
-      continue;
+    if (!trimmed) continue;
+    const isHeader = /^[A-Z][A-Z\s\/&,]{3,}$/.test(trimmed) && !trimmed.includes("@") && !trimmed.includes("|") && !trimmed.includes(".com") && !trimmed.match(/\+?\d[\d\s\-()]{6,}/);
+    if (isHeader) {
+      foundFirstSection = true;
+      if (currentSection) sections.push(currentSection);
+      currentSection = { title: trimmed, lines: [] };
+    } else if (!foundFirstSection) {
+      nameLines.push(trimmed);
+    } else if (currentSection) {
+      currentSection.lines.push(trimmed);
     }
-    // ALL CAPS section header (3+ chars, all uppercase letters/spaces/&/,)
-    if (/^[A-Z][A-Z\s\/&,]{3,}$/.test(trimmed) && !trimmed.includes("@") && !trimmed.includes("|") && !trimmed.includes(".com")) {
-      elements.push(
-        <div key={key} className="mt-5 mb-2 first:mt-0">
-          <div className="text-xs font-bold tracking-[2px] text-primary uppercase border-b-2 border-primary/30 pb-1">
-            {trimmed}
-          </div>
-        </div>
-      );
-      continue;
+  }
+  if (currentSection) sections.push(currentSection);
+  return { nameLines, sections };
+}
+
+const ResumePreview = ({ text, templateId, editing, onTextChange }) => {
+  if (!text) return null;
+  const tpl = templateId || "classic";
+  const { nameLines, sections } = parseSections(text);
+
+  const renderBullet = (line, key, bulletClass, textClass) => {
+    if (line.startsWith("- ") || line.startsWith("* ") || line.startsWith("\u2022 ")) {
+      const content = line.replace(/^[-*\u2022]\s+/, "");
+      return <div key={key} className={`flex gap-2 ${textClass} pl-1 py-[2px]`}><span className={`${bulletClass} mt-[5px] flex-shrink-0 w-1.5 h-1.5 rounded-full`} /><span>{content}</span></div>;
     }
-    // Bullet points
-    if (trimmed.startsWith("- ") || trimmed.startsWith("* ") || trimmed.startsWith("\u2022 ")) {
-      const content = trimmed.replace(/^[-*\u2022]\s+/, "");
-      elements.push(
-        <div key={key} className="flex gap-2 text-[13px] leading-relaxed text-slate-700 pl-1 py-0.5">
-          <span className="text-primary mt-1 flex-shrink-0">&#x2022;</span>
-          <span>{content}</span>
-        </div>
-      );
-      continue;
-    }
-    // Name line (first non-empty, non-header line — usually bold/large)
-    if (elements.length === 0 || (elements.length === 1 && elements[0].props.className === "h-2")) {
-      elements.push(
-        <div key={key} className="text-xl font-bold text-slate-900 text-center">{trimmed}</div>
-      );
-      continue;
-    }
-    // Contact line (contains email, phone, or | separators — usually line 2-3)
-    if ((trimmed.includes("@") || trimmed.includes("|") || trimmed.match(/\+?\d[\d\s\-()]{6,}/)) && elements.length <= 4) {
-      elements.push(
-        <div key={key} className="text-xs text-slate-500 text-center">{trimmed}</div>
-      );
-      continue;
-    }
-    // Regular text
-    elements.push(
-      <div key={key} className="text-[13px] leading-relaxed text-slate-700">{trimmed}</div>
+    return <div key={key} className={textClass}>{line}</div>;
+  };
+
+  if (editing) {
+    return (
+      <div className="w-full" data-testid="resume-editor">
+        <textarea
+          className="w-full min-h-[500px] p-6 font-mono text-sm leading-relaxed border rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary resize-y"
+          value={text}
+          onChange={(e) => onTextChange(e.target.value)}
+          data-testid="resume-edit-textarea"
+        />
+      </div>
     );
   }
 
+  // CLASSIC TEMPLATE
+  if (tpl === "classic") {
+    return (
+      <div className="bg-white p-8 md:p-12 max-w-[780px] mx-auto font-serif" data-testid="resume-preview" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
+        {nameLines[0] && <div className="text-center text-2xl font-bold tracking-wide text-slate-900 mb-1">{nameLines[0]}</div>}
+        {nameLines.slice(1).map((l, i) => <div key={i} className="text-center text-xs text-slate-500 tracking-wide">{l}</div>)}
+        {nameLines.length > 0 && <div className="border-b-2 border-slate-800 mt-4 mb-2" />}
+        {sections.map((s, si) => (
+          <div key={si} className="mb-4">
+            <div className="text-[11px] font-bold tracking-[3px] uppercase text-slate-800 border-b border-slate-300 pb-1 mb-2">{s.title}</div>
+            {s.lines.map((l, li) => renderBullet(l, li, "bg-slate-600", "text-[13px] leading-relaxed text-slate-700"))}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // MODERN TEMPLATE
+  if (tpl === "modern") {
+    return (
+      <div className="bg-white p-8 md:p-12 max-w-[780px] mx-auto" data-testid="resume-preview" style={{ fontFamily: "'Segoe UI', Calibri, Arial, sans-serif" }}>
+        {nameLines[0] && <div className="text-3xl font-extrabold text-blue-600 mb-0.5">{nameLines[0]}</div>}
+        {nameLines.slice(1).map((l, i) => <div key={i} className="text-sm text-slate-500">{l}</div>)}
+        {nameLines.length > 0 && <div className="h-1 bg-blue-600 mt-3 mb-4 w-20 rounded-full" />}
+        {sections.map((s, si) => (
+          <div key={si} className="mb-5">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="h-1 w-3 bg-blue-600 rounded-full" />
+              <div className="text-xs font-bold tracking-[2px] uppercase text-blue-600">{s.title}</div>
+            </div>
+            {s.lines.map((l, li) => renderBullet(l, li, "bg-blue-500", "text-[13px] leading-relaxed text-slate-700"))}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // EXECUTIVE TEMPLATE
+  if (tpl === "executive") {
+    return (
+      <div className="max-w-[780px] mx-auto overflow-hidden" data-testid="resume-preview" style={{ fontFamily: "'Segoe UI', Calibri, sans-serif" }}>
+        <div className="bg-slate-800 text-white px-8 md:px-12 py-8">
+          {nameLines[0] && <div className="text-3xl font-bold tracking-wide">{nameLines[0]}</div>}
+          {nameLines.slice(1).map((l, i) => <div key={i} className="text-sm text-slate-300 mt-1">{l}</div>)}
+        </div>
+        <div className="bg-white px-8 md:px-12 py-6">
+          {sections.map((s, si) => (
+            <div key={si} className="mb-5">
+              <div className="text-xs font-bold tracking-[3px] uppercase text-amber-600 border-b-2 border-amber-500/30 pb-1 mb-2">{s.title}</div>
+              {s.lines.map((l, li) => renderBullet(l, li, "bg-amber-500", "text-[13px] leading-relaxed text-slate-700"))}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // MINIMAL TEMPLATE
+  if (tpl === "minimal") {
+    return (
+      <div className="bg-white p-8 md:p-14 max-w-[780px] mx-auto" data-testid="resume-preview" style={{ fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
+        {nameLines[0] && <div className="text-xl font-light tracking-[4px] uppercase text-slate-900 mb-1">{nameLines[0]}</div>}
+        {nameLines.slice(1).map((l, i) => <div key={i} className="text-xs text-slate-400 tracking-wide">{l}</div>)}
+        {nameLines.length > 0 && <div className="border-b border-slate-200 mt-6 mb-6" />}
+        {sections.map((s, si) => (
+          <div key={si} className="mb-6">
+            <div className="text-[10px] font-medium tracking-[4px] uppercase text-slate-400 mb-3">{s.title}</div>
+            {s.lines.map((l, li) => renderBullet(l, li, "bg-slate-300", "text-[13px] leading-[1.8] text-slate-600 font-light"))}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // BOLD TEMPLATE
   return (
-    <div className="bg-white rounded-lg p-8 md:p-10 max-w-[780px] mx-auto resume-preview" data-testid="improved-resume-text">
-      {elements}
+    <div className="bg-white p-8 md:p-12 max-w-[780px] mx-auto" data-testid="resume-preview" style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
+      {nameLines[0] && <div className="text-4xl font-black text-slate-900 mb-1">{nameLines[0]}</div>}
+      {nameLines.slice(1).map((l, i) => <div key={i} className="text-sm text-slate-500 font-medium">{l}</div>)}
+      {nameLines.length > 0 && <div className="h-1.5 bg-red-600 mt-3 mb-5 w-full rounded-full" />}
+      {sections.map((s, si) => (
+        <div key={si} className="mb-5">
+          <div className="bg-red-600 text-white text-[11px] font-bold tracking-[2px] uppercase px-3 py-1.5 rounded mb-2 inline-block">{s.title}</div>
+          <div className="mt-1">
+            {s.lines.map((l, li) => renderBullet(l, li, "bg-red-500", "text-[13px] leading-relaxed text-slate-700"))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
