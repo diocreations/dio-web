@@ -408,6 +408,49 @@ const ResumeOptimizerPage = () => {
     }
   };
 
+  const handleGoogleDrive = () => {
+    if (!driveConfigured) {
+      toast.info("Google Drive integration is not configured yet. Please upload your file directly.");
+      return;
+    }
+    fetch(`${API_URL}/api/drive/connect?redirect_url=${encodeURIComponent(window.location.origin)}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.authorization_url) window.location.href = d.authorization_url;
+        else toast.error("Could not connect to Google Drive");
+      })
+      .catch(() => toast.error("Could not connect to Google Drive"));
+  };
+
+  const handleDriveImport = async (file) => {
+    setDriveImporting(true);
+    setShowDrivePicker(false);
+    try {
+      const res = await fetch(`${API_URL}/api/drive/import-file`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token_id: driveToken, file_id: file.id, file_name: file.name }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setResumeId(data.resume_id);
+        setTextPreview(data.text_preview);
+        setWordCount(data.word_count);
+        toast.success(`Imported "${file.name}" from Google Drive`);
+        setStep(2);
+        setAnalyzing(true);
+        const analysisRes = await fetch(`${API_URL}/api/resume/analyze`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ resume_id: data.resume_id }),
+        });
+        if (analysisRes.ok) setAnalysis(await analysisRes.json());
+      } else {
+        const err = await res.json();
+        toast.error(err.detail || "Import failed");
+      }
+    } catch { toast.error("Import failed"); }
+    finally { setDriveImporting(false); setAnalyzing(false); }
+  };
+
   const handleDownloadPDF = () => {
     if (!editedText) return;
     if (!hasDownloadAccess) {
