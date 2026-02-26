@@ -635,17 +635,18 @@ const ResumeOptimizerPage = () => {
                   <TabsContent value="resume">
                     {improved ? (
                       <div className="space-y-4">
+                        {/* Toolbar */}
                         <div className="flex items-center justify-between flex-wrap gap-3">
                           <h3 className="text-xl font-bold">Your Improved Resume</h3>
                           <div className="flex gap-2 flex-wrap">
                             <Button
-                              variant="outline"
+                              variant={isEditing ? "default" : "outline"}
                               size="sm"
                               className="rounded-full"
-                              onClick={() => { setImproved(null); setStep(2); }}
-                              data-testid="change-template-btn"
+                              onClick={() => setIsEditing(!isEditing)}
+                              data-testid="toggle-edit-btn"
                             >
-                              <Sparkles size={14} className="mr-1" /> Change Template & Regenerate
+                              {isEditing ? <><CheckCircle size={14} className="mr-1" /> Done Editing</> : <><FileText size={14} className="mr-1" /> Edit Text</>}
                             </Button>
                             {hasDownloadAccess ? (
                               <Button onClick={handleDownloadPDF} className="rounded-full" data-testid="download-pdf-btn">
@@ -658,14 +659,56 @@ const ResumeOptimizerPage = () => {
                             )}
                           </div>
                         </div>
-                        <Card className="border-0 shadow-lg">
+
+                        {/* Visual Template Switcher */}
+                        {!isEditing && (
+                          <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
+                            {VISUAL_TEMPLATES.map(vt => {
+                              const isActive = activeVisualTemplate === vt.id;
+                              return (
+                                <button
+                                  key={vt.id}
+                                  onClick={() => setActiveVisualTemplate(vt.id)}
+                                  data-testid={`visual-tpl-${vt.id}`}
+                                  className={`flex-shrink-0 rounded-lg border-2 p-2 transition-all text-left w-32 ${
+                                    isActive ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "border-slate-200 hover:border-slate-300"
+                                  }`}
+                                >
+                                  <div className="h-16 rounded border bg-white mb-1.5 overflow-hidden p-1.5 relative" style={{ borderTopWidth: "2px", borderTopColor: vt.preview.accent }}>
+                                    {vt.preview.layout === "dark-header" ? (
+                                      <><div className="h-4 rounded-sm mb-1" style={{ backgroundColor: "#1e293b" }}><div className="h-1 w-8 bg-white/70 rounded-full mx-auto mt-1.5" /></div><div className="h-[3px] w-6 rounded-full mt-1" style={{ backgroundColor: vt.preview.accent }} /><div className="h-[2px] w-full bg-slate-100 rounded-full mt-1" /></>
+                                    ) : vt.preview.layout === "bold" ? (
+                                      <><div className="h-1.5 w-12 bg-slate-800 rounded-full" /><div className="h-1 w-full rounded-full mt-1" style={{ backgroundColor: vt.preview.accent }} /><div className="h-[3px] w-8 rounded-sm mt-1.5" style={{ backgroundColor: vt.preview.accent }} /><div className="h-[2px] w-full bg-slate-100 rounded-full mt-1" /></>
+                                    ) : vt.preview.layout === "centered" ? (
+                                      <><div className="h-1.5 w-10 bg-slate-800 rounded-full mx-auto" /><div className="h-[2px] w-14 bg-slate-300 rounded-full mx-auto mt-0.5" /><div className="border-b mt-1.5" style={{ borderColor: vt.preview.accent }} /><div className="h-[2px] w-full bg-slate-100 rounded-full mt-1.5" /></>
+                                    ) : vt.preview.layout === "minimal" ? (
+                                      <><div className="h-1 w-14 bg-slate-300 rounded-full" /><div className="h-[2px] w-10 bg-slate-200 rounded-full mt-1" /><div className="border-b border-slate-100 mt-2" /><div className="h-[2px] w-6 bg-slate-200 rounded-full mt-2" /><div className="h-[2px] w-full bg-slate-50 rounded-full mt-1" /></>
+                                    ) : (
+                                      <><div className="h-1.5 w-12 rounded-full" style={{ backgroundColor: vt.preview.accent }} /><div className="h-[2px] w-16 bg-slate-300 rounded-full mt-0.5" /><div className="flex items-center gap-1 mt-1.5"><div className="h-[3px] w-2 rounded-full" style={{ backgroundColor: vt.preview.accent }} /><div className="h-[3px] w-6" style={{ backgroundColor: vt.preview.accent, opacity: 0.3 }} /></div><div className="h-[2px] w-full bg-slate-100 rounded-full mt-1" /></>
+                                    )}
+                                  </div>
+                                  <p className="text-xs font-semibold truncate">{vt.name}</p>
+                                  <p className="text-[10px] text-muted-foreground truncate">{vt.desc}</p>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {/* Resume Content */}
+                        <Card className="border-0 shadow-lg overflow-hidden">
                           <CardContent className="p-0">
-                            <ResumePreview text={improved.improved_text} />
+                            <ResumePreview
+                              text={editedText}
+                              templateId={activeVisualTemplate}
+                              editing={isEditing}
+                              onTextChange={setEditedText}
+                            />
                           </CardContent>
                         </Card>
                         {!hasDownloadAccess && (
                           <p className="text-center text-sm text-muted-foreground">
-                            You can view and edit your improved resume above. Pay to download, copy, or print the final version.
+                            Edit your resume freely. Switch templates instantly. Pay only to download the final version.
                           </p>
                         )}
                       </div>
@@ -675,7 +718,7 @@ const ResumeOptimizerPage = () => {
                           <Sparkles size={40} className="text-primary mx-auto mb-4" />
                           <h3 className="text-xl font-bold mb-2">Generate ATS-Optimized Resume</h3>
                           <p className="text-muted-foreground mb-6">AI will rewrite your resume with impact-driven language and ATS-friendly keywords.</p>
-                          <Button onClick={handleImprove} disabled={improving} className="rounded-full px-8" data-testid="improve-resume-btn">
+                          <Button onClick={() => handleImprove(true)} disabled={improving} className="rounded-full px-8" data-testid="improve-resume-btn">
                             {improving ? <><Loader2 className="animate-spin mr-2" size={18} />Generating...</> : <><Sparkles size={18} className="mr-2" />Generate Improved Resume</>}
                           </Button>
                         </CardContent>
