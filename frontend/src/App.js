@@ -350,6 +350,7 @@ const AppRouter = () => {
         }
       />
     </Routes>
+    </Suspense>
   );
 };
 
