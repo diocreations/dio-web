@@ -3516,12 +3516,18 @@ from routes.user_dashboard import router as user_dashboard_router
 from routes.cover_letter import router as cover_letter_router
 from routes.templates import router as templates_router
 
+# Google Auth for public users
+from routes.public_auth import router as public_auth_router
+# Import auth session handler
+from routes.google_auth_public import router as google_auth_public_router
+
 app.include_router(geo_router)
 app.include_router(menus_router)
 app.include_router(public_auth_router)
 app.include_router(user_dashboard_router)
 app.include_router(cover_letter_router)
 app.include_router(templates_router)
+app.include_router(google_auth_public_router)
 
 app.add_middleware(
     CORSMiddleware,
