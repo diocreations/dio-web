@@ -9,6 +9,16 @@ import asyncio
 
 app = FastAPI()
 
+# Subdomain middleware - serve resume-only mode for resume.diocreations.eu
+@app.middleware("http")
+async def subdomain_handler(request, call_next):
+    host = request.headers.get("host", "")
+    # Set a header so frontend can detect subdomain mode
+    response = await call_next(request)
+    if host.startswith("resume."):
+        response.headers["X-Resume-Subdomain"] = "true"
+    return response
+
 # CORS middleware - must be added before routers
 app.add_middleware(
     CORSMiddleware,
