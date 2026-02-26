@@ -2204,7 +2204,7 @@ RESUME TEXT:
 
     try:
         chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"resume_analysis_{resume_id}", system_message="You are a professional resume analyst. Return ONLY valid JSON.").with_model("gemini", "gemini-2.0-flash")
-        response = await chat.send_message(UserMessage(message=prompt))
+        response = await chat.send_message(UserMessage(text=prompt))
         # Clean response
         cleaned = response.strip()
         if cleaned.startswith("```"):
@@ -2325,7 +2325,7 @@ ORIGINAL RESUME:
 
     try:
         chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"resume_improve_{resume_id}", system_message="You are an expert resume writer. Rewrite resumes to be ATS-optimized and impactful. Be concise.").with_model("gemini", "gemini-2.0-flash")
-        improved_text = await chat.send_message(UserMessage(message=prompt))
+        improved_text = await chat.send_message(UserMessage(text=prompt))
     except Exception as e:
         logger.error(f"Resume improvement failed: {e}")
         raise HTTPException(status_code=500, detail="Improvement failed. Please try again.")
@@ -2371,7 +2371,7 @@ CURRENT EXPERIENCE: {experience[:1000]}"""
 
     try:
         chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"linkedin_{resume_id}", system_message="You are a LinkedIn optimization expert. Return ONLY valid JSON.").with_model("gemini", "gemini-2.0-flash")
-        response = await chat.send_message(UserMessage(message=prompt))
+        response = await chat.send_message(UserMessage(text=prompt))
         cleaned = response.strip()
         if cleaned.startswith("```"):
             cleaned = cleaned.split("\n", 1)[-1].rsplit("```", 1)[0]
