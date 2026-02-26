@@ -72,29 +72,34 @@ const ResumeOptimizerPage = () => {
 
   const [linkedinForm, setLinkedinForm] = useState({ headline: "", about: "", experience: "" });
 
-  // Load pricing
+  // Load pricing and templates
   useEffect(() => {
     fetch(`${API_URL}/api/resume/pricing`).then((r) => r.json()).then(setPricing).catch(() => {});
+    fetch(`${API_URL}/api/resume/templates`).then((r) => r.json()).then(setTemplates).catch(() => {});
   }, []);
 
-  // Handle return from Stripe
+  // Handle return from Stripe (pay-to-download)
   useEffect(() => {
     const sid = searchParams.get("session_id");
     const rid = searchParams.get("resume_id");
     if (sid && rid) {
       setResumeId(rid);
-      setStep(3);
+      setStep(4);
       fetch(`${API_URL}/api/resume/verify-payment`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: sid, resume_id: rid }),
       }).then((r) => r.json()).then((d) => {
-        if (d.paid) { setIsPaid(true); setStep(4); }
+        if (d.paid) setHasDownloadAccess(true);
       }).catch(() => {});
-      // Also load analysis
+      // Load existing analysis and improvement
       fetch(`${API_URL}/api/resume/analyze`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ resume_id: rid }),
       }).then((r) => r.json()).then(setAnalysis).catch(() => {});
+      fetch(`${API_URL}/api/resume/improve`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resume_id: rid }),
+      }).then((r) => r.json()).then(setImproved).catch(() => {});
     }
   }, [searchParams]);
 
