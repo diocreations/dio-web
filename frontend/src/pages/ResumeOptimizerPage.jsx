@@ -337,7 +337,9 @@ const ResumeOptimizerPage = () => {
         body: JSON.stringify(body),
       });
       if (res.ok) {
-        setImproved(await res.json());
+        const data = await res.json();
+        setImproved(data);
+        setEditedText(data.improved_text || "");
         setStep(4);
       }
     } catch { alert("Improvement failed"); }
