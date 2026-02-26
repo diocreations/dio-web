@@ -2055,6 +2055,335 @@ DioCreations specializes in mobile app development. Let's discuss your app idea!
     
     return {"message": "Data seeded successfully"}
 
+
+# ==================== RESUME OPTIMIZER ROUTES ====================
+
+# Helper: Extract text from PDF
+def extract_text_from_pdf(file_bytes: bytes) -> str:
+    doc = fitz.open(stream=file_bytes, filetype="pdf")
+    text = ""
+    for page in doc:
+        text += page.get_text()
+    doc.close()
+    return text[:8000]  # Limit to ~2000 words
+
+# Helper: Extract text from DOCX
+def extract_text_from_docx(file_bytes: bytes) -> str:
+    doc = DocxDocument(BytesIO(file_bytes))
+    text = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
+    return text[:8000]
+
+async def get_resume_pricing():
+    """Get resume optimizer pricing from DB"""
+    pricing = await db.resume_pricing.find_one({"pricing_id": "resume_optimizer"}, {"_id": 0})
+    if not pricing:
+        pricing = {
+            "pricing_id": "resume_optimizer",
+            "product_name": "DioAI Resume & LinkedIn Optimizer",
+            "product_description": "AI-powered resume analysis, ATS optimization, and LinkedIn profile enhancement",
+            "price": 19.99,
+            "currency": "EUR",
+            "discount_enabled": False,
+            "discount_percent": 0,
+            "linkedin_enabled": True,
+            "features": ["AI Resume Analysis (Free)", "ATS-Optimized Resume Rewrite", "LinkedIn Profile Optimization", "Download as PDF"],
+        }
+    return pricing
+
+@api_router.get("/resume/pricing")
+async def get_pricing_public():
+    """Public pricing for resume optimizer"""
+    pricing = await get_resume_pricing()
+    price = pricing["price"]
+    if pricing.get("discount_enabled") and pricing.get("discount_percent", 0) > 0:
+        price = round(price * (1 - pricing["discount_percent"] / 100), 2)
+    return {
+        "product_name": pricing["product_name"],
+        "product_description": pricing["product_description"],
+        "price": price,
+        "original_price": pricing["price"] if pricing.get("discount_enabled") else None,
+        "currency": pricing.get("currency", "EUR"),
+        "discount_percent": pricing.get("discount_percent", 0) if pricing.get("discount_enabled") else 0,
+        "linkedin_enabled": pricing.get("linkedin_enabled", True),
+        "features": pricing.get("features", []),
+    }
+
+@api_router.get("/admin/resume/pricing")
+async def get_pricing_admin(user: dict = Depends(get_current_user)):
+    return await get_resume_pricing()
+
+@api_router.put("/admin/resume/pricing")
+async def update_pricing_admin(update: dict, user: dict = Depends(get_current_user)):
+    update["pricing_id"] = "resume_optimizer"
+    update.pop("_id", None)
+    await db.resume_pricing.update_one({"pricing_id": "resume_optimizer"}, {"$set": update}, upsert=True)
+    return await db.resume_pricing.find_one({"pricing_id": "resume_optimizer"}, {"_id": 0})
+
+@api_router.get("/admin/resume/analytics")
+async def get_resume_analytics(user: dict = Depends(get_current_user)):
+    total_analyses = await db.resume_analyses.count_documents({})
+    total_paid = await db.resume_payments.count_documents({"status": "paid"})
+    revenue_cursor = db.resume_payments.find({"status": "paid"}, {"amount": 1, "_id": 0})
+    revenue = sum([doc.get("amount", 0) async for doc in revenue_cursor])
+    recent = await db.resume_analyses.find({}, {"_id": 0}).sort("created_at", -1).limit(10).to_list(10)
+    return {
+        "total_analyses": total_analyses,
+        "total_paid_users": total_paid,
+        "total_revenue": round(revenue, 2),
+        "recent_analyses": recent,
+    }
+
+@api_router.post("/resume/upload")
+async def upload_resume(file: UploadFile = File(...)):
+    """Upload and extract text from resume"""
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+
+    ext = file.filename.lower().split(".")[-1]
+    if ext not in ("pdf", "docx"):
+        raise HTTPException(status_code=400, detail="Only PDF and DOCX files are supported")
+
+    contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large (max 5MB)")
+
+    try:
+        if ext == "pdf":
+            text = extract_text_from_pdf(contents)
+        else:
+            text = extract_text_from_docx(contents)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Could not extract text: {str(e)}")
+
+    if len(text.strip()) < 50:
+        raise HTTPException(status_code=400, detail="Could not extract enough text from file")
+
+    resume_id = f"resume_{uuid.uuid4().hex[:12]}"
+    await db.resume_uploads.insert_one({
+        "resume_id": resume_id,
+        "filename": file.filename,
+        "text": text,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+
+    return {"resume_id": resume_id, "text_preview": text[:500], "word_count": len(text.split())}
+
+@api_router.post("/resume/analyze")
+async def analyze_resume(data: dict):
+    """Free AI analysis of resume"""
+    resume_id = data.get("resume_id")
+    if not resume_id:
+        raise HTTPException(status_code=400, detail="resume_id required")
+
+    upload = await db.resume_uploads.find_one({"resume_id": resume_id}, {"_id": 0})
+    if not upload:
+        raise HTTPException(status_code=404, detail="Resume not found")
+
+    # Check if already analyzed
+    existing = await db.resume_analyses.find_one({"resume_id": resume_id}, {"_id": 0})
+    if existing:
+        return existing
+
+    text = upload["text"][:6000]  # Limit tokens
+
+    prompt = f"""Analyze this resume and return ONLY valid JSON (no markdown, no code blocks):
+{{
+  "overall_score": <0-100>,
+  "ats_score": <0-100>,
+  "strengths": ["strength1", "strength2", "strength3"],
+  "weaknesses": ["weakness1", "weakness2", "weakness3"],
+  "missing_keywords": ["keyword1", "keyword2", "keyword3"],
+  "formatting_issues": ["issue1", "issue2"],
+  "suggestions": ["suggestion1", "suggestion2", "suggestion3", "suggestion4"]
+}}
+
+Be concise. Max 3-4 items per array.
+
+RESUME TEXT:
+{text}"""
+
+    try:
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"resume_analysis_{resume_id}", system_message="You are a professional resume analyst. Return ONLY valid JSON.").with_model("gemini", "gemini-2.0-flash")
+        response = await chat.send_message(UserMessage(message=prompt))
+        # Clean response
+        cleaned = response.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[-1].rsplit("```", 1)[0]
+        analysis = json.loads(cleaned)
+    except Exception as e:
+        logger.error(f"Resume analysis failed: {e}")
+        raise HTTPException(status_code=500, detail="Analysis failed. Please try again.")
+
+    analysis["resume_id"] = resume_id
+    analysis["filename"] = upload["filename"]
+    analysis["created_at"] = datetime.now(timezone.utc).isoformat()
+    await db.resume_analyses.insert_one({**analysis, "_id_skip": True})
+    analysis.pop("_id", None)
+    analysis.pop("_id_skip", None)
+    return analysis
+
+@api_router.post("/resume/checkout")
+async def create_resume_checkout(data: dict, request: Request):
+    """Create Stripe checkout for resume pro features"""
+    resume_id = data.get("resume_id")
+    customer_email = data.get("email", "")
+    origin_url = data.get("origin_url", "")
+
+    pricing = await get_resume_pricing()
+    price = pricing["price"]
+    if pricing.get("discount_enabled") and pricing.get("discount_percent", 0) > 0:
+        price = round(price * (1 - pricing["discount_percent"] / 100), 2)
+
+    currency = pricing.get("currency", "EUR").lower()
+    success_url = f"{origin_url}/resume-optimizer?session_id={{CHECKOUT_SESSION_ID}}&resume_id={resume_id}"
+    cancel_url = f"{origin_url}/resume-optimizer?resume_id={resume_id}"
+
+    host_url = str(request.base_url)
+    stripe_api_key = await get_stripe_api_key()
+    stripe_checkout = StripeCheckout(api_key=stripe_api_key, webhook_url=f"{host_url}api/webhook/stripe")
+
+    checkout_request = CheckoutSessionRequest(
+        amount=price,
+        currency=currency,
+        success_url=success_url,
+        cancel_url=cancel_url,
+        metadata={"product_type": "resume_optimizer", "resume_id": resume_id, "customer_email": customer_email}
+    )
+    session = await stripe_checkout.create_checkout_session(checkout_request)
+
+    await db.resume_payments.insert_one({
+        "session_id": session.session_id,
+        "resume_id": resume_id,
+        "amount": price,
+        "currency": currency.upper(),
+        "email": customer_email,
+        "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+
+    return {"checkout_url": session.url, "session_id": session.session_id}
+
+@api_router.get("/resume/payment-status/{resume_id}")
+async def check_resume_payment(resume_id: str):
+    """Check if resume has been paid for"""
+    payment = await db.resume_payments.find_one({"resume_id": resume_id, "status": "paid"}, {"_id": 0})
+    return {"paid": payment is not None}
+
+@api_router.post("/resume/verify-payment")
+async def verify_resume_payment(data: dict):
+    """Verify payment via Stripe session ID"""
+    session_id = data.get("session_id")
+    resume_id = data.get("resume_id")
+    if not session_id:
+        raise HTTPException(status_code=400, detail="session_id required")
+
+    stripe_api_key = await get_stripe_api_key()
+    stripe_checkout = StripeCheckout(api_key=stripe_api_key, webhook_url="")
+    try:
+        status = await stripe_checkout.get_checkout_status(session_id)
+        if status.payment_status == "paid":
+            await db.resume_payments.update_one(
+                {"session_id": session_id},
+                {"$set": {"status": "paid", "paid_at": datetime.now(timezone.utc).isoformat()}},
+            )
+            return {"paid": True}
+    except Exception as e:
+        logger.error(f"Payment verify error: {e}")
+    return {"paid": False}
+
+@api_router.post("/resume/improve")
+async def improve_resume(data: dict):
+    """Paid: Generate improved resume"""
+    resume_id = data.get("resume_id")
+    if not resume_id:
+        raise HTTPException(status_code=400, detail="resume_id required")
+
+    # Verify payment
+    payment = await db.resume_payments.find_one({"resume_id": resume_id, "status": "paid"}, {"_id": 0})
+    if not payment:
+        raise HTTPException(status_code=402, detail="Payment required")
+
+    # Check if already improved
+    existing = await db.resume_improvements.find_one({"resume_id": resume_id}, {"_id": 0})
+    if existing:
+        return existing
+
+    upload = await db.resume_uploads.find_one({"resume_id": resume_id}, {"_id": 0})
+    if not upload:
+        raise HTTPException(status_code=404, detail="Resume not found")
+
+    text = upload["text"][:6000]
+
+    prompt = f"""Rewrite this resume to be ATS-optimized, impact-driven, and professional. Keep the original structure but improve:
+- Professional Summary (concise, keyword-rich)
+- Work Experience (quantified achievements, action verbs)
+- Skills (relevant keywords)
+Return ONLY the improved resume text, formatted with clear section headers using markdown ## headers.
+
+ORIGINAL RESUME:
+{text}"""
+
+    try:
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"resume_improve_{resume_id}", system_message="You are an expert resume writer. Rewrite resumes to be ATS-optimized and impactful. Be concise.").with_model("gemini", "gemini-2.0-flash")
+        improved_text = await chat.send_message(UserMessage(message=prompt))
+    except Exception as e:
+        logger.error(f"Resume improvement failed: {e}")
+        raise HTTPException(status_code=500, detail="Improvement failed. Please try again.")
+
+    result = {"resume_id": resume_id, "improved_text": improved_text, "created_at": datetime.now(timezone.utc).isoformat()}
+    await db.resume_improvements.insert_one({**result})
+    result.pop("_id", None)
+    return result
+
+@api_router.post("/resume/linkedin")
+async def optimize_linkedin(data: dict):
+    """Paid: Optimize LinkedIn profile"""
+    resume_id = data.get("resume_id")
+    if not resume_id:
+        raise HTTPException(status_code=400, detail="resume_id required")
+
+    # Verify payment
+    payment = await db.resume_payments.find_one({"resume_id": resume_id, "status": "paid"}, {"_id": 0})
+    if not payment:
+        raise HTTPException(status_code=402, detail="Payment required")
+
+    headline = data.get("headline", "")
+    about = data.get("about", "")
+    experience = data.get("experience", "")
+
+    # Also use resume data for context
+    upload = await db.resume_uploads.find_one({"resume_id": resume_id}, {"_id": 0})
+    resume_context = upload["text"][:3000] if upload else ""
+
+    prompt = f"""Based on this person's resume and LinkedIn info, generate LinkedIn optimizations. Return ONLY valid JSON:
+{{
+  "headlines": ["headline1", "headline2", "headline3"],
+  "about": "optimized about section (2-3 paragraphs max)",
+  "experience_bullets": ["improved bullet 1", "improved bullet 2", "improved bullet 3", "improved bullet 4"],
+  "keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"],
+  "post_ideas": ["post idea 1", "post idea 2", "post idea 3"]
+}}
+
+RESUME CONTEXT: {resume_context[:2000]}
+CURRENT HEADLINE: {headline[:200]}
+CURRENT ABOUT: {about[:1000]}
+CURRENT EXPERIENCE: {experience[:1000]}"""
+
+    try:
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"linkedin_{resume_id}", system_message="You are a LinkedIn optimization expert. Return ONLY valid JSON.").with_model("gemini", "gemini-2.0-flash")
+        response = await chat.send_message(UserMessage(message=prompt))
+        cleaned = response.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("\n", 1)[-1].rsplit("```", 1)[0]
+        result = json.loads(cleaned)
+    except Exception as e:
+        logger.error(f"LinkedIn optimization failed: {e}")
+        raise HTTPException(status_code=500, detail="Optimization failed. Please try again.")
+
+    result["resume_id"] = resume_id
+    return result
+
+
 # ==================== CHATBOT ROUTES ====================
 
 # Default greeting messages
