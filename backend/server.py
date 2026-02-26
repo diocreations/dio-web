@@ -3435,6 +3435,21 @@ async def get_sitemap():
 # Include the router in the main app
 app.include_router(api_router)
 
+# Include new modular routers
+from routes.geo_currency import router as geo_router
+from routes.menus import router as menus_router
+from routes.public_auth import router as public_auth_router
+from routes.user_dashboard import router as user_dashboard_router
+from routes.cover_letter import router as cover_letter_router
+from routes.templates import router as templates_router
+
+app.include_router(geo_router)
+app.include_router(menus_router)
+app.include_router(public_auth_router)
+app.include_router(user_dashboard_router)
+app.include_router(cover_letter_router)
+app.include_router(templates_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
