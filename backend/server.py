@@ -1277,14 +1277,17 @@ async def get_stats(user: dict = Depends(get_current_user)):
 @api_router.get("/homepage/content")
 async def get_homepage_content(request: Request):
     """Get all homepage content for public display with geo-based currency"""
-    # Get visitor's currency based on geo-IP
-    visitor_currency = "EUR"  # Default
-    cf_country = request.headers.get("CF-IPCountry", "")
-    x_country = request.headers.get("X-Country-Code", "")
-    country_code = cf_country or x_country or ""
-    
-    if country_code in COUNTRY_TO_CURRENCY:
-        visitor_currency = COUNTRY_TO_CURRENCY[country_code]
+    # Use improved geo-currency resolution
+    try:
+        from routes.geo_currency import resolve_visitor_currency
+        geo = await resolve_visitor_currency(request)
+        visitor_currency = geo["currency"]
+        currency_symbol = geo["currency_symbol"]
+        currency_rate = geo["currency_rate"]
+    except Exception:
+        visitor_currency = "EUR"
+        currency_symbol = "€"
+        currency_rate = 1.0
     
     # Get homepage settings
     settings = await db.homepage_settings.find_one({"settings_id": "homepage_settings"}, {"_id": 0})
