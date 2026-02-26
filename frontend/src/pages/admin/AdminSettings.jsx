@@ -228,6 +228,64 @@ const AdminSettings = () => {
 
         <Card>
           <CardHeader>
+            <CardTitle className="text-lg">Bulk Currency Update</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800">
+                Change the base currency for <strong>all products</strong> at once. This updates the currency field on every product in your catalog.
+              </p>
+            </div>
+            <div className="flex items-end gap-4">
+              <div className="space-y-2 flex-1">
+                <Label htmlFor="bulk_currency">New Base Currency</Label>
+                <select
+                  id="bulk_currency"
+                  value={bulkCurrency}
+                  onChange={(e) => setBulkCurrency(e.target.value)}
+                  className="w-full h-10 rounded-md border px-3"
+                  data-testid="bulk-currency-select"
+                >
+                  {CURRENCY_OPTIONS.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.symbol} {c.code} — {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={updatingCurrency}
+                onClick={async () => {
+                  if (!window.confirm(`Update ALL products to ${bulkCurrency}? This cannot be undone.`)) return;
+                  setUpdatingCurrency(true);
+                  try {
+                    const res = await fetch(`${API_URL}/api/products/bulk-currency`, {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json" },
+                      credentials: "include",
+                      body: JSON.stringify({ currency: bulkCurrency }),
+                    });
+                    if (res.ok) {
+                      const data = await res.json();
+                      toast.success(`Updated ${data.updated_count} products to ${bulkCurrency}`);
+                    } else throw new Error("Failed");
+                  } catch { toast.error("Failed to update currency"); }
+                  finally { setUpdatingCurrency(false); }
+                }}
+                className="rounded-full"
+                data-testid="bulk-currency-btn"
+              >
+                <RefreshCw className={`mr-2 ${updatingCurrency ? "animate-spin" : ""}`} size={16} />
+                {updatingCurrency ? "Updating..." : "Update All Products"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
             <CardTitle className="text-lg">ResellerClub Settings</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
