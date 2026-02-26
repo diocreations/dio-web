@@ -342,41 +342,86 @@ const ResumeOptimizerPage = () => {
                     </div>
 
                     {/* CTA to optimize (free) */}
-                    <Card className="bg-gradient-to-r from-primary to-primary/80 text-white">
-                      <CardContent className="p-8 text-center">
-                        <Sparkles size={32} className="mx-auto mb-4 opacity-80" />
-                        <h3 className="text-2xl font-bold mb-2">Ready to Optimize?</h3>
-                        <p className="text-white/80 mb-6">AI will rewrite your resume with ATS-friendly keywords, impact-driven language, and quantified achievements — free!</p>
-                        {templates.length > 0 && (
-                          <div className="mb-6">
-                            <p className="text-sm text-white/70 mb-3">Choose a template (optional):</p>
-                            <div className="flex flex-wrap gap-2 justify-center">
-                              <Button
-                                variant={!selectedTemplate ? "secondary" : "ghost"}
-                                size="sm"
-                                onClick={() => setSelectedTemplate(null)}
-                                className={!selectedTemplate ? "" : "text-white/60 hover:text-white border-white/20"}
+                    <Card className="border-0 shadow-lg">
+                      <CardContent className="p-8">
+                        <div className="text-center mb-6">
+                          <Sparkles size={32} className="mx-auto mb-3 text-primary" />
+                          <h3 className="text-2xl font-bold mb-2">Choose a Template & Optimize</h3>
+                          <p className="text-muted-foreground">Select how you'd like your resume formatted, then let AI rewrite it for maximum impact.</p>
+                        </div>
+
+                        {/* Visual Template Cards */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                          {templates.map(t => {
+                            const isSelected = selectedTemplate === t.template_id;
+                            const accentColor = t.style?.accent || t.style?.color || "#1a1a2e";
+                            return (
+                              <div
+                                key={t.template_id}
+                                onClick={() => setSelectedTemplate(isSelected ? null : t.template_id)}
+                                data-testid={`template-card-${t.template_id}`}
+                                className={`relative cursor-pointer rounded-xl border-2 p-4 transition-all hover:shadow-md ${
+                                  isSelected ? "border-primary ring-2 ring-primary/20 bg-primary/5" : "border-slate-200 hover:border-slate-300"
+                                }`}
                               >
-                                Default
-                              </Button>
-                              {templates.map(t => (
-                                <Button
-                                  key={t.template_id}
-                                  variant={selectedTemplate === t.template_id ? "secondary" : "ghost"}
-                                  size="sm"
-                                  onClick={() => setSelectedTemplate(t.template_id)}
-                                  className={selectedTemplate === t.template_id ? "" : "text-white/60 hover:text-white border-white/20"}
-                                  data-testid={`template-select-${t.template_id}`}
-                                >
-                                  {t.name}
-                                </Button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        <Button onClick={() => { setStep(3); handleImprove(); }} size="lg" variant="secondary" className="rounded-full px-10" data-testid="optimize-btn">
-                          <Sparkles size={18} className="mr-2" /> Optimize My Resume
-                        </Button>
+                                {isSelected && (
+                                  <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                                    <CheckCircle size={14} className="text-white" />
+                                  </div>
+                                )}
+                                {/* Mini template preview */}
+                                <div className="bg-white border rounded-lg p-3 mb-3 h-28 overflow-hidden relative" style={{ borderTopColor: accentColor, borderTopWidth: "3px" }}>
+                                  <div className="space-y-1.5">
+                                    {t.preview?.header_style === "centered" ? (
+                                      <div className="text-center">
+                                        <div className="h-2 w-16 bg-slate-800 rounded-full mx-auto" />
+                                        <div className="h-1 w-24 bg-slate-300 rounded-full mx-auto mt-1" />
+                                      </div>
+                                    ) : (
+                                      <div>
+                                        <div className="h-2 w-20 bg-slate-800 rounded-full" />
+                                        <div className="h-1 w-28 bg-slate-300 rounded-full mt-1" />
+                                      </div>
+                                    )}
+                                    {t.preview?.section_dividers && <div className="border-b mt-1.5" style={{ borderColor: accentColor + "40" }} />}
+                                    <div className="h-1.5 w-12 rounded-full mt-1" style={{ backgroundColor: accentColor }} />
+                                    {t.style?.layout === "skills-first" ? (
+                                      <>
+                                        <div className="flex gap-1 flex-wrap">
+                                          {[16, 14, 12, 18, 10].map((w, i) => (
+                                            <div key={i} className="h-1 rounded-full bg-slate-200" style={{ width: w }} />
+                                          ))}
+                                        </div>
+                                        <div className="h-1.5 w-14 rounded-full mt-1" style={{ backgroundColor: accentColor }} />
+                                      </>
+                                    ) : null}
+                                    <div className="space-y-0.5">
+                                      <div className="h-1 w-full bg-slate-100 rounded-full" />
+                                      <div className="h-1 w-5/6 bg-slate-100 rounded-full" />
+                                      <div className="h-1 w-4/6 bg-slate-100 rounded-full" />
+                                    </div>
+                                  </div>
+                                  <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent" />
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-sm">{t.name}</p>
+                                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{t.description}</p>
+                                </div>
+                                <div className="flex gap-1 mt-2">
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium">{t.style?.layout?.replace("-", " ")}</span>
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium">{t.style?.font}</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        <div className="text-center">
+                          <Button onClick={() => handleImprove(false)} size="lg" className="rounded-full px-10" data-testid="optimize-btn">
+                            <Sparkles size={18} className="mr-2" /> {selectedTemplate ? "Optimize with Selected Template" : "Optimize My Resume"}
+                          </Button>
+                          {!selectedTemplate && <p className="text-xs text-muted-foreground mt-2">No template selected — AI will use the best format for your resume</p>}
+                        </div>
                       </CardContent>
                     </Card>
                   </div>
