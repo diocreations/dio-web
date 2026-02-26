@@ -359,36 +359,44 @@ const ResumeOptimizerPage = () => {
   };
 
   const handleDownloadPDF = () => {
-    if (!improved?.improved_text) return;
+    if (!editedText) return;
     if (!hasDownloadAccess) {
       handleCheckout();
       return;
     }
+    const tplStyles = {
+      classic: { font: "Georgia, 'Times New Roman', serif", accent: "#1a1a2e", headerBg: "transparent", headerColor: "#1a1a2e" },
+      modern: { font: "'Segoe UI', Calibri, Arial, sans-serif", accent: "#2563eb", headerBg: "transparent", headerColor: "#2563eb" },
+      executive: { font: "'Segoe UI', Calibri, sans-serif", accent: "#f59e0b", headerBg: "#1e293b", headerColor: "#fff" },
+      minimal: { font: "'Helvetica Neue', Helvetica, Arial, sans-serif", accent: "#6b7280", headerBg: "transparent", headerColor: "#374151" },
+      bold: { font: "'Inter', 'Segoe UI', sans-serif", accent: "#dc2626", headerBg: "transparent", headerColor: "#111827" },
+    };
+    const s = tplStyles[activeVisualTemplate] || tplStyles.classic;
     const win = window.open("", "_blank");
     win.document.write(`<html><head><title>Resume</title><style>
-      body{font-family:'Segoe UI',Calibri,Arial,sans-serif;max-width:780px;margin:30px auto;padding:30px 40px;line-height:1.5;color:#222;font-size:11pt}
-      .section-head{font-size:11pt;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#1a1a2e;border-bottom:1.5px solid #1a1a2e;padding-bottom:3px;margin:18px 0 8px}
-      .name{font-size:18pt;font-weight:700;text-align:center;margin-bottom:2px}
-      .contact{text-align:center;color:#555;font-size:9.5pt;margin-bottom:14px}
+      body{font-family:${s.font};max-width:780px;margin:30px auto;padding:30px 40px;line-height:1.5;color:#333;font-size:11pt}
+      .section-head{font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:${s.accent};border-bottom:1.5px solid ${s.accent}40;padding-bottom:3px;margin:18px 0 8px}
+      .name{font-size:18pt;font-weight:700;color:${s.headerColor};margin-bottom:2px;${s.headerBg !== "transparent" ? `background:${s.headerBg};color:#fff;padding:16px 24px;margin:-30px -40px 12px;` : ""}}
+      .contact{color:#666;font-size:9pt;margin-bottom:10px;${s.headerBg !== "transparent" ? `background:${s.headerBg};color:#ccc;padding:0 24px 14px;margin:-8px -40px 14px;` : ""}}
       ul{padding-left:18px;margin:4px 0}li{margin-bottom:3px}
       @media print{body{margin:0;padding:20px 30px}}
     </style></head><body>`);
-    const text = improved.improved_text;
-    const lines = text.split("\n");
-    let html = "";
+    const lines = editedText.split("\\n");
+    let isFirst = true;
     for (const line of lines) {
       const trimmed = line.trim();
-      if (!trimmed) { html += "<br/>"; continue; }
-      // Detect ALL CAPS section headers (3+ uppercase words)
-      if (/^[A-Z][A-Z\s\/&,]{4,}$/.test(trimmed) && !trimmed.includes("@") && !trimmed.includes("|")) {
-        html += '<div class="section-head">' + trimmed + "</div>";
+      if (!trimmed) { win.document.write("<br/>"); continue; }
+      if (/^[A-Z][A-Z\\s\\/&,]{3,}$/.test(trimmed) && !trimmed.includes("@") && !trimmed.includes("|")) {
+        win.document.write('<div class="section-head">' + trimmed + "</div>");
       } else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
-        html += "<li>" + trimmed.slice(2) + "</li>";
+        win.document.write("<li>" + trimmed.slice(2) + "</li>");
+      } else if (isFirst) {
+        win.document.write('<div class="name">' + trimmed + "</div>");
+        isFirst = false;
       } else {
-        html += "<div>" + trimmed + "</div>";
+        win.document.write("<div>" + trimmed + "</div>");
       }
     }
-    win.document.write(html);
     win.document.write("</body></html>");
     win.document.close();
     win.print();
