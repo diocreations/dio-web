@@ -674,7 +674,13 @@ const ResumeOptimizerPage = () => {
                         {/* Toolbar */}
                         <div className="flex items-center justify-between flex-wrap gap-3">
                           <h3 className="text-xl font-bold">Your Improved Resume</h3>
-                          <div className="flex gap-2 flex-wrap">
+                          <div className="flex gap-2 flex-wrap items-center">
+                            {/* Font size */}
+                            <div className="flex items-center border rounded-full overflow-hidden" data-testid="font-size-control">
+                              <button className="px-2 py-1 text-xs hover:bg-slate-100" onClick={() => setFontSize(f => Math.max(10, f - 1))} data-testid="font-decrease">A-</button>
+                              <span className="px-2 py-1 text-xs border-x bg-slate-50 min-w-[32px] text-center">{fontSize}</span>
+                              <button className="px-2 py-1 text-xs hover:bg-slate-100" onClick={() => setFontSize(f => Math.min(18, f + 1))} data-testid="font-increase">A+</button>
+                            </div>
                             <Button
                               variant={isEditing ? "default" : "outline"}
                               size="sm"
