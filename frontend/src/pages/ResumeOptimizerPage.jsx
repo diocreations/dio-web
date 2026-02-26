@@ -246,6 +246,9 @@ const ResumeOptimizerPage = () => {
   const [pricing, setPricing] = useState(null);
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [activeVisualTemplate, setActiveVisualTemplate] = useState("classic");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedText, setEditedText] = useState("");
 
   const [linkedinForm, setLinkedinForm] = useState({ headline: "", about: "", experience: "" });
 
