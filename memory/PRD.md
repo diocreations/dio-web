@@ -38,6 +38,16 @@ Make the existing homepage (diocreations.eu) fully dynamic and editable from a b
   - "Online now" status indicator in header
   - Admin Chatbot Manager at `/admin/chatbot` with 3 tabs: Greetings, Knowledge Base, Personality
 
+- **DioAI Resume & LinkedIn Optimizer** (Premium Product)
+  - Free resume upload (PDF/DOCX) + AI analysis (scores, strengths, weaknesses, keywords, suggestions)
+  - Paid resume rewrite (ATS-optimized, impact-driven) — locked behind Stripe payment
+  - Paid LinkedIn optimization (3 headline variants, about rewrite, keywords, post ideas)
+  - Admin pricing management + analytics dashboard at `/admin/resume`
+  - Product name/description/pricing editable from admin without code deployment
+  - Listed in navbar as "Resume AI" and available at `/resume-optimizer`
+  - 4-step flow: Upload → Analysis → Unlock Pro → Optimize
+- **Dio mobile fix**: Auto-popup disabled on mobile devices (< 768px width)
+
 ## Key API Endpoints
 - `GET /api/homepage/content` - Public homepage data
 - `PUT /api/admin/homepage/settings` - Update homepage settings
@@ -48,6 +58,15 @@ Make the existing homepage (diocreations.eu) fully dynamic and editable from a b
 - `GET /api/chatbot/settings` - Admin chatbot settings (auth required)
 - `PUT /api/chatbot/settings` - Update chatbot greetings, knowledge base, personality (auth required)
 - `POST /api/chat` - Send message to Dio (uses dynamic system message from knowledge base)
+- `POST /api/resume/upload` - Upload PDF/DOCX resume, extract text
+- `POST /api/resume/analyze` - Free AI analysis (structured scores + feedback)
+- `POST /api/resume/improve` - Paid: ATS-optimized resume rewrite
+- `POST /api/resume/linkedin` - Paid: LinkedIn profile optimization
+- `POST /api/resume/checkout` - Create Stripe checkout session
+- `GET /api/resume/pricing` - Public pricing info
+- `GET /api/admin/resume/pricing` - Admin pricing config
+- `PUT /api/admin/resume/pricing` - Update pricing
+- `GET /api/admin/resume/analytics` - Analytics (analyses count, paid users, revenue)
 - `GET /sitemap.xml` - Dynamic sitemap
 - `POST /webhook/stripe` - Stripe webhook + email
 
@@ -66,4 +85,5 @@ Make the existing homepage (diocreations.eu) fully dynamic and editable from a b
 - /app/test_reports/iteration_6.json
 - /app/test_reports/iteration_7.json
 - /app/test_reports/iteration_8.json
-- /app/test_reports/iteration_9.json (latest - admin panel fixes + DnD reorder - all passed)
+- /app/test_reports/iteration_9.json
+- /app/test_reports/iteration_10.json (latest - Resume Optimizer MVP - all passed)
