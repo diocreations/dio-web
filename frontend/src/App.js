@@ -35,6 +35,8 @@ import AdminHomepage from "./pages/admin/AdminHomepage";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAbout from "./pages/admin/AdminAbout";
 import AdminChatbot from "./pages/admin/AdminChatbot";
+import AdminResume from "./pages/admin/AdminResume";
+import ResumeOptimizerPage from "./pages/ResumeOptimizerPage";
 
 const queryClient = new QueryClient();
 const API_URL = process.env.REACT_APP_BACKEND_URL;
