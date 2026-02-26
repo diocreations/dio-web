@@ -2379,6 +2379,74 @@ CURRENT EXPERIENCE: {experience[:1000]}"""
     return result
 
 
+@api_router.post("/resume/linkedin-scrape")
+async def scrape_linkedin_profile(data: dict):
+    """Try to extract LinkedIn profile data from a public URL"""
+    url = data.get("url", "").strip()
+    if not url or "linkedin.com" not in url:
+        raise HTTPException(status_code=400, detail="Valid LinkedIn URL required")
+
+    # Normalize URL
+    if not url.startswith("http"):
+        url = "https://" + url
+
+    try:
+        import httpx
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept-Language": "en-US,en;q=0.9",
+        }
+        async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+            resp = await client.get(url, headers=headers)
+            html = resp.text
+
+        # Extract Open Graph meta tags
+        import re
+        og_title = ""
+        og_desc = ""
+        m = re.search(r'<meta[^>]*property=["\']og:title["\'][^>]*content=["\']([^"\']*)["\']', html)
+        if m:
+            og_title = m.group(1)
+        m = re.search(r'<meta[^>]*property=["\']og:description["\'][^>]*content=["\']([^"\']*)["\']', html)
+        if m:
+            og_desc = m.group(1)
+
+        # Also try title tag
+        if not og_title:
+            m = re.search(r'<title>([^<]*)</title>', html)
+            if m:
+                og_title = m.group(1)
+
+        # Parse headline from og:title (usually "Name - Headline")
+        headline = ""
+        name = ""
+        if " - " in og_title:
+            parts = og_title.split(" - ", 1)
+            name = parts[0].strip()
+            headline = parts[1].replace(" | LinkedIn", "").strip()
+        elif og_title:
+            name = og_title.replace(" | LinkedIn", "").strip()
+
+        return {
+            "success": True,
+            "name": name,
+            "headline": headline,
+            "about": og_desc.strip() if og_desc else "",
+            "experience": "",
+            "note": "Extracted from public profile. Paste additional details for better results." if headline else "Could not extract full profile. Please paste your LinkedIn info manually.",
+        }
+    except Exception as e:
+        logger.warning(f"LinkedIn scrape failed: {e}")
+        return {
+            "success": False,
+            "name": "",
+            "headline": "",
+            "about": "",
+            "experience": "",
+            "note": "Could not access LinkedIn profile. Please paste your details manually.",
+        }
+
+
 @api_router.post("/resume/download-access")
 async def check_download_access(data: dict):
     """Check if user has paid for download access"""
