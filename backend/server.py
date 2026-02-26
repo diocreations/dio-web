@@ -51,6 +51,7 @@ app.include_router(user_dashboard_router)
 app.include_router(cover_letter_router)
 app.include_router(templates_router)
 app.include_router(google_auth_public_router)
+app.include_router(google_drive_router)
 
 
 # Root endpoint
