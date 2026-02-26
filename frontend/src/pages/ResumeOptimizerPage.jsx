@@ -145,10 +145,12 @@ const ResumeOptimizerPage = () => {
     } catch { alert("Checkout failed"); }
   };
 
-  const handleImprove = async () => {
+  const handleImprove = async (forceRegenerate = false) => {
     setImproving(true);
+    setImproved(null);
+    setStep(3);
     try {
-      const body = { resume_id: resumeId };
+      const body = { resume_id: resumeId, force_regenerate: forceRegenerate };
       if (selectedTemplate) body.template_id = selectedTemplate;
       const res = await fetch(`${API_URL}/api/resume/improve`, {
         method: "POST", headers: { "Content-Type": "application/json" },
