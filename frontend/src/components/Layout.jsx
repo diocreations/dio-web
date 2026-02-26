@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import DioChat from "./DioChat";
@@ -6,7 +7,6 @@ import GoogleAnalytics from "./GoogleAnalytics";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-// Accent color CSS variable mappings
 const accentCssMap = {
   violet: { "--primary": "265 80% 50%", "--ring": "265 80% 50%", "--accent": "265 60% 60%", "--secondary": "265 30% 96%", "--secondary-foreground": "265 80% 30%" },
   blue: { "--primary": "221 83% 53%", "--ring": "221 83% 53%", "--accent": "221 60% 60%", "--secondary": "221 30% 96%", "--secondary-foreground": "221 83% 30%" },
@@ -24,8 +24,13 @@ const getRandomIndex = (key, max) => {
   return idx;
 };
 
+// Pages where the chatbot should be hidden for cleaner UX
+const HIDE_CHAT_PATHS = ["/resume-optimizer", "/cover-letter"];
+
 const Layout = ({ children }) => {
+  const location = useLocation();
   const [colorData, setColorData] = useState(null);
+  const hideChatbot = HIDE_CHAT_PATHS.some((p) => location.pathname.startsWith(p));
 
   useEffect(() => {
     fetch(`${API_URL}/api/homepage/content`)
@@ -51,7 +56,7 @@ const Layout = ({ children }) => {
       <Navbar />
       <main className="flex-1 pt-20">{children}</main>
       <Footer />
-      <DioChat />
+      {!hideChatbot && <DioChat />}
     </div>
   );
 };
