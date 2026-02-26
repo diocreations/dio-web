@@ -279,7 +279,7 @@ const ResumeOptimizerPage = () => {
       fetch(`${API_URL}/api/resume/improve`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ resume_id: rid }),
-      }).then((r) => r.json()).then(setImproved).catch(() => {});
+      }).then((r) => r.json()).then((d) => { setImproved(d); setEditedText(d.improved_text || ""); }).catch(() => {});
     }
   }, [searchParams]);
 
