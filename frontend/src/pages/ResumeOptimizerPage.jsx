@@ -455,7 +455,16 @@ const ResumeOptimizerPage = () => {
                       <div className="space-y-4">
                         <div className="flex items-center justify-between flex-wrap gap-3">
                           <h3 className="text-xl font-bold">Your Improved Resume</h3>
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 flex-wrap">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="rounded-full"
+                              onClick={() => { setImproved(null); setStep(2); }}
+                              data-testid="change-template-btn"
+                            >
+                              <Sparkles size={14} className="mr-1" /> Change Template & Regenerate
+                            </Button>
                             {hasDownloadAccess ? (
                               <Button onClick={handleDownloadPDF} className="rounded-full" data-testid="download-pdf-btn">
                                 <Download size={18} className="mr-2" /> Download / Print
@@ -467,16 +476,14 @@ const ResumeOptimizerPage = () => {
                             )}
                           </div>
                         </div>
-                        <Card>
-                          <CardContent className="p-6">
-                            <div className="prose prose-sm max-w-none whitespace-pre-wrap" data-testid="improved-resume-text">
-                              {improved.improved_text}
-                            </div>
+                        <Card className="border-0 shadow-lg">
+                          <CardContent className="p-0">
+                            <ResumePreview text={improved.improved_text} />
                           </CardContent>
                         </Card>
                         {!hasDownloadAccess && (
                           <p className="text-center text-sm text-muted-foreground">
-                            You can view your improved resume above. Pay to download, copy, or print the final version.
+                            You can view and edit your improved resume above. Pay to download, copy, or print the final version.
                           </p>
                         )}
                       </div>
