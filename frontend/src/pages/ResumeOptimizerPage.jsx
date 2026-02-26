@@ -780,11 +780,32 @@ const ResumeOptimizerPage = () => {
                           <div className="text-center mb-4">
                             <Linkedin size={40} className="text-[#0077B5] mx-auto mb-2" />
                             <h3 className="text-xl font-bold">Optimize Your LinkedIn</h3>
-                            <p className="text-muted-foreground text-sm">Enter your current LinkedIn content (optional — AI can work from your resume alone)</p>
+                            <p className="text-muted-foreground text-sm">Paste your LinkedIn URL to auto-capture your profile, or enter details manually</p>
                           </div>
-                          <div className="space-y-2"><Label>Current Headline</Label><Input value={linkedinForm.headline} onChange={(e) => setLinkedinForm((p) => ({ ...p, headline: e.target.value }))} placeholder="e.g., Software Engineer at Google" /></div>
-                          <div className="space-y-2"><Label>About Section</Label><Textarea value={linkedinForm.about} onChange={(e) => setLinkedinForm((p) => ({ ...p, about: e.target.value }))} rows={4} placeholder="Paste your current About section..." /></div>
-                          <div className="space-y-2"><Label>Experience (key roles)</Label><Textarea value={linkedinForm.experience} onChange={(e) => setLinkedinForm((p) => ({ ...p, experience: e.target.value }))} rows={4} placeholder="Paste recent experience..." /></div>
+
+                          {/* LinkedIn URL auto-capture */}
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
+                            <Label className="text-blue-800 font-medium flex items-center gap-1"><Linkedin size={14} /> LinkedIn Profile URL</Label>
+                            <div className="flex gap-2">
+                              <Input
+                                value={linkedinUrl}
+                                onChange={(e) => setLinkedinUrl(e.target.value)}
+                                placeholder="https://linkedin.com/in/your-profile"
+                                className="flex-1"
+                                data-testid="linkedin-url-input"
+                              />
+                              <Button onClick={handleLinkedinScrape} disabled={linkedinScraping} variant="outline" size="sm" data-testid="linkedin-scrape-btn">
+                                {linkedinScraping ? <Loader2 className="animate-spin" size={16} /> : "Capture"}
+                              </Button>
+                            </div>
+                            <p className="text-xs text-blue-600">We'll extract your headline, about, and experience automatically</p>
+                          </div>
+
+                          <div className="relative my-2"><div className="absolute inset-0 flex items-center"><div className="w-full border-t" /></div><div className="relative flex justify-center"><span className="bg-white px-3 text-xs text-muted-foreground">or enter manually</span></div></div>
+
+                          <div className="space-y-2"><Label>Current Headline</Label><Input value={linkedinForm.headline} onChange={(e) => setLinkedinForm((p) => ({ ...p, headline: e.target.value }))} placeholder="e.g., Software Engineer at Google" data-testid="linkedin-headline" /></div>
+                          <div className="space-y-2"><Label>About Section</Label><Textarea value={linkedinForm.about} onChange={(e) => setLinkedinForm((p) => ({ ...p, about: e.target.value }))} rows={4} placeholder="Paste your current About section..." data-testid="linkedin-about" /></div>
+                          <div className="space-y-2"><Label>Experience (key roles)</Label><Textarea value={linkedinForm.experience} onChange={(e) => setLinkedinForm((p) => ({ ...p, experience: e.target.value }))} rows={4} placeholder="Paste recent experience..." data-testid="linkedin-experience" /></div>
                           <Button onClick={handleLinkedIn} disabled={linkedinLoading} className="w-full rounded-full" data-testid="linkedin-optimize-btn">
                             {linkedinLoading ? <><Loader2 className="animate-spin mr-2" size={18} />Optimizing...</> : <><Linkedin size={18} className="mr-2" />Optimize LinkedIn</>}
                           </Button>
@@ -792,6 +813,18 @@ const ResumeOptimizerPage = () => {
                       </Card>
                     ) : (
                       <div className="space-y-6">
+                        {/* Payment gate for LinkedIn results */}
+                        {!hasDownloadAccess && (
+                          <Card className="bg-gradient-to-r from-[#0077B5] to-[#005582] text-white border-0">
+                            <CardContent className="p-6 text-center">
+                              <Lock size={24} className="mx-auto mb-2 opacity-80" />
+                              <p className="font-semibold mb-3">Unlock full LinkedIn optimization results</p>
+                              <Button onClick={handleCheckout} variant="secondary" className="rounded-full" data-testid="linkedin-pay-btn">
+                                Pay {pricing?.currency || "EUR"} {pricing?.price || "19.99"} to Access
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        )}
                         {/* Headlines */}
                         <Card>
                           <CardContent className="p-6">
