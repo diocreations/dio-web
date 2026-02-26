@@ -153,16 +153,16 @@ const ResumePreview = ({ text, templateId, editing, onTextChange, fontSize = 13 
   if (tpl === "modern") {
     return (
       <div className="bg-white p-8 md:p-12 max-w-[780px] mx-auto" data-testid="resume-preview" style={{ fontFamily: "'Segoe UI', Calibri, Arial, sans-serif" }}>
-        {nameLines[0] && <div className="text-3xl font-extrabold text-blue-600 mb-0.5">{nameLines[0]}</div>}
-        {nameLines.slice(1).map((l, i) => <div key={i} className="text-sm text-slate-500">{l}</div>)}
+        {nameLines[0] && <div className="font-extrabold text-blue-600 mb-0.5" style={{ fontSize: `${fontSize + 14}px` }}>{nameLines[0]}</div>}
+        {nameLines.slice(1).map((l, i) => <div key={i} className="text-slate-500" style={{ fontSize: `${fontSize - 1}px` }}>{l}</div>)}
         {nameLines.length > 0 && <div className="h-1 bg-blue-600 mt-3 mb-4 w-20 rounded-full" />}
         {sections.map((s, si) => (
           <div key={si} className="mb-5">
             <div className="flex items-center gap-2 mb-2">
               <div className="h-1 w-3 bg-blue-600 rounded-full" />
-              <div className="text-xs font-bold tracking-[2px] uppercase text-blue-600">{s.title}</div>
+              <div className="font-bold tracking-[2px] uppercase text-blue-600" style={{ fontSize: headerFs }}>{s.title}</div>
             </div>
-            {s.lines.map((l, li) => renderBullet(l, li, "bg-blue-500", "text-[13px] leading-relaxed text-slate-700"))}
+            {s.lines.map((l, li) => renderBullet(l, li, "bg-blue-500", "leading-relaxed text-slate-700"))}
           </div>
         ))}
       </div>
@@ -174,14 +174,14 @@ const ResumePreview = ({ text, templateId, editing, onTextChange, fontSize = 13 
     return (
       <div className="max-w-[780px] mx-auto overflow-hidden" data-testid="resume-preview" style={{ fontFamily: "'Segoe UI', Calibri, sans-serif" }}>
         <div className="bg-slate-800 text-white px-8 md:px-12 py-8">
-          {nameLines[0] && <div className="text-3xl font-bold tracking-wide">{nameLines[0]}</div>}
-          {nameLines.slice(1).map((l, i) => <div key={i} className="text-sm text-slate-300 mt-1">{l}</div>)}
+          {nameLines[0] && <div className="font-bold tracking-wide" style={{ fontSize: `${fontSize + 14}px` }}>{nameLines[0]}</div>}
+          {nameLines.slice(1).map((l, i) => <div key={i} className="text-slate-300 mt-1" style={{ fontSize: `${fontSize - 1}px` }}>{l}</div>)}
         </div>
         <div className="bg-white px-8 md:px-12 py-6">
           {sections.map((s, si) => (
             <div key={si} className="mb-5">
-              <div className="text-xs font-bold tracking-[3px] uppercase text-amber-600 border-b-2 border-amber-500/30 pb-1 mb-2">{s.title}</div>
-              {s.lines.map((l, li) => renderBullet(l, li, "bg-amber-500", "text-[13px] leading-relaxed text-slate-700"))}
+              <div className="font-bold tracking-[3px] uppercase text-amber-600 border-b-2 border-amber-500/30 pb-1 mb-2" style={{ fontSize: headerFs }}>{s.title}</div>
+              {s.lines.map((l, li) => renderBullet(l, li, "bg-amber-500", "leading-relaxed text-slate-700"))}
             </div>
           ))}
         </div>
@@ -193,13 +193,13 @@ const ResumePreview = ({ text, templateId, editing, onTextChange, fontSize = 13 
   if (tpl === "minimal") {
     return (
       <div className="bg-white p-8 md:p-14 max-w-[780px] mx-auto" data-testid="resume-preview" style={{ fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
-        {nameLines[0] && <div className="text-xl font-light tracking-[4px] uppercase text-slate-900 mb-1">{nameLines[0]}</div>}
-        {nameLines.slice(1).map((l, i) => <div key={i} className="text-xs text-slate-400 tracking-wide">{l}</div>)}
+        {nameLines[0] && <div className="font-light tracking-[4px] uppercase text-slate-900 mb-1" style={{ fontSize: `${fontSize + 5}px` }}>{nameLines[0]}</div>}
+        {nameLines.slice(1).map((l, i) => <div key={i} className="text-slate-400 tracking-wide" style={{ fontSize: `${fontSize - 2}px` }}>{l}</div>)}
         {nameLines.length > 0 && <div className="border-b border-slate-200 mt-6 mb-6" />}
         {sections.map((s, si) => (
           <div key={si} className="mb-6">
-            <div className="text-[10px] font-medium tracking-[4px] uppercase text-slate-400 mb-3">{s.title}</div>
-            {s.lines.map((l, li) => renderBullet(l, li, "bg-slate-300", "text-[13px] leading-[1.8] text-slate-600 font-light"))}
+            <div className="font-medium tracking-[4px] uppercase text-slate-400 mb-3" style={{ fontSize: `${fontSize - 3}px` }}>{s.title}</div>
+            {s.lines.map((l, li) => renderBullet(l, li, "bg-slate-300", "leading-[1.8] text-slate-600 font-light"))}
           </div>
         ))}
       </div>
@@ -209,14 +209,14 @@ const ResumePreview = ({ text, templateId, editing, onTextChange, fontSize = 13 
   // BOLD TEMPLATE
   return (
     <div className="bg-white p-8 md:p-12 max-w-[780px] mx-auto" data-testid="resume-preview" style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
-      {nameLines[0] && <div className="text-4xl font-black text-slate-900 mb-1">{nameLines[0]}</div>}
-      {nameLines.slice(1).map((l, i) => <div key={i} className="text-sm text-slate-500 font-medium">{l}</div>)}
+      {nameLines[0] && <div className="font-black text-slate-900 mb-1" style={{ fontSize: `${fontSize + 18}px` }}>{nameLines[0]}</div>}
+      {nameLines.slice(1).map((l, i) => <div key={i} className="text-slate-500 font-medium" style={{ fontSize: `${fontSize - 1}px` }}>{l}</div>)}
       {nameLines.length > 0 && <div className="h-1.5 bg-red-600 mt-3 mb-5 w-full rounded-full" />}
       {sections.map((s, si) => (
         <div key={si} className="mb-5">
-          <div className="bg-red-600 text-white text-[11px] font-bold tracking-[2px] uppercase px-3 py-1.5 rounded mb-2 inline-block">{s.title}</div>
+          <div className="bg-red-600 text-white font-bold tracking-[2px] uppercase px-3 py-1.5 rounded mb-2 inline-block" style={{ fontSize: headerFs }}>{s.title}</div>
           <div className="mt-1">
-            {s.lines.map((l, li) => renderBullet(l, li, "bg-red-500", "text-[13px] leading-relaxed text-slate-700"))}
+            {s.lines.map((l, li) => renderBullet(l, li, "bg-red-500", "leading-relaxed text-slate-700"))}
           </div>
         </div>
       ))}
