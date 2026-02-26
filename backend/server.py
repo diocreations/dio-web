@@ -34,6 +34,7 @@ from routes.user_dashboard import router as user_dashboard_router
 from routes.cover_letter import router as cover_letter_router
 from routes.templates import router as templates_router
 from routes.google_auth_public import router as google_auth_public_router
+from routes.google_drive import router as google_drive_router
 
 app.include_router(auth_router)
 app.include_router(admin_router)
