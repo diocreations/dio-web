@@ -199,7 +199,7 @@ const AdminProducts = () => {
                       {product.is_popular && (<span className="flex items-center gap-1 px-2 py-0.5 rounded bg-primary/10 text-primary text-xs"><Star size={12} />Popular</span>)}
                       {!product.is_active && (<span className="px-2 py-0.5 rounded bg-slate-200 text-xs">Inactive</span>)}
                     </div>
-                    <p className="text-sm text-muted-foreground">{product.price ? `$${product.price}/${product.price_unit}` : "Contact for pricing"}</p>
+                    <p className="text-sm text-muted-foreground">{product.price ? `${CURRENCY_SYMBOLS[product.currency] || CURRENCY_SYMBOLS.EUR}${product.price}/${product.price_unit}` : "Contact for pricing"}</p>
                   </div>
                   <div className="flex gap-2">
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}><Pencil size={16} /></Button>
