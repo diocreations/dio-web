@@ -1,3 +1,5 @@
+import RichEditor from "./RichEditor";
+
 function parseSections(text) {
   const lines = (text || "").split("\n");
   const sections = [];
@@ -23,9 +25,93 @@ function parseSections(text) {
   return { nameLines, sections };
 }
 
+function isHtml(text) {
+  return text && (text.includes("<h2>") || text.includes("<p>") || text.includes("<li>") || text.includes("<strong>") || text.includes("<b>"));
+}
+
+function renderHtmlContent(html, tpl, fontSize) {
+  const fs = `${fontSize}px`;
+  const fonts = {
+    classic: "Georgia, 'Times New Roman', serif",
+    modern: "'Segoe UI', Calibri, Arial, sans-serif",
+    executive: "'Segoe UI', Calibri, sans-serif",
+    minimal: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+    bold: "'Inter', 'Segoe UI', sans-serif",
+  };
+  const accents = { classic: "#1a1a2e", modern: "#2563eb", executive: "#f59e0b", minimal: "#6b7280", bold: "#dc2626" };
+  const accent = accents[tpl] || accents.classic;
+  const font = fonts[tpl] || fonts.classic;
+
+  // Build styled HTML with template-specific classes
+  let styledHtml = html
+    // Bold headings with accent color and border
+    .replace(/<h2>/g, `<h2 style="font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:${Math.max(10, fontSize - 2)}px;color:${accent};border-bottom:2px solid ${accent}30;padding-bottom:4px;margin:16px 0 8px;">`)
+    // Make paragraphs properly sized
+    .replace(/<p>/g, `<p style="font-size:${fs};line-height:1.6;color:#374151;margin:2px 0;">`)
+    // Style list items
+    .replace(/<ul>/g, `<ul style="padding-left:20px;margin:4px 0;list-style-type:disc;">`)
+    .replace(/<li>/g, `<li style="font-size:${fs};line-height:1.6;color:#374151;margin-bottom:2px;">`)
+    // Horizontal rules
+    .replace(/<hr>/g, `<hr style="border:none;border-top:1px solid ${accent}30;margin:12px 0;">`)
+    .replace(/<hr\/>/g, `<hr style="border:none;border-top:1px solid ${accent}30;margin:12px 0;">`);
+
+  // Executive template: dark header
+  if (tpl === "executive") {
+    // Find first elements as name/contact and wrap in dark header
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(styledHtml, "text/html");
+    const firstH2 = doc.querySelector("h2");
+    const nameEls = [];
+    let el = doc.body.firstChild;
+    while (el && el !== firstH2) {
+      nameEls.push(el);
+      el = el.nextSibling;
+    }
+    if (nameEls.length > 0) {
+      const headerDiv = document.createElement("div");
+      headerDiv.style.cssText = `background:#1e293b;color:white;padding:20px 32px;margin:-32px -32px 16px;`;
+      nameEls.forEach((n) => {
+        const clone = n.cloneNode(true);
+        if (clone.style) {
+          clone.style.color = clone === nameEls[0] ? "white" : "#94a3b8";
+        }
+        headerDiv.appendChild(clone);
+      });
+      nameEls.forEach((n) => n.remove());
+      doc.body.insertBefore(headerDiv, doc.body.firstChild);
+      styledHtml = doc.body.innerHTML;
+    }
+  }
+
+  return (
+    <div
+      className="bg-white p-8 md:p-8 max-w-[780px] mx-auto"
+      style={{ fontFamily: font }}
+      data-testid="resume-preview"
+      dangerouslySetInnerHTML={{ __html: styledHtml }}
+    />
+  );
+}
+
 const ResumePreview = ({ text, templateId, editing, onTextChange, fontSize = 13 }) => {
   if (!text) return null;
   const tpl = templateId || "classic";
+
+  // Rich text editing mode
+  if (editing) {
+    return (
+      <div className="w-full" data-testid="resume-editor">
+        <RichEditor value={text} onChange={onTextChange} placeholder="Edit your resume..." />
+      </div>
+    );
+  }
+
+  // If content is HTML (from rich editor), render with styling
+  if (isHtml(text)) {
+    return renderHtmlContent(text, tpl, fontSize);
+  }
+
+  // Plain text fallback rendering
   const { nameLines, sections } = parseSections(text);
   const fs = `${fontSize}px`;
   const nameFs = `${fontSize + 11}px`;
@@ -34,23 +120,15 @@ const ResumePreview = ({ text, templateId, editing, onTextChange, fontSize = 13 
   const renderBullet = (line, key, bulletClass, textClass) => {
     if (line.startsWith("- ") || line.startsWith("* ") || line.startsWith("\u2022 ")) {
       const content = line.replace(/^[-*\u2022]\s+/, "");
-      return <div key={key} className={`flex gap-2 ${textClass} pl-1 py-[2px]`} style={{ fontSize: fs }}><span className={`${bulletClass} mt-[5px] flex-shrink-0 w-1.5 h-1.5 rounded-full`} /><span>{content}</span></div>;
+      return <li key={key} className={`${textClass} list-disc ml-5`} style={{ fontSize: fs }}>{content}</li>;
+    }
+    // Check for date patterns in lines (job titles)
+    const hasDate = /\d{4}\s*[-\u2013]\s*(present|\d{4})/i.test(line);
+    if (hasDate) {
+      return <div key={key} className={`${textClass} font-semibold`} style={{ fontSize: fs }}>{line}</div>;
     }
     return <div key={key} className={textClass} style={{ fontSize: fs }}>{line}</div>;
   };
-
-  if (editing) {
-    return (
-      <div className="w-full" data-testid="resume-editor">
-        <textarea
-          className="w-full min-h-[500px] p-6 font-mono text-sm leading-relaxed border rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary resize-y"
-          value={text}
-          onChange={(e) => onTextChange(e.target.value)}
-          data-testid="resume-edit-textarea"
-        />
-      </div>
-    );
-  }
 
   if (tpl === "classic") {
     return (
@@ -61,7 +139,7 @@ const ResumePreview = ({ text, templateId, editing, onTextChange, fontSize = 13 
         {sections.map((s, si) => (
           <div key={si} className="mb-4">
             <div className="font-bold tracking-[3px] uppercase text-slate-800 border-b border-slate-300 pb-1 mb-2" style={{ fontSize: headerFs }}>{s.title}</div>
-            {s.lines.map((l, li) => renderBullet(l, li, "bg-slate-600", "leading-relaxed text-slate-700"))}
+            <ul className="list-none">{s.lines.map((l, li) => renderBullet(l, li, "bg-slate-600", "leading-relaxed text-slate-700"))}</ul>
           </div>
         ))}
       </div>
@@ -80,7 +158,7 @@ const ResumePreview = ({ text, templateId, editing, onTextChange, fontSize = 13 
               <div className="h-1 w-3 bg-blue-600 rounded-full" />
               <div className="font-bold tracking-[2px] uppercase text-blue-600" style={{ fontSize: headerFs }}>{s.title}</div>
             </div>
-            {s.lines.map((l, li) => renderBullet(l, li, "bg-blue-500", "leading-relaxed text-slate-700"))}
+            <ul className="list-none">{s.lines.map((l, li) => renderBullet(l, li, "bg-blue-500", "leading-relaxed text-slate-700"))}</ul>
           </div>
         ))}
       </div>
@@ -98,7 +176,7 @@ const ResumePreview = ({ text, templateId, editing, onTextChange, fontSize = 13 
           {sections.map((s, si) => (
             <div key={si} className="mb-5">
               <div className="font-bold tracking-[3px] uppercase text-amber-600 border-b-2 border-amber-500/30 pb-1 mb-2" style={{ fontSize: headerFs }}>{s.title}</div>
-              {s.lines.map((l, li) => renderBullet(l, li, "bg-amber-500", "leading-relaxed text-slate-700"))}
+              <ul className="list-none">{s.lines.map((l, li) => renderBullet(l, li, "bg-amber-500", "leading-relaxed text-slate-700"))}</ul>
             </div>
           ))}
         </div>
@@ -115,14 +193,14 @@ const ResumePreview = ({ text, templateId, editing, onTextChange, fontSize = 13 
         {sections.map((s, si) => (
           <div key={si} className="mb-6">
             <div className="font-medium tracking-[4px] uppercase text-slate-400 mb-3" style={{ fontSize: `${fontSize - 3}px` }}>{s.title}</div>
-            {s.lines.map((l, li) => renderBullet(l, li, "bg-slate-300", "leading-[1.8] text-slate-600 font-light"))}
+            <ul className="list-none">{s.lines.map((l, li) => renderBullet(l, li, "bg-slate-300", "leading-[1.8] text-slate-600 font-light"))}</ul>
           </div>
         ))}
       </div>
     );
   }
 
-  // BOLD
+  // BOLD template
   return (
     <div className="bg-white p-8 md:p-12 max-w-[780px] mx-auto" data-testid="resume-preview" style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
       {nameLines[0] && <div className="font-black text-slate-900 mb-1" style={{ fontSize: `${fontSize + 18}px` }}>{nameLines[0]}</div>}
@@ -132,7 +210,7 @@ const ResumePreview = ({ text, templateId, editing, onTextChange, fontSize = 13 
         <div key={si} className="mb-5">
           <div className="bg-red-600 text-white font-bold tracking-[2px] uppercase px-3 py-1.5 rounded mb-2 inline-block" style={{ fontSize: headerFs }}>{s.title}</div>
           <div className="mt-1">
-            {s.lines.map((l, li) => renderBullet(l, li, "bg-red-500", "leading-relaxed text-slate-700"))}
+            <ul className="list-none">{s.lines.map((l, li) => renderBullet(l, li, "bg-red-500", "leading-relaxed text-slate-700"))}</ul>
           </div>
         </div>
       ))}
