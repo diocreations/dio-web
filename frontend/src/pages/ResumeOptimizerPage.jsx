@@ -275,6 +275,18 @@ const ResumeOptimizerPage = () => {
   useEffect(() => {
     const sid = searchParams.get("session_id");
     const rid = searchParams.get("resume_id");
+    const dt = searchParams.get("drive_token");
+    if (dt) {
+      setDriveToken(dt);
+      // Load files from Google Drive
+      fetch(`${API_URL}/api/drive/list-files`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token_id: dt }),
+      }).then((r) => r.json()).then((d) => {
+        if (d.files?.length > 0) { setDriveFiles(d.files); setShowDrivePicker(true); }
+        else toast.info("No PDF/DOCX files found in your Google Drive");
+      }).catch(() => toast.error("Could not load Drive files"));
+    }
     if (sid && rid) {
       setResumeId(rid);
       setStep(4);
