@@ -2272,15 +2272,12 @@ async def verify_resume_payment(data: dict):
 
 @api_router.post("/resume/improve")
 async def improve_resume(data: dict):
-    """Paid: Generate improved resume"""
+    """Generate improved resume - now free (pay only for download/copy)"""
     resume_id = data.get("resume_id")
     if not resume_id:
         raise HTTPException(status_code=400, detail="resume_id required")
 
-    # Verify payment
-    payment = await db.resume_payments.find_one({"resume_id": resume_id, "status": "paid"}, {"_id": 0})
-    if not payment:
-        raise HTTPException(status_code=402, detail="Payment required")
+    template_id = data.get("template_id")
 
     # Check if already improved
     existing = await db.resume_improvements.find_one({"resume_id": resume_id}, {"_id": 0})
@@ -2293,10 +2290,17 @@ async def improve_resume(data: dict):
 
     text = upload["text"][:6000]
 
+    template_instruction = ""
+    if template_id:
+        tpl = await db.resume_templates.find_one({"template_id": template_id}, {"_id": 0})
+        if tpl:
+            template_instruction = f"\nUse this template style: {tpl.get('name', '')} - Layout: {tpl.get('style', {}).get('layout', 'single-column')}. Sections: {', '.join(tpl.get('sections', []))}."
+
     prompt = f"""Rewrite this resume to be ATS-optimized, impact-driven, and professional. Keep the original structure but improve:
 - Professional Summary (concise, keyword-rich)
 - Work Experience (quantified achievements, action verbs)
 - Skills (relevant keywords)
+{template_instruction}
 Return ONLY the improved resume text, formatted with clear section headers using markdown ## headers.
 
 ORIGINAL RESUME:
