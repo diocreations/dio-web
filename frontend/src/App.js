@@ -324,6 +324,30 @@ const AppRouter = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/menus"
+        element={
+          <ProtectedRoute>
+            <AdminMenus />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/currency"
+        element={
+          <ProtectedRoute>
+            <AdminCurrency />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/templates"
+        element={
+          <ProtectedRoute>
+            <AdminTemplates />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 };
