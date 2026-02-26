@@ -89,7 +89,7 @@ const AdminProducts = () => {
     setFormData({
       title: "", slug: "", short_description: "", description: "", icon: "Globe",
       price: "", price_unit: "month", pricing_type: "one_time", billing_period: "",
-      features: "", is_popular: false, cta_text: "Get Started", cta_link: "", 
+      currency: "EUR", features: "", is_popular: false, cta_text: "Get Started", cta_link: "", 
       order: 0, is_active: true, is_purchasable: true,
     });
   };
