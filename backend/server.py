@@ -18,6 +18,9 @@ import base64
 import httpx
 import re
 import json
+import fitz  # PyMuPDF
+from docx import Document as DocxDocument
+from io import BytesIO
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
 
