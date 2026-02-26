@@ -2618,10 +2618,16 @@ async def chat_with_dio(chat_message: ChatMessage):
         user_msg = UserMessage(text=chat_message.message)
         response = await chat.send_message(user_msg)
         
-        # Store assistant response in history
+        # Parse tags BEFORE storing in history
+        lead_info = parse_lead_info(response)
+        show_portfolio = parse_portfolio_request(response)
+        quick_replies = parse_quick_replies(response)
+        cleaned_response = clean_response(response)
+        
+        # Store CLEANED assistant response in history
         chat_data["history"].append({
             "role": "assistant",
-            "content": response,
+            "content": cleaned_response,
             "timestamp": datetime.now(timezone.utc).isoformat()
         })
         
@@ -2637,12 +2643,6 @@ async def chat_with_dio(chat_message: ChatMessage):
             },
             upsert=True
         )
-        
-        # Parse lead info, portfolio request, and quick replies from response
-        lead_info = parse_lead_info(response)
-        show_portfolio = parse_portfolio_request(response)
-        quick_replies = parse_quick_replies(response)
-        cleaned_response = clean_response(response)
         
         # Save lead info if found
         if lead_info:
