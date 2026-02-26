@@ -176,6 +176,10 @@ const ResumeOptimizerPage = () => {
 
   const handleDownloadPDF = () => {
     if (!improved?.improved_text) return;
+    if (!hasDownloadAccess) {
+      handleCheckout();
+      return;
+    }
     const win = window.open("", "_blank");
     win.document.write(`<html><head><title>Improved Resume</title><style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.6;color:#333}h2{color:#1a1a1a;border-bottom:2px solid #333;padding-bottom:4px}ul{padding-left:20px}li{margin-bottom:4px}</style></head><body>`);
     const html = improved.improved_text
