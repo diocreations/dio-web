@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/sonner";
-import { useState, useEffect, createContext, useContext, useRef } from "react";
+import { useState, useEffect, createContext, useContext, useRef, lazy, Suspense } from "react";
 
 // Public Pages
 import HomePage from "./pages/HomePage";
@@ -19,30 +19,30 @@ import TermsPage from "./pages/TermsPage";
 import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
 import BuilderPage from "./pages/BuilderPage";
 import BuilderSuccessPage from "./pages/BuilderSuccessPage";
-
-// Admin Pages
-import AdminLogin from "./pages/admin/AdminLogin";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminServices from "./pages/admin/AdminServices";
-import AdminProducts from "./pages/admin/AdminProducts";
-import AdminPortfolio from "./pages/admin/AdminPortfolio";
-import AdminBlog from "./pages/admin/AdminBlog";
-import AdminTestimonials from "./pages/admin/AdminTestimonials";
-import AdminContacts from "./pages/admin/AdminContacts";
-import AdminLeads from "./pages/admin/AdminLeads";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminHomepage from "./pages/admin/AdminHomepage";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminAbout from "./pages/admin/AdminAbout";
-import AdminChatbot from "./pages/admin/AdminChatbot";
-import AdminResume from "./pages/admin/AdminResume";
-import AdminMenus from "./pages/admin/AdminMenus";
-import AdminCurrency from "./pages/admin/AdminCurrency";
-import AdminTemplates from "./pages/admin/AdminTemplates";
 import ResumeOptimizerPage from "./pages/ResumeOptimizerPage";
 import UserLoginPage from "./pages/UserLoginPage";
 import UserDashboardPage from "./pages/UserDashboardPage";
 import CoverLetterPage from "./pages/CoverLetterPage";
+
+// Admin Pages (lazy loaded)
+const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminServices = lazy(() => import("./pages/admin/AdminServices"));
+const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
+const AdminPortfolio = lazy(() => import("./pages/admin/AdminPortfolio"));
+const AdminBlog = lazy(() => import("./pages/admin/AdminBlog"));
+const AdminTestimonials = lazy(() => import("./pages/admin/AdminTestimonials"));
+const AdminContacts = lazy(() => import("./pages/admin/AdminContacts"));
+const AdminLeads = lazy(() => import("./pages/admin/AdminLeads"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminHomepage = lazy(() => import("./pages/admin/AdminHomepage"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminAbout = lazy(() => import("./pages/admin/AdminAbout"));
+const AdminChatbot = lazy(() => import("./pages/admin/AdminChatbot"));
+const AdminResume = lazy(() => import("./pages/admin/AdminResume"));
+const AdminMenus = lazy(() => import("./pages/admin/AdminMenus"));
+const AdminCurrency = lazy(() => import("./pages/admin/AdminCurrency"));
+const AdminTemplates = lazy(() => import("./pages/admin/AdminTemplates"));
 
 const queryClient = new QueryClient();
 const API_URL = process.env.REACT_APP_BACKEND_URL;
