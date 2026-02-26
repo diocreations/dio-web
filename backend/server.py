@@ -70,6 +70,29 @@ async def root():
     return {"message": "DioCreations API", "version": "1.0.0"}
 
 
+@app.get("/api/config/subdomain")
+async def get_subdomain_config():
+    """Return subdomain configuration for DNS setup"""
+    return {
+        "subdomains": [
+            {
+                "subdomain": "resume.diocreations.eu",
+                "purpose": "Resume & LinkedIn Optimizer standalone",
+                "dns_type": "CNAME",
+                "dns_value": "diocreations.eu",
+                "status": "configured",
+                "notes": "Point this CNAME to your main domain. The app auto-detects and serves resume-only mode.",
+            }
+        ],
+        "instructions": [
+            "1. Go to your DNS provider (where diocreations.eu is registered)",
+            "2. Add a CNAME record: resume -> diocreations.eu (or your hosting IP)",
+            "3. If using Cloudflare, enable proxy for SSL",
+            "4. The app automatically detects the subdomain and serves the resume optimizer",
+        ],
+    }
+
+
 @app.on_event("startup")
 async def startup_event():
     """Create default admin user on startup if not exists"""
