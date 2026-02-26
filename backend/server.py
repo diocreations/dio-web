@@ -2367,6 +2367,16 @@ CURRENT EXPERIENCE: {experience[:1000]}"""
     return result
 
 
+@api_router.post("/resume/download-access")
+async def check_download_access(data: dict):
+    """Check if user has paid for download access"""
+    resume_id = data.get("resume_id")
+    if not resume_id:
+        raise HTTPException(status_code=400, detail="resume_id required")
+    payment = await db.resume_payments.find_one({"resume_id": resume_id, "status": "paid"}, {"_id": 0})
+    return {"has_access": payment is not None}
+
+
 # ==================== CHATBOT ROUTES ====================
 
 # Default greeting messages
