@@ -69,11 +69,14 @@ Build a fully dynamic, admin-manageable website for diocreations.eu with compreh
 - **User Authentication**: Email/password register + login with session management
 - **User Dashboard**: Shows resume analyses and cover letter history
 - **Resume Paywall Change**: Free analysis + editing, payment only for download/copy
-- **Resume Templates**: 4 default templates (Classic, Modern, Creative, ATS), admin CRUD
+- **Resume Templates**: 5 professional templates (Executive, Modern Tech, ATS Maximum, Career Pivot, One-Page Compact) with visual preview cards, admin CRUD, and template switching
 - **Cover Letter Generator**: AI-powered with tone selection, resume upload, job description
 - **Dynamic Navbar**: Fetches menu items from API, shows Sign In button
 - **Dynamic Footer**: Fetches menu items from API
 - **React.lazy Admin Imports**: Fixed Babel stack overflow with lazy loading
+- **Visual Template Selection**: Template cards with mini-preview, accent colors, layout tags, and checkmark selection
+- **Clean Resume Output**: AI generates plain text with ALL CAPS headers (no markdown ## or ** artifacts), rendered with styled ResumePreview component
+- **Template Regeneration**: "Change Template & Regenerate" button allows switching templates after optimization
 
 ## Remaining Backlog
 
