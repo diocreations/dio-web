@@ -74,9 +74,10 @@ Build a fully dynamic, admin-manageable website for diocreations.eu with compreh
 - **Dynamic Navbar**: Fetches menu items from API, shows Sign In button
 - **Dynamic Footer**: Fetches menu items from API
 - **React.lazy Admin Imports**: Fixed Babel stack overflow with lazy loading
-- **Visual Template Selection**: Template cards with mini-preview, accent colors, layout tags, and checkmark selection
+- **Visual Template Selection**: 5 professional CSS templates (Classic serif, Modern blue, Executive dark-header, Minimal whitespace, Bold red) with mini-preview cards and instant switching — templates are purely VISUAL (no AI re-call needed)
 - **Clean Resume Output**: AI generates plain text with ALL CAPS headers (no markdown ## or ** artifacts), rendered with styled ResumePreview component
-- **Template Regeneration**: "Change Template & Regenerate" button allows switching templates after optimization
+- **Inline Editing**: "Edit Text" toggle shows textarea for free editing before paying to download
+- **Template Regeneration**: force_regenerate param allows re-running AI with different prompt templates
 
 ## Remaining Backlog
 
