@@ -1343,9 +1343,6 @@ async def get_homepage_content(request: Request):
                 featured_products = more[:featured_count]
     
     # Convert product prices to visitor's currency
-    currency_rate = CURRENCY_RATES.get(visitor_currency, 1.0)
-    currency_symbol = {"EUR": "€", "USD": "$", "GBP": "£", "INR": "₹", "AED": "د.إ", "AUD": "A$", "CAD": "C$", "SGD": "S$", "CHF": "CHF"}.get(visitor_currency, "€")
-    
     for product in featured_products:
         if product.get("price"):
             product["display_price"] = round(float(product["price"]) * currency_rate, 2)
