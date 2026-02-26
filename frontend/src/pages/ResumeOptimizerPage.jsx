@@ -183,12 +183,29 @@ const ResumeOptimizerPage = () => {
       return;
     }
     const win = window.open("", "_blank");
-    win.document.write(`<html><head><title>Improved Resume</title><style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.6;color:#333}h2{color:#1a1a1a;border-bottom:2px solid #333;padding-bottom:4px}ul{padding-left:20px}li{margin-bottom:4px}</style></head><body>`);
-    const html = improved.improved_text
-      .replace(/## (.*)/g, "<h2>$1</h2>")
-      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-      .replace(/^- (.*)/gm, "<li>$1</li>")
-      .replace(/\n/g, "<br>");
+    win.document.write(`<html><head><title>Resume</title><style>
+      body{font-family:'Segoe UI',Calibri,Arial,sans-serif;max-width:780px;margin:30px auto;padding:30px 40px;line-height:1.5;color:#222;font-size:11pt}
+      .section-head{font-size:11pt;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#1a1a2e;border-bottom:1.5px solid #1a1a2e;padding-bottom:3px;margin:18px 0 8px}
+      .name{font-size:18pt;font-weight:700;text-align:center;margin-bottom:2px}
+      .contact{text-align:center;color:#555;font-size:9.5pt;margin-bottom:14px}
+      ul{padding-left:18px;margin:4px 0}li{margin-bottom:3px}
+      @media print{body{margin:0;padding:20px 30px}}
+    </style></head><body>`);
+    const text = improved.improved_text;
+    const lines = text.split("\n");
+    let html = "";
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) { html += "<br/>"; continue; }
+      // Detect ALL CAPS section headers (3+ uppercase words)
+      if (/^[A-Z][A-Z\s\/&,]{4,}$/.test(trimmed) && !trimmed.includes("@") && !trimmed.includes("|")) {
+        html += '<div class="section-head">' + trimmed + "</div>";
+      } else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+        html += "<li>" + trimmed.slice(2) + "</li>";
+      } else {
+        html += "<div>" + trimmed + "</div>";
+      }
+    }
     win.document.write(html);
     win.document.write("</body></html>");
     win.document.close();
