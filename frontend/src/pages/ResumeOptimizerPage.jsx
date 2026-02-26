@@ -44,6 +44,69 @@ const ScoreRing = ({ score, label, size = 100 }) => {
   );
 };
 
+// Resume preview renderer - converts plain text to styled HTML
+const ResumePreview = ({ text }) => {
+  if (!text) return null;
+  const lines = text.split("\n");
+  const elements = [];
+  let i = 0;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    const key = i++;
+    if (!trimmed) {
+      elements.push(<div key={key} className="h-2" />);
+      continue;
+    }
+    // ALL CAPS section header (3+ chars, all uppercase letters/spaces/&/,)
+    if (/^[A-Z][A-Z\s\/&,]{3,}$/.test(trimmed) && !trimmed.includes("@") && !trimmed.includes("|") && !trimmed.includes(".com")) {
+      elements.push(
+        <div key={key} className="mt-5 mb-2 first:mt-0">
+          <div className="text-xs font-bold tracking-[2px] text-primary uppercase border-b-2 border-primary/30 pb-1">
+            {trimmed}
+          </div>
+        </div>
+      );
+      continue;
+    }
+    // Bullet points
+    if (trimmed.startsWith("- ") || trimmed.startsWith("* ") || trimmed.startsWith("\u2022 ")) {
+      const content = trimmed.replace(/^[-*\u2022]\s+/, "");
+      elements.push(
+        <div key={key} className="flex gap-2 text-[13px] leading-relaxed text-slate-700 pl-1 py-0.5">
+          <span className="text-primary mt-1 flex-shrink-0">&#x2022;</span>
+          <span>{content}</span>
+        </div>
+      );
+      continue;
+    }
+    // Name line (first non-empty, non-header line — usually bold/large)
+    if (elements.length === 0 || (elements.length === 1 && elements[0].props.className === "h-2")) {
+      elements.push(
+        <div key={key} className="text-xl font-bold text-slate-900 text-center">{trimmed}</div>
+      );
+      continue;
+    }
+    // Contact line (contains email, phone, or | separators — usually line 2-3)
+    if ((trimmed.includes("@") || trimmed.includes("|") || trimmed.match(/\+?\d[\d\s\-()]{6,}/)) && elements.length <= 4) {
+      elements.push(
+        <div key={key} className="text-xs text-slate-500 text-center">{trimmed}</div>
+      );
+      continue;
+    }
+    // Regular text
+    elements.push(
+      <div key={key} className="text-[13px] leading-relaxed text-slate-700">{trimmed}</div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-lg p-8 md:p-10 max-w-[780px] mx-auto resume-preview" data-testid="improved-resume-text">
+      {elements}
+    </div>
+  );
+};
+
 const STEPS = [
   { id: 1, label: "Upload", icon: Upload },
   { id: 2, label: "Analysis", icon: FileText },
