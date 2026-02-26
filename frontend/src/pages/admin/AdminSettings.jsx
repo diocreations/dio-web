@@ -6,14 +6,28 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Save } from "lucide-react";
+import { Save, RefreshCw } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+const CURRENCY_OPTIONS = [
+  { code: "EUR", symbol: "\u20ac", name: "Euro" },
+  { code: "USD", symbol: "$", name: "US Dollar" },
+  { code: "GBP", symbol: "\u00a3", name: "British Pound" },
+  { code: "INR", symbol: "\u20b9", name: "Indian Rupee" },
+  { code: "AED", symbol: "\u062f.\u0625", name: "UAE Dirham" },
+  { code: "AUD", symbol: "A$", name: "Australian Dollar" },
+  { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
+  { code: "SGD", symbol: "S$", name: "Singapore Dollar" },
+  { code: "CHF", symbol: "CHF", name: "Swiss Franc" },
+];
 
 const AdminSettings = () => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [bulkCurrency, setBulkCurrency] = useState("EUR");
+  const [updatingCurrency, setUpdatingCurrency] = useState(false);
 
   useEffect(() => {
     fetch(`${API_URL}/api/settings`, { credentials: "include" })
