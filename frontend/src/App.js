@@ -36,7 +36,13 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAbout from "./pages/admin/AdminAbout";
 import AdminChatbot from "./pages/admin/AdminChatbot";
 import AdminResume from "./pages/admin/AdminResume";
+import AdminMenus from "./pages/admin/AdminMenus";
+import AdminCurrency from "./pages/admin/AdminCurrency";
+import AdminTemplates from "./pages/admin/AdminTemplates";
 import ResumeOptimizerPage from "./pages/ResumeOptimizerPage";
+import UserLoginPage from "./pages/UserLoginPage";
+import UserDashboardPage from "./pages/UserDashboardPage";
+import CoverLetterPage from "./pages/CoverLetterPage";
 
 const queryClient = new QueryClient();
 const API_URL = process.env.REACT_APP_BACKEND_URL;
