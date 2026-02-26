@@ -2278,11 +2278,13 @@ async def improve_resume(data: dict):
         raise HTTPException(status_code=400, detail="resume_id required")
 
     template_id = data.get("template_id")
+    force_regenerate = data.get("force_regenerate", False)
 
-    # Check if already improved
-    existing = await db.resume_improvements.find_one({"resume_id": resume_id}, {"_id": 0})
-    if existing:
-        return existing
+    # Check if already improved (allow re-generation with different template)
+    if not force_regenerate:
+        existing = await db.resume_improvements.find_one({"resume_id": resume_id}, {"_id": 0})
+        if existing:
+            return existing
 
     upload = await db.resume_uploads.find_one({"resume_id": resume_id}, {"_id": 0})
     if not upload:
@@ -2294,27 +2296,42 @@ async def improve_resume(data: dict):
     if template_id:
         tpl = await db.resume_templates.find_one({"template_id": template_id}, {"_id": 0})
         if tpl:
-            template_instruction = f"\nUse this template style: {tpl.get('name', '')} - Layout: {tpl.get('style', {}).get('layout', 'single-column')}. Sections: {', '.join(tpl.get('sections', []))}."
+            tpl_prompt = tpl.get("prompt_instruction", "")
+            if tpl_prompt:
+                template_instruction = f"\n\nTEMPLATE STYLE: {tpl_prompt}"
+            else:
+                template_instruction = f"\n\nTEMPLATE STYLE: {tpl.get('name', '')} — {tpl.get('description', '')}. Organize into these sections: {', '.join(tpl.get('sections', []))}."
 
-    prompt = f"""Rewrite this resume to be ATS-optimized, impact-driven, and professional. Keep the original structure but improve:
-- Professional Summary (concise, keyword-rich)
-- Work Experience (quantified achievements, action verbs)
-- Skills (relevant keywords)
+    prompt = f"""You are a professional resume writer. Rewrite this resume to be polished, ATS-optimized, and ready to submit.
+
+RULES:
+- Use PLAIN TEXT only. Do NOT use markdown symbols (no #, ##, **, *, ```, or any markup).
+- Use ALL CAPS for section headings (e.g. PROFESSIONAL SUMMARY, WORK EXPERIENCE, EDUCATION, SKILLS).
+- Separate sections with a blank line.
+- For the header: Name on first line, contact info on next line.
+- For each job: Company name, title, and dates on one line. Bullet points with "- " prefix.
+- Quantify achievements with specific numbers wherever possible.
+- Use strong action verbs (Led, Architected, Drove, Increased, Reduced, etc.).
+- Keep it concise: maximum 2 pages worth of content.
 {template_instruction}
-Return ONLY the improved resume text, formatted with clear section headers using markdown ## headers.
 
 ORIGINAL RESUME:
-{text}"""
+{text}
+
+Rewrite the entire resume now in clean, professional plain text format:"""
 
     try:
-        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"resume_improve_{resume_id}", system_message="You are an expert resume writer. Rewrite resumes to be ATS-optimized and impactful. Be concise.").with_model("gemini", "gemini-2.0-flash")
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"resume_improve_{resume_id}_{template_id or 'default'}", system_message="You are an expert resume writer. Produce clean, ATS-friendly plain text resumes. Never use markdown formatting.").with_model("gemini", "gemini-2.0-flash")
         improved_text = await chat.send_message(UserMessage(text=prompt))
+        # Strip any remaining markdown artifacts
+        improved_text = improved_text.replace("```", "").replace("##", "").replace("**", "").strip()
     except Exception as e:
         logger.error(f"Resume improvement failed: {e}")
         raise HTTPException(status_code=500, detail="Improvement failed. Please try again.")
 
-    result = {"resume_id": resume_id, "improved_text": improved_text, "created_at": datetime.now(timezone.utc).isoformat()}
-    await db.resume_improvements.insert_one({**result})
+    result = {"resume_id": resume_id, "improved_text": improved_text, "template_id": template_id, "created_at": datetime.now(timezone.utc).isoformat()}
+    # Upsert so re-generation replaces old version
+    await db.resume_improvements.update_one({"resume_id": resume_id}, {"$set": result}, upsert=True)
     result.pop("_id", None)
     return result
 
