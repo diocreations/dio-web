@@ -9,6 +9,7 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 5. 24-hour automatic data cleanup
 6. Backend modular refactoring from monolithic server.py
 7. Subdomain setup for resume.diocreations.eu
+8. Resume score comparison (side-by-side analysis of multiple versions)
 
 ## Architecture
 - **Frontend**: React + Tailwind CSS + Shadcn/UI + Framer Motion
@@ -22,50 +23,54 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 ├── database.py        # MongoDB connection, env vars, constants
 ├── helpers.py         # Auth helpers, password hashing, token generation
 ├── models.py          # Pydantic models (SiteSettings)
-└── routes/
-    ├── auth.py            # Admin auth (login, register, Google OAuth, session)
-    ├── admin.py           # Stats, settings, media, admin user management
-    ├── content.py         # Services, products, portfolio, blog, testimonials, contact, pages
-    ├── homepage.py        # Homepage content, hero variants, color schemes, about page, sitemap
-    ├── resume.py          # Resume upload, analyze, improve, LinkedIn, pricing, checkout
-    ├── chatbot.py         # AI chatbot, chat sessions, leads
-    ├── payments.py        # Stripe checkout, webhooks, builder, domains
-    ├── seed.py            # Data seeding
-    ├── geo_currency.py    # Geo-IP currency detection
-    ├── menus.py           # Navigation and footer menus
-    ├── public_auth.py     # Public user auth (email + Google callback)
-    ├── user_dashboard.py  # User dashboard and data deletion
-    ├── cover_letter.py    # AI cover letter generation
-    ├── templates.py       # Resume template management
-    ├── google_auth_public.py  # Emergent Google Auth for public users
-    └── google_drive.py    # Google Drive file import (configurable)
+└── routes/            # 16 modular route files
+    ├── auth.py, admin.py, content.py, homepage.py
+    ├── resume.py, chatbot.py, payments.py, seed.py
+    ├── geo_currency.py, menus.py, public_auth.py
+    ├── user_dashboard.py, cover_letter.py, templates.py
+    ├── google_auth_public.py, google_drive.py
+
+/app/frontend/src/
+├── components/
+│   ├── resume/            # Extracted resume components
+│   │   ├── ScoreRing.jsx
+│   │   ├── ResumePreview.jsx
+│   │   ├── ScoreComparison.jsx
+│   │   └── constants.js
+│   ├── Layout.jsx         # Hides chatbot on resume/cover-letter pages
+│   ├── DioChat.jsx, Navbar.jsx, Footer.jsx
+│   └── ui/                # Shadcn components
+├── pages/
+│   ├── ResumeOptimizerPage.jsx  # ~575 lines (down from 975)
+│   ├── UserLoginPage.jsx, UserDashboardPage.jsx
+│   └── admin/
+└── App.js                 # Subdomain-aware routing
 ```
 
-## What's Implemented
-- **Backend Refactoring**: COMPLETE - 3598-line server.py -> 15 modular route files + slim server.py
-- **Resume Optimizer**: Upload PDF/DOCX, AI analysis, 5 visual templates, inline editing, font size controls (A-/A+), pay-to-download via Stripe
-- **LinkedIn Optimizer**: URL scraping (OG metadata extraction), manual input, AI-powered headline/about/keywords optimization, gated behind payment
-- **Google Sign-In**: Emergent Auth integration for public users, session management
-- **Google Drive Upload**: Backend routes implemented (connect, callback, list-files, import-file). Requires GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET env vars.
-- **24-Hour Data Cleanup**: Background asyncio task runs hourly, deletes expired sessions and user data
-- **Subdomain Support**: Middleware detects resume.* hostname, frontend routes to resume-only mode, DNS config endpoint available
-- **AI Chatbot**: Dio chatbot with lead capture, knowledge base, personality customization
-- **Admin Panel**: Full CMS for services, products, portfolio, blog, testimonials, contacts, leads, settings, menus, currency, resume templates
-- **Cover Letter Generator**: AI-powered cover letter from resume + job description
-- **Website Builder**: AI-generated websites with Stripe checkout
-- **Payment System**: Stripe integration for products, resume downloads, website builder
+## What's Implemented (All Complete)
+- **Backend Refactoring**: 3598-line server.py → 16 modular route files + slim server.py
+- **Resume Optimizer**: Upload, AI analysis, 5 visual templates, inline editing, font size controls
+- **Resume Score Comparison**: Upload second version, side-by-side bars, delta badges, keyword tracking
+- **LinkedIn Optimizer**: URL scraping, manual input, AI-powered optimization, gated behind payment
+- **Google Sign-In**: Emergent Auth integration for public users
+- **Google Drive Upload**: Full OAuth flow (requires GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET)
+- **24-Hour Data Cleanup**: Background asyncio task runs hourly
+- **Subdomain Support**: Middleware + frontend routing for resume.diocreations.eu
+- **Component Splitting**: ScoreRing, ResumePreview, ScoreComparison, constants extracted
+- **Chatbot Hidden**: Hidden on /resume-optimizer and /cover-letter for cleaner UX
+- **AI Chatbot**: Dio chatbot with lead capture, knowledge base
+- **Admin Panel**: Full CMS, resume analytics, template management
+- **Cover Letter Generator**: AI-powered from resume + job description
+- **Website Builder**: AI-generated with Stripe checkout
+- **Payment System**: Stripe for products, resume downloads, builder
 
 ## Key Credentials
 - Admin: admin@diocreations.com / adminpassword
 - Super Admin (Google): jomiejoseph@gmail.com
-- Emergent LLM Key: In backend/.env
 
 ## Testing Status
-- Backend: 26/26 API tests passed (iteration_14)
-- Frontend: All UI flows verified
-- Google Drive: Returns {configured: false} - needs Google API credentials
+- Iteration 14: 26/26 backend + all frontend passed (after refactoring)
+- Iteration 15: 13/13 backend + all frontend passed (score comparison + component split + chatbot hiding)
 
-## Backlog
-- P2: Consider splitting ResumeOptimizerPage.jsx (975 lines) into smaller components
-- P2: Add more comprehensive error handling for edge cases in resume parsing
-- P3: Chatbot overlay could be hidden on resume-optimizer page for cleaner UX
+## Remaining Backlog
+- P3: Google Drive requires GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET in .env to be functional
