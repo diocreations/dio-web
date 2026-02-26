@@ -10,8 +10,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams } from "react-router-dom";
 import {
   Upload, FileText, Zap, Download, CheckCircle, XCircle, AlertTriangle,
-  Loader2, Lock, Star, Sparkles, Target, ArrowRight, Linkedin,
+  Loader2, Lock, Star, Sparkles, Target, ArrowRight, Linkedin, HardDrive,
 } from "lucide-react";
+import { toast } from "sonner";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
