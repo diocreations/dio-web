@@ -136,13 +136,13 @@ const ResumePreview = ({ text, templateId, editing, onTextChange, fontSize = 13 
   if (tpl === "classic") {
     return (
       <div className="bg-white p-8 md:p-12 max-w-[780px] mx-auto font-serif" data-testid="resume-preview" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
-        {nameLines[0] && <div className="text-center text-2xl font-bold tracking-wide text-slate-900 mb-1">{nameLines[0]}</div>}
-        {nameLines.slice(1).map((l, i) => <div key={i} className="text-center text-xs text-slate-500 tracking-wide">{l}</div>)}
+        {nameLines[0] && <div className="text-center font-bold tracking-wide text-slate-900 mb-1" style={{ fontSize: nameFs }}>{nameLines[0]}</div>}
+        {nameLines.slice(1).map((l, i) => <div key={i} className="text-center text-slate-500 tracking-wide" style={{ fontSize: `${fontSize - 2}px` }}>{l}</div>)}
         {nameLines.length > 0 && <div className="border-b-2 border-slate-800 mt-4 mb-2" />}
         {sections.map((s, si) => (
           <div key={si} className="mb-4">
-            <div className="text-[11px] font-bold tracking-[3px] uppercase text-slate-800 border-b border-slate-300 pb-1 mb-2">{s.title}</div>
-            {s.lines.map((l, li) => renderBullet(l, li, "bg-slate-600", "text-[13px] leading-relaxed text-slate-700"))}
+            <div className="font-bold tracking-[3px] uppercase text-slate-800 border-b border-slate-300 pb-1 mb-2" style={{ fontSize: headerFs }}>{s.title}</div>
+            {s.lines.map((l, li) => renderBullet(l, li, "bg-slate-600", "leading-relaxed text-slate-700"))}
           </div>
         ))}
       </div>
