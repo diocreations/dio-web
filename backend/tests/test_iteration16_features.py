@@ -46,9 +46,13 @@ class TestResumeEndpoints:
     def test_resume_analyze_returns_scores(self):
         """POST /api/resume/analyze returns analysis with scores"""
         # First upload a resume
-        pdf_content = b"%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R>>endobj\nxref\n0 4\n0000000000 65535 f \n0000000009 00000 n \n0000000052 00000 n \n0000000101 00000 n \ntrailer<</Size 4/Root 1 0 R>>\nstartxref\n178\n%%EOF"
-        files = {"file": ("test.pdf", io.BytesIO(pdf_content), "application/pdf")}
-        upload_res = requests.post(f"{BASE_URL}/api/resume/upload", files=files)
+        pdf_path = "/tmp/test_resume_real.pdf"
+        if not os.path.exists(pdf_path):
+            pytest.skip("Test PDF not found")
+        
+        with open(pdf_path, "rb") as f:
+            files = {"file": ("test.pdf", f, "application/pdf")}
+            upload_res = requests.post(f"{BASE_URL}/api/resume/upload", files=files)
         
         if upload_res.status_code != 200:
             pytest.skip("Upload failed, skipping analyze test")
