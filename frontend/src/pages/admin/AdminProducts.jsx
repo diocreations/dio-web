@@ -68,7 +68,8 @@ const AdminProducts = () => {
       title: product.title, slug: product.slug, short_description: product.short_description,
       description: product.description, icon: product.icon, price: product.price || "",
       price_unit: product.price_unit || "month", pricing_type: product.pricing_type || "one_time",
-      billing_period: product.billing_period || "", features: product.features?.join("\n") || "",
+      billing_period: product.billing_period || "", currency: product.currency || "EUR",
+      features: product.features?.join("\n") || "",
       is_popular: product.is_popular, cta_text: product.cta_text, cta_link: product.cta_link || "",
       order: product.order, is_active: product.is_active, is_purchasable: product.is_purchasable !== false,
     });
