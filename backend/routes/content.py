@@ -127,6 +127,16 @@ async def delete_product(product_id: str, user: dict = Depends(get_current_user)
     return {"message": "Product deleted"}
 
 
+@router.put("/products/bulk-currency")
+async def bulk_update_currency(data: dict, user: dict = Depends(get_current_user)):
+    currency = data.get("currency", "EUR")
+    valid = ["EUR", "USD", "GBP", "INR", "AED", "AUD", "CAD", "SGD", "CHF"]
+    if currency not in valid:
+        raise HTTPException(status_code=400, detail=f"Invalid currency. Use one of: {', '.join(valid)}")
+    result = await db.products.update_many({}, {"$set": {"currency": currency}})
+    return {"message": f"All products updated to {currency}", "updated_count": result.modified_count}
+
+
 # ==================== PORTFOLIO ====================
 
 @router.get("/portfolio")
