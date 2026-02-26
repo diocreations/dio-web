@@ -1470,28 +1470,7 @@ async def update_featured_items(items: List[dict], user: dict = Depends(get_curr
             await db.featured_items.insert_one(item)
     return {"message": "Featured items updated"}
 
-@api_router.get("/geo/currency")
-async def get_visitor_currency(request: Request):
-    """Get visitor's currency based on geo-IP"""
-    # Check various headers for country code
-    cf_country = request.headers.get("CF-IPCountry", "")
-    x_country = request.headers.get("X-Country-Code", "")
-    country_code = cf_country or x_country or ""
-    
-    visitor_currency = "EUR"  # Default
-    if country_code in COUNTRY_TO_CURRENCY:
-        visitor_currency = COUNTRY_TO_CURRENCY[country_code]
-    
-    currency_rate = CURRENCY_RATES.get(visitor_currency, 1.0)
-    currency_symbol = {"EUR": "€", "USD": "$", "GBP": "£", "INR": "₹", "AED": "د.إ", "AUD": "A$", "CAD": "C$", "SGD": "S$", "CHF": "CHF"}.get(visitor_currency, "€")
-    
-    return {
-        "country_code": country_code,
-        "currency": visitor_currency,
-        "currency_symbol": currency_symbol,
-        "currency_rate": currency_rate,
-        "all_currencies": list(CURRENCY_RATES.keys())
-    }
+# geo/currency endpoint moved to routes/geo_currency.py (overrides this via new router)
 
 # ==================== ABOUT PAGE ROUTES ====================
 
