@@ -2098,8 +2098,8 @@ async def get_pricing_public():
     if pricing.get("discount_enabled") and pricing.get("discount_percent", 0) > 0:
         price = round(price * (1 - pricing["discount_percent"] / 100), 2)
     return {
-        "product_name": pricing["product_name"],
-        "product_description": pricing["product_description"],
+        "product_name": pricing.get("product_name", "DioAI Resume & LinkedIn Optimizer"),
+        "product_description": pricing.get("product_description", "AI-powered resume analysis, ATS optimization, and LinkedIn profile enhancement"),
         "price": price,
         "original_price": pricing["price"] if pricing.get("discount_enabled") else None,
         "currency": pricing.get("currency", "EUR"),
