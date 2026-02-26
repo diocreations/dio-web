@@ -103,12 +103,19 @@ const DioChat = () => {
           setMessages(data.history);
           setShowPulse(false);
         } else if (!alreadyGreeted) {
-          autoOpenWithGreeting();
+          // Don't auto-open on mobile devices
+          const isMobile = window.innerWidth < 768;
+          if (!isMobile) {
+            autoOpenWithGreeting();
+          } else {
+            // On mobile, just prepare the greeting for when user taps
+            sessionStorage.setItem("dio_greeted", "1");
+          }
         }
         if (data.lead_info) setLeadInfo(data.lead_info);
       })
       .catch(() => {
-        if (!alreadyGreeted) autoOpenWithGreeting();
+        if (!alreadyGreeted && window.innerWidth >= 768) autoOpenWithGreeting();
       });
   }, []);
 
