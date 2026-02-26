@@ -236,34 +236,61 @@ const ResumeOptimizerPage = () => {
       bold: { font: "'Inter', 'Segoe UI', sans-serif", accent: "#dc2626", headerBg: "transparent", headerColor: "#111827" },
     };
     const s = tplStyles[activeVisualTemplate] || tplStyles.classic;
+    const isHtml = editedText.includes("<h2>") || editedText.includes("<p>") || editedText.includes("<li>");
     const win = window.open("", "_blank");
-    win.document.write(`<html><head><title>Resume</title><style>
-      body{font-family:${s.font};max-width:780px;margin:30px auto;padding:30px 40px;line-height:1.5;color:#333;font-size:11pt}
-      .section-head{font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:${s.accent};border-bottom:1.5px solid ${s.accent}40;padding-bottom:3px;margin:18px 0 8px}
-      .name{font-size:18pt;font-weight:700;color:${s.headerColor};margin-bottom:2px;${s.headerBg !== "transparent" ? `background:${s.headerBg};color:#fff;padding:16px 24px;margin:-30px -40px 12px;` : ""}}
-      .contact{color:#666;font-size:9pt;margin-bottom:10px;${s.headerBg !== "transparent" ? `background:${s.headerBg};color:#ccc;padding:0 24px 14px;margin:-8px -40px 14px;` : ""}}
-      ul{padding-left:18px;margin:4px 0}li{margin-bottom:3px}
-      @media print{body{margin:0;padding:20px 30px}}
+    win.document.write(`<!DOCTYPE html><html><head><title>Resume</title><style>
+      *{margin:0;padding:0;box-sizing:border-box}
+      body{font-family:${s.font};max-width:780px;margin:0 auto;padding:40px 50px;line-height:1.6;color:#333;font-size:11pt}
+      h2{font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:${s.accent};border-bottom:2px solid ${s.accent}40;padding-bottom:4px;margin:18px 0 10px}
+      p{margin:3px 0;line-height:1.6}
+      ul{padding-left:20px;margin:4px 0;list-style-type:disc}
+      li{margin-bottom:3px;line-height:1.5}
+      strong,b{font-weight:700}
+      em,i{font-style:italic}
+      u{text-decoration:underline}
+      hr{border:none;border-top:1px solid ${s.accent}30;margin:12px 0}
+      .name{font-size:20pt;font-weight:700;color:${s.headerColor};margin-bottom:3px;${s.headerBg !== "transparent" ? `background:${s.headerBg};color:#fff;padding:20px 30px;margin:-40px -50px 16px;` : ""}}
+      .contact{color:#555;font-size:9.5pt;margin-bottom:6px;${s.headerBg !== "transparent" ? `background:${s.headerBg};color:#cbd5e1;padding:0 30px 16px;margin:-6px -50px 16px;` : ""}}
+      .section-head{font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:${s.accent};border-bottom:2px solid ${s.accent}40;padding-bottom:4px;margin:18px 0 10px}
+      .job-title{font-weight:600;margin:6px 0 2px}
+      @media print{body{margin:0;padding:24px 36px;max-width:100%}@page{margin:0.5in}}
     </style></head><body>`);
-    const lines = editedText.split("\\n");
-    let isFirst = true;
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed) { win.document.write("<br/>"); continue; }
-      if (/^[A-Z][A-Z\\s\\/&,]{3,}$/.test(trimmed) && !trimmed.includes("@") && !trimmed.includes("|")) {
-        win.document.write('<div class="section-head">' + trimmed + "</div>");
-      } else if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
-        win.document.write("<li>" + trimmed.slice(2) + "</li>");
-      } else if (isFirst) {
-        win.document.write('<div class="name">' + trimmed + "</div>");
-        isFirst = false;
-      } else {
-        win.document.write("<div>" + trimmed + "</div>");
+
+    if (isHtml) {
+      // Rich text content - write directly with proper styling
+      win.document.write(editedText);
+    } else {
+      // Plain text content - parse and format professionally
+      const lines = editedText.split("\n");
+      let isFirst = true;
+      let inContact = false;
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) { win.document.write("<br/>"); inContact = false; continue; }
+        const isHeader = /^[A-Z][A-Z\s\/&,]{3,}$/.test(trimmed) && !trimmed.includes("@") && !trimmed.includes("|") && !trimmed.includes(".com");
+        const isBullet = /^[-*\u2022]\s+/.test(trimmed);
+        const hasDate = /\d{4}\s*[-\u2013]\s*(present|\d{4})/i.test(trimmed);
+        if (isHeader) {
+          win.document.write(`<div class="section-head">${trimmed}</div>`);
+          inContact = false;
+        } else if (isBullet) {
+          win.document.write(`<li style="margin-left:20px;list-style-type:disc">${trimmed.replace(/^[-*\u2022]\s+/, "")}</li>`);
+        } else if (isFirst) {
+          win.document.write(`<div class="name">${trimmed}</div>`);
+          isFirst = false;
+          inContact = true;
+        } else if (inContact && (trimmed.includes("@") || trimmed.includes("|") || /\+?\d[\d\s\-()]{6,}/.test(trimmed))) {
+          win.document.write(`<div class="contact">${trimmed}</div>`);
+        } else if (hasDate) {
+          win.document.write(`<div class="job-title">${trimmed}</div>`);
+        } else {
+          win.document.write(`<p>${trimmed}</p>`);
+        }
       }
     }
     win.document.write("</body></html>");
     win.document.close();
-    win.print();
+    setTimeout(() => win.print(), 300);
   };
 
   const StepIcon = ({ id }) => {
