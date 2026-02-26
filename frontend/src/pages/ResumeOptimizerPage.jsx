@@ -103,17 +103,20 @@ function parseSections(text) {
   return { nameLines, sections };
 }
 
-const ResumePreview = ({ text, templateId, editing, onTextChange }) => {
+const ResumePreview = ({ text, templateId, editing, onTextChange, fontSize = 13 }) => {
   if (!text) return null;
   const tpl = templateId || "classic";
   const { nameLines, sections } = parseSections(text);
+  const fs = `${fontSize}px`;
+  const nameFs = `${fontSize + 11}px`;
+  const headerFs = `${Math.max(9, fontSize - 2)}px`;
 
   const renderBullet = (line, key, bulletClass, textClass) => {
     if (line.startsWith("- ") || line.startsWith("* ") || line.startsWith("\u2022 ")) {
       const content = line.replace(/^[-*\u2022]\s+/, "");
-      return <div key={key} className={`flex gap-2 ${textClass} pl-1 py-[2px]`}><span className={`${bulletClass} mt-[5px] flex-shrink-0 w-1.5 h-1.5 rounded-full`} /><span>{content}</span></div>;
+      return <div key={key} className={`flex gap-2 ${textClass} pl-1 py-[2px]`} style={{ fontSize: fs }}><span className={`${bulletClass} mt-[5px] flex-shrink-0 w-1.5 h-1.5 rounded-full`} /><span>{content}</span></div>;
     }
-    return <div key={key} className={textClass}>{line}</div>;
+    return <div key={key} className={textClass} style={{ fontSize: fs }}>{line}</div>;
   };
 
   if (editing) {
