@@ -12,6 +12,9 @@ import { Plus, Pencil, Trash2, GripVertical, Star } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
+const CURRENCY_SYMBOLS = { EUR: "\u20ac", USD: "$", GBP: "\u00a3", INR: "\u20b9", AED: "\u062f.\u0625", AUD: "A$", CAD: "C$", SGD: "S$", CHF: "CHF" };
+const CURRENCY_OPTIONS = Object.keys(CURRENCY_SYMBOLS);
+
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +22,7 @@ const AdminProducts = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
     title: "", slug: "", short_description: "", description: "", icon: "Globe",
-    price: "", price_unit: "per month", features: "", is_popular: false,
+    price: "", price_unit: "per month", currency: "EUR", features: "", is_popular: false,
     cta_text: "Get Started", cta_link: "", order: 0, is_active: true,
   });
 
