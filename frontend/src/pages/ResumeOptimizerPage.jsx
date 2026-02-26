@@ -148,11 +148,16 @@ const ResumeOptimizerPage = () => {
   const handleImprove = async () => {
     setImproving(true);
     try {
+      const body = { resume_id: resumeId };
+      if (selectedTemplate) body.template_id = selectedTemplate;
       const res = await fetch(`${API_URL}/api/resume/improve`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resume_id: resumeId }),
+        body: JSON.stringify(body),
       });
-      if (res.ok) setImproved(await res.json());
+      if (res.ok) {
+        setImproved(await res.json());
+        setStep(4);
+      }
     } catch { alert("Improvement failed"); }
     finally { setImproving(false); }
   };
