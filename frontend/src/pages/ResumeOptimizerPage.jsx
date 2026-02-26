@@ -47,8 +47,8 @@ const ScoreRing = ({ score, label, size = 100 }) => {
 const STEPS = [
   { id: 1, label: "Upload", icon: Upload },
   { id: 2, label: "Analysis", icon: FileText },
-  { id: 3, label: "Unlock Pro", icon: Zap },
-  { id: 4, label: "Optimize", icon: Download },
+  { id: 3, label: "Optimize", icon: Sparkles },
+  { id: 4, label: "Download", icon: Download },
 ];
 
 const ResumeOptimizerPage = () => {
@@ -63,12 +63,13 @@ const ResumeOptimizerPage = () => {
   const [textPreview, setTextPreview] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const [analysis, setAnalysis] = useState(null);
-  const [isPaid, setIsPaid] = useState(false);
+  const [hasDownloadAccess, setHasDownloadAccess] = useState(false);
   const [improved, setImproved] = useState(null);
   const [linkedinResult, setLinkedinResult] = useState(null);
   const [pricing, setPricing] = useState(null);
+  const [templates, setTemplates] = useState([]);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
 
-  // LinkedIn form
   const [linkedinForm, setLinkedinForm] = useState({ headline: "", about: "", experience: "" });
 
   // Load pricing
