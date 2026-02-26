@@ -33,6 +33,7 @@ const Navbar = () => {
     { name: "About", path: "/about" },
     { name: "Services", path: "/services" },
     { name: "Products", path: "/products" },
+    { name: "Resume AI", path: "/resume-optimizer" },
     { name: "Portfolio", path: "/portfolio" },
     { name: "Blog", path: "/blog" },
     { name: "Contact", path: "/contact" },
