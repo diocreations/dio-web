@@ -1,0 +1,179 @@
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import Layout from "@/components/Layout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { motion } from "framer-motion";
+import { LogIn, UserPlus, Loader2, Mail, Lock, User } from "lucide-react";
+import { toast } from "sonner";
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+const UserLoginPage = () => {
+  const navigate = useNavigate();
+  const [tab, setTab] = useState("login");
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({ email: "", password: "", name: "" });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const endpoint = tab === "login" ? "/api/user/login" : "/api/user/register";
+    try {
+      const res = await fetch(`${API_URL}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Failed");
+      localStorage.setItem("pub_user", JSON.stringify(data));
+      localStorage.setItem("pub_session_token", data.session_token);
+      toast.success(tab === "login" ? "Welcome back!" : "Account created!");
+      navigate("/dashboard");
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Layout>
+      <div className="min-h-[80vh] flex items-center justify-center px-4 py-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md"
+        >
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold" data-testid="login-heading">Your Account</h1>
+            <p className="text-muted-foreground mt-2">Access your resume analyses, cover letters, and more</p>
+          </div>
+
+          <Card className="border-0 shadow-xl">
+            <CardContent className="p-6">
+              <Tabs value={tab} onValueChange={setTab}>
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="login" data-testid="tab-login">
+                    <LogIn size={16} className="mr-2" /> Sign In
+                  </TabsTrigger>
+                  <TabsTrigger value="register" data-testid="tab-register">
+                    <UserPlus size={16} className="mr-2" /> Sign Up
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="login">
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="login-email">Email</Label>
+                      <div className="relative mt-1">
+                        <Mail size={16} className="absolute left-3 top-3 text-muted-foreground" />
+                        <Input
+                          id="login-email"
+                          type="email"
+                          placeholder="you@example.com"
+                          className="pl-10"
+                          required
+                          data-testid="login-email"
+                          value={form.email}
+                          onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="login-password">Password</Label>
+                      <div className="relative mt-1">
+                        <Lock size={16} className="absolute left-3 top-3 text-muted-foreground" />
+                        <Input
+                          id="login-password"
+                          type="password"
+                          placeholder="Enter password"
+                          className="pl-10"
+                          required
+                          data-testid="login-password"
+                          value={form.password}
+                          onChange={(e) => setForm({ ...form, password: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <Button type="submit" className="w-full" disabled={loading} data-testid="login-submit">
+                      {loading ? <Loader2 className="animate-spin mr-2" size={16} /> : <LogIn size={16} className="mr-2" />}
+                      Sign In
+                    </Button>
+                  </form>
+                </TabsContent>
+
+                <TabsContent value="register">
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="reg-name">Name</Label>
+                      <div className="relative mt-1">
+                        <User size={16} className="absolute left-3 top-3 text-muted-foreground" />
+                        <Input
+                          id="reg-name"
+                          placeholder="Your name"
+                          className="pl-10"
+                          data-testid="register-name"
+                          value={form.name}
+                          onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="reg-email">Email</Label>
+                      <div className="relative mt-1">
+                        <Mail size={16} className="absolute left-3 top-3 text-muted-foreground" />
+                        <Input
+                          id="reg-email"
+                          type="email"
+                          placeholder="you@example.com"
+                          className="pl-10"
+                          required
+                          data-testid="register-email"
+                          value={form.email}
+                          onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="reg-password">Password</Label>
+                      <div className="relative mt-1">
+                        <Lock size={16} className="absolute left-3 top-3 text-muted-foreground" />
+                        <Input
+                          id="reg-password"
+                          type="password"
+                          placeholder="Min 6 characters"
+                          className="pl-10"
+                          required
+                          minLength={6}
+                          data-testid="register-password"
+                          value={form.password}
+                          onChange={(e) => setForm({ ...form, password: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <Button type="submit" className="w-full" disabled={loading} data-testid="register-submit">
+                      {loading ? <Loader2 className="animate-spin mr-2" size={16} /> : <UserPlus size={16} className="mr-2" />}
+                      Create Account
+                    </Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
+
+              <p className="text-xs text-center text-muted-foreground mt-6">
+                Your data is automatically cleared after 24 hours for privacy.
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </Layout>
+  );
+};
+
+export default UserLoginPage;
