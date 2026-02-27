@@ -146,6 +146,17 @@ const ResumeOptimizerPage = () => {
               setEditedText(data.improved_text || "");
             }
           }
+          // Also re-fetch LinkedIn optimization if it exists (now returns full data after payment)
+          try {
+            const linkedinRes = await fetch(`${API_URL}/api/resume/linkedin`, {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ resume_id: rid }),
+            });
+            if (linkedinRes.ok) {
+              const lnData = await linkedinRes.json();
+              if (!lnData.is_preview) setLinkedinResult(lnData);
+            }
+          } catch {}
         } catch {}
       };
 
