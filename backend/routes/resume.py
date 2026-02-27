@@ -404,6 +404,25 @@ async def optimize_linkedin(data: dict):
     resume_id = data.get("resume_id")
     if not resume_id:
         raise HTTPException(status_code=400, detail="resume_id required")
+
+    paid = await is_resume_paid(resume_id)
+
+    # Check for cached result first
+    existing = await db.linkedin_optimizations.find_one({"resume_id": resume_id}, {"_id": 0})
+    if existing:
+        if paid:
+            existing["is_preview"] = False
+            return existing
+        return {
+            "resume_id": resume_id,
+            "headlines": existing.get("headlines", [])[:1],
+            "about": (existing.get("about", "").split(". ")[0] + ".") if existing.get("about") else "",
+            "keywords": existing.get("keywords", [])[:2],
+            "experience_bullets": [],
+            "post_ideas": [],
+            "is_preview": True,
+        }
+
     headline = data.get("headline", "")
     about = data.get("about", "")
     experience = data.get("experience", "")
@@ -425,8 +444,27 @@ CURRENT EXPERIENCE: {experience[:1000]}"""
     except Exception as e:
         logger.error(f"LinkedIn optimization failed: {e}")
         raise HTTPException(status_code=500, detail="Optimization failed. Please try again.")
+
+    # Store full result in DB
     result["resume_id"] = resume_id
-    return result
+    result["created_at"] = datetime.now(timezone.utc).isoformat()
+    await db.linkedin_optimizations.update_one(
+        {"resume_id": resume_id}, {"$set": result}, upsert=True
+    )
+    result.pop("_id", None)
+
+    if paid:
+        result["is_preview"] = False
+        return result
+    return {
+        "resume_id": resume_id,
+        "headlines": result.get("headlines", [])[:1],
+        "about": (result.get("about", "").split(". ")[0] + ".") if result.get("about") else "",
+        "keywords": result.get("keywords", [])[:2],
+        "experience_bullets": [],
+        "post_ideas": [],
+        "is_preview": True,
+    }
 
 
 @router.post("/resume/linkedin-scrape")
