@@ -328,61 +328,60 @@ const ResumeOptimizerPage = () => {
   const handleDownloadPDF = () => {
     if (!editedText) return;
     if (!hasDownloadAccess) { handleCheckout(); return; }
-    const tplStyles = {
-      classic: { font: "Georgia, 'Times New Roman', serif", accent: "#1a1a2e", headerBg: "transparent", headerColor: "#1a1a2e" },
-      modern: { font: "'Segoe UI', Calibri, Arial, sans-serif", accent: "#2563eb", headerBg: "transparent", headerColor: "#2563eb" },
-      executive: { font: "'Segoe UI', Calibri, sans-serif", accent: "#f59e0b", headerBg: "#1e293b", headerColor: "#fff" },
-      minimal: { font: "'Helvetica Neue', Helvetica, Arial, sans-serif", accent: "#6b7280", headerBg: "transparent", headerColor: "#374151" },
-      bold: { font: "'Inter', 'Segoe UI', sans-serif", accent: "#dc2626", headerBg: "transparent", headerColor: "#111827" },
-    };
-    const s = tplStyles[activeVisualTemplate] || tplStyles.classic;
+    const filename = extractResumeFilename(editedText);
     const isHtml = editedText.includes("<h2>") || editedText.includes("<p>") || editedText.includes("<li>");
     const win = window.open("", "_blank");
-    win.document.write(`<!DOCTYPE html><html><head><title>Resume</title><style>
+    win.document.write(`<!DOCTYPE html><html><head><title>${filename}</title><style>
       *{margin:0;padding:0;box-sizing:border-box}
-      body{font-family:${s.font};max-width:780px;margin:0 auto;padding:40px 50px;line-height:1.6;color:#333;font-size:11pt}
-      h2{font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:${s.accent};border-bottom:2px solid ${s.accent}40;padding-bottom:4px;margin:18px 0 10px}
-      p{margin:3px 0;line-height:1.6}
-      ul{padding-left:20px;margin:4px 0;list-style-type:disc}
-      li{margin-bottom:3px;line-height:1.5}
-      strong,b{font-weight:700}
-      em,i{font-style:italic}
-      u{text-decoration:underline}
-      hr{border:none;border-top:1px solid ${s.accent}30;margin:12px 0}
-      .name{font-size:20pt;font-weight:700;color:${s.headerColor};margin-bottom:3px;${s.headerBg !== "transparent" ? `background:${s.headerBg};color:#fff;padding:20px 30px;margin:-40px -50px 16px;` : ""}}
-      .contact{color:#555;font-size:9.5pt;margin-bottom:6px;${s.headerBg !== "transparent" ? `background:${s.headerBg};color:#cbd5e1;padding:0 30px 16px;margin:-6px -50px 16px;` : ""}}
-      .section-head{font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:${s.accent};border-bottom:2px solid ${s.accent}40;padding-bottom:4px;margin:18px 0 10px}
-      .job-title{font-weight:600;margin:6px 0 2px}
-      @media print{body{margin:0;padding:24px 36px;max-width:100%}@page{margin:0.5in}}
+      body{font-family:'Calibri','Segoe UI',Arial,sans-serif;max-width:780px;margin:0 auto;padding:36px 48px;line-height:1.5;color:#2d2d2d;font-size:10.5pt}
+      .resume-name{font-size:22pt;font-weight:700;text-align:center;color:#1a1a2e;letter-spacing:1px;margin-bottom:4px}
+      .resume-contact{text-align:center;font-size:9pt;color:#555;margin-bottom:16px}
+      .resume-contact a{color:#2563eb;text-decoration:none}
+      h2{font-size:10.5pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#1a1a2e;border-bottom:1.5px solid #1a1a2e;padding-bottom:3px;margin:16px 0 8px}
+      .job-header{display:flex;justify-content:space-between;align-items:baseline;margin:10px 0 4px;flex-wrap:wrap}
+      .job-title{font-weight:700;font-size:10.5pt;color:#2d2d2d}
+      .job-company{font-weight:600;color:#444}
+      .job-dates{font-style:italic;color:#666;font-size:9.5pt}
+      p{margin:2px 0;line-height:1.55;font-size:10.5pt}
+      ul{padding-left:18px;margin:4px 0 8px;list-style-type:disc}
+      li{margin-bottom:2px;line-height:1.5;font-size:10.5pt}
+      strong,b{font-weight:700} em,i{font-style:italic}
+      hr{border:none;border-top:1px solid #ddd;margin:10px 0}
+      @media print{body{margin:0;padding:24px 36px;max-width:100%}@page{margin:0.4in 0.5in;size:A4}}
     </style></head><body>`);
 
     if (isHtml) {
-      // Rich text content - write directly with proper styling
       win.document.write(editedText);
     } else {
-      // Plain text content - parse and format professionally
       const lines = editedText.split("\n");
       let isFirst = true;
-      let inContact = false;
+      let inContact = true;
       for (const line of lines) {
         const trimmed = line.trim();
-        if (!trimmed) { win.document.write("<br/>"); inContact = false; continue; }
+        if (!trimmed) { inContact = false; win.document.write("<br/>"); continue; }
         const isHeader = /^[A-Z][A-Z\s\/&,]{3,}$/.test(trimmed) && !trimmed.includes("@") && !trimmed.includes("|") && !trimmed.includes(".com");
         const isBullet = /^[-*\u2022]\s+/.test(trimmed);
         const hasDate = /\d{4}\s*[-\u2013]\s*(present|\d{4})/i.test(trimmed);
         if (isHeader) {
-          win.document.write(`<div class="section-head">${trimmed}</div>`);
           inContact = false;
+          win.document.write(`<h2>${trimmed}</h2>`);
         } else if (isBullet) {
-          win.document.write(`<li style="margin-left:20px;list-style-type:disc">${trimmed.replace(/^[-*\u2022]\s+/, "")}</li>`);
+          win.document.write(`<li>${trimmed.replace(/^[-*\u2022]\s+/, "")}</li>`);
         } else if (isFirst) {
-          win.document.write(`<div class="name">${trimmed}</div>`);
+          win.document.write(`<div class="resume-name">${trimmed}</div>`);
           isFirst = false;
-          inContact = true;
-        } else if (inContact && (trimmed.includes("@") || trimmed.includes("|") || /\+?\d[\d\s\-()]{6,}/.test(trimmed))) {
-          win.document.write(`<div class="contact">${trimmed}</div>`);
+        } else if (inContact && (trimmed.includes("@") || trimmed.includes("|") || /\+?\d[\d\s\-()]{5,}/.test(trimmed) || /linkedin/i.test(trimmed))) {
+          win.document.write(`<div class="resume-contact">${trimmed.replace(/\|/g, ' &nbsp;|&nbsp; ')}</div>`);
         } else if (hasDate) {
-          win.document.write(`<div class="job-title">${trimmed}</div>`);
+          const parts = trimmed.split(/\s*[\|]\s*/);
+          if (parts.length >= 2) {
+            const dateMatch = trimmed.match(/(\w+\s+\d{4}\s*[-\u2013]\s*(?:Present|\w+\s+\d{4}))/i);
+            const datePart = dateMatch ? dateMatch[1] : parts[parts.length - 1];
+            const rest = parts.filter(p => p !== datePart).join(" | ");
+            win.document.write(`<div class="job-header"><span class="job-title">${rest}</span><span class="job-dates">${datePart}</span></div>`);
+          } else {
+            win.document.write(`<div class="job-header"><span class="job-title">${trimmed}</span></div>`);
+          }
         } else {
           win.document.write(`<p>${trimmed}</p>`);
         }
