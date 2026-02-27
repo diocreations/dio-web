@@ -762,6 +762,7 @@ const ResumeOptimizerPage = () => {
                     {/* Score Comparison */}
                     <ScoreComparison currentAnalysis={analysis} resumeId={resumeId} onCopyToEditor={(text) => {
                       setEditedText(text);
+                      setOriginalImprovedText(text); // Store original for reset
                       setImproved({ improved_text: text, resume_id: resumeId });
                       setStep(4);
                       toast.success("Comparison resume loaded into editor. You can now edit and download.");
