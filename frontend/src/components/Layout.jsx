@@ -24,12 +24,18 @@ const getRandomIndex = (key, max) => {
   return idx;
 };
 
-// Pages where the chatbot should be hidden for cleaner UX
 const HIDE_CHAT_PATHS = ["/resume-optimizer", "/cover-letter"];
+
+// Map route paths to SEO slugs
+const pathToSlug = (path) => {
+  if (path === "/") return "home";
+  return path.replace(/^\//, "").split("/")[0];
+};
 
 const Layout = ({ children }) => {
   const location = useLocation();
   const [colorData, setColorData] = useState(null);
+  const [seoData, setSeoData] = useState({ global: null, page: null });
   const hideChatbot = HIDE_CHAT_PATHS.some((p) => location.pathname.startsWith(p));
 
   useEffect(() => {
@@ -38,6 +44,62 @@ const Layout = ({ children }) => {
       .then((data) => setColorData(data))
       .catch(() => {});
   }, []);
+
+  // Fetch SEO data for current page
+  useEffect(() => {
+    const slug = pathToSlug(location.pathname);
+    Promise.all([
+      fetch(`${API_URL}/api/seo/global`).then((r) => r.ok ? r.json() : null).catch(() => null),
+      fetch(`${API_URL}/api/seo/pages/${slug}`).then((r) => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([global, page]) => {
+      setSeoData({ global, page });
+      // Apply SEO meta tags
+      const title = page?.title || global?.site_title || "";
+      const desc = page?.description || global?.site_description || "";
+      const keywords = [...(page?.keywords || []), ...(global?.default_keywords || [])].join(", ");
+      const ogTitle = page?.og_title || title;
+      const ogDesc = page?.og_description || desc;
+      const ogImage = page?.og_image || global?.default_og_image || "";
+      const canonical = page?.canonical_url || "";
+
+      if (title) document.title = title;
+      setMeta("description", desc);
+      setMeta("keywords", keywords);
+      setMeta("og:title", ogTitle, "property");
+      setMeta("og:description", ogDesc, "property");
+      if (ogImage) setMeta("og:image", ogImage, "property");
+      setMeta("og:type", "website", "property");
+      setMeta("og:url", window.location.href, "property");
+      setMeta("twitter:card", "summary_large_image", "name");
+      setMeta("twitter:title", ogTitle, "name");
+      setMeta("twitter:description", ogDesc, "name");
+
+      // Google/Bing verification
+      if (global?.google_verification) setMeta("google-site-verification", global.google_verification);
+      if (global?.bing_verification) setMeta("msvalidate.01", global.bing_verification);
+
+      // Canonical
+      let link = document.querySelector('link[rel="canonical"]');
+      if (canonical) {
+        if (!link) { link = document.createElement("link"); link.rel = "canonical"; document.head.appendChild(link); }
+        link.href = canonical;
+      } else if (link) { link.remove(); }
+
+      // JSON-LD Schema
+      if (global?.schema_org_name) {
+        let script = document.getElementById("schema-org-jsonld");
+        if (!script) { script = document.createElement("script"); script.id = "schema-org-jsonld"; script.type = "application/ld+json"; document.head.appendChild(script); }
+        script.textContent = JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": global.schema_org_type || "Organization",
+          "name": global.schema_org_name,
+          "url": global.schema_org_url || window.location.origin,
+          "logo": global.schema_org_logo || "",
+          "description": global.schema_org_description || desc,
+        });
+      }
+    });
+  }, [location.pathname]);
 
   const accentStyle = useMemo(() => {
     const schemes = colorData?.color_schemes?.filter((s) => s.is_active) || [];
@@ -60,5 +122,12 @@ const Layout = ({ children }) => {
     </div>
   );
 };
+
+function setMeta(name, content, attr = "name") {
+  if (!content) return;
+  let el = document.querySelector(`meta[${attr}="${name}"]`);
+  if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
+  el.setAttribute("content", content);
+}
 
 export default Layout;
