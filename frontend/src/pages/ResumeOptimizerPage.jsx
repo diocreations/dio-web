@@ -894,6 +894,11 @@ const ResumeOptimizerPage = () => {
                             <Button variant={isEditing ? "default" : "outline"} size="sm" className="rounded-full" onClick={() => setIsEditing(!isEditing)} data-testid="toggle-edit-btn">
                               {isEditing ? <><CheckCircle size={14} className="mr-1" /> Done Editing</> : <><FileText size={14} className="mr-1" /> Edit Text</>}
                             </Button>
+                            {isEditing && originalImprovedText && editedText !== originalImprovedText && (
+                              <Button variant="ghost" size="sm" className="rounded-full text-amber-600 hover:text-amber-700 hover:bg-amber-50" onClick={handleResetResume} data-testid="reset-resume-btn">
+                                <RotateCcw size={14} className="mr-1" /> Reset
+                              </Button>
+                            )}
                             {hasDownloadAccess ? (
                               <Button onClick={handleDownloadPDF} className="rounded-full" data-testid="download-pdf-btn"><Download size={18} className="mr-2" /> Download / Print</Button>
                             ) : (
