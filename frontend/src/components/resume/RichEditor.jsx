@@ -1,5 +1,17 @@
-import { useRef, useCallback, useEffect } from "react";
-import { Bold, Italic, List, Heading1, Underline, Minus, Undo, Redo } from "lucide-react";
+import { useRef, useCallback, useEffect, useState } from "react";
+import { Bold, Italic, List, Heading1, Underline, Minus, Undo, Redo, Palette } from "lucide-react";
+
+const FONT_COLORS = [
+  { label: "Black", value: "#1a1a2e" },
+  { label: "Dark Gray", value: "#374151" },
+  { label: "Blue", value: "#2563eb" },
+  { label: "Navy", value: "#1e3a5f" },
+  { label: "Teal", value: "#0d9488" },
+  { label: "Red", value: "#dc2626" },
+  { label: "Amber", value: "#d97706" },
+  { label: "Green", value: "#16a34a" },
+  { label: "Purple", value: "#7c3aed" },
+];
 
 const ToolbarButton = ({ icon: Icon, label, onClick, active }) => (
   <button
@@ -112,6 +124,24 @@ const RichEditor = ({ value, onChange, placeholder = "Edit your resume..." }) =>
     exec("insertHorizontalRule");
   };
 
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const colorPickerRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (colorPickerRef.current && !colorPickerRef.current.contains(e.target)) {
+        setShowColorPicker(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const applyColor = (color) => {
+    exec("foreColor", color);
+    setShowColorPicker(false);
+  };
+
   return (
     <div className="border rounded-lg overflow-hidden bg-white" data-testid="rich-editor">
       {/* Toolbar */}
@@ -123,6 +153,33 @@ const RichEditor = ({ value, onChange, placeholder = "Edit your resume..." }) =>
         <ToolbarButton icon={Heading1} label="Heading" onClick={formatHeading} />
         <ToolbarButton icon={List} label="Bullet list" onClick={() => exec("insertUnorderedList")} />
         <ToolbarButton icon={Minus} label="Divider" onClick={insertHR} />
+        <div className="w-px h-5 bg-slate-300 mx-1" />
+        <div className="relative" ref={colorPickerRef}>
+          <button
+            type="button"
+            onMouseDown={(e) => { e.preventDefault(); setShowColorPicker(!showColorPicker); }}
+            title="Font Color"
+            className={`p-1.5 rounded hover:bg-slate-200 transition-colors ${showColorPicker ? "bg-slate-200 text-primary" : "text-slate-600"}`}
+            data-testid="editor-font-color"
+          >
+            <Palette size={16} />
+          </button>
+          {showColorPicker && (
+            <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg p-2 z-50 grid grid-cols-3 gap-1 w-[120px]" data-testid="color-picker-dropdown">
+              {FONT_COLORS.map((c) => (
+                <button
+                  key={c.value}
+                  type="button"
+                  onMouseDown={(e) => { e.preventDefault(); applyColor(c.value); }}
+                  title={c.label}
+                  className="w-8 h-8 rounded-md border border-slate-200 hover:scale-110 transition-transform cursor-pointer"
+                  style={{ backgroundColor: c.value }}
+                  data-testid={`color-${c.label.toLowerCase().replace(/\s/g, "-")}`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
         <div className="w-px h-5 bg-slate-300 mx-1" />
         <ToolbarButton icon={Undo} label="Undo" onClick={() => exec("undo")} />
         <ToolbarButton icon={Redo} label="Redo" onClick={() => exec("redo")} />
