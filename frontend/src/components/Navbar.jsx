@@ -193,9 +193,21 @@ const Navbar = () => {
                   <Link to="/dashboard" onClick={() => setIsOpen(false)}>Dashboard</Link>
                 </Button>
               ) : (
-                <Button asChild variant="outline" className="w-full rounded-full">
-                  <Link to="/login" onClick={() => setIsOpen(false)}>Sign In</Link>
-                </Button>
+                <div className="space-y-2">
+                  <Button
+                    className="w-full rounded-full bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+                    onClick={() => {
+                      setIsOpen(false);
+                      const redirectUrl = `${window.location.origin}/login`;
+                      window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+                    }}
+                  >
+                    <GoogleIcon size={18} /> Continue with Google
+                  </Button>
+                  <Button asChild variant="outline" className="w-full rounded-full">
+                    <Link to="/login" onClick={() => setIsOpen(false)}>Sign In with Email</Link>
+                  </Button>
+                </div>
               )}
               <Button asChild className="w-full bg-primary text-primary-foreground rounded-full">
                 <Link to="/contact" onClick={() => setIsOpen(false)}>Get Started</Link>
