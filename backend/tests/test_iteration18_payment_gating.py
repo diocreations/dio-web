@@ -513,7 +513,7 @@ class TestCheckoutStillWorks:
             f"{BASE_URL}/api/resume/checkout",
             json={
                 "resume_id": uploaded_resume_id,
-                "origin_url": "https://resume-builder-pro-11.preview.emergentagent.com"
+                "origin_url": "https://career-boost-215.preview.emergentagent.com"
             },
             headers={"Content-Type": "application/json"}
         )
