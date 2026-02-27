@@ -403,97 +403,113 @@ const ResumeOptimizerPage = () => {
     const isHtmlContent = editedText.includes("<h2>") || editedText.includes("<p>") || editedText.includes("<li>");
     const tpl = activeVisualTemplate || "classic";
 
-    // Template-specific CSS
-    const tplStyles = {
-      classic: { accent: "#1a1a2e", nameColor: "#1a1a2e", headerBorder: "1.5px solid #1a1a2e", headerBg: "none", headerColor: "#1a1a2e", headerPad: "0", headerRadius: "0", font: "'Georgia','Times New Roman',serif" },
-      modern: { accent: "#2563eb", nameColor: "#2563eb", headerBorder: "none", headerBg: "none", headerColor: "#2563eb", headerPad: "0", headerRadius: "0", font: "'Segoe UI',Calibri,Arial,sans-serif" },
-      executive: { accent: "#f59e0b", nameColor: "#1e293b", headerBorder: "2px solid rgba(245,158,11,0.3)", headerBg: "none", headerColor: "#d97706", headerPad: "0", headerRadius: "0", font: "'Segoe UI',Calibri,sans-serif" },
-      minimal: { accent: "#6b7280", nameColor: "#111827", headerBorder: "none", headerBg: "none", headerColor: "#9ca3af", headerPad: "0", headerRadius: "0", font: "'Helvetica Neue',Helvetica,Arial,sans-serif" },
-      bold: { accent: "#dc2626", nameColor: "#111827", headerBorder: "none", headerBg: "#dc2626", headerColor: "#ffffff", headerPad: "4px 10px", headerRadius: "4px", font: "'Inter','Segoe UI',sans-serif" },
-      elegant: { accent: "#0d9488", nameColor: "#115e59", headerBorder: "1px solid rgba(13,148,136,0.3)", headerBg: "none", headerColor: "#0f766e", headerPad: "0", headerRadius: "0", font: "'Georgia','Palatino Linotype',serif" },
-      corporate: { accent: "#1e3a5f", nameColor: "#1e3a5f", headerBorder: "none", headerBg: "none", headerColor: "#1e3a5f", headerPad: "0", headerRadius: "0", font: "'Segoe UI',Calibri,Arial,sans-serif" },
-      creative: { accent: "#7c3aed", nameColor: "#7c3aed", headerBorder: "2px solid #e9d5ff", headerBg: "none", headerColor: "#7c3aed", headerPad: "0", headerRadius: "0", font: "'Inter','Segoe UI',sans-serif" },
+    // Template-specific styles — STRUCTURALLY DIFFERENT per template
+    const configs = {
+      classic: { font: "'Georgia','Times New Roman',serif", accent: "#1a1a2e", nameSize: "18pt", nameAlign: "center", contactAlign: "center", h2Css: "border-bottom:1.5px solid #1a1a2e;padding-bottom:3px;color:#1a1a2e;", bodyColor: "#333" },
+      modern: { font: "'Segoe UI',Calibri,sans-serif", accent: "#2563eb", nameSize: "20pt", nameAlign: "left", contactAlign: "left", h2Css: "color:#2563eb;border-bottom:2px solid #2563eb;padding-bottom:3px;", bodyColor: "#374151" },
+      executive: { font: "'Segoe UI',Calibri,sans-serif", accent: "#d97706", nameSize: "20pt", nameAlign: "left", contactAlign: "left", h2Css: "color:#92400e;border-bottom:2px solid #d9770640;padding-bottom:3px;", bodyColor: "#374151", headerBg: "#1e293b", headerColor: "#fff" },
+      minimal: { font: "'Helvetica Neue',Helvetica,sans-serif", accent: "#6b7280", nameSize: "16pt", nameAlign: "left", contactAlign: "left", h2Css: "color:#9ca3af;border-bottom:none;letter-spacing:4px;font-weight:400;font-size:9pt;", bodyColor: "#4b5563" },
+      bold: { font: "'Inter','Segoe UI',sans-serif", accent: "#dc2626", nameSize: "22pt", nameAlign: "left", contactAlign: "left", h2Css: "color:#dc2626;border-bottom:3px solid #dc2626;padding-bottom:4px;font-size:11pt;", bodyColor: "#1f2937" },
+      elegant: { font: "'Georgia','Palatino Linotype',serif", accent: "#0d9488", nameSize: "18pt", nameAlign: "center", contactAlign: "center", h2Css: "color:#0f766e;border-bottom:1px solid #0d948840;padding-bottom:3px;", bodyColor: "#374151" },
+      corporate: { font: "'Segoe UI',Calibri,sans-serif", accent: "#1e3a5f", nameSize: "18pt", nameAlign: "left", contactAlign: "left", h2Css: "color:#1e3a5f;border-bottom:2px solid #1e3a5f;padding-bottom:3px;", bodyColor: "#374151", leftBar: true },
+      creative: { font: "'Inter','Segoe UI',sans-serif", accent: "#7c3aed", nameSize: "22pt", nameAlign: "left", contactAlign: "left", h2Css: "color:#7c3aed;border-bottom:2px solid #e9d5ff;padding-bottom:3px;", bodyColor: "#374151" },
     };
-    const s = tplStyles[tpl] || tplStyles.classic;
+    const c = configs[tpl] || configs.classic;
 
     const win = window.open("", "_blank");
+    // Force background printing with print-color-adjust
+    let headerHtml = "";
+    if (c.headerBg) {
+      headerHtml = `<div class="exec-header" style="background:${c.headerBg};padding:20px 48px 16px;margin:-36px -48px 20px;"></div>`;
+    }
+    let leftBarCss = "";
+    if (c.leftBar) {
+      leftBarCss = `body{border-left:4px solid ${c.accent};}`;
+    }
+
     win.document.write(`<!DOCTYPE html><html><head><title>${filename}</title><style>
       *{margin:0;padding:0;box-sizing:border-box}
-      body{font-family:${s.font};max-width:780px;margin:0 auto;padding:36px 48px;line-height:1.5;color:#2d2d2d;font-size:10.5pt}
-      .resume-name{font-size:18pt;font-weight:700;color:${s.nameColor};letter-spacing:1px;margin-bottom:2px}
-      .resume-contact{font-size:9pt;color:#555;margin-bottom:14px;line-height:1.4}
-      .resume-contact a{color:${s.accent};text-decoration:none}
-      h2{font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:${s.headerColor};border-bottom:${s.headerBorder};background:${s.headerBg};padding:${s.headerPad};border-radius:${s.headerRadius};padding-bottom:3px;margin:14px 0 6px;display:${s.headerBg !== "none" ? "inline-block" : "block"}}
+      body{font-family:${c.font};max-width:780px;margin:0 auto;padding:36px 48px;line-height:1.5;color:${c.bodyColor};font-size:10pt;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+      ${leftBarCss}
+      .resume-name{font-size:${c.nameSize};font-weight:700;color:${c.accent};letter-spacing:0.5px;margin-bottom:2px;text-align:${c.nameAlign}}
+      .resume-contact{font-size:8.5pt;color:#666;margin-bottom:4px;line-height:1.3;text-align:${c.contactAlign}}
+      .resume-contact a{color:${c.accent};text-decoration:none}
+      .accent-bar{height:2px;background:${c.accent};margin:8px 0 14px;${c.nameAlign === "center" ? "width:100%" : "width:60px"}}
+      h2{font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;${c.h2Css}margin:14px 0 6px}
+      h3{font-size:9.5pt;font-weight:600;color:${c.bodyColor};margin:8px 0 3px}
       .job-header{display:flex;justify-content:space-between;align-items:baseline;margin:8px 0 3px;flex-wrap:wrap}
-      .job-title{font-weight:700;font-size:10pt;color:#2d2d2d}
-      .job-dates{font-style:italic;color:#666;font-size:9pt}
+      .job-title{font-weight:700;font-size:10pt;color:${c.bodyColor}}
+      .job-dates{font-style:italic;color:#888;font-size:9pt}
       p{margin:2px 0;line-height:1.5;font-size:10pt}
       ul{padding-left:18px;margin:3px 0 6px;list-style-type:disc}
+      ol{padding-left:18px;margin:3px 0 6px}
       li{margin-bottom:2px;line-height:1.45;font-size:10pt}
-      strong,b{font-weight:700} em,i{font-style:italic}
+      strong,b{font-weight:700} em,i{font-style:italic} s,strike{text-decoration:line-through}
+      a{color:${c.accent};text-decoration:none}
       hr{border:none;border-top:1px solid #ddd;margin:8px 0}
-      .accent-bar{height:2px;background:${s.accent};margin:10px 0 14px;${tpl === "bold" ? "width:100%" : tpl === "minimal" ? "width:60px" : "width:60px"}}
+      ${c.headerBg ? `.exec-header{print-color-adjust:exact;-webkit-print-color-adjust:exact}.exec-header .resume-name{color:${c.headerColor}}.exec-header .resume-contact{color:${c.headerColor}99}` : ""}
       @media print{body{margin:0;padding:20px 36px;max-width:100%}@page{margin:0.4in 0.5in;size:A4}}
     </style></head><body>`);
 
     if (isHtmlContent) {
-      // Pre-process HTML: detect first <p> as name, second contact-like <p> as contact
       let html = editedText;
-      let firstPReplaced = false;
-      let contactReplaced = false;
+      let firstP = false, contactDone = false;
+      const nameEntries = [];
       html = html.replace(/<p([^>]*)>([\s\S]*?)<\/p>/gi, (match, attrs, content) => {
         const text = content.replace(/<[^>]*>/g, "").trim();
-        if (!firstPReplaced && text && !text.startsWith("-") && !/^[A-Z][A-Z\s\/&,]{3,}$/.test(text)) {
-          firstPReplaced = true;
-          return `<div class="resume-name">${content}</div>`;
+        if (!firstP && text && !text.startsWith("-") && !/^[A-Z][A-Z\s\/&,]{3,}$/.test(text)) {
+          firstP = true;
+          nameEntries.push(`<div class="resume-name">${content}</div>`);
+          return "%%NAME%%";
         }
-        if (firstPReplaced && !contactReplaced && (text.includes("@") || text.includes("|") || /\+?\d[\d\s\-()]{5,}/.test(text) || /linkedin/i.test(text))) {
-          contactReplaced = true;
-          return `<div class="resume-contact">${content.replace(/\|/g, " &nbsp;|&nbsp; ")}</div><div class="accent-bar"></div>`;
+        if (firstP && !contactDone && (text.includes("@") || text.includes("|") || /\+?\d[\d\s\-()]{5,}/.test(text) || /linkedin/i.test(text))) {
+          nameEntries.push(`<div class="resume-contact">${content.replace(/\|/g, " &middot; ")}</div>`);
+          return "%%CONTACT%%";
         }
+        if (firstP && !contactDone && !text) { contactDone = true; }
         return match;
       });
+      // Build name block (potentially inside executive header)
+      let nameBlock = nameEntries.join("") + `<div class="accent-bar"></div>`;
+      if (c.headerBg) nameBlock = `<div class="exec-header">${nameBlock}</div>`;
+      html = html.replace("%%NAME%%", nameBlock).replace(/%%CONTACT%%/g, "");
       win.document.write(html);
     } else {
       const lines = editedText.split("\n");
-      let isFirst = true;
-      let inContact = true;
-      let wroteAccentBar = false;
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed) {
-          if (inContact && !wroteAccentBar) { win.document.write(`<div class="accent-bar"></div>`); wroteAccentBar = true; }
-          inContact = false;
-          win.document.write("<br/>");
-          continue;
-        }
-        const isHeader = /^[A-Z][A-Z\s\/&,]{3,}$/.test(trimmed) && !trimmed.includes("@") && !trimmed.includes("|") && !trimmed.includes(".com");
-        const isBullet = /^[-*\u2022]\s+/.test(trimmed);
-        const hasDate = /\d{4}\s*[-\u2013]\s*(present|\d{4})/i.test(trimmed);
-        if (isHeader) {
-          if (inContact && !wroteAccentBar) { win.document.write(`<div class="accent-bar"></div>`); wroteAccentBar = true; }
-          inContact = false;
-          win.document.write(`<h2>${trimmed}</h2>`);
-        } else if (isBullet) {
-          win.document.write(`<li>${trimmed.replace(/^[-*\u2022]\s+/, "")}</li>`);
-        } else if (isFirst) {
-          win.document.write(`<div class="resume-name">${trimmed}</div>`);
-          isFirst = false;
-        } else if (inContact && (trimmed.includes("@") || trimmed.includes("|") || /\+?\d[\d\s\-()]{5,}/.test(trimmed) || /linkedin/i.test(trimmed))) {
-          win.document.write(`<div class="resume-contact">${trimmed.replace(/\|/g, " &nbsp;|&nbsp; ")}</div>`);
-        } else if (hasDate) {
-          const parts = trimmed.split(/\s*[\|]\s*/);
-          if (parts.length >= 2) {
-            const dateMatch = trimmed.match(/(\w+\s+\d{4}\s*[-\u2013]\s*(?:Present|\w+\s+\d{4}))/i);
-            const datePart = dateMatch ? dateMatch[1] : parts[parts.length - 1];
-            const rest = parts.filter(p => p !== datePart).join(" | ");
-            win.document.write(`<div class="job-header"><span class="job-title">${rest}</span><span class="job-dates">${datePart}</span></div>`);
-          } else {
-            win.document.write(`<div class="job-header"><span class="job-title">${trimmed}</span></div>`);
-          }
-        } else {
-          win.document.write(`<p>${trimmed}</p>`);
-        }
+      let isFirst = true, inContact = true, wroteAccent = false;
+      const nameLines = [];
+      // First pass: collect name and contact lines
+      let bodyStartIdx = 0;
+      for (let i = 0; i < lines.length; i++) {
+        const t = lines[i].trim();
+        if (!t) { bodyStartIdx = i + 1; break; }
+        const isH = /^[A-Z][A-Z\s\/&,]{3,}$/.test(t) && !t.includes("@") && !t.includes("|") && !t.includes(".com");
+        if (isH) { bodyStartIdx = i; break; }
+        nameLines.push(t);
+        bodyStartIdx = i + 1;
+      }
+      // Write name section
+      if (c.headerBg) win.document.write(`<div class="exec-header">`);
+      if (nameLines[0]) win.document.write(`<div class="resume-name">${nameLines[0]}</div>`);
+      for (let i = 1; i < nameLines.length; i++) win.document.write(`<div class="resume-contact">${nameLines[i].replace(/\|/g, " &middot; ")}</div>`);
+      if (c.headerBg) win.document.write(`</div>`);
+      win.document.write(`<div class="accent-bar"></div>`);
+      // Write body
+      for (let i = bodyStartIdx; i < lines.length; i++) {
+        const t = lines[i].trim();
+        if (!t) { win.document.write("<br/>"); continue; }
+        const isH = /^[A-Z][A-Z\s\/&,]{3,}$/.test(t) && !t.includes("@") && !t.includes("|") && !t.includes(".com");
+        const isBul = /^[-*\u2022]\s+/.test(t);
+        const hasDate = /\d{4}\s*[-\u2013]\s*(present|\d{4})/i.test(t);
+        if (isH) { win.document.write(`<h2>${t}</h2>`); }
+        else if (isBul) { win.document.write(`<li>${t.replace(/^[-*\u2022]\s+/, "")}</li>`); }
+        else if (hasDate) {
+          const dm = t.match(/(\w+\s+\d{4}\s*[-\u2013]\s*(?:Present|\w+\s+\d{4}))/i);
+          if (dm) {
+            const rest = t.replace(dm[1], "").replace(/\|/g, "").trim();
+            win.document.write(`<div class="job-header"><span class="job-title">${rest}</span><span class="job-dates">${dm[1]}</span></div>`);
+          } else { win.document.write(`<p><strong>${t}</strong></p>`); }
+        } else { win.document.write(`<p>${t}</p>`); }
       }
     }
     win.document.write("</body></html>");
