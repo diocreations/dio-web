@@ -48,7 +48,7 @@ function isHtml(text) {
   // Build styled HTML with template-specific classes
   let styledHtml = html
     // Bold headings with accent color and border
-    .replace(/<h2>/g, `<h2 style="font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:${Math.max(10, fontSize - 2)}px;color:${accent};border-bottom:2px solid ${accent}30;padding-bottom:4px;margin:16px 0 8px;">`)
+    .replace(/<h2>/g, `<h2 style="font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:${Math.max(10, fSize - 2)}px;color:${accent};border-bottom:2px solid ${accent}30;padding-bottom:4px;margin:16px 0 8px;">`)
     // Make paragraphs properly sized
     .replace(/<p>/g, `<p style="font-size:${fs};line-height:1.6;color:#374151;margin:2px 0;">`)
     // Style list items
@@ -59,7 +59,7 @@ function isHtml(text) {
     .replace(/<hr\/>/g, `<hr style="border:none;border-top:1px solid ${accent}30;margin:12px 0;">`);
 
   // Executive template: dark header
-  if (tpl === "executive") {
+  if (tplId === "executive") {
     // Find first elements as name/contact and wrap in dark header
     const parser = new DOMParser();
     const doc = parser.parseFromString(styledHtml, "text/html");
