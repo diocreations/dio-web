@@ -61,6 +61,19 @@ const ResumeOptimizerPage = () => {
   const [showEmailPrompt, setShowEmailPrompt] = useState(false);
   const [referralCode, setReferralCode] = useState("");
   const [referralDiscount, setReferralDiscount] = useState(null);
+  const [pubUser, setPubUser] = useState(null);
+
+  // Check for logged in user
+  useEffect(() => {
+    const stored = localStorage.getItem("pub_user");
+    if (stored) setPubUser(JSON.parse(stored));
+  }, []);
+
+  // Google Sign-In handler for quick access
+  const handleQuickGoogleSignIn = () => {
+    const redirectUrl = `${window.location.origin}/login`;
+    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+  };
 
   const displayPrice = () => {
     const base = pricing?.price || 19.99;
