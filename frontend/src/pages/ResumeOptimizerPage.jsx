@@ -61,6 +61,16 @@ const ResumeOptimizerPage = () => {
   const [referralCode, setReferralCode] = useState("");
   const [referralDiscount, setReferralDiscount] = useState(null);
 
+  const displayPrice = () => {
+    const base = pricing?.price || 19.99;
+    const curr = pricing?.currency || "EUR";
+    if (referralDiscount) {
+      const discounted = (base * (1 - referralDiscount.discount_percent / 100)).toFixed(2);
+      return <><s className="opacity-50 mr-1">{curr} {base}</s> {curr} {discounted}</>;
+    }
+    return `${curr} ${base}`;
+  };
+
   useEffect(() => {
     fetch(`${API_URL}/api/resume/pricing`).then((r) => r.json()).then(setPricing).catch(() => {});
     fetch(`${API_URL}/api/resume/templates`).then((r) => r.json()).then(setTemplates).catch(() => {});
