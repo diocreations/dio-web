@@ -519,6 +519,13 @@ const ResumeOptimizerPage = () => {
             {/* STEP 4: Results */}
             {(step === 4 || (step === 3 && improved)) && (
               <motion.div key="results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                {paymentLoading ? (
+                  <div className="text-center py-20">
+                    <Loader2 className="animate-spin mx-auto mb-4 text-primary" size={40} />
+                    <p className="text-lg font-medium">Verifying your payment...</p>
+                    <p className="text-muted-foreground">Loading your resume. This takes a few seconds.</p>
+                  </div>
+                ) : (
                 <Tabs defaultValue="resume" className="space-y-6">
                   <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto">
                     <TabsTrigger value="resume" className="flex items-center gap-2"><FileText size={16} /> Improved Resume</TabsTrigger>
