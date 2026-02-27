@@ -204,7 +204,71 @@ Rewrite the entire resume now in clean, professional plain text format:"""
     return result
 
 
-@router.post("/resume/checkout")
+@router.post("/resume/quick-fix")
+async def quick_fix_resume(data: dict):
+    """Apply AI-suggested fixes to the original resume while preserving its structure"""
+    resume_id = data.get("resume_id")
+    if not resume_id:
+        raise HTTPException(status_code=400, detail="resume_id required")
+    upload = await db.resume_uploads.find_one({"resume_id": resume_id}, {"_id": 0})
+    if not upload:
+        raise HTTPException(status_code=404, detail="Resume not found")
+    analysis = await db.resume_analyses.find_one({"resume_id": resume_id}, {"_id": 0})
+    text = upload["text"][:6000]
+
+    weaknesses = ""
+    suggestions = ""
+    keywords = ""
+    if analysis:
+        weaknesses = "\n".join(f"- {w}" for w in analysis.get("weaknesses", []))
+        suggestions = "\n".join(f"- {s}" for s in analysis.get("suggestions", []))
+        keywords = ", ".join(analysis.get("missing_keywords", []))
+
+    prompt = f"""You are a professional resume editor. Fix and improve this resume while PRESERVING ITS ORIGINAL STRUCTURE AND LAYOUT.
+
+CRITICAL RULES:
+- Keep the SAME sections, SAME order, SAME overall layout as the original.
+- Do NOT reorganize or restructure the resume.
+- Fix grammar, spelling, and awkward phrasing.
+- Replace weak action verbs with strong ones (Led, Architected, Implemented, Optimized, etc.).
+- Add specific numbers and metrics where possible (e.g., "managed team" → "managed team of 8").
+- Naturally incorporate these missing ATS keywords where relevant: {keywords}
+- Fix these identified weaknesses:
+{weaknesses}
+- Apply these suggestions:
+{suggestions}
+- Use PLAIN TEXT only. No markdown (no #, **, ```).
+- Use ALL CAPS for section headings.
+- Use "- " prefix for bullet points.
+- Keep the name on the first line, contact info on the second line.
+
+ORIGINAL RESUME:
+{text}
+
+Output the FIXED resume now (same structure, improved content):"""
+    try:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"resume_quickfix_{resume_id}",
+            system_message="You are a precise resume editor. Fix content while preserving the original structure. Never use markdown.",
+        ).with_model("gemini", "gemini-2.0-flash")
+        fixed_text = await chat.send_message(UserMessage(text=prompt))
+        fixed_text = fixed_text.replace("```", "").replace("##", "").replace("**", "").strip()
+    except Exception as e:
+        logger.error(f"Quick fix failed: {e}")
+        raise HTTPException(status_code=500, detail="Quick fix failed. Please try again.")
+    result = {
+        "resume_id": resume_id,
+        "fixed_text": fixed_text,
+        "fix_type": "quick_fix",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.resume_improvements.update_one(
+        {"resume_id": resume_id, "fix_type": "quick_fix"},
+        {"$set": result},
+        upsert=True,
+    )
+    return result
 async def create_resume_checkout(data: dict, request: Request):
     resume_id = data.get("resume_id")
     customer_email = data.get("email", "")
