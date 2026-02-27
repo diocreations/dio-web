@@ -269,6 +269,9 @@ Output the FIXED resume now (same structure, improved content):"""
         upsert=True,
     )
     return result
+
+
+@router.post("/resume/checkout")
 async def create_resume_checkout(data: dict, request: Request):
     resume_id = data.get("resume_id")
     customer_email = data.get("email", "")
