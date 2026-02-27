@@ -790,58 +790,55 @@ const ResumeOptimizerPage = () => {
                           </>
                         ) : (
                           <>
-                            {/* UNPAID: Show first headline as teaser, blur the rest */}
+                            {/* UNPAID: Show teaser with server-side partial data */}
                             <Card><CardContent className="p-6">
                               <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Star size={20} className="text-primary" /> Headline Variations</h3>
                               <div className="space-y-3">
-                                {/* Show first headline clearly as teaser */}
                                 {linkedinResult.headlines?.[0] && (
                                   <div className="p-3 bg-primary/5 rounded-lg text-sm font-medium">{linkedinResult.headlines[0]}</div>
                                 )}
-                                {/* Blur remaining headlines */}
                                 <div className="relative select-none pointer-events-none">
                                   <div className="space-y-3 blur-[6px] opacity-60">
-                                    {linkedinResult.headlines?.slice(1).map((h, i) => (
-                                      <div key={i} className="p-3 bg-primary/5 rounded-lg text-sm font-medium">{h}</div>
-                                    ))}
+                                    <div className="p-3 bg-primary/5 rounded-lg text-sm font-medium">Senior Full-Stack Developer | Building Scalable Solutions</div>
+                                    <div className="p-3 bg-primary/5 rounded-lg text-sm font-medium">Tech Lead & Problem Solver | Driving Innovation</div>
                                   </div>
                                 </div>
                               </div>
                             </CardContent></Card>
 
-                            {/* Blurred About section - show first line */}
                             <Card><CardContent className="p-6">
                               <h3 className="font-bold text-lg mb-4">Optimized About Section</h3>
-                              <p className="text-sm leading-relaxed mb-2">{linkedinResult.about?.split(". ")[0]}.</p>
+                              <p className="text-sm leading-relaxed mb-2">{linkedinResult.about}</p>
                               <div className="relative select-none pointer-events-none">
                                 <p className="text-sm whitespace-pre-wrap leading-relaxed blur-[6px] opacity-50">
-                                  {linkedinResult.about?.split(". ").slice(1).join(". ")}
+                                  With extensive experience in building enterprise applications and leading cross-functional teams, I bring a unique blend of technical expertise and strategic thinking. My approach focuses on delivering measurable results through innovative solutions and collaborative leadership.
                                 </p>
                               </div>
                             </CardContent></Card>
 
-                            {/* Blurred Keywords */}
                             <Card><CardContent className="p-6">
                               <h3 className="font-bold text-lg mb-4">Keywords to Add</h3>
                               <div className="relative">
                                 <div className="flex flex-wrap gap-2">
-                                  {linkedinResult.keywords?.slice(0, 2).map((k, i) => <span key={i} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">{k}</span>)}
+                                  {linkedinResult.keywords?.map((k, i) => <span key={i} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">{k}</span>)}
                                 </div>
                                 <div className="flex flex-wrap gap-2 mt-2 blur-[6px] opacity-50 select-none pointer-events-none">
-                                  {linkedinResult.keywords?.slice(2).map((k, i) => <span key={i} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">{k}</span>)}
+                                  <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">Strategic Planning</span>
+                                  <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">Cloud Architecture</span>
+                                  <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">Team Leadership</span>
                                 </div>
                               </div>
                             </CardContent></Card>
 
-                            {/* Blurred Post Ideas */}
-                            {linkedinResult.post_ideas?.length > 0 && (
-                              <Card><CardContent className="p-6 relative">
-                                <h3 className="font-bold text-lg mb-4">Engagement Post Ideas</h3>
-                                <div className="blur-[6px] opacity-50 select-none pointer-events-none">
-                                  <ul className="space-y-2">{linkedinResult.post_ideas.map((p, i) => <li key={i} className="flex items-start gap-2 text-sm"><Sparkles size={14} className="text-primary mt-0.5" />{p}</li>)}</ul>
-                                </div>
-                              </CardContent></Card>
-                            )}
+                            <Card><CardContent className="p-6 relative">
+                              <h3 className="font-bold text-lg mb-4">Experience Bullets & Post Ideas</h3>
+                              <div className="blur-[6px] opacity-50 select-none pointer-events-none">
+                                <ul className="space-y-2">
+                                  <li className="flex items-start gap-2 text-sm"><Sparkles size={14} className="text-primary mt-0.5" />Led migration of monolithic architecture to microservices</li>
+                                  <li className="flex items-start gap-2 text-sm"><Sparkles size={14} className="text-primary mt-0.5" />Improved system performance by 40% through optimization</li>
+                                </ul>
+                              </div>
+                            </CardContent></Card>
 
                             {/* Sticky paywall CTA */}
                             <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-white shadow-xl sticky bottom-4 z-10">
@@ -851,7 +848,7 @@ const ResumeOptimizerPage = () => {
                                 </div>
                                 <h3 className="text-xl font-bold mb-2">Unlock Your Full LinkedIn Optimization</h3>
                                 <p className="text-muted-foreground text-sm mb-1">Get all headline variations, complete about section, keywords, experience bullets, and post ideas.</p>
-                                <p className="text-xs text-muted-foreground mb-5">One-time payment. Copy-paste ready. Instant access.</p>
+                                <p className="text-xs text-muted-foreground mb-5">One-time payment per resume. Copy-paste ready. Instant access.</p>
                                 <Button onClick={handleCheckout} size="lg" className="rounded-full px-10 shadow-lg" data-testid="linkedin-pay-btn">
                                   <Lock size={16} className="mr-2" /> Pay {pricing?.currency || "EUR"} {pricing?.price || "19.99"} to Unlock
                                 </Button>
