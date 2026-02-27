@@ -175,10 +175,20 @@ async def improve_resume(data: dict):
         raise HTTPException(status_code=400, detail="resume_id required")
     template_id = data.get("template_id")
     force_regenerate = data.get("force_regenerate", False)
+    paid = await is_resume_paid(resume_id)
+
     if not force_regenerate:
-        existing = await db.resume_improvements.find_one({"resume_id": resume_id}, {"_id": 0})
+        existing = await db.resume_improvements.find_one({"resume_id": resume_id, "fix_type": {"$ne": "quick_fix"}}, {"_id": 0})
         if existing:
-            return existing
+            if paid:
+                return existing
+            return {
+                "resume_id": resume_id,
+                "improved_text": truncate_preview(existing.get("improved_text", "")),
+                "is_preview": True,
+                "template_id": existing.get("template_id"),
+            }
+
     upload = await db.resume_uploads.find_one({"resume_id": resume_id}, {"_id": 0})
     if not upload:
         raise HTTPException(status_code=404, detail="Resume not found")
@@ -213,9 +223,17 @@ Rewrite the entire resume now in clean, professional plain text format:"""
         logger.error(f"Resume improvement failed: {e}")
         raise HTTPException(status_code=500, detail="Improvement failed. Please try again.")
     result = {"resume_id": resume_id, "improved_text": improved_text, "template_id": template_id, "created_at": datetime.now(timezone.utc).isoformat()}
-    await db.resume_improvements.update_one({"resume_id": resume_id}, {"$set": result}, upsert=True)
+    await db.resume_improvements.update_one({"resume_id": resume_id, "fix_type": {"$ne": "quick_fix"}}, {"$set": result}, upsert=True)
     result.pop("_id", None)
-    return result
+
+    if paid:
+        return result
+    return {
+        "resume_id": resume_id,
+        "improved_text": truncate_preview(improved_text),
+        "is_preview": True,
+        "template_id": template_id,
+    }
 
 
 @router.post("/resume/quick-fix")
