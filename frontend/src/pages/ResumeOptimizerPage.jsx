@@ -65,6 +65,17 @@ const ResumeOptimizerPage = () => {
     fetch(`${API_URL}/api/resume/pricing`).then((r) => r.json()).then(setPricing).catch(() => {});
     fetch(`${API_URL}/api/resume/templates`).then((r) => r.json()).then(setTemplates).catch(() => {});
     fetch(`${API_URL}/api/drive/status`).then((r) => r.json()).then((d) => setDriveConfigured(d.configured)).catch(() => {});
+    // Check for referral code in URL
+    const ref = searchParams.get("ref");
+    if (ref) {
+      setReferralCode(ref);
+      fetch(`${API_URL}/api/referral/validate/${ref}`).then((r) => r.ok ? r.json() : null).then((d) => {
+        if (d?.valid) {
+          setReferralDiscount(d);
+          toast.success(`Referral code applied! ${d.discount_percent}% off your purchase.`);
+        }
+      }).catch(() => {});
+    }
   }, []);
 
   useEffect(() => {
