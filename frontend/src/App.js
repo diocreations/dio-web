@@ -366,6 +366,14 @@ const AppRouter = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/seo"
+        element={
+          <ProtectedRoute>
+            <AdminSeo />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
     </Suspense>
   );
