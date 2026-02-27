@@ -1,15 +1,17 @@
 # DioAI Resume & LinkedIn Optimizer - PRD
 
 ## Original Problem Statement
-Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide features.
+Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide features to make it deploy-ready.
 
 ## All Features - COMPLETE
-- **Backend Refactoring**: 3598-line server.py → 16 modular route files
-- **Resume Optimizer**: Upload, AI analysis, 5 visual templates, inline editing, font size controls
-- **Rich Text Editor**: Toolbar with Bold, Italic, Underline, Heading, Bullet list, Divider, Undo/Redo
-- **Professional PDF Download**: Template-specific styling, bold headings, proper bullets, job title detection
+- **Backend Refactoring**: 3598-line server.py -> 16 modular route files
+- **Resume Optimizer**: Upload, AI analysis, 8 visual templates, inline editing, font size controls
+- **Rich Text Editor**: Toolbar with Bold, Italic, Underline, Heading, Bullet list, Divider, Font Color (9 colors), Undo/Redo
+- **Professional PDF Download**: ATS-friendly styling, smart filename (firstname-lastname-title-date.pdf)
+- **Quick Fix (Fix My Resume)**: One-click AI fix preserving original structure, powered by Gemini
+- **Copy from Comparison**: Upload a 2nd resume, compare scores, copy comparison text to editor
 - **Resume Score Comparison**: Upload second version, side-by-side bars, delta badges
-- **LinkedIn Optimizer**: URL scraping, manual input, AI optimization, gated behind payment
+- **LinkedIn Optimizer**: URL scraping, manual input, AI optimization, gated behind payment (blur paywall)
 - **Google Sign-In**: Emergent Auth for public users
 - **Google Drive Upload**: Full OAuth flow (configured with credentials)
 - **24-Hour Data Cleanup**: Background asyncio task
@@ -20,7 +22,7 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 - **Admin Panel**: Full CMS, resume analytics, template management
 - **Cover Letter Generator**: AI-powered
 - **Website Builder**: AI-generated with Stripe checkout
-- **Payment System**: Stripe integration
+- **Payment System**: Stripe integration with payment verification and retry logic
 
 ## Architecture
 - Frontend: React + Tailwind + Shadcn/UI + Framer Motion
@@ -40,14 +42,27 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
   google_auth_public.py, google_drive.py
 
 /app/frontend/src/components/resume/ (5 files)
-  RichEditor.jsx, ScoreRing.jsx, ResumePreview.jsx,
-  ScoreComparison.jsx, constants.js
+  RichEditor.jsx (with font color picker - 9 colors),
+  ScoreRing.jsx, ResumePreview.jsx (8 templates),
+  ScoreComparison.jsx (with Copy to Editor), constants.js
 ```
 
+## Key API Endpoints
+- POST /api/resume/upload - Upload PDF/DOCX
+- POST /api/resume/analyze - AI analysis with scores
+- POST /api/resume/quick-fix - Apply AI fixes preserving structure
+- POST /api/resume/improve - Full AI rewrite with template
+- GET /api/resume/get-text/{resume_id} - Get resume text (for copy feature)
+- POST /api/resume/checkout - Stripe checkout
+- POST /api/resume/verify-payment - Verify Stripe payment
+- POST /api/resume/linkedin - LinkedIn optimization
+- PUT /api/products/bulk-currency - Bulk currency update
+
 ## Testing Status
-- Iteration 14: 26/26 backend passed (refactoring)
-- Iteration 15: 13/13 backend passed (score comparison)
-- Iteration 16: 11/11 backend + full frontend passed (rich editor + PDF + bulk currency)
+- Iteration 17: 12/12 backend + full frontend passed (all new features verified)
+
+## Visual Templates (8 total)
+Classic, Modern, Executive, Minimal, Bold, Elegant, Corporate, Creative
 
 ## Subdomain Note
-resume.diocreations.eu CNAME exists but SSL handshake failing. User needs to verify Cloudflare/hosting SSL covers the subdomain.
+resume.diocreations.eu CNAME exists but SSL provisioning needed on platform side.
