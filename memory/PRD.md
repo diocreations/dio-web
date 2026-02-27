@@ -27,7 +27,7 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 - **Admin Panel**: Full CMS, resume analytics, template management
 - **Cover Letter Generator**: AI-powered
 - **Website Builder**: AI-generated with Stripe checkout
-- **Payment System**: Stripe integration with sequential verify-then-load flow
+- **Email Receipt After Payment**: Professional HTML receipt sent via Resend (BackgroundTasks) after Stripe verification. Includes product name, amount, currency, date, receipt #, resume filename. Email prompt modal collects email before checkout. Gracefully skips if RESEND_API_KEY not set.
 
 ## Architecture
 - Frontend: React + Tailwind + Shadcn/UI + Framer Motion
