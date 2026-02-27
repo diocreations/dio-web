@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ScoreRing } from "./ScoreRing";
 import {
   Upload, FileText, Loader2, ArrowUpDown, TrendingUp, TrendingDown, Minus,
-  CheckCircle, XCircle, Target,
+  CheckCircle, XCircle, Target, Copy,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -57,12 +57,13 @@ const ComparisonBar = ({ label, scoreA, scoreB }) => {
   );
 };
 
-const ScoreComparison = ({ currentAnalysis, resumeId }) => {
+const ScoreComparison = ({ currentAnalysis, resumeId, onCopyToEditor }) => {
   const [compareFile, setCompareFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [compareAnalysis, setCompareAnalysis] = useState(null);
   const [compareResumeId, setCompareResumeId] = useState(null);
+  const [compareText, setCompareText] = useState(null);
 
   const handleCompareUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -77,6 +78,7 @@ const ScoreComparison = ({ currentAnalysis, resumeId }) => {
       if (!res.ok) { toast.error("Upload failed"); return; }
       const data = await res.json();
       setCompareResumeId(data.resume_id);
+      if (data.text_preview) setCompareText(data.text_preview);
       setUploading(false);
       setAnalyzing(true);
       const analysisRes = await fetch(`${API_URL}/api/resume/analyze`, {
