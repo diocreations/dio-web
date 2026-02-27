@@ -271,6 +271,15 @@ Output the FIXED resume now (same structure, improved content):"""
     return result
 
 
+@router.get("/resume/get-text/{resume_id}")
+async def get_resume_text(resume_id: str):
+    """Get the raw text of an uploaded resume for copying"""
+    upload = await db.resume_uploads.find_one({"resume_id": resume_id}, {"_id": 0})
+    if not upload:
+        raise HTTPException(status_code=404, detail="Resume not found")
+    return {"text": upload.get("text", ""), "filename": upload.get("filename", "")}
+
+
 @router.post("/resume/checkout")
 async def create_resume_checkout(data: dict, request: Request):
     resume_id = data.get("resume_id")
