@@ -901,7 +901,7 @@ const ResumeOptimizerPage = () => {
                                 <p className="text-muted-foreground text-sm mb-1">Get all headline variations, complete about section, keywords, experience bullets, and post ideas.</p>
                                 <p className="text-xs text-muted-foreground mb-5">One-time payment per resume. Copy-paste ready. Instant access.</p>
                                 <Button onClick={handleCheckout} size="lg" className="rounded-full px-10 shadow-lg" data-testid="linkedin-pay-btn">
-                                  <Lock size={16} className="mr-2" /> Pay {pricing?.currency || "EUR"} {pricing?.price || "19.99"} to Unlock
+                                  <Lock size={16} className="mr-2" /> Pay {displayPrice()} to Unlock
                                 </Button>
                               </CardContent>
                             </Card>
