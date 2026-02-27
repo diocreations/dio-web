@@ -422,7 +422,7 @@ async def check_resume_payment(resume_id: str):
 
 
 @router.post("/resume/verify-payment")
-async def verify_resume_payment(data: dict):
+async def verify_resume_payment(data: dict, background_tasks: BackgroundTasks):
     session_id = data.get("session_id")
     if not session_id:
         raise HTTPException(status_code=400, detail="session_id required")
@@ -435,6 +435,19 @@ async def verify_resume_payment(data: dict):
                 {"session_id": session_id},
                 {"$set": {"status": "paid", "paid_at": datetime.now(timezone.utc).isoformat()}},
             )
+            # Send receipt email in background
+            payment = await db.resume_payments.find_one({"session_id": session_id}, {"_id": 0})
+            if payment:
+                email = payment.get("email", "")
+                amount = payment.get("amount", 0)
+                currency = payment.get("currency", "EUR")
+                resume_id = payment.get("resume_id", "")
+                filename = ""
+                if resume_id:
+                    upload = await db.resume_uploads.find_one({"resume_id": resume_id}, {"_id": 0})
+                    if upload:
+                        filename = upload.get("filename", "")
+                background_tasks.add_task(send_payment_receipt, email, amount, currency, filename, session_id)
             return {"paid": True}
     except Exception as e:
         logger.error(f"Payment verify error: {e}")
