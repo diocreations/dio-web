@@ -299,10 +299,14 @@ const ResumeOptimizerPage = () => {
         const data = await res.json();
         setFixedText(data.fixed_text);
         setEditedText(data.fixed_text);
-        setImproved({ improved_text: data.fixed_text, resume_id: resumeId });
+        setImproved({ improved_text: data.fixed_text, resume_id: resumeId, is_preview: data.is_preview || false });
         setStep(4);
         setUseOriginalLayout(true);
-        toast.success("Fixes applied! Review and edit your improved resume.");
+        if (data.is_preview) {
+          toast.info("Preview ready! Pay to unlock the full improved resume.");
+        } else {
+          toast.success("Fixes applied! Review and edit your improved resume.");
+        }
       } else {
         toast.error("Quick fix failed. Please try again.");
       }
