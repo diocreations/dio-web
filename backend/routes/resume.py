@@ -31,6 +31,55 @@ def truncate_preview(text: str, max_lines: int = 8) -> str:
     return "\n".join(lines[:max_lines])
 
 
+async def send_payment_receipt(email: str, amount: float, currency: str, resume_filename: str, session_id: str):
+    """Send a payment receipt email via Resend"""
+    resend_key = os.environ.get("RESEND_API_KEY", "")
+    sender_email = os.environ.get("SENDER_EMAIL", "onboarding@resend.dev")
+    if not resend_key or not email:
+        logger.info(f"Skipping receipt email: resend_key={'set' if resend_key else 'missing'}, email={email or 'missing'}")
+        return
+    try:
+        import resend
+        resend.api_key = resend_key
+        date_str = datetime.now(timezone.utc).strftime("%B %d, %Y at %H:%M UTC")
+        receipt_id = session_id[-12:].upper() if session_id else "N/A"
+        html = f"""
+        <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:560px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+          <div style="background:#1a1a2e;padding:32px 28px;text-align:center;">
+            <h1 style="color:#fff;margin:0;font-size:22px;letter-spacing:0.5px;">Payment Receipt</h1>
+            <p style="color:#94a3b8;margin:6px 0 0;font-size:13px;">DioAI Resume & LinkedIn Optimizer</p>
+          </div>
+          <div style="padding:28px;">
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;text-align:center;margin-bottom:24px;">
+              <p style="color:#16a34a;font-weight:600;font-size:15px;margin:0;">Payment Successful</p>
+            </div>
+            <table style="width:100%;border-collapse:collapse;font-size:14px;">
+              <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Product</td><td style="padding:10px 0;text-align:right;font-weight:600;border-bottom:1px solid #f3f4f6;">Resume & LinkedIn Optimizer</td></tr>
+              <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Resume</td><td style="padding:10px 0;text-align:right;border-bottom:1px solid #f3f4f6;">{resume_filename or 'Your resume'}</td></tr>
+              <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Date</td><td style="padding:10px 0;text-align:right;border-bottom:1px solid #f3f4f6;">{date_str}</td></tr>
+              <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Receipt #</td><td style="padding:10px 0;text-align:right;border-bottom:1px solid #f3f4f6;">{receipt_id}</td></tr>
+              <tr><td style="padding:14px 0;color:#1a1a2e;font-weight:700;font-size:16px;">Total Paid</td><td style="padding:14px 0;text-align:right;font-weight:700;font-size:18px;color:#1a1a2e;">{currency} {amount:.2f}</td></tr>
+            </table>
+            <div style="margin-top:24px;padding:16px;background:#f8fafc;border-radius:8px;text-align:center;">
+              <p style="margin:0 0 8px;font-size:13px;color:#6b7280;">Your improved resume and LinkedIn optimization are now unlocked.</p>
+              <p style="margin:0;font-size:13px;color:#6b7280;">Return to the optimizer to download your professional PDF.</p>
+            </div>
+          </div>
+          <div style="padding:16px 28px;background:#f9fafb;text-align:center;border-top:1px solid #e5e7eb;">
+            <p style="margin:0;font-size:11px;color:#9ca3af;">DioAI by DioCreations | This is an automated receipt</p>
+          </div>
+        </div>"""
+        await asyncio.to_thread(resend.Emails.send, {
+            "from": sender_email,
+            "to": [email],
+            "subject": f"Payment Receipt - DioAI Resume Optimizer ({currency} {amount:.2f})",
+            "html": html,
+        })
+        logger.info(f"Receipt email sent to {email}")
+    except Exception as e:
+        logger.error(f"Failed to send receipt email: {e}")
+
+
 def extract_text_from_pdf(file_bytes: bytes) -> str:
     doc = fitz.open(stream=file_bytes, filetype="pdf")
     text = ""
