@@ -29,21 +29,21 @@ function isHtml(text) {
   return text && (text.includes("<h2>") || text.includes("<p>") || text.includes("<li>") || text.includes("<strong>") || text.includes("<b>"));
 }
 
-  const renderHtmlContent = (html, tplId, fSize) => {
-    const fs = `${fSize}px`;
-    const fonts = {
-      classic: "Georgia, 'Times New Roman', serif",
-      modern: "'Segoe UI', Calibri, Arial, sans-serif",
-      executive: "'Segoe UI', Calibri, sans-serif",
-      minimal: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-      bold: "'Inter', 'Segoe UI', sans-serif",
-      elegant: "Georgia, 'Palatino Linotype', serif",
-      corporate: "'Segoe UI', Calibri, Arial, sans-serif",
-      creative: "'Inter', 'Segoe UI', sans-serif",
-    };
-    const accents = { classic: "#1a1a2e", modern: "#2563eb", executive: "#f59e0b", minimal: "#6b7280", bold: "#dc2626", elegant: "#0d9488", corporate: "#1e3a5f", creative: "#7c3aed" };
-    const accent = accents[tplId] || accents.classic;
-    const font = fonts[tplId] || fonts.classic;
+function renderHtmlContent(html, tplId, fSize) {
+  const fs = `${fSize}px`;
+  const fonts = {
+    classic: "Georgia, 'Times New Roman', serif",
+    modern: "'Segoe UI', Calibri, Arial, sans-serif",
+    executive: "'Segoe UI', Calibri, sans-serif",
+    minimal: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+    bold: "'Inter', 'Segoe UI', sans-serif",
+    elegant: "Georgia, 'Palatino Linotype', serif",
+    corporate: "'Segoe UI', Calibri, Arial, sans-serif",
+    creative: "'Inter', 'Segoe UI', sans-serif",
+  };
+  const accents = { classic: "#1a1a2e", modern: "#2563eb", executive: "#f59e0b", minimal: "#6b7280", bold: "#dc2626", elegant: "#0d9488", corporate: "#1e3a5f", creative: "#7c3aed" };
+  const accent = accents[tplId] || accents.classic;
+  const font = fonts[tplId] || fonts.classic;
 
   // Build styled HTML with template-specific classes
   let styledHtml = html
