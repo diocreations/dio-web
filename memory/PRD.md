@@ -8,8 +8,18 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 ### Core Resume Optimizer
 - Upload PDF/DOCX, AI analysis (scores, strengths, weaknesses, keywords), 8 visual templates
 - Quick Fix (Fix My Resume) preserving original structure, full AI rewrite with template
-- Rich Text Editor: Bold, Italic, Underline, Heading, Bullet list, Divider, Font Color (9 colors), Undo/Redo
-- Professional PDF Download with smart filename (firstname-lastname-title-date.pdf)
+- **Full MS Word-like Rich Text Editor**: 
+  - Font family (6 options), Font size (8pt-36pt)
+  - Bold, Italic, Underline, Strikethrough
+  - Section Heading (H2), Subheading (H3)
+  - Bullet list, Numbered list, Indent/Outdent
+  - Text alignment (Left, Center, Right, Justify)
+  - Font color (9 colors), Highlight (6 colors)
+  - Horizontal line, Links (Insert/Remove)
+  - Undo/Redo
+  - More tools: Insert Table, Block Quote, Subscript, Superscript, Copy/Cut/Paste, Select All, Clear Formatting
+- **Reset Button**: Reset to original improved version (appears when edited)
+- Professional PDF Download with smart filename and improved layout (no blank areas)
 - Copy from Comparison: Upload 2nd resume, compare scores, copy text to editor
 - Resume Score Comparison: Side-by-side bars with delta badges
 
