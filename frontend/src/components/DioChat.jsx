@@ -260,8 +260,8 @@ const DioChat = () => {
     setShowPortfolio(false);
     setLeadInfo({});
     setQuickReplies([]);
-    setIsOpen(false);
-    setShowPulse(true);
+    // Keep chatbox open but reset to fresh state
+    setShowPulse(false);
   };
 
   const renderMessage = (content) => {
