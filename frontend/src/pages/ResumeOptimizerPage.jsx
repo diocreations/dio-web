@@ -511,45 +511,51 @@ const ResumeOptimizerPage = () => {
                     {/* Score Comparison */}
                     <ScoreComparison currentAnalysis={analysis} resumeId={resumeId} />
 
-                    {/* Template selection + optimize CTA */}
-                    <Card className="border-0 shadow-lg">
+                    {/* Quick Fix CTA - Apply AI fixes to original resume */}
+                    <Card className="border-2 border-primary/20 shadow-xl">
                       <CardContent className="p-8">
-                        <div className="text-center mb-6">
-                          <Sparkles size={32} className="mx-auto mb-3 text-primary" />
-                          <h3 className="text-2xl font-bold mb-2">Choose a Template & Optimize</h3>
-                          <p className="text-muted-foreground">Select how you'd like your resume formatted, then let AI rewrite it.</p>
+                        <div className="flex flex-col md:flex-row items-center gap-6">
+                          <div className="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                            <Zap size={32} className="text-green-600" />
+                          </div>
+                          <div className="flex-1 text-center md:text-left">
+                            <h3 className="text-xl font-bold mb-1">Apply AI Fixes to Your Resume</h3>
+                            <p className="text-muted-foreground text-sm">One click to fix all issues — improves wording, adds missing keywords, and strengthens bullet points while keeping your original layout.</p>
+                          </div>
+                          <Button onClick={handleQuickFix} disabled={quickFixing} size="lg" className="rounded-full px-8 bg-green-600 hover:bg-green-700 text-white shadow-lg flex-shrink-0" data-testid="quick-fix-btn">
+                            {quickFixing ? <><Loader2 className="animate-spin mr-2" size={18} />Fixing...</> : <><Zap size={18} className="mr-2" />Fix My Resume</>}
+                          </Button>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                      </CardContent>
+                    </Card>
+
+                    {/* Divider */}
+                    <div className="relative my-2"><div className="absolute inset-0 flex items-center"><div className="w-full border-t" /></div><div className="relative flex justify-center"><span className="bg-white px-4 text-sm text-muted-foreground font-medium">or choose a different template</span></div></div>
+
+                    {/* Template selection - for users who want a different style */}
+                    <Card className="border-0 shadow-md">
+                      <CardContent className="p-6">
+                        <p className="text-sm text-muted-foreground mb-4 text-center">If your resume isn't ATS-friendly, pick one of our optimized templates below:</p>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
                           {templates.map(t => {
                             const isSelected = selectedTemplate === t.template_id;
                             const accentColor = t.style?.accent || t.style?.color || "#1a1a2e";
                             return (
                               <div key={t.template_id} onClick={() => setSelectedTemplate(isSelected ? null : t.template_id)} data-testid={`template-card-${t.template_id}`}
-                                className={`relative cursor-pointer rounded-xl border-2 p-4 transition-all hover:shadow-md ${isSelected ? "border-primary ring-2 ring-primary/20 bg-primary/5" : "border-slate-200 hover:border-slate-300"}`}>
-                                {isSelected && <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center"><CheckCircle size={14} className="text-white" /></div>}
-                                <div className="bg-white border rounded-lg p-3 mb-3 h-28 overflow-hidden relative" style={{ borderTopColor: accentColor, borderTopWidth: "3px" }}>
-                                  <div className="space-y-1.5">
-                                    <div><div className="h-2 w-20 bg-slate-800 rounded-full" /><div className="h-1 w-28 bg-slate-300 rounded-full mt-1" /></div>
-                                    <div className="h-1.5 w-12 rounded-full mt-1" style={{ backgroundColor: accentColor }} />
-                                    <div className="space-y-0.5"><div className="h-1 w-full bg-slate-100 rounded-full" /><div className="h-1 w-5/6 bg-slate-100 rounded-full" /><div className="h-1 w-4/6 bg-slate-100 rounded-full" /></div>
-                                  </div>
-                                  <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent" />
+                                className={`relative cursor-pointer rounded-xl border-2 p-3 transition-all hover:shadow-md ${isSelected ? "border-primary ring-2 ring-primary/20 bg-primary/5" : "border-slate-200 hover:border-slate-300"}`}>
+                                {isSelected && <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center"><CheckCircle size={12} className="text-white" /></div>}
+                                <div className="bg-white border rounded-lg p-2 mb-2 h-20 overflow-hidden relative" style={{ borderTopColor: accentColor, borderTopWidth: "3px" }}>
+                                  <div className="space-y-1"><div className="h-1.5 w-12 bg-slate-800 rounded-full" /><div className="h-1 w-8 rounded-full" style={{ backgroundColor: accentColor }} /><div className="h-0.5 w-full bg-slate-100 rounded-full mt-1" /><div className="h-0.5 w-4/5 bg-slate-100 rounded-full" /></div>
                                 </div>
-                                <p className="font-semibold text-sm">{t.name}</p>
-                                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{t.description}</p>
-                                <div className="flex gap-1 mt-2">
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium">{t.style?.layout?.replace("-", " ")}</span>
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium">{t.style?.font}</span>
-                                </div>
+                                <p className="font-semibold text-xs">{t.name}</p>
                               </div>
                             );
                           })}
                         </div>
                         <div className="text-center">
-                          <Button onClick={() => handleImprove(false)} size="lg" className="rounded-full px-10" data-testid="optimize-btn">
-                            <Sparkles size={18} className="mr-2" /> {selectedTemplate ? "Optimize with Selected Template" : "Optimize My Resume"}
+                          <Button onClick={() => handleImprove(true)} disabled={!selectedTemplate || improving} variant="outline" className="rounded-full px-8" data-testid="optimize-btn">
+                            <Sparkles size={16} className="mr-2" /> {improving ? "Generating..." : "Use Selected Template"}
                           </Button>
-                          {!selectedTemplate && <p className="text-xs text-muted-foreground mt-2">No template selected - AI will use the best format</p>}
                         </div>
                       </CardContent>
                     </Card>
