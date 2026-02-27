@@ -31,6 +31,8 @@ function isHtml(text) {
 
 function renderHtmlContent(html, tplId, fSize) {
   const fs = `${fSize}px`;
+  const contactFs = `${Math.max(10, fSize - 3)}px`; // Smaller contact info
+  
   const fonts = {
     classic: "Georgia, 'Times New Roman', serif",
     modern: "'Segoe UI', Calibri, Arial, sans-serif",
@@ -41,48 +43,59 @@ function renderHtmlContent(html, tplId, fSize) {
     corporate: "'Segoe UI', Calibri, Arial, sans-serif",
     creative: "'Inter', 'Segoe UI', sans-serif",
   };
-  const accents = { classic: "#1a1a2e", modern: "#2563eb", executive: "#f59e0b", minimal: "#6b7280", bold: "#dc2626", elegant: "#0d9488", corporate: "#1e3a5f", creative: "#7c3aed" };
+  const accents = { classic: "#1a1a2e", modern: "#2563eb", executive: "#d97706", minimal: "#6b7280", bold: "#dc2626", elegant: "#0d9488", corporate: "#1e3a5f", creative: "#7c3aed" };
   const accent = accents[tplId] || accents.classic;
   const font = fonts[tplId] || fonts.classic;
 
-  // Build styled HTML with template-specific headings
+  // Template-specific h2 styles - STRUCTURALLY DIFFERENT
   let h2Style;
   if (tplId === "bold") {
-    h2Style = `font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:${Math.max(10, fSize - 2)}px;color:#fff;background:${accent};padding:4px 10px;border-radius:4px;margin:16px 0 8px;display:inline-block;`;
+    // Bold: Red background badge style
+    h2Style = `font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:${Math.max(10, fSize - 2)}px;color:#ffffff;background:${accent};padding:6px 12px;border-radius:4px;margin:18px 0 10px;display:inline-block;`;
   } else if (tplId === "minimal") {
-    h2Style = `font-weight:500;text-transform:uppercase;letter-spacing:4px;font-size:${Math.max(9, fSize - 3)}px;color:${accent};margin:18px 0 10px;`;
+    // Minimal: Subtle, spaced out
+    h2Style = `font-weight:400;text-transform:uppercase;letter-spacing:4px;font-size:${Math.max(9, fSize - 4)}px;color:${accent};margin:20px 0 12px;border-bottom:none;`;
+  } else if (tplId === "modern") {
+    // Modern: Left border accent
+    h2Style = `font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:${Math.max(10, fSize - 2)}px;color:${accent};border-left:3px solid ${accent};padding-left:10px;margin:18px 0 10px;border-bottom:none;`;
+  } else if (tplId === "creative") {
+    // Creative: Gradient underline effect
+    h2Style = `font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:${Math.max(10, fSize - 2)}px;color:${accent};border-bottom:2px solid #e9d5ff;padding-bottom:4px;margin:18px 0 10px;`;
   } else {
-    h2Style = `font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:${Math.max(10, fSize - 2)}px;color:${accent};border-bottom:2px solid ${accent}30;padding-bottom:4px;margin:16px 0 8px;`;
+    // Default style for classic, elegant, corporate, executive
+    h2Style = `font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:${Math.max(10, fSize - 2)}px;color:${accent};border-bottom:2px solid ${accent}30;padding-bottom:4px;margin:18px 0 10px;`;
   }
 
   let styledHtml = html
     .replace(/<h2>/g, `<h2 style="${h2Style}">`)
-    .replace(/<p>/g, `<p style="font-size:${fs};line-height:1.6;color:#374151;margin:2px 0;">`)
+    .replace(/<p>/g, `<p style="font-size:${fs};line-height:1.6;color:#374151;margin:3px 0;">`)
     .replace(/<ul>/g, `<ul style="padding-left:20px;margin:4px 0;list-style-type:disc;">`)
-    .replace(/<li>/g, `<li style="font-size:${fs};line-height:1.6;color:#374151;margin-bottom:2px;">`)
+    .replace(/<li>/g, `<li style="font-size:${fs};line-height:1.6;color:#374151;margin-bottom:3px;">`)
     .replace(/<hr>/g, `<hr style="border:none;border-top:1px solid ${accent}30;margin:12px 0;">`)
     .replace(/<hr\/>/g, `<hr style="border:none;border-top:1px solid ${accent}30;margin:12px 0;">`);
 
-  // Name styling for HTML content - detect first <p> as name, second as contact
-  const nameColor = tplId === "modern" || tplId === "creative" ? accent : tplId === "elegant" ? "#115e59" : tplId === "corporate" ? "#1e3a5f" : "#1a1a2e";
+  // Name styling - detect first <p> as name, second as contact
+  const nameColor = tplId === "modern" || tplId === "creative" ? accent : tplId === "bold" ? "#1f2937" : tplId === "elegant" ? "#115e59" : tplId === "corporate" ? "#1e3a5f" : "#1a1a2e";
+  const nameSize = tplId === "bold" || tplId === "creative" ? fSize + 12 : fSize + 8;
   let firstPDone = false;
   let contactDone = false;
+  
   styledHtml = styledHtml.replace(/<p style="[^"]*">([\s\S]*?)<\/p>/gi, (match, content) => {
     const text = content.replace(/<[^>]*>/g, "").trim();
     if (!firstPDone && text && !/^[A-Z][A-Z\s\/&,]{3,}$/.test(text) && !text.startsWith("-")) {
       firstPDone = true;
-      return `<div style="font-size:${fSize + 8}px;font-weight:700;color:${nameColor};margin-bottom:2px;">${content}</div>`;
+      return `<div style="font-size:${nameSize}px;font-weight:700;color:${nameColor};margin-bottom:4px;">${content}</div>`;
     }
     if (firstPDone && !contactDone && (text.includes("@") || text.includes("|") || /\+?\d[\d\s\-()]{5,}/.test(text))) {
       contactDone = true;
-      return `<div style="font-size:${Math.max(10, fSize - 2)}px;color:#6b7280;margin-bottom:12px;">${content}</div>`;
+      // Contact info with smaller font size
+      return `<div style="font-size:${contactFs};color:#6b7280;margin-bottom:14px;line-height:1.4;">${content}</div>`;
     }
     return match;
-  });;
+  });
 
-  // Executive template: dark header
+  // Executive template: dark header block
   if (tplId === "executive") {
-    // Find first elements as name/contact and wrap in dark header
     const parser = new DOMParser();
     const doc = parser.parseFromString(styledHtml, "text/html");
     const firstH2 = doc.querySelector("h2");
@@ -94,11 +107,11 @@ function renderHtmlContent(html, tplId, fSize) {
     }
     if (nameEls.length > 0) {
       const headerDiv = document.createElement("div");
-      headerDiv.style.cssText = `background:#1e293b;color:white;padding:20px 32px;margin:-32px -32px 16px;`;
-      nameEls.forEach((n) => {
+      headerDiv.style.cssText = `background:#1e293b;color:white;padding:24px 32px 20px;margin:-32px -32px 20px;`;
+      nameEls.forEach((n, idx) => {
         const clone = n.cloneNode(true);
         if (clone.style) {
-          clone.style.color = clone === nameEls[0] ? "white" : "#94a3b8";
+          clone.style.color = idx === 0 ? "#ffffff" : "rgba(255,255,255,0.7)";
         }
         headerDiv.appendChild(clone);
       });
@@ -108,10 +121,15 @@ function renderHtmlContent(html, tplId, fSize) {
     }
   }
 
+  // Corporate template: Left border accent
+  const wrapperStyle = tplId === "corporate" 
+    ? { fontFamily: font, borderLeft: `5px solid ${accent}`, paddingLeft: "20px" }
+    : { fontFamily: font };
+
   return (
     <div
       className="bg-white p-8 md:p-8 max-w-[780px] mx-auto"
-      style={{ fontFamily: font }}
+      style={wrapperStyle}
       data-testid="resume-preview"
       dangerouslySetInnerHTML={{ __html: styledHtml }}
     />
