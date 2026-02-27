@@ -45,6 +45,8 @@ from routes.cover_letter import router as cover_letter_router
 from routes.templates import router as templates_router
 from routes.google_auth_public import router as google_auth_public_router
 from routes.google_drive import router as google_drive_router
+from routes.seo import router as seo_router
+from routes.referral import router as referral_router
 
 app.include_router(auth_router)
 app.include_router(admin_router)
@@ -62,6 +64,8 @@ app.include_router(cover_letter_router)
 app.include_router(templates_router)
 app.include_router(google_auth_public_router)
 app.include_router(google_drive_router)
+app.include_router(seo_router)
+app.include_router(referral_router)
 
 
 # Root endpoint
