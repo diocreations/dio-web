@@ -1,0 +1,133 @@
+"""SEO management routes: meta tags, keywords, sitemap, robots.txt"""
+from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi.responses import PlainTextResponse, Response
+from database import db, logger
+from helpers import get_current_user
+from datetime import datetime, timezone
+import uuid
+
+router = APIRouter(prefix="/api")
+
+
+# ==================== SEO SETTINGS (Admin) ====================
+
+@router.get("/seo/pages")
+async def get_seo_pages():
+    """Get SEO settings for all pages"""
+    pages = await db.seo_pages.find({}, {"_id": 0}).to_list(100)
+    return pages
+
+
+@router.get("/seo/pages/{slug}")
+async def get_seo_page(slug: str):
+    """Get SEO settings for a specific page"""
+    page = await db.seo_pages.find_one({"slug": slug}, {"_id": 0})
+    if not page:
+        return {"slug": slug, "title": "", "description": "", "keywords": [], "og_title": "", "og_description": "", "og_image": "", "canonical_url": "", "noindex": False}
+    return page
+
+
+@router.put("/seo/pages/{slug}")
+async def update_seo_page(slug: str, data: dict, user: dict = Depends(get_current_user)):
+    """Update SEO settings for a page"""
+    data.pop("_id", None)
+    data["slug"] = slug
+    data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    await db.seo_pages.update_one({"slug": slug}, {"$set": data}, upsert=True)
+    return await db.seo_pages.find_one({"slug": slug}, {"_id": 0})
+
+
+@router.get("/seo/global")
+async def get_global_seo():
+    """Get global SEO settings (site-wide defaults, schema, etc.)"""
+    seo = await db.seo_global.find_one({"config_id": "global_seo"}, {"_id": 0})
+    if not seo:
+        default = {
+            "config_id": "global_seo",
+            "site_title": "DioCreations - Digital Excellence",
+            "site_description": "Professional AI-powered resume optimization, LinkedIn profile enhancement, and digital services.",
+            "default_keywords": ["resume optimizer", "AI resume", "LinkedIn optimizer", "ATS resume", "career tools"],
+            "default_og_image": "",
+            "google_verification": "",
+            "bing_verification": "",
+            "schema_org_type": "Organization",
+            "schema_org_name": "DioCreations",
+            "schema_org_url": "",
+            "schema_org_logo": "",
+            "schema_org_description": "",
+            "robots_extra": "",
+            "custom_head_tags": "",
+        }
+        await db.seo_global.insert_one(default)
+        return {k: v for k, v in default.items() if k != "_id"}
+    return seo
+
+
+@router.put("/seo/global")
+async def update_global_seo(data: dict, user: dict = Depends(get_current_user)):
+    """Update global SEO settings"""
+    data.pop("_id", None)
+    data["config_id"] = "global_seo"
+    data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    await db.seo_global.update_one({"config_id": "global_seo"}, {"$set": data}, upsert=True)
+    return await db.seo_global.find_one({"config_id": "global_seo"}, {"_id": 0})
+
+
+# ==================== SITEMAP & ROBOTS ====================
+
+@router.get("/sitemap.xml", response_class=Response)
+async def get_sitemap(request: Request):
+    """Generate dynamic XML sitemap"""
+    base_url = str(request.base_url).rstrip("/").replace("/api", "")
+    settings = await db.settings.find_one({"settings_id": "site_settings"}, {"_id": 0})
+    site_url = (settings or {}).get("site_url", base_url)
+
+    # Static pages
+    static_pages = [
+        {"loc": "/", "priority": "1.0", "changefreq": "weekly"},
+        {"loc": "/about", "priority": "0.8", "changefreq": "monthly"},
+        {"loc": "/services", "priority": "0.8", "changefreq": "weekly"},
+        {"loc": "/products", "priority": "0.8", "changefreq": "weekly"},
+        {"loc": "/portfolio", "priority": "0.7", "changefreq": "weekly"},
+        {"loc": "/blog", "priority": "0.7", "changefreq": "daily"},
+        {"loc": "/contact", "priority": "0.6", "changefreq": "monthly"},
+        {"loc": "/resume-optimizer", "priority": "0.9", "changefreq": "weekly"},
+        {"loc": "/cover-letter", "priority": "0.8", "changefreq": "monthly"},
+        {"loc": "/privacy", "priority": "0.3", "changefreq": "yearly"},
+        {"loc": "/terms", "priority": "0.3", "changefreq": "yearly"},
+    ]
+
+    # Dynamic pages from DB
+    blog_posts = await db.blog.find({"status": "published"}, {"_id": 0, "slug": 1, "updated_at": 1}).to_list(500)
+    services = await db.services.find({}, {"_id": 0, "slug": 1}).to_list(100)
+    portfolio = await db.portfolio.find({}, {"_id": 0, "portfolio_id": 1}).to_list(100)
+
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+
+    for p in static_pages:
+        xml += f'  <url>\n    <loc>{site_url}{p["loc"]}</loc>\n    <changefreq>{p["changefreq"]}</changefreq>\n    <priority>{p["priority"]}</priority>\n  </url>\n'
+
+    for post in blog_posts:
+        xml += f'  <url>\n    <loc>{site_url}/blog/{post["slug"]}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>\n'
+
+    for s in services:
+        if s.get("slug"):
+            xml += f'  <url>\n    <loc>{site_url}/services/{s["slug"]}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>\n'
+
+    for p in portfolio:
+        xml += f'  <url>\n    <loc>{site_url}/portfolio/{p["portfolio_id"]}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>\n'
+
+    xml += '</urlset>'
+    return Response(content=xml, media_type="application/xml")
+
+
+@router.get("/robots.txt", response_class=PlainTextResponse)
+async def get_robots():
+    """Generate robots.txt"""
+    global_seo = await db.seo_global.find_one({"config_id": "global_seo"}, {"_id": 0})
+    extra = (global_seo or {}).get("robots_extra", "")
+    txt = "User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\n\nSitemap: /api/sitemap.xml\n"
+    if extra:
+        txt += f"\n{extra}\n"
+    return txt
