@@ -53,6 +53,9 @@ const ResumeOptimizerPage = () => {
   const [showDrivePicker, setShowDrivePicker] = useState(false);
   const [driveImporting, setDriveImporting] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const [quickFixing, setQuickFixing] = useState(false);
+  const [fixedText, setFixedText] = useState(null);
+  const [useOriginalLayout, setUseOriginalLayout] = useState(true);
 
   useEffect(() => {
     fetch(`${API_URL}/api/resume/pricing`).then((r) => r.json()).then(setPricing).catch(() => {});
