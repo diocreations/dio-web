@@ -42,6 +42,7 @@ const ResumeOptimizerPage = () => {
   const [activeVisualTemplate, setActiveVisualTemplate] = useState("classic");
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState("");
+  const [originalImprovedText, setOriginalImprovedText] = useState(""); // For reset functionality
 
   const [linkedinForm, setLinkedinForm] = useState({ headline: "", about: "", experience: "" });
   const [linkedinUrl, setLinkedinUrl] = useState("");
