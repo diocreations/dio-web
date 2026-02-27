@@ -56,6 +56,8 @@ const ResumeOptimizerPage = () => {
   const [quickFixing, setQuickFixing] = useState(false);
   const [fixedText, setFixedText] = useState(null);
   const [useOriginalLayout, setUseOriginalLayout] = useState(true);
+  const [checkoutEmail, setCheckoutEmail] = useState("");
+  const [showEmailPrompt, setShowEmailPrompt] = useState(false);
 
   useEffect(() => {
     fetch(`${API_URL}/api/resume/pricing`).then((r) => r.json()).then(setPricing).catch(() => {});
