@@ -618,6 +618,38 @@ const ResumeOptimizerPage = () => {
 
                   <TabsContent value="resume">
                     {improved ? (
+                      improved.is_preview ? (
+                        /* PREVIEW MODE: Show blurred content with paywall */
+                        <div className="space-y-4" data-testid="resume-preview-paywall">
+                          <div className="flex items-center justify-between flex-wrap gap-3">
+                            <h3 className="text-xl font-bold">AI-Improved Resume Preview</h3>
+                          </div>
+                          <div className="relative">
+                            <Card className="border-0 shadow-lg overflow-hidden"><CardContent className="p-0">
+                              <div className="select-none pointer-events-none">
+                                <ResumePreview text={editedText} templateId={activeVisualTemplate} fontSize={fontSize} />
+                              </div>
+                              <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t from-white via-white/95 to-transparent" />
+                            </CardContent></Card>
+                            <div className="absolute bottom-0 left-0 right-0 pb-8 pt-16 flex flex-col items-center bg-gradient-to-t from-white to-transparent">
+                              <Card className="border-2 border-primary/20 shadow-2xl max-w-md w-full">
+                                <CardContent className="p-8 text-center">
+                                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                                    <Lock size={24} className="text-primary" />
+                                  </div>
+                                  <h3 className="text-xl font-bold mb-2">Unlock Your Full Resume</h3>
+                                  <p className="text-muted-foreground text-sm mb-1">Get the complete AI-improved resume, edit freely, and download as a professional PDF.</p>
+                                  <p className="text-xs text-muted-foreground mb-5">One-time payment per resume. Instant access.</p>
+                                  <Button onClick={handleCheckout} size="lg" className="rounded-full px-10 shadow-lg" data-testid="preview-pay-btn">
+                                    <Lock size={16} className="mr-2" /> Pay {pricing?.currency || "EUR"} {pricing?.price || "19.99"} to Unlock
+                                  </Button>
+                                </CardContent>
+                              </Card>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                      /* FULL ACCESS MODE: Editing, templates, download */
                       <div className="space-y-4">
                         <div className="flex items-center justify-between flex-wrap gap-3">
                           <h3 className="text-xl font-bold">Your Improved Resume</h3>
@@ -658,6 +690,7 @@ const ResumeOptimizerPage = () => {
                         </CardContent></Card>
                         {!hasDownloadAccess && <p className="text-center text-sm text-muted-foreground">Edit your resume freely. Switch templates instantly. Pay only to download the final version.</p>}
                       </div>
+                      )
                     ) : (
                       <Card className="max-w-2xl mx-auto"><CardContent className="p-8 text-center">
                         <Sparkles size={40} className="text-primary mx-auto mb-4" />
