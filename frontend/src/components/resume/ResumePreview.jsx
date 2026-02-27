@@ -45,18 +45,40 @@ function renderHtmlContent(html, tplId, fSize) {
   const accent = accents[tplId] || accents.classic;
   const font = fonts[tplId] || fonts.classic;
 
-  // Build styled HTML with template-specific classes
+  // Build styled HTML with template-specific headings
+  let h2Style;
+  if (tplId === "bold") {
+    h2Style = `font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:${Math.max(10, fSize - 2)}px;color:#fff;background:${accent};padding:4px 10px;border-radius:4px;margin:16px 0 8px;display:inline-block;`;
+  } else if (tplId === "minimal") {
+    h2Style = `font-weight:500;text-transform:uppercase;letter-spacing:4px;font-size:${Math.max(9, fSize - 3)}px;color:${accent};margin:18px 0 10px;`;
+  } else {
+    h2Style = `font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:${Math.max(10, fSize - 2)}px;color:${accent};border-bottom:2px solid ${accent}30;padding-bottom:4px;margin:16px 0 8px;`;
+  }
+
   let styledHtml = html
-    // Bold headings with accent color and border
-    .replace(/<h2>/g, `<h2 style="font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:${Math.max(10, fSize - 2)}px;color:${accent};border-bottom:2px solid ${accent}30;padding-bottom:4px;margin:16px 0 8px;">`)
-    // Make paragraphs properly sized
+    .replace(/<h2>/g, `<h2 style="${h2Style}">`)
     .replace(/<p>/g, `<p style="font-size:${fs};line-height:1.6;color:#374151;margin:2px 0;">`)
-    // Style list items
     .replace(/<ul>/g, `<ul style="padding-left:20px;margin:4px 0;list-style-type:disc;">`)
     .replace(/<li>/g, `<li style="font-size:${fs};line-height:1.6;color:#374151;margin-bottom:2px;">`)
-    // Horizontal rules
     .replace(/<hr>/g, `<hr style="border:none;border-top:1px solid ${accent}30;margin:12px 0;">`)
     .replace(/<hr\/>/g, `<hr style="border:none;border-top:1px solid ${accent}30;margin:12px 0;">`);
+
+  // Name styling for HTML content - detect first <p> as name, second as contact
+  const nameColor = tplId === "modern" || tplId === "creative" ? accent : tplId === "elegant" ? "#115e59" : tplId === "corporate" ? "#1e3a5f" : "#1a1a2e";
+  let firstPDone = false;
+  let contactDone = false;
+  styledHtml = styledHtml.replace(/<p style="[^"]*">([\s\S]*?)<\/p>/gi, (match, content) => {
+    const text = content.replace(/<[^>]*>/g, "").trim();
+    if (!firstPDone && text && !/^[A-Z][A-Z\s\/&,]{3,}$/.test(text) && !text.startsWith("-")) {
+      firstPDone = true;
+      return `<div style="font-size:${fSize + 8}px;font-weight:700;color:${nameColor};margin-bottom:2px;">${content}</div>`;
+    }
+    if (firstPDone && !contactDone && (text.includes("@") || text.includes("|") || /\+?\d[\d\s\-()]{5,}/.test(text))) {
+      contactDone = true;
+      return `<div style="font-size:${Math.max(10, fSize - 2)}px;color:#6b7280;margin-bottom:12px;">${content}</div>`;
+    }
+    return match;
+  });;
 
   // Executive template: dark header
   if (tplId === "executive") {
