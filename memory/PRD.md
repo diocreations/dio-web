@@ -4,73 +4,69 @@
 Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide features to make it deploy-ready.
 
 ## All Features - COMPLETE
-- **Backend Refactoring**: 3598-line server.py -> 16 modular route files
-- **Resume Optimizer**: Upload, AI analysis, 8 visual templates, inline editing, font size controls
-- **Rich Text Editor**: Bold, Italic, Underline, Heading, Bullet list, Divider, Font Color (9 colors), Undo/Redo
-- **Professional PDF Download**: ATS-friendly styling, smart filename (firstname-lastname-title-date.pdf)
-- **Quick Fix (Fix My Resume)**: One-click AI fix preserving original structure
-- **Copy from Comparison**: Upload a 2nd resume, compare scores, copy comparison text to editor
-- **Payment-Gated Content (Per-Resume)**: 
-  - Analysis = FREE (scores, strengths, weaknesses, keywords, suggestions)
-  - Quick-fix/Improve text = PREVIEW only (first 8 lines) until paid
-  - LinkedIn full results = PARTIAL (1 headline, 2 keywords) until paid
-  - Each payment covers 1 resume + 1 LinkedIn optimization
-  - Backend enforces gating (no client-side bypass possible)
-  - LinkedIn results stored in `linkedin_optimizations` collection
-- **Resume Score Comparison**: Upload second version, side-by-side bars, delta badges
-- **LinkedIn Optimizer**: URL scraping, manual input, AI optimization, server-side paywall
-- **Google Sign-In**: Emergent Auth for public users
-- **Google Drive Upload**: Full OAuth flow
-- **24-Hour Data Cleanup**: Background asyncio task
-- **Subdomain Support**: resume.diocreations.eu middleware + frontend routing
-- **Bulk Currency Update**: Admin bulk currency change
-- **Admin Panel**: Full CMS, resume analytics, template management
-- **Cover Letter Generator**: AI-powered
-- **Website Builder**: AI-generated with Stripe checkout
-- **Email Receipt After Payment**: Professional HTML receipt sent via Resend (BackgroundTasks) after Stripe verification. Includes product name, amount, currency, date, receipt #, resume filename. Email prompt modal collects email before checkout. Gracefully skips if RESEND_API_KEY not set.
+
+### Core Resume Optimizer
+- Upload PDF/DOCX, AI analysis (scores, strengths, weaknesses, keywords), 8 visual templates
+- Quick Fix (Fix My Resume) preserving original structure, full AI rewrite with template
+- Rich Text Editor: Bold, Italic, Underline, Heading, Bullet list, Divider, Font Color (9 colors), Undo/Redo
+- Professional PDF Download with smart filename (firstname-lastname-title-date.pdf)
+- Copy from Comparison: Upload 2nd resume, compare scores, copy text to editor
+- Resume Score Comparison: Side-by-side bars with delta badges
+
+### Payment System (Per-Resume Gating)
+- Backend enforces: unpaid = preview only (8 lines), paid = full text
+- LinkedIn: partial data (1 headline, 2 keywords) until paid
+- Stripe checkout with referral code support
+- Email receipt via Resend (BackgroundTasks) after payment
+- Email prompt modal collects email before checkout
+
+### Admin SEO Manager (NEW)
+- **Global tab**: Site title, description, default keywords (add/remove), OG image, Google/Bing verification
+- **Pages tab**: 9 site pages with per-page title, description, keywords, OG settings, canonical URL
+- **Advanced tab**: Schema.org JSON-LD config, robots.txt custom rules, custom head tags
+- **Dynamic sitemap.xml**: Includes all static pages, published blogs, services, portfolio
+- **robots.txt**: Auto-generated with custom rules support
+- **SEO injection**: Layout.jsx dynamically sets meta tags per route (title, description, keywords, og:*, twitter:*, canonical, JSON-LD)
+
+### Referral Discount System (NEW)
+- Unique DIO-XXXXXX referral codes per user
+- 20% discount for referred users, 10% earnings for referrer
+- Referral validation at checkout, self-use prevention
+- Admin config: enable/disable, adjust percentages, max uses
+- Admin stats: total codes, uses, discount given, top referrers
+- URL-based activation: /resume-optimizer?ref=CODE
+
+### User Dashboard (NEW)
+- **Resumes tab**: Full resume history with versions (filename, scores, paid status, dates, open link)
+- **Payments tab**: Payment history with status, amount, currency, date
+- **Cover Letters tab**: All generated cover letters with job title, company, tone
+- **Referral tab**: Generate code, copy link, see usage count & earnings
+- **Stats cards**: Total resumes, paid downloads, AI analyses, cover letters
+
+### Other Features
+- LinkedIn Optimizer: URL scraping, manual input, AI optimization, server-side paywall
+- Google Sign-In (Emergent Auth), Google Drive upload
+- 24-Hour Data Cleanup, Subdomain Support
+- Bulk Currency Update, Admin Panel (CMS, analytics, templates)
+- Cover Letter Generator, Website Builder, Chatbot
 
 ## Architecture
 - Frontend: React + Tailwind + Shadcn/UI + Framer Motion
-- Backend: FastAPI + MongoDB (motor) + 16 modular route files
+- Backend: FastAPI + MongoDB (motor) + 18 modular route files
 - Integrations: Stripe, Gemini, Emergent Google Auth, Google Drive, Resend
 
-## Key Credentials
-- Admin: admin@diocreations.com / adminpassword
-- Super Admin (Google): jomiejoseph@gmail.com
-
-## Payment Logic (Per-Resume)
-| Feature | Free | Paid |
-|---------|------|------|
-| Upload resume | Yes | Yes |
-| AI Analysis (scores, strengths, weaknesses) | Yes | Yes |
-| Quick-fix / Improve text | Preview (8 lines) | Full text |
-| Rich text editing | No | Yes |
-| PDF Download | No | Yes |
-| LinkedIn optimization | 1 headline, 2 keywords | Full results |
-| Templates selection | Yes | Yes |
-
-## Key API Endpoints
-- POST /api/resume/upload - Upload PDF/DOCX
-- POST /api/resume/analyze - AI analysis (FREE)
-- POST /api/resume/quick-fix - Apply AI fixes (preview/full based on payment)
-- POST /api/resume/improve - Full AI rewrite (preview/full based on payment)
-- GET /api/resume/get-text/{resume_id} - Get resume text (for copy feature)
-- POST /api/resume/checkout - Stripe checkout
-- POST /api/resume/verify-payment - Verify Stripe payment
-- POST /api/resume/linkedin - LinkedIn optimization (partial/full based on payment)
+## Key DB Collections
+- seo_global, seo_pages (SEO settings)
+- referral_config, referral_codes, referral_uses (Referral system)
+- resume_uploads, resume_analyses, resume_improvements, resume_payments
+- linkedin_optimizations, cover_letters
 
 ## Testing Status
-- Iteration 17: 12/12 backend + full frontend (features verified)
-- Iteration 18: 12/12 backend + full frontend (payment-gating verified)
-- Iteration 19: 10/10 backend + full frontend (email receipt verified)
+- Iteration 17: 12/12 (features)
+- Iteration 18: 12/12 (payment-gating)
+- Iteration 19: 10/10 (email receipt)
+- Iteration 20: 19/19 (SEO + referral + dashboard)
 
-## Visual Templates (8 total)
-Classic, Modern, Executive, Minimal, Bold, Elegant, Corporate, Creative
-
-## DB Collections
-- resume_uploads, resume_analyses, resume_improvements, resume_payments
-- linkedin_optimizations (NEW - caches LinkedIn results)
-- resume_pricing, resume_templates
-
-## Subdomain Note
-resume.diocreations.eu CNAME exists but SSL provisioning needed on platform side.
+## Credentials
+- Admin: admin@diocreations.com / adminpassword
+- Super Admin (Google): jomiejoseph@gmail.com
