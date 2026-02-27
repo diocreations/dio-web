@@ -15,6 +15,20 @@ from io import BytesIO
 router = APIRouter(prefix="/api")
 
 
+async def is_resume_paid(resume_id: str) -> bool:
+    """Check if payment exists for a specific resume"""
+    payment = await db.resume_payments.find_one(
+        {"resume_id": resume_id, "status": "paid"}, {"_id": 0}
+    )
+    return payment is not None
+
+
+def truncate_preview(text: str, max_lines: int = 8) -> str:
+    """Return first N lines as a teaser preview"""
+    lines = text.split("\n")
+    return "\n".join(lines[:max_lines])
+
+
 def extract_text_from_pdf(file_bytes: bytes) -> str:
     doc = fitz.open(stream=file_bytes, filetype="pdf")
     text = ""
