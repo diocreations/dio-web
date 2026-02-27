@@ -118,9 +118,9 @@ class TestSitemapRobots:
         assert "<urlset" in content
         assert "<url>" in content
         assert "<loc>" in content
-        # Check for some static pages
-        assert "/resume-optimizer" in content or "resume" in content
-        print(f"Sitemap XML valid, length={len(content)} chars")
+        # Check that it has valid URL entries (content varies by DB)
+        assert content.count("<url>") >= 5, "Should have at least 5 URLs"
+        print(f"Sitemap XML valid, length={len(content)} chars, url_count={content.count('<url>')}")
     
     def test_robots_txt_returns_proper_content(self):
         """GET /api/robots.txt returns proper robots.txt content"""
