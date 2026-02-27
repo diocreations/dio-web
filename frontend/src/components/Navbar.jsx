@@ -116,15 +116,29 @@ const Navbar = () => {
                 <User size={14} className="mr-1" /> {pubUser.name || "Dashboard"}
               </Button>
             ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full"
-                onClick={() => navigate("/login")}
-                data-testid="nav-login"
-              >
-                <User size={14} className="mr-1" /> Sign In
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full border-slate-200 hover:bg-slate-50"
+                  onClick={() => {
+                    const redirectUrl = `${window.location.origin}/login`;
+                    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+                  }}
+                  data-testid="nav-google-signin"
+                >
+                  <GoogleIcon size={16} /> Google
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-foreground"
+                  onClick={() => navigate("/login")}
+                  data-testid="nav-login"
+                >
+                  <LogIn size={14} className="mr-1" /> Sign In
+                </Button>
+              </div>
             )}
             <Button
               asChild
