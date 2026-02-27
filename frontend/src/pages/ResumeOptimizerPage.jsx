@@ -77,18 +77,63 @@ const ResumeOptimizerPage = () => {
     if (sid && rid) {
       setResumeId(rid);
       setStep(4);
-      fetch(`${API_URL}/api/resume/verify-payment`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: sid, resume_id: rid }),
-      }).then((r) => r.json()).then((d) => { if (d.paid) setHasDownloadAccess(true); }).catch(() => {});
-      fetch(`${API_URL}/api/resume/analyze`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resume_id: rid }),
-      }).then((r) => r.json()).then(setAnalysis).catch(() => {});
-      fetch(`${API_URL}/api/resume/improve`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resume_id: rid }),
-      }).then((r) => r.json()).then((d) => { setImproved(d); setEditedText(d.improved_text || ""); }).catch(() => {});
+      setPaymentLoading(true);
+
+      // Verify payment with retry (Stripe sometimes needs a moment to process)
+      const verifyPayment = async (retries = 3) => {
+        for (let i = 0; i < retries; i++) {
+          try {
+            const res = await fetch(`${API_URL}/api/resume/verify-payment`, {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ session_id: sid, resume_id: rid }),
+            });
+            const d = await res.json();
+            if (d.paid) {
+              setHasDownloadAccess(true);
+              toast.success("Payment successful! You can now download your resume.");
+              return true;
+            }
+          } catch {}
+          // Wait before retry (1s, 2s, 3s)
+          if (i < retries - 1) await new Promise(r => setTimeout(r, (i + 1) * 1000));
+        }
+        // Final fallback: check by resume_id
+        try {
+          const res = await fetch(`${API_URL}/api/resume/payment-status/${rid}`);
+          const d = await res.json();
+          if (d.paid) {
+            setHasDownloadAccess(true);
+            toast.success("Payment confirmed! You can now download your resume.");
+            return true;
+          }
+        } catch {}
+        toast.error("Payment verification pending. If you paid, please refresh the page.");
+        return false;
+      };
+
+      // Load data and verify payment in parallel
+      const loadData = async () => {
+        try {
+          const [analysisRes, improveRes] = await Promise.all([
+            fetch(`${API_URL}/api/resume/analyze`, {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ resume_id: rid }),
+            }),
+            fetch(`${API_URL}/api/resume/improve`, {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ resume_id: rid }),
+            }),
+          ]);
+          if (analysisRes.ok) setAnalysis(await analysisRes.json());
+          if (improveRes.ok) {
+            const data = await improveRes.json();
+            setImproved(data);
+            setEditedText(data.improved_text || "");
+          }
+        } catch {}
+      };
+
+      Promise.all([verifyPayment(), loadData()]).finally(() => setPaymentLoading(false));
     }
   }, [searchParams]);
 
