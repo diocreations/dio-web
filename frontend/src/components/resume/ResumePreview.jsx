@@ -203,6 +203,59 @@ const ResumePreview = ({ text, templateId, editing, onTextChange, fontSize = 13 
     );
   }
 
+  if (tpl === "elegant") {
+    return (
+      <div className="bg-white p-8 md:p-12 max-w-[780px] mx-auto" data-testid="resume-preview" style={{ fontFamily: "Georgia, 'Palatino Linotype', serif" }}>
+        {nameLines[0] && <div className="font-bold text-teal-800 tracking-wide mb-1" style={{ fontSize: nameFs }}>{nameLines[0]}</div>}
+        {nameLines.slice(1).map((l, i) => <div key={i} className="text-teal-600/70 tracking-wide" style={{ fontSize: `${fontSize - 2}px` }}>{l}</div>)}
+        {nameLines.length > 0 && <div className="border-b-2 border-teal-600/40 mt-4 mb-3" />}
+        {sections.map((s, si) => (
+          <div key={si} className="mb-5">
+            <div className="font-semibold tracking-[2px] uppercase text-teal-700 border-b border-teal-300/50 pb-1 mb-2" style={{ fontSize: headerFs }}>{s.title}</div>
+            <ul className="list-none">{s.lines.map((l, li) => renderBullet(l, li, "bg-teal-500", "leading-relaxed text-slate-700"))}</ul>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (tpl === "corporate") {
+    return (
+      <div className="max-w-[780px] mx-auto flex" data-testid="resume-preview" style={{ fontFamily: "'Segoe UI', Calibri, Arial, sans-serif" }}>
+        <div className="w-2 bg-[#1e3a5f] flex-shrink-0" />
+        <div className="flex-1 bg-white p-8 md:p-10">
+          {nameLines[0] && <div className="font-bold text-[#1e3a5f] mb-0.5" style={{ fontSize: nameFs }}>{nameLines[0]}</div>}
+          {nameLines.slice(1).map((l, i) => <div key={i} className="text-slate-500" style={{ fontSize: `${fontSize - 1}px` }}>{l}</div>)}
+          {nameLines.length > 0 && <div className="h-0.5 bg-[#1e3a5f]/20 mt-3 mb-4" />}
+          {sections.map((s, si) => (
+            <div key={si} className="mb-5">
+              <div className="font-bold tracking-[2px] uppercase text-[#1e3a5f] mb-2 flex items-center gap-2" style={{ fontSize: headerFs }}>
+                <div className="w-2 h-2 bg-[#1e3a5f] rounded-sm" />{s.title}
+              </div>
+              <ul className="list-none">{s.lines.map((l, li) => renderBullet(l, li, "bg-[#1e3a5f]", "leading-relaxed text-slate-700"))}</ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (tpl === "creative") {
+    return (
+      <div className="bg-white p-8 md:p-12 max-w-[780px] mx-auto" data-testid="resume-preview" style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
+        {nameLines[0] && <div className="font-extrabold text-purple-700 mb-0.5" style={{ fontSize: `${fontSize + 14}px` }}>{nameLines[0]}</div>}
+        {nameLines.slice(1).map((l, i) => <div key={i} className="text-purple-400" style={{ fontSize: `${fontSize - 1}px` }}>{l}</div>)}
+        {nameLines.length > 0 && <div className="h-1 bg-gradient-to-r from-purple-600 to-violet-400 mt-3 mb-4 w-32 rounded-full" />}
+        {sections.map((s, si) => (
+          <div key={si} className="mb-5">
+            <div className="font-bold tracking-[2px] uppercase text-purple-600 border-b-2 border-purple-200 pb-1 mb-2" style={{ fontSize: headerFs }}>{s.title}</div>
+            <ul className="list-none">{s.lines.map((l, li) => renderBullet(l, li, "bg-purple-500", "leading-relaxed text-slate-700"))}</ul>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   // BOLD template
   return (
     <div className="bg-white p-8 md:p-12 max-w-[780px] mx-auto" data-testid="resume-preview" style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
