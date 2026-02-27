@@ -23,6 +23,61 @@ const SITE_PAGES = [
   { slug: "cover-letter", label: "Cover Letter", path: "/cover-letter" },
 ];
 
+const PageSeoCard = ({ page, seo, saving, updatePageField, addPageKeyword, removePageKeyword, savePage }) => {
+  const [pkw, setPkw] = useState("");
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base flex items-center justify-between">
+          <span className="flex items-center gap-2"><FileText size={16} /> {page.label} <code className="text-xs bg-slate-100 px-1.5 py-0.5 rounded">{page.path}</code></span>
+          <Button size="sm" variant="outline" onClick={() => savePage(page.slug)} disabled={saving} className="rounded-full text-xs" data-testid={`save-page-seo-${page.slug}`}><Save size={12} className="mr-1" /> Save</Button>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs">Page Title</Label>
+            <Input value={seo.title || ""} onChange={(e) => updatePageField(page.slug, "title", e.target.value)} placeholder={`${page.label} - DioCreations`} className="text-sm" data-testid={`page-title-${page.slug}`} />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Canonical URL</Label>
+            <Input value={seo.canonical_url || ""} onChange={(e) => updatePageField(page.slug, "canonical_url", e.target.value)} placeholder={`https://diocreations.eu${page.path}`} className="text-sm" />
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">Meta Description</Label>
+          <Textarea value={seo.description || ""} onChange={(e) => updatePageField(page.slug, "description", e.target.value)} rows={2} className="text-sm" data-testid={`page-desc-${page.slug}`} placeholder="Page-specific description for search results..." />
+          <p className="text-[10px] text-muted-foreground">{(seo.description || "").length}/160</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs">OG Title (Social Share)</Label>
+            <Input value={seo.og_title || ""} onChange={(e) => updatePageField(page.slug, "og_title", e.target.value)} className="text-sm" placeholder="Title for social media" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">OG Image URL</Label>
+            <Input value={seo.og_image || ""} onChange={(e) => updatePageField(page.slug, "og_image", e.target.value)} className="text-sm" placeholder="https://..." />
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">Page Keywords</Label>
+          <div className="flex flex-wrap gap-1.5 mb-1.5">
+            {(seo.keywords || []).map((kw, i) => (
+              <span key={i} className="inline-flex items-center gap-0.5 px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs">
+                {kw}<button onClick={() => removePageKeyword(page.slug, i)}><X size={10} /></button>
+              </span>
+            ))}
+          </div>
+          <div className="flex gap-1.5">
+            <Input value={pkw} onChange={(e) => setPkw(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addPageKeyword(page.slug, pkw); setPkw(""); } }} placeholder="Add keyword..." className="text-sm max-w-[200px]" />
+            <Button type="button" variant="ghost" size="sm" onClick={() => { addPageKeyword(page.slug, pkw); setPkw(""); }} className="text-xs"><Plus size={12} /></Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 const AdminSeo = () => {
   const [globalSeo, setGlobalSeo] = useState(null);
   const [pageSeo, setPageSeo] = useState({});
