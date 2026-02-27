@@ -692,7 +692,7 @@ const ResumeOptimizerPage = () => {
                                   <p className="text-muted-foreground text-sm mb-1">Get the complete AI-improved resume, edit freely, and download as a professional PDF.</p>
                                   <p className="text-xs text-muted-foreground mb-5">One-time payment per resume. Instant access.</p>
                                   <Button onClick={handleCheckout} size="lg" className="rounded-full px-10 shadow-lg" data-testid="preview-pay-btn">
-                                    <Lock size={16} className="mr-2" /> Pay {pricing?.currency || "EUR"} {pricing?.price || "19.99"} to Unlock
+                                    <Lock size={16} className="mr-2" /> Pay {displayPrice()} to Unlock
                                   </Button>
                                 </CardContent>
                               </Card>
@@ -716,7 +716,7 @@ const ResumeOptimizerPage = () => {
                             {hasDownloadAccess ? (
                               <Button onClick={handleDownloadPDF} className="rounded-full" data-testid="download-pdf-btn"><Download size={18} className="mr-2" /> Download / Print</Button>
                             ) : (
-                              <Button onClick={handleCheckout} className="rounded-full bg-primary" data-testid="pay-download-btn"><Lock size={16} className="mr-2" /> Pay {pricing?.currency || "EUR"} {pricing?.price || "19.99"} to Download</Button>
+                              <Button onClick={handleCheckout} className="rounded-full bg-primary" data-testid="pay-download-btn"><Lock size={16} className="mr-2" /> Pay {displayPrice()} to Download</Button>
                             )}
                           </div>
                         </div>
