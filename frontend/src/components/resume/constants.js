@@ -29,6 +29,24 @@ export const VISUAL_TEMPLATES = [
     desc: "Large headers with strong color blocks",
     preview: { bg: "#fff", accent: "#dc2626", font: "sans", layout: "bold" },
   },
+  {
+    id: "elegant",
+    name: "Elegant",
+    desc: "Soft teal accents with refined spacing",
+    preview: { bg: "#fff", accent: "#0d9488", font: "serif", layout: "centered" },
+  },
+  {
+    id: "corporate",
+    name: "Corporate",
+    desc: "Professional navy sidebar style",
+    preview: { bg: "#f8fafc", accent: "#1e3a5f", font: "sans", layout: "sidebar" },
+  },
+  {
+    id: "creative",
+    name: "Creative",
+    desc: "Vibrant purple accents with modern flair",
+    preview: { bg: "#fff", accent: "#7c3aed", font: "sans", layout: "left" },
+  },
 ];
 
 export const STEPS = [
