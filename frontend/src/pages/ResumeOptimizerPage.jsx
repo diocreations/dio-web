@@ -643,6 +643,7 @@ const ResumeOptimizerPage = () => {
                     )}
                   </TabsContent>
                 </Tabs>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
