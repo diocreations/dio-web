@@ -213,9 +213,11 @@ const ResumeOptimizerPage = () => {
       return;
     }
     try {
+      const body = { resume_id: resumeId, email: checkoutEmail, origin_url: window.location.origin };
+      if (referralCode && referralDiscount) body.referral_code = referralCode;
       const res = await fetch(`${API_URL}/api/resume/checkout`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resume_id: resumeId, email: checkoutEmail, origin_url: window.location.origin }),
+        body: JSON.stringify(body),
       });
       if (res.ok) {
         const data = await res.json();
