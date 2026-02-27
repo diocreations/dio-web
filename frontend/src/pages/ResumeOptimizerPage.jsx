@@ -158,6 +158,7 @@ const ResumeOptimizerPage = () => {
             if (qfData.fixed_text && !qfData.is_preview) {
               setImproved({ improved_text: qfData.fixed_text, resume_id: rid, is_preview: false });
               setEditedText(qfData.fixed_text);
+              setOriginalImprovedText(qfData.fixed_text); // Store original for reset
               gotImproved = true;
             }
           }
@@ -170,6 +171,7 @@ const ResumeOptimizerPage = () => {
               const data = await improveRes.json();
               setImproved(data);
               setEditedText(data.improved_text || "");
+              setOriginalImprovedText(data.improved_text || ""); // Store original for reset
             }
           }
           // Also re-fetch LinkedIn optimization if it exists (now returns full data after payment)
