@@ -47,6 +47,7 @@ const AdminLayout = ({ children }) => {
     { name: "Templates", path: "/admin/templates", icon: LayoutIcon },
     { name: "Menus", path: "/admin/menus", icon: Navigation },
     { name: "Currency", path: "/admin/currency", icon: DollarSign },
+    { name: "SEO Manager", path: "/admin/seo", icon: Search },
     { name: "About Page", path: "/admin/about", icon: Info },
     { name: "Users", path: "/admin/users", icon: UserCog },
     { name: "Settings", path: "/admin/settings", icon: Settings },
