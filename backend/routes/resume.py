@@ -242,6 +242,23 @@ async def quick_fix_resume(data: dict):
     resume_id = data.get("resume_id")
     if not resume_id:
         raise HTTPException(status_code=400, detail="resume_id required")
+
+    paid = await is_resume_paid(resume_id)
+
+    # Check for cached result first
+    existing = await db.resume_improvements.find_one(
+        {"resume_id": resume_id, "fix_type": "quick_fix"}, {"_id": 0}
+    )
+    if existing:
+        if paid:
+            return existing
+        return {
+            "resume_id": resume_id,
+            "fixed_text": truncate_preview(existing.get("fixed_text", "")),
+            "is_preview": True,
+            "fix_type": "quick_fix",
+        }
+
     upload = await db.resume_uploads.find_one({"resume_id": resume_id}, {"_id": 0})
     if not upload:
         raise HTTPException(status_code=404, detail="Resume not found")
@@ -263,7 +280,7 @@ CRITICAL RULES:
 - Do NOT reorganize or restructure the resume.
 - Fix grammar, spelling, and awkward phrasing.
 - Replace weak action verbs with strong ones (Led, Architected, Implemented, Optimized, etc.).
-- Add specific numbers and metrics where possible (e.g., "managed team" → "managed team of 8").
+- Add specific numbers and metrics where possible (e.g., "managed team" -> "managed team of 8").
 - Naturally incorporate these missing ATS keywords where relevant: {keywords}
 - Fix these identified weaknesses:
 {weaknesses}
@@ -300,7 +317,15 @@ Output the FIXED resume now (same structure, improved content):"""
         {"$set": result},
         upsert=True,
     )
-    return result
+
+    if paid:
+        return result
+    return {
+        "resume_id": resume_id,
+        "fixed_text": truncate_preview(fixed_text),
+        "is_preview": True,
+        "fix_type": "quick_fix",
+    }
 
 
 @router.get("/resume/get-text/{resume_id}")
