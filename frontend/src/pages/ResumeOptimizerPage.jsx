@@ -515,7 +515,7 @@ const ResumeOptimizerPage = () => {
       extraCss += `body{border-left:5px solid ${c.accent} !important;padding-left:28px !important;}`;
     }
     if (c.headerBg) {
-      extraCss += `.header-block{background:${c.headerBg} !important;color:${c.headerColor} !important;padding:24px 32px 20px;margin:-36px -48px 20px;print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}`;
+      extraCss += `.header-block{background:${c.headerBg} !important;color:${c.headerColor} !important;padding:20px 24px 16px;margin:-24px -24px 16px;print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}`;
       extraCss += `.header-block .resume-name{color:${c.headerColor} !important;}`;
       extraCss += `.header-block .resume-contact{color:rgba(255,255,255,0.7) !important;}`;
     }
@@ -526,32 +526,33 @@ const ResumeOptimizerPage = () => {
     win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${filename}</title><style>
       *{margin:0;padding:0;box-sizing:border-box}
       html,body{print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}
-      body{font-family:${c.font};max-width:780px;margin:0 auto;padding:36px 48px;line-height:1.55;color:${c.bodyColor};font-size:10pt;}
+      body{font-family:${c.font};width:100%;max-width:100%;margin:0;padding:24px;line-height:1.5;color:${c.bodyColor};font-size:10pt;}
       ${extraCss}
-      .resume-name{font-size:${c.nameSize};font-weight:700;color:${c.accent};letter-spacing:0.5px;margin-bottom:4px;text-align:${c.nameAlign};}
-      .resume-contact{font-size:${c.contactSize};color:#666;margin-bottom:2px;line-height:1.4;text-align:${c.nameAlign};}
+      .resume-name{font-size:${c.nameSize};font-weight:700;color:${c.accent};letter-spacing:0.5px;margin-bottom:2px;text-align:${c.nameAlign};}
+      .resume-contact{font-size:${c.contactSize};color:#555;margin-bottom:1px;line-height:1.35;text-align:${c.nameAlign};}
       .resume-contact a{color:${c.accent};text-decoration:none;}
       .accent-bar{${c.accentBar || "display:none;"}}
-      h2{font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;${c.h2Style}margin:16px 0 8px;}
-      h3{font-size:9.5pt;font-weight:600;color:${c.bodyColor};margin:10px 0 4px;}
-      .job-header{display:flex;justify-content:space-between;align-items:baseline;margin:10px 0 4px;flex-wrap:wrap;gap:8px;}
+      h2{font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;${c.h2Style}margin:14px 0 6px;}
+      h3{font-size:9.5pt;font-weight:600;color:${c.bodyColor};margin:8px 0 3px;}
+      .job-header{display:flex;justify-content:space-between;align-items:baseline;margin:8px 0 3px;flex-wrap:wrap;gap:6px;}
       .job-title{font-weight:700;font-size:10pt;color:${c.bodyColor};}
-      .job-dates{font-style:italic;color:#888;font-size:9pt;}
-      p{margin:3px 0;line-height:1.55;font-size:10pt;}
-      ul{padding-left:20px;margin:4px 0 8px;list-style-type:disc;}
-      ol{padding-left:20px;margin:4px 0 8px;}
-      li{margin-bottom:3px;line-height:1.5;font-size:10pt;}
+      .job-dates{font-style:italic;color:#777;font-size:9pt;}
+      p{margin:2px 0;line-height:1.5;font-size:10pt;}
+      ul{padding-left:18px;margin:3px 0 6px;list-style-type:disc;}
+      ol{padding-left:18px;margin:3px 0 6px;}
+      li{margin-bottom:2px;line-height:1.45;font-size:10pt;}
       strong,b{font-weight:700;}em,i{font-style:italic;}s,strike{text-decoration:line-through;}
       a{color:${c.accent};text-decoration:none;}
-      hr{border:none;border-top:1px solid #e5e7eb;margin:10px 0;}
+      hr{border:none;border-top:1px solid #ddd;margin:8px 0;}
       @media print{
         html,body{print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}
-        body{margin:0;padding:24px 36px;max-width:100%;}
-        @page{margin:0.4in 0.5in;size:A4;}
+        body{margin:0;padding:0;width:100%;max-width:100%;}
+        @page{margin:0.5in 0.6in;size:A4;}
         h2{print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}
         .header-block{print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}
       }
     </style></head><body>`);
+
 
     // Parse content and build HTML
     if (isHtmlContent) {
