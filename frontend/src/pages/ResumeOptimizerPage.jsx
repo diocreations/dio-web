@@ -58,6 +58,8 @@ const ResumeOptimizerPage = () => {
   const [useOriginalLayout, setUseOriginalLayout] = useState(true);
   const [checkoutEmail, setCheckoutEmail] = useState("");
   const [showEmailPrompt, setShowEmailPrompt] = useState(false);
+  const [referralCode, setReferralCode] = useState("");
+  const [referralDiscount, setReferralDiscount] = useState(null);
 
   useEffect(() => {
     fetch(`${API_URL}/api/resume/pricing`).then((r) => r.json()).then(setPricing).catch(() => {});
