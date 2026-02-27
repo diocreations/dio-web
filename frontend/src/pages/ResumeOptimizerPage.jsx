@@ -892,6 +892,55 @@ const ResumeOptimizerPage = () => {
           </AnimatePresence>
         </section>
       </div>
+
+      {/* Email prompt modal for checkout */}
+      <AnimatePresence>
+        {showEmailPrompt && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowEmailPrompt(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden"
+            >
+              <div className="bg-primary/5 p-6 text-center">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <Zap size={22} className="text-primary" />
+                </div>
+                <h3 className="text-lg font-bold" data-testid="email-prompt-title">Almost there!</h3>
+                <p className="text-sm text-muted-foreground mt-1">Enter your email to receive a payment receipt</p>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <Label htmlFor="checkout-email" className="text-sm font-medium">Email Address</Label>
+                  <Input
+                    id="checkout-email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={checkoutEmail}
+                    onChange={(e) => setCheckoutEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && submitEmailAndCheckout()}
+                    className="mt-1.5"
+                    data-testid="checkout-email-input"
+                    autoFocus
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" className="flex-1 rounded-full" onClick={() => setShowEmailPrompt(false)}>Cancel</Button>
+                  <Button className="flex-1 rounded-full" onClick={submitEmailAndCheckout} data-testid="proceed-to-payment-btn">
+                    <Lock size={14} className="mr-1.5" /> Proceed to Payment
+                  </Button>
+                </div>
+                <p className="text-[11px] text-center text-muted-foreground">You'll receive a receipt after successful payment</p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </Layout>
   );
 };
