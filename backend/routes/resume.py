@@ -1,5 +1,5 @@
 """Resume optimizer routes: upload, analyze, improve, LinkedIn, pricing, download"""
-from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Request
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Request, BackgroundTasks
 from database import db, EMERGENT_LLM_KEY, logger
 from helpers import get_current_user, get_stripe_api_key
 from emergentintegrations.llm.chat import LlmChat, UserMessage
@@ -8,6 +8,8 @@ from datetime import datetime, timezone
 import uuid
 import json
 import re
+import os
+import asyncio
 import fitz
 from docx import Document as DocxDocument
 from io import BytesIO
