@@ -195,16 +195,29 @@ const ResumeOptimizerPage = () => {
   };
 
   const handleCheckout = async () => {
+    if (!checkoutEmail) {
+      setShowEmailPrompt(true);
+      return;
+    }
     try {
       const res = await fetch(`${API_URL}/api/resume/checkout`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resume_id: resumeId, origin_url: window.location.origin }),
+        body: JSON.stringify({ resume_id: resumeId, email: checkoutEmail, origin_url: window.location.origin }),
       });
       if (res.ok) {
         const data = await res.json();
         window.location.href = data.checkout_url;
       }
     } catch { toast.error("Checkout failed"); }
+  };
+
+  const submitEmailAndCheckout = async () => {
+    if (!checkoutEmail || !checkoutEmail.includes("@")) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    setShowEmailPrompt(false);
+    handleCheckout();
   };
 
   const handleImprove = async (forceRegenerate = false) => {
