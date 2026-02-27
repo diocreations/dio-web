@@ -82,61 +82,74 @@ const ResumeOptimizerPage = () => {
       setStep(4);
       setPaymentLoading(true);
 
-      // Verify payment with retry (Stripe sometimes needs a moment to process)
-      const verifyPayment = async (retries = 3) => {
-        for (let i = 0; i < retries; i++) {
+      // Verify payment FIRST, then load full data (sequential - backend gates responses by payment status)
+      const processPaymentReturn = async () => {
+        // Step 1: Verify payment with retry
+        let paymentConfirmed = false;
+        for (let i = 0; i < 3; i++) {
           try {
             const res = await fetch(`${API_URL}/api/resume/verify-payment`, {
               method: "POST", headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ session_id: sid, resume_id: rid }),
             });
             const d = await res.json();
-            if (d.paid) {
-              setHasDownloadAccess(true);
-              toast.success("Payment successful! You can now download your resume.");
-              return true;
-            }
+            if (d.paid) { paymentConfirmed = true; break; }
           } catch {}
-          // Wait before retry (1s, 2s, 3s)
-          if (i < retries - 1) await new Promise(r => setTimeout(r, (i + 1) * 1000));
+          if (i < 2) await new Promise(r => setTimeout(r, (i + 1) * 1000));
         }
-        // Final fallback: check by resume_id
-        try {
-          const res = await fetch(`${API_URL}/api/resume/payment-status/${rid}`);
-          const d = await res.json();
-          if (d.paid) {
-            setHasDownloadAccess(true);
-            toast.success("Payment confirmed! You can now download your resume.");
-            return true;
-          }
-        } catch {}
-        toast.error("Payment verification pending. If you paid, please refresh the page.");
-        return false;
-      };
+        // Fallback: check by resume_id
+        if (!paymentConfirmed) {
+          try {
+            const res = await fetch(`${API_URL}/api/resume/payment-status/${rid}`);
+            const d = await res.json();
+            if (d.paid) paymentConfirmed = true;
+          } catch {}
+        }
 
-      // Load data and verify payment in parallel
-      const loadData = async () => {
+        if (paymentConfirmed) {
+          setHasDownloadAccess(true);
+          toast.success("Payment successful! You can now download your resume.");
+        } else {
+          toast.error("Payment verification pending. If you paid, please refresh the page.");
+        }
+
+        // Step 2: Load data AFTER payment is verified (so backend returns full text)
         try {
-          const [analysisRes, improveRes] = await Promise.all([
-            fetch(`${API_URL}/api/resume/analyze`, {
-              method: "POST", headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ resume_id: rid }),
-            }),
-            fetch(`${API_URL}/api/resume/improve`, {
-              method: "POST", headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ resume_id: rid }),
-            }),
-          ]);
+          const analysisRes = await fetch(`${API_URL}/api/resume/analyze`, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ resume_id: rid }),
+          });
           if (analysisRes.ok) setAnalysis(await analysisRes.json());
-          if (improveRes.ok) {
-            const data = await improveRes.json();
-            setImproved(data);
-            setEditedText(data.improved_text || "");
+
+          // Try quick-fix first, then improve
+          let gotImproved = false;
+          const qfRes = await fetch(`${API_URL}/api/resume/quick-fix`, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ resume_id: rid }),
+          });
+          if (qfRes.ok) {
+            const qfData = await qfRes.json();
+            if (qfData.fixed_text && !qfData.is_preview) {
+              setImproved({ improved_text: qfData.fixed_text, resume_id: rid, is_preview: false });
+              setEditedText(qfData.fixed_text);
+              gotImproved = true;
+            }
+          }
+          if (!gotImproved) {
+            const improveRes = await fetch(`${API_URL}/api/resume/improve`, {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ resume_id: rid }),
+            });
+            if (improveRes.ok) {
+              const data = await improveRes.json();
+              setImproved(data);
+              setEditedText(data.improved_text || "");
+            }
           }
         } catch {}
       };
 
-      Promise.all([verifyPayment(), loadData()]).finally(() => setPaymentLoading(false));
+      processPaymentReturn().finally(() => setPaymentLoading(false));
     }
   }, [searchParams]);
 
