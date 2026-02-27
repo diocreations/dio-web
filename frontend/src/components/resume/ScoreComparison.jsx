@@ -202,7 +202,41 @@ const ScoreComparison = ({ currentAnalysis, resumeId, onCopyToEditor }) => {
               </div>
 
               {/* Upload another */}
-              <div className="text-center pt-2">
+              <div className="text-center pt-2 flex items-center justify-center gap-3 flex-wrap">
+                {onCopyToEditor && compareResumeId && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="rounded-full"
+                    data-testid="copy-comparison-to-editor"
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(`${API_URL}/api/resume/get-text/${compareResumeId}`);
+                        if (res.ok) {
+                          const data = await res.json();
+                          onCopyToEditor(data.text || compareText || "");
+                          toast.success("Comparison resume copied to editor!");
+                        } else {
+                          if (compareText) {
+                            onCopyToEditor(compareText);
+                            toast.success("Comparison resume copied to editor!");
+                          } else {
+                            toast.error("Could not load comparison text");
+                          }
+                        }
+                      } catch {
+                        if (compareText) {
+                          onCopyToEditor(compareText);
+                          toast.success("Comparison resume copied to editor!");
+                        } else {
+                          toast.error("Could not load comparison text");
+                        }
+                      }
+                    }}
+                  >
+                    <Copy size={14} className="mr-1.5" /> Copy to Editor
+                  </Button>
+                )}
                 <label>
                   <input type="file" accept=".pdf,.docx" onChange={handleCompareUpload} className="hidden" />
                   <Button asChild variant="ghost" size="sm" className="text-xs" data-testid="compare-another-btn">
