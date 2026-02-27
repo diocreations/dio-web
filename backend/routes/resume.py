@@ -393,10 +393,21 @@ async def create_resume_checkout(data: dict, request: Request):
     resume_id = data.get("resume_id")
     customer_email = data.get("email", "")
     origin_url = data.get("origin_url", "")
+    referral_code = data.get("referral_code", "")
     pricing = await get_resume_pricing()
     price = pricing["price"]
     if pricing.get("discount_enabled") and pricing.get("discount_percent", 0) > 0:
         price = round(price * (1 - pricing["discount_percent"] / 100), 2)
+    # Apply referral discount
+    applied_referral = None
+    if referral_code:
+        ref = await db.referral_codes.find_one({"code": referral_code.upper()}, {"_id": 0})
+        ref_config = await db.referral_config.find_one({"config_id": "referral"}, {"_id": 0})
+        if ref and ref_config and ref_config.get("enabled", True):
+            if ref.get("email") != customer_email:
+                discount_pct = ref_config.get("discount_percent", 20)
+                price = round(price * (1 - discount_pct / 100), 2)
+                applied_referral = {"code": referral_code.upper(), "discount_percent": discount_pct}
     currency = pricing.get("currency", "EUR").lower()
     success_url = f"{origin_url}/resume-optimizer?session_id={{CHECKOUT_SESSION_ID}}&resume_id={resume_id}"
     cancel_url = f"{origin_url}/resume-optimizer?resume_id={resume_id}"
@@ -405,14 +416,17 @@ async def create_resume_checkout(data: dict, request: Request):
     stripe_checkout = StripeCheckout(api_key=stripe_api_key, webhook_url=f"{host_url}api/webhook/stripe")
     session = await stripe_checkout.create_checkout_session(CheckoutSessionRequest(
         amount=price, currency=currency, success_url=success_url, cancel_url=cancel_url,
-        metadata={"product_type": "resume_optimizer", "resume_id": resume_id, "customer_email": customer_email},
+        metadata={"product_type": "resume_optimizer", "resume_id": resume_id, "customer_email": customer_email, "referral_code": referral_code},
     ))
-    await db.resume_payments.insert_one({
+    payment_doc = {
         "session_id": session.session_id, "resume_id": resume_id,
         "amount": price, "currency": currency.upper(), "email": customer_email,
         "status": "pending", "created_at": datetime.now(timezone.utc).isoformat(),
-    })
-    return {"checkout_url": session.url, "session_id": session.session_id}
+    }
+    if applied_referral:
+        payment_doc["referral"] = applied_referral
+    await db.resume_payments.insert_one(payment_doc)
+    return {"checkout_url": session.url, "session_id": session.session_id, "final_price": price}
 
 
 @router.get("/resume/payment-status/{resume_id}")
