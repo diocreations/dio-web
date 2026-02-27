@@ -462,6 +462,26 @@ async def verify_resume_payment(data: dict, background_tasks: BackgroundTasks):
                     if upload:
                         filename = upload.get("filename", "")
                 background_tasks.add_task(send_payment_receipt, email, amount, currency, filename, session_id)
+                # Record referral use if applicable
+                ref_data = payment.get("referral")
+                if ref_data and ref_data.get("code"):
+                    ref_config = await db.referral_config.find_one({"config_id": "referral"}, {"_id": 0})
+                    referrer_reward = (ref_config or {}).get("referrer_reward_percent", 10)
+                    original_price = amount / (1 - ref_data["discount_percent"] / 100)
+                    await db.referral_uses.insert_one({
+                        "use_id": f"ref_use_{uuid.uuid4().hex[:12]}",
+                        "code": ref_data["code"],
+                        "buyer_email": email,
+                        "resume_id": resume_id,
+                        "original_amount": round(original_price, 2),
+                        "discounted_amount": amount,
+                        "discount_percent": ref_data["discount_percent"],
+                        "created_at": datetime.now(timezone.utc).isoformat(),
+                    })
+                    await db.referral_codes.update_one(
+                        {"code": ref_data["code"]},
+                        {"$inc": {"use_count": 1, "earnings": round(original_price * referrer_reward / 100, 2)}},
+                    )
             return {"paid": True}
     except Exception as e:
         logger.error(f"Payment verify error: {e}")
