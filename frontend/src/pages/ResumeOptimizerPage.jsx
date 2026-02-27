@@ -509,7 +509,12 @@ const ResumeOptimizerPage = () => {
                     </div>
 
                     {/* Score Comparison */}
-                    <ScoreComparison currentAnalysis={analysis} resumeId={resumeId} />
+                    <ScoreComparison currentAnalysis={analysis} resumeId={resumeId} onCopyToEditor={(text) => {
+                      setEditedText(text);
+                      setImproved({ improved_text: text, resume_id: resumeId });
+                      setStep(4);
+                      toast.success("Comparison resume loaded into editor. You can now edit and download.");
+                    }} />
 
                     {/* Quick Fix CTA - Apply AI fixes to original resume */}
                     <Card className="border-2 border-primary/20 shadow-xl">
