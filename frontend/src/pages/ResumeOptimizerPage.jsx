@@ -263,6 +263,7 @@ const ResumeOptimizerPage = () => {
         const data = await res.json();
         setImproved(data);
         setEditedText(data.improved_text || "");
+        setOriginalImprovedText(data.improved_text || ""); // Store original for reset
         setStep(4);
         if (data.is_preview) {
           toast.info("Preview ready! Pay to unlock the full improved resume.");
