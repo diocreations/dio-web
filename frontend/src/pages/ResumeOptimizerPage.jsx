@@ -403,58 +403,150 @@ const ResumeOptimizerPage = () => {
     const isHtmlContent = editedText.includes("<h2>") || editedText.includes("<p>") || editedText.includes("<li>");
     const tpl = activeVisualTemplate || "classic";
 
-    // Template-specific styles — STRUCTURALLY DIFFERENT per template
+    // Template configurations with STRUCTURALLY DIFFERENT layouts
     const configs = {
-      classic: { font: "'Georgia','Times New Roman',serif", accent: "#1a1a2e", nameSize: "18pt", nameAlign: "center", contactAlign: "center", h2Css: "border-bottom:1.5px solid #1a1a2e;padding-bottom:3px;color:#1a1a2e;", bodyColor: "#333" },
-      modern: { font: "'Segoe UI',Calibri,sans-serif", accent: "#2563eb", nameSize: "20pt", nameAlign: "left", contactAlign: "left", h2Css: "color:#2563eb;border-bottom:2px solid #2563eb;padding-bottom:3px;", bodyColor: "#374151" },
-      executive: { font: "'Segoe UI',Calibri,sans-serif", accent: "#d97706", nameSize: "20pt", nameAlign: "left", contactAlign: "left", h2Css: "color:#92400e;border-bottom:2px solid #d9770640;padding-bottom:3px;", bodyColor: "#374151", headerBg: "#1e293b", headerColor: "#fff" },
-      minimal: { font: "'Helvetica Neue',Helvetica,sans-serif", accent: "#6b7280", nameSize: "16pt", nameAlign: "left", contactAlign: "left", h2Css: "color:#9ca3af;border-bottom:none;letter-spacing:4px;font-weight:400;font-size:9pt;", bodyColor: "#4b5563" },
-      bold: { font: "'Inter','Segoe UI',sans-serif", accent: "#dc2626", nameSize: "22pt", nameAlign: "left", contactAlign: "left", h2Css: "color:#dc2626;border-bottom:3px solid #dc2626;padding-bottom:4px;font-size:11pt;", bodyColor: "#1f2937" },
-      elegant: { font: "'Georgia','Palatino Linotype',serif", accent: "#0d9488", nameSize: "18pt", nameAlign: "center", contactAlign: "center", h2Css: "color:#0f766e;border-bottom:1px solid #0d948840;padding-bottom:3px;", bodyColor: "#374151" },
-      corporate: { font: "'Segoe UI',Calibri,sans-serif", accent: "#1e3a5f", nameSize: "18pt", nameAlign: "left", contactAlign: "left", h2Css: "color:#1e3a5f;border-bottom:2px solid #1e3a5f;padding-bottom:3px;", bodyColor: "#374151", leftBar: true },
-      creative: { font: "'Inter','Segoe UI',sans-serif", accent: "#7c3aed", nameSize: "22pt", nameAlign: "left", contactAlign: "left", h2Css: "color:#7c3aed;border-bottom:2px solid #e9d5ff;padding-bottom:3px;", bodyColor: "#374151" },
+      classic: {
+        font: "'Georgia','Times New Roman',serif",
+        accent: "#1a1a2e",
+        nameSize: "20pt",
+        contactSize: "8pt",
+        nameAlign: "center",
+        bodyColor: "#333",
+        h2Style: "border-bottom:1.5px solid #1a1a2e;color:#1a1a2e;padding-bottom:4px;",
+        accentBar: "height:2px;background:#1a1a2e;margin:10px 0 16px;width:100%;",
+      },
+      modern: {
+        font: "'Segoe UI',Calibri,sans-serif",
+        accent: "#2563eb",
+        nameSize: "22pt",
+        contactSize: "8pt",
+        nameAlign: "left",
+        bodyColor: "#374151",
+        h2Style: "color:#2563eb;border-left:3px solid #2563eb;padding-left:10px;border-bottom:none;",
+        accentBar: "height:3px;background:#2563eb;margin:10px 0 16px;width:60px;border-radius:2px;",
+      },
+      executive: {
+        font: "'Segoe UI',Calibri,sans-serif",
+        accent: "#d97706",
+        nameSize: "22pt",
+        contactSize: "8pt",
+        nameAlign: "left",
+        bodyColor: "#374151",
+        h2Style: "color:#92400e;border-bottom:2px solid #fbbf2440;padding-bottom:4px;",
+        headerBg: "#1e293b",
+        headerColor: "#ffffff",
+        accentBar: "",
+      },
+      minimal: {
+        font: "'Helvetica Neue',Helvetica,sans-serif",
+        accent: "#6b7280",
+        nameSize: "18pt",
+        contactSize: "7.5pt",
+        nameAlign: "left",
+        bodyColor: "#4b5563",
+        h2Style: "color:#9ca3af;border-bottom:none;letter-spacing:4px;font-weight:400;font-size:8pt;text-transform:uppercase;",
+        accentBar: "height:1px;background:#e5e7eb;margin:14px 0 20px;width:100%;",
+      },
+      bold: {
+        font: "'Inter','Segoe UI',sans-serif",
+        accent: "#dc2626",
+        nameSize: "24pt",
+        contactSize: "8pt",
+        nameAlign: "left",
+        bodyColor: "#1f2937",
+        // Bold template: Red background badges for section headers
+        h2Style: "background:#dc2626 !important;color:#ffffff !important;padding:6px 12px;border-radius:4px;display:inline-block;border-bottom:none;",
+        accentBar: "height:4px;background:#dc2626;margin:10px 0 16px;width:100%;border-radius:2px;",
+        printBgForce: true,
+      },
+      elegant: {
+        font: "'Georgia','Palatino Linotype',serif",
+        accent: "#0d9488",
+        nameSize: "20pt",
+        contactSize: "8pt",
+        nameAlign: "center",
+        bodyColor: "#374151",
+        h2Style: "color:#0f766e;border-bottom:1px solid #0d948840;padding-bottom:4px;",
+        accentBar: "height:1px;background:linear-gradient(90deg,transparent,#0d9488,transparent);margin:10px 0 16px;width:100%;",
+      },
+      corporate: {
+        font: "'Segoe UI',Calibri,sans-serif",
+        accent: "#1e3a5f",
+        nameSize: "20pt",
+        contactSize: "8pt",
+        nameAlign: "left",
+        bodyColor: "#374151",
+        h2Style: "color:#1e3a5f;border-bottom:2px solid #1e3a5f;padding-bottom:4px;",
+        leftBar: true,
+        accentBar: "height:2px;background:#1e3a5f40;margin:10px 0 16px;width:100%;",
+      },
+      creative: {
+        font: "'Inter','Segoe UI',sans-serif",
+        accent: "#7c3aed",
+        nameSize: "24pt",
+        contactSize: "8pt",
+        nameAlign: "left",
+        bodyColor: "#374151",
+        h2Style: "color:#7c3aed;border-bottom:2px solid #e9d5ff;padding-bottom:4px;",
+        accentBar: "height:4px;background:linear-gradient(90deg,#7c3aed,#a78bfa);margin:10px 0 16px;width:80px;border-radius:2px;",
+      },
     };
     const c = configs[tpl] || configs.classic;
 
     const win = window.open("", "_blank");
-    // Force background printing with print-color-adjust
-    let headerHtml = "";
-    if (c.headerBg) {
-      headerHtml = `<div class="exec-header" style="background:${c.headerBg};padding:20px 48px 16px;margin:-36px -48px 20px;"></div>`;
-    }
-    let leftBarCss = "";
+    if (!win) { toast.error("Please allow popups to download PDF"); return; }
+
+    // Build CSS with template-specific structural differences
+    let extraCss = "";
     if (c.leftBar) {
-      leftBarCss = `body{border-left:4px solid ${c.accent};}`;
+      extraCss += `body{border-left:5px solid ${c.accent} !important;padding-left:28px !important;}`;
+    }
+    if (c.headerBg) {
+      extraCss += `.header-block{background:${c.headerBg} !important;color:${c.headerColor} !important;padding:24px 32px 20px;margin:-36px -48px 20px;print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}`;
+      extraCss += `.header-block .resume-name{color:${c.headerColor} !important;}`;
+      extraCss += `.header-block .resume-contact{color:rgba(255,255,255,0.7) !important;}`;
+    }
+    if (c.printBgForce) {
+      extraCss += `h2{print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}`;
     }
 
-    win.document.write(`<!DOCTYPE html><html><head><title>${filename}</title><style>
+    win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${filename}</title><style>
       *{margin:0;padding:0;box-sizing:border-box}
-      body{font-family:${c.font};max-width:780px;margin:0 auto;padding:36px 48px;line-height:1.5;color:${c.bodyColor};font-size:10pt;print-color-adjust:exact;-webkit-print-color-adjust:exact}
-      ${leftBarCss}
-      .resume-name{font-size:${c.nameSize};font-weight:700;color:${c.accent};letter-spacing:0.5px;margin-bottom:2px;text-align:${c.nameAlign}}
-      .resume-contact{font-size:8.5pt;color:#666;margin-bottom:4px;line-height:1.3;text-align:${c.contactAlign}}
-      .resume-contact a{color:${c.accent};text-decoration:none}
-      .accent-bar{height:2px;background:${c.accent};margin:8px 0 14px;${c.nameAlign === "center" ? "width:100%" : "width:60px"}}
-      h2{font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;${c.h2Css}margin:14px 0 6px}
-      h3{font-size:9.5pt;font-weight:600;color:${c.bodyColor};margin:8px 0 3px}
-      .job-header{display:flex;justify-content:space-between;align-items:baseline;margin:8px 0 3px;flex-wrap:wrap}
-      .job-title{font-weight:700;font-size:10pt;color:${c.bodyColor}}
-      .job-dates{font-style:italic;color:#888;font-size:9pt}
-      p{margin:2px 0;line-height:1.5;font-size:10pt}
-      ul{padding-left:18px;margin:3px 0 6px;list-style-type:disc}
-      ol{padding-left:18px;margin:3px 0 6px}
-      li{margin-bottom:2px;line-height:1.45;font-size:10pt}
-      strong,b{font-weight:700} em,i{font-style:italic} s,strike{text-decoration:line-through}
-      a{color:${c.accent};text-decoration:none}
-      hr{border:none;border-top:1px solid #ddd;margin:8px 0}
-      ${c.headerBg ? `.exec-header{print-color-adjust:exact;-webkit-print-color-adjust:exact}.exec-header .resume-name{color:${c.headerColor}}.exec-header .resume-contact{color:${c.headerColor}99}` : ""}
-      @media print{body{margin:0;padding:20px 36px;max-width:100%}@page{margin:0.4in 0.5in;size:A4}}
+      html,body{print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}
+      body{font-family:${c.font};max-width:780px;margin:0 auto;padding:36px 48px;line-height:1.55;color:${c.bodyColor};font-size:10pt;}
+      ${extraCss}
+      .resume-name{font-size:${c.nameSize};font-weight:700;color:${c.accent};letter-spacing:0.5px;margin-bottom:4px;text-align:${c.nameAlign};}
+      .resume-contact{font-size:${c.contactSize};color:#666;margin-bottom:2px;line-height:1.4;text-align:${c.nameAlign};}
+      .resume-contact a{color:${c.accent};text-decoration:none;}
+      .accent-bar{${c.accentBar || "display:none;"}}
+      h2{font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;${c.h2Style}margin:16px 0 8px;}
+      h3{font-size:9.5pt;font-weight:600;color:${c.bodyColor};margin:10px 0 4px;}
+      .job-header{display:flex;justify-content:space-between;align-items:baseline;margin:10px 0 4px;flex-wrap:wrap;gap:8px;}
+      .job-title{font-weight:700;font-size:10pt;color:${c.bodyColor};}
+      .job-dates{font-style:italic;color:#888;font-size:9pt;}
+      p{margin:3px 0;line-height:1.55;font-size:10pt;}
+      ul{padding-left:20px;margin:4px 0 8px;list-style-type:disc;}
+      ol{padding-left:20px;margin:4px 0 8px;}
+      li{margin-bottom:3px;line-height:1.5;font-size:10pt;}
+      strong,b{font-weight:700;}em,i{font-style:italic;}s,strike{text-decoration:line-through;}
+      a{color:${c.accent};text-decoration:none;}
+      hr{border:none;border-top:1px solid #e5e7eb;margin:10px 0;}
+      @media print{
+        html,body{print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}
+        body{margin:0;padding:24px 36px;max-width:100%;}
+        @page{margin:0.4in 0.5in;size:A4;}
+        h2{print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}
+        .header-block{print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}
+      }
     </style></head><body>`);
 
+    // Parse content and build HTML
     if (isHtmlContent) {
       let html = editedText;
       let firstP = false, contactDone = false;
       const nameEntries = [];
+      
+      // Extract name and contact from first paragraphs
       html = html.replace(/<p([^>]*)>([\s\S]*?)<\/p>/gi, (match, attrs, content) => {
         const text = content.replace(/<[^>]*>/g, "").trim();
         if (!firstP && text && !text.startsWith("-") && !/^[A-Z][A-Z\s\/&,]{3,}$/.test(text)) {
@@ -463,23 +555,29 @@ const ResumeOptimizerPage = () => {
           return "%%NAME%%";
         }
         if (firstP && !contactDone && (text.includes("@") || text.includes("|") || /\+?\d[\d\s\-()]{5,}/.test(text) || /linkedin/i.test(text))) {
+          contactDone = true;
           nameEntries.push(`<div class="resume-contact">${content.replace(/\|/g, " &middot; ")}</div>`);
           return "%%CONTACT%%";
         }
-        if (firstP && !contactDone && !text) { contactDone = true; }
         return match;
       });
-      // Build name block (potentially inside executive header)
-      let nameBlock = nameEntries.join("") + `<div class="accent-bar"></div>`;
-      if (c.headerBg) nameBlock = `<div class="exec-header">${nameBlock}</div>`;
+      
+      // Build header block (with dark background for executive template)
+      let nameBlock = nameEntries.join("");
+      if (c.headerBg) {
+        nameBlock = `<div class="header-block">${nameBlock}</div>`;
+      } else {
+        nameBlock += `<div class="accent-bar"></div>`;
+      }
       html = html.replace("%%NAME%%", nameBlock).replace(/%%CONTACT%%/g, "");
       win.document.write(html);
     } else {
+      // Plain text parsing
       const lines = editedText.split("\n");
-      let isFirst = true, inContact = true, wroteAccent = false;
       const nameLines = [];
-      // First pass: collect name and contact lines
       let bodyStartIdx = 0;
+      
+      // Collect name and contact lines (before first section header)
       for (let i = 0; i < lines.length; i++) {
         const t = lines[i].trim();
         if (!t) { bodyStartIdx = i + 1; break; }
@@ -488,33 +586,48 @@ const ResumeOptimizerPage = () => {
         nameLines.push(t);
         bodyStartIdx = i + 1;
       }
-      // Write name section
-      if (c.headerBg) win.document.write(`<div class="exec-header">`);
+      
+      // Write header section
+      if (c.headerBg) win.document.write(`<div class="header-block">`);
       if (nameLines[0]) win.document.write(`<div class="resume-name">${nameLines[0]}</div>`);
-      for (let i = 1; i < nameLines.length; i++) win.document.write(`<div class="resume-contact">${nameLines[i].replace(/\|/g, " &middot; ")}</div>`);
-      if (c.headerBg) win.document.write(`</div>`);
-      win.document.write(`<div class="accent-bar"></div>`);
-      // Write body
+      for (let i = 1; i < nameLines.length; i++) {
+        win.document.write(`<div class="resume-contact">${nameLines[i].replace(/\|/g, " &middot; ")}</div>`);
+      }
+      if (c.headerBg) {
+        win.document.write(`</div>`);
+      } else {
+        win.document.write(`<div class="accent-bar"></div>`);
+      }
+      
+      // Write body content
       for (let i = bodyStartIdx; i < lines.length; i++) {
         const t = lines[i].trim();
         if (!t) { win.document.write("<br/>"); continue; }
         const isH = /^[A-Z][A-Z\s\/&,]{3,}$/.test(t) && !t.includes("@") && !t.includes("|") && !t.includes(".com");
         const isBul = /^[-*\u2022]\s+/.test(t);
         const hasDate = /\d{4}\s*[-\u2013]\s*(present|\d{4})/i.test(t);
-        if (isH) { win.document.write(`<h2>${t}</h2>`); }
-        else if (isBul) { win.document.write(`<li>${t.replace(/^[-*\u2022]\s+/, "")}</li>`); }
-        else if (hasDate) {
+        
+        if (isH) {
+          win.document.write(`<h2>${t}</h2>`);
+        } else if (isBul) {
+          win.document.write(`<li>${t.replace(/^[-*\u2022]\s+/, "")}</li>`);
+        } else if (hasDate) {
           const dm = t.match(/(\w+\s+\d{4}\s*[-\u2013]\s*(?:Present|\w+\s+\d{4}))/i);
           if (dm) {
             const rest = t.replace(dm[1], "").replace(/\|/g, "").trim();
             win.document.write(`<div class="job-header"><span class="job-title">${rest}</span><span class="job-dates">${dm[1]}</span></div>`);
-          } else { win.document.write(`<p><strong>${t}</strong></p>`); }
-        } else { win.document.write(`<p>${t}</p>`); }
+          } else {
+            win.document.write(`<p><strong>${t}</strong></p>`);
+          }
+        } else {
+          win.document.write(`<p>${t}</p>`);
+        }
       }
     }
+    
     win.document.write("</body></html>");
     win.document.close();
-    setTimeout(() => win.print(), 300);
+    setTimeout(() => win.print(), 400);
   };
 
   const StepIcon = ({ id }) => {
