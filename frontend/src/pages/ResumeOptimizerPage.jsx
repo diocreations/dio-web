@@ -614,30 +614,133 @@ const ResumeOptimizerPage = () => {
                       </CardContent></Card>
                     ) : (
                       <div className="space-y-6">
-                        {!hasDownloadAccess && (
-                          <Card className="bg-gradient-to-r from-[#0077B5] to-[#005582] text-white border-0"><CardContent className="p-6 text-center">
-                            <Lock size={24} className="mx-auto mb-2 opacity-80" />
-                            <p className="font-semibold mb-3">Unlock full LinkedIn optimization results</p>
-                            <Button onClick={handleCheckout} variant="secondary" className="rounded-full" data-testid="linkedin-pay-btn">Pay {pricing?.currency || "EUR"} {pricing?.price || "19.99"} to Access</Button>
-                          </CardContent></Card>
-                        )}
-                        <Card><CardContent className="p-6">
-                          <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Star size={20} className="text-primary" /> Headline Variations</h3>
-                          <div className="space-y-3">{linkedinResult.headlines?.map((h, i) => <div key={i} className="p-3 bg-primary/5 rounded-lg text-sm font-medium">{h}</div>)}</div>
-                        </CardContent></Card>
-                        <Card><CardContent className="p-6">
-                          <h3 className="font-bold text-lg mb-4">Optimized About Section</h3>
-                          <p className="text-sm whitespace-pre-wrap leading-relaxed">{linkedinResult.about}</p>
-                        </CardContent></Card>
-                        <Card><CardContent className="p-6">
-                          <h3 className="font-bold text-lg mb-4">Keywords to Add</h3>
-                          <div className="flex flex-wrap gap-2">{linkedinResult.keywords?.map((k, i) => <span key={i} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">{k}</span>)}</div>
-                        </CardContent></Card>
-                        {linkedinResult.post_ideas?.length > 0 && (
-                          <Card><CardContent className="p-6">
-                            <h3 className="font-bold text-lg mb-4">Engagement Post Ideas</h3>
-                            <ul className="space-y-2">{linkedinResult.post_ideas.map((p, i) => <li key={i} className="flex items-start gap-2 text-sm"><Sparkles size={14} className="text-primary mt-0.5" />{p}</li>)}</ul>
-                          </CardContent></Card>
+                        {/* PAID: Full results with usage guide */}
+                        {hasDownloadAccess ? (
+                          <>
+                            <Card className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0"><CardContent className="p-6">
+                              <div className="flex items-center gap-3">
+                                <CheckCircle size={28} />
+                                <div>
+                                  <p className="font-bold text-lg">Your LinkedIn Optimization is Ready</p>
+                                  <p className="text-green-100 text-sm">Copy and paste these directly into your LinkedIn profile sections.</p>
+                                </div>
+                              </div>
+                            </CardContent></Card>
+
+                            <Card><CardContent className="p-6">
+                              <div className="flex items-center justify-between mb-4">
+                                <h3 className="font-bold text-lg flex items-center gap-2"><Star size={20} className="text-primary" /> Headline Variations</h3>
+                                <span className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full font-medium">Copy your favourite to LinkedIn headline</span>
+                              </div>
+                              <div className="space-y-3">{linkedinResult.headlines?.map((h, i) => (
+                                <div key={i} className="p-3 bg-primary/5 rounded-lg text-sm font-medium flex items-center justify-between gap-3 group">
+                                  <span>{h}</span>
+                                  <button onClick={() => { navigator.clipboard.writeText(h); toast.success("Copied!"); }} className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-primary hover:underline flex-shrink-0" data-testid={`copy-headline-${i}`}>Copy</button>
+                                </div>
+                              ))}</div>
+                            </CardContent></Card>
+
+                            <Card><CardContent className="p-6">
+                              <div className="flex items-center justify-between mb-4">
+                                <h3 className="font-bold text-lg">Optimized About Section</h3>
+                                <button onClick={() => { navigator.clipboard.writeText(linkedinResult.about); toast.success("About section copied!"); }} className="text-xs text-primary hover:underline font-medium" data-testid="copy-about">Copy to clipboard</button>
+                              </div>
+                              <p className="text-sm whitespace-pre-wrap leading-relaxed bg-slate-50 p-4 rounded-lg border">{linkedinResult.about}</p>
+                              <p className="text-xs text-muted-foreground mt-2">Paste this into your LinkedIn "About" section</p>
+                            </CardContent></Card>
+
+                            <Card><CardContent className="p-6">
+                              <h3 className="font-bold text-lg mb-2">Keywords to Add</h3>
+                              <p className="text-xs text-muted-foreground mb-3">Add these to your headline, about, and experience for better search visibility</p>
+                              <div className="flex flex-wrap gap-2">{linkedinResult.keywords?.map((k, i) => <span key={i} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm cursor-pointer hover:bg-primary/20 transition-colors" onClick={() => { navigator.clipboard.writeText(k); toast.success(`"${k}" copied!`); }}>{k}</span>)}</div>
+                            </CardContent></Card>
+
+                            {linkedinResult.experience_bullets?.length > 0 && (
+                              <Card><CardContent className="p-6">
+                                <h3 className="font-bold text-lg mb-2">Experience Bullet Points</h3>
+                                <p className="text-xs text-muted-foreground mb-3">Add these under your latest role in the Experience section</p>
+                                <ul className="space-y-2">{linkedinResult.experience_bullets.map((b, i) => <li key={i} className="flex items-start gap-2 text-sm"><CheckCircle size={14} className="text-green-500 mt-0.5 flex-shrink-0" />{b}</li>)}</ul>
+                              </CardContent></Card>
+                            )}
+
+                            {linkedinResult.post_ideas?.length > 0 && (
+                              <Card><CardContent className="p-6">
+                                <h3 className="font-bold text-lg mb-2">Engagement Post Ideas</h3>
+                                <p className="text-xs text-muted-foreground mb-3">Post these on LinkedIn to boost your visibility and engagement</p>
+                                <ul className="space-y-2">{linkedinResult.post_ideas.map((p, i) => <li key={i} className="flex items-start gap-2 text-sm"><Sparkles size={14} className="text-primary mt-0.5" />{p}</li>)}</ul>
+                              </CardContent></Card>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            {/* UNPAID: Show first headline as teaser, blur the rest */}
+                            <Card><CardContent className="p-6">
+                              <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Star size={20} className="text-primary" /> Headline Variations</h3>
+                              <div className="space-y-3">
+                                {/* Show first headline clearly as teaser */}
+                                {linkedinResult.headlines?.[0] && (
+                                  <div className="p-3 bg-primary/5 rounded-lg text-sm font-medium">{linkedinResult.headlines[0]}</div>
+                                )}
+                                {/* Blur remaining headlines */}
+                                <div className="relative select-none pointer-events-none">
+                                  <div className="space-y-3 blur-[6px] opacity-60">
+                                    {linkedinResult.headlines?.slice(1).map((h, i) => (
+                                      <div key={i} className="p-3 bg-primary/5 rounded-lg text-sm font-medium">{h}</div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent></Card>
+
+                            {/* Blurred About section - show first line */}
+                            <Card><CardContent className="p-6">
+                              <h3 className="font-bold text-lg mb-4">Optimized About Section</h3>
+                              <p className="text-sm leading-relaxed mb-2">{linkedinResult.about?.split(". ")[0]}.</p>
+                              <div className="relative select-none pointer-events-none">
+                                <p className="text-sm whitespace-pre-wrap leading-relaxed blur-[6px] opacity-50">
+                                  {linkedinResult.about?.split(". ").slice(1).join(". ")}
+                                </p>
+                              </div>
+                            </CardContent></Card>
+
+                            {/* Blurred Keywords */}
+                            <Card><CardContent className="p-6">
+                              <h3 className="font-bold text-lg mb-4">Keywords to Add</h3>
+                              <div className="relative">
+                                <div className="flex flex-wrap gap-2">
+                                  {linkedinResult.keywords?.slice(0, 2).map((k, i) => <span key={i} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">{k}</span>)}
+                                </div>
+                                <div className="flex flex-wrap gap-2 mt-2 blur-[6px] opacity-50 select-none pointer-events-none">
+                                  {linkedinResult.keywords?.slice(2).map((k, i) => <span key={i} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">{k}</span>)}
+                                </div>
+                              </div>
+                            </CardContent></Card>
+
+                            {/* Blurred Post Ideas */}
+                            {linkedinResult.post_ideas?.length > 0 && (
+                              <Card><CardContent className="p-6 relative">
+                                <h3 className="font-bold text-lg mb-4">Engagement Post Ideas</h3>
+                                <div className="blur-[6px] opacity-50 select-none pointer-events-none">
+                                  <ul className="space-y-2">{linkedinResult.post_ideas.map((p, i) => <li key={i} className="flex items-start gap-2 text-sm"><Sparkles size={14} className="text-primary mt-0.5" />{p}</li>)}</ul>
+                                </div>
+                              </CardContent></Card>
+                            )}
+
+                            {/* Sticky paywall CTA */}
+                            <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-white shadow-xl sticky bottom-4 z-10">
+                              <CardContent className="p-8 text-center">
+                                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                                  <Lock size={24} className="text-primary" />
+                                </div>
+                                <h3 className="text-xl font-bold mb-2">Unlock Your Full LinkedIn Optimization</h3>
+                                <p className="text-muted-foreground text-sm mb-1">Get all headline variations, complete about section, keywords, experience bullets, and post ideas.</p>
+                                <p className="text-xs text-muted-foreground mb-5">One-time payment. Copy-paste ready. Instant access.</p>
+                                <Button onClick={handleCheckout} size="lg" className="rounded-full px-10 shadow-lg" data-testid="linkedin-pay-btn">
+                                  <Lock size={16} className="mr-2" /> Pay {pricing?.currency || "EUR"} {pricing?.price || "19.99"} to Unlock
+                                </Button>
+                              </CardContent>
+                            </Card>
+                          </>
                         )}
                       </div>
                     )}
