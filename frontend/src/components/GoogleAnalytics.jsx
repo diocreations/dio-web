@@ -37,8 +37,6 @@ const GoogleAnalytics = () => {
     window.gtag = gtag;
     gtag("js", new Date());
     gtag("config", gaId);
-
-    console.log("Google Analytics initialized:", gaId);
   }, [gaId]);
 
   return null; // This component doesn't render anything
