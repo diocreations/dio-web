@@ -1,0 +1,93 @@
+{
+  "summary": "Iteration 18: Complete testing of payment-gating logic for DioAI Resume & LinkedIn Optimizer. Backend: 12/12 tests passed. Frontend: Resume optimizer page loads, paywall overlay works correctly showing 'Unlock Your Full Resume' with EUR 19.99 pricing. LinkedIn unpaid/paid flow verified via API.",
+
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+
+  "passed_tests": [
+    "Backend: POST /api/resume/upload - still returns resume_id, text_preview, word_count",
+    "Backend: POST /api/resume/analyze - still returns full analysis (scores, strengths, weaknesses) for FREE",
+    "Backend: POST /api/resume/quick-fix - returns is_preview: true with truncated fixed_text when NOT paid",
+    "Backend: POST /api/resume/improve - returns is_preview: true with truncated improved_text when NOT paid",
+    "Backend: POST /api/resume/linkedin - returns is_preview: true with only 1 headline, truncated about, 2 keywords, empty experience_bullets and post_ideas when NOT paid",
+    "Backend: After marking payment as paid in DB, POST /api/resume/quick-fix returns full fixed_text with is_preview absent/false",
+    "Backend: After marking payment as paid in DB, POST /api/resume/improve returns full improved_text with is_preview absent/false",
+    "Backend: After marking payment as paid in DB, POST /api/resume/linkedin returns full data with is_preview: false (3 headlines, full about, 13 keywords, 5 bullets, 5 post_ideas)",
+    "Backend: POST /api/resume/checkout still creates Stripe checkout session",
+    "Backend: LinkedIn results are stored in 'linkedin_optimizations' collection and cached on subsequent calls",
+    "Backend: GET /api/resume/payment-status/{resume_id} returns paid: false when unpaid, paid: true after payment",
+    "Frontend: Resume optimizer page loads at /resume-optimizer with Upload step",
+    "Frontend: After clicking Fix My Resume (unpaid), shows preview with paywall overlay containing 'Unlock Your Full Resume'",
+    "Frontend: Paywall shows correct EUR 19.99 pricing with 'Pay EUR 19.99 to Unlock' button",
+    "Frontend: Tabs show 'Improved Resume' and 'LinkedIn' options",
+    "Frontend: LinkedIn form shows fields for URL, Current Headline, About Section, Experience"
+  ],
+
+  "test_report_links": [
+    "/app/backend/tests/test_iteration18_payment_gating.py",
+    "/app/test_reports/pytest/iteration18_results.xml"
+  ],
+
+  "action_items": [],
+
+  "critical_code_review_comments": [
+    "is_resume_paid() helper at line 18-23 correctly checks resume_payments collection for status='paid'",
+    "truncate_preview() function at line 26-29 returns first 8 lines as teaser (working as designed)",
+    "quick-fix endpoint (line 239-328) correctly checks cache first, then returns preview or full based on payment status",
+    "improve endpoint (line 171-236) follows same pattern - cache check, payment check, preview/full return",
+    "linkedin endpoint (line 402-467) stores full results in linkedin_optimizations collection, returns partial for unpaid (1 headline, 2 keywords, empty bullets/posts)",
+    "Frontend ResumeOptimizerPage.jsx correctly handles is_preview flag and shows paywall overlay with Lock icon, 'Unlock Your Full Resume' text, and EUR pricing"
+  ],
+
+  "updated_files": [
+    "/app/backend/tests/test_iteration18_payment_gating.py"
+  ],
+
+  "success_rate": {
+    "backend": "100% (12/12 tests passed)",
+    "frontend": "100% (all payment-gating UI flows verified)"
+  },
+
+  "test_credentials": {
+    "admin_email": "admin@diocreations.com",
+    "admin_password": "adminpassword"
+  },
+
+  "seed_data_creation": "Used existing test PDF at /tmp/test_resume_iteration17.pdf. Inserted/deleted payment records in resume_payments collection for paid flow testing.",
+
+  "retest_needed": false,
+
+  "should_main_agent_self_test": false,
+
+  "context_for_next_testing_agent": "Payment-gating logic is fully implemented and tested. (1) Analysis endpoint remains FREE - returns full scores, strengths, weaknesses without payment. (2) quick-fix/improve/linkedin endpoints now gate full results behind payment - unpaid users get is_preview: true with truncated content. (3) Paid users (resume_payments collection with status='paid' for resume_id) get full results with is_preview: false/absent. (4) Frontend shows paywall overlay with 'Unlock Your Full Resume' text and 'Pay EUR 19.99 to Unlock' button when is_preview is true. (5) LinkedIn results are cached in linkedin_optimizations collection.",
+
+  "payment_gating_verification": {
+    "unpaid_quick_fix": "Returns truncated fixed_text (~8 lines) with is_preview: true",
+    "unpaid_improve": "Returns truncated improved_text (~8 lines) with is_preview: true",
+    "unpaid_linkedin": "Returns 1 headline, truncated about (first sentence), 2 keywords, empty bullets/posts with is_preview: true",
+    "paid_quick_fix": "Returns full fixed_text (50+ lines) with is_preview absent",
+    "paid_improve": "Returns full improved_text (50+ lines) with is_preview absent",
+    "paid_linkedin": "Returns 3 headlines, full about (multi-paragraph), 13 keywords, 5 bullets, 5 post_ideas with is_preview: false"
+  },
+
+  "api_endpoints_tested": {
+    "POST /api/resume/upload": "200 OK with resume_id, text_preview, word_count",
+    "POST /api/resume/analyze": "200 OK with full analysis (FREE)",
+    "POST /api/resume/quick-fix (unpaid)": "200 OK with is_preview: true, truncated fixed_text",
+    "POST /api/resume/quick-fix (paid)": "200 OK with full fixed_text, no is_preview",
+    "POST /api/resume/improve (unpaid)": "200 OK with is_preview: true, truncated improved_text",
+    "POST /api/resume/improve (paid)": "200 OK with full improved_text, no is_preview",
+    "POST /api/resume/linkedin (unpaid)": "200 OK with is_preview: true, partial data",
+    "POST /api/resume/linkedin (paid)": "200 OK with is_preview: false, full data",
+    "POST /api/resume/checkout": "200 OK with checkout_url and session_id",
+    "GET /api/resume/payment-status/{resume_id}": "200 OK with paid: true/false"
+  }
+}
