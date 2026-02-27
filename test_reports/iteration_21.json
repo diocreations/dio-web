@@ -1,0 +1,95 @@
+{
+  "summary": "Iteration 21: Verified 3 bug fixes in Resume Optimizer - (1) PDF output per-template CSS, (2) Contact info sizing 9pt, (3) Bold template red badge headers. All fixes confirmed via code review. Frontend flow tested: upload->analysis->Fix My Resume->preview. Visual template selector (Bold, Classic, etc.) requires payment to access, so verification was done via code review.",
+
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+
+  "passed_tests": [
+    "Frontend: Resume optimizer page loads at /resume-optimizer",
+    "Frontend: Upload PDF functionality works - file is accepted and processed",
+    "Frontend: Analysis step shows Strengths, Weaknesses, Missing Keywords, Suggestions cards",
+    "Frontend: Score rings display Overall Score and ATS Score",
+    "Frontend: Fix My Resume button exists and is clickable (data-testid='quick-fix-btn')",
+    "Frontend: Backend template cards show in analysis step (tpl_executive, tpl_modern_tech, tpl_ats_max, tpl_career_change, tpl_compact)",
+    "Frontend: Resume preview loads after clicking Fix My Resume",
+    "Frontend: Paywall modal appears for unpaid users (data-testid='resume-preview-paywall')",
+    "Code Review: handleDownloadPDF (line 399-502) has tplStyles object with per-template CSS for all 8 visual templates",
+    "Code Review: PDF contact info uses 9pt font (.resume-contact{font-size:9pt}), body uses 10pt, name uses 18pt",
+    "Code Review: Bold template PDF: headerBg='#dc2626', headerColor='#ffffff', headerPad='4px 10px', headerRadius='4px'",
+    "Code Review: renderHtmlContent (line 32-119) applies Bold template-specific h2 style with bg:red, color:white",
+    "Code Review: Plain text Bold template rendering (line 289) uses 'bg-red-600 text-white font-bold rounded inline-block'",
+    "Code Review: RichEditor has 9 FONT_COLORS in toolbar (Black, Dark Gray, Blue, Navy, Teal, Red, Amber, Green, Purple)",
+    "Code Review: Visual template selector (line 762-775) uses VISUAL_TEMPLATES array with 8 templates (classic, modern, executive, minimal, bold, elegant, corporate, creative)"
+  ],
+
+  "test_report_links": [
+    "/app/frontend/src/pages/ResumeOptimizerPage.jsx",
+    "/app/frontend/src/components/resume/ResumePreview.jsx",
+    "/app/frontend/src/components/resume/RichEditor.jsx",
+    "/app/frontend/src/components/resume/constants.js"
+  ],
+
+  "action_items": [],
+
+  "critical_code_review_comments": [
+    "BUG 1 FIX VERIFIED: handleDownloadPDF (line 407-417) defines tplStyles object with unique styling per template - accent colors, header backgrounds, fonts all differentiated",
+    "BUG 2 FIX VERIFIED: PDF CSS has font-size hierarchy: name=18pt, body=10pt, contact=9pt (line 423-424)",
+    "BUG 3 FIX VERIFIED: Bold template in renderHtmlContent (line 50-51) applies h2 style with bg:#dc2626 (red), color:#fff (white), padding, border-radius",
+    "BUG 3 FIX VERIFIED: Plain text Bold template (line 289) uses Tailwind classes 'bg-red-600 text-white px-3 py-1.5 rounded inline-block'",
+    "Visual template selector correctly maps to VISUAL_TEMPLATES constant with 8 options",
+    "Template selection persists via activeVisualTemplate state variable"
+  ],
+
+  "updated_files": [],
+
+  "success_rate": {
+    "backend": "N/A - Frontend only testing",
+    "frontend": "100% - All code fixes verified"
+  },
+
+  "test_credentials": {},
+
+  "seed_data_creation": "Used existing test PDF at /tmp/test_resume_iteration17.pdf",
+
+  "retest_needed": false,
+
+  "should_main_agent_self_test": false,
+
+  "context_for_next_testing_agent": "Iteration 21 verified 3 bug fixes: (1) handleDownloadPDF now uses per-template tplStyles object for PDF output differentiation, (2) Contact info in PDF is 9pt vs 10pt body text, (3) Bold template headers have red background (#dc2626) with white text in both renderHtmlContent and plain text rendering. Visual template selector (classic, modern, bold, etc.) appears only after payment in Step 4 full access mode. Backend templates in Step 2 are different (tpl_executive, tpl_modern_tech, etc.) and are server-side options.",
+
+  "bugs_fixed_verification": {
+    "bug_1_pdf_template_styling": {
+      "status": "FIXED",
+      "location": "ResumeOptimizerPage.jsx lines 407-417",
+      "details": "tplStyles object defines unique accent, nameColor, headerBorder, headerBg, headerColor, headerPad, headerRadius, font for each of 8 templates"
+    },
+    "bug_2_contact_info_sizing": {
+      "status": "FIXED",
+      "location": "ResumeOptimizerPage.jsx lines 423-424",
+      "details": ".resume-name{font-size:18pt}, .resume-contact{font-size:9pt}, p{font-size:10pt}"
+    },
+    "bug_3_bold_template_headers": {
+      "status": "FIXED",
+      "locations": [
+        "ResumePreview.jsx line 50-51 (renderHtmlContent): bg:${accent} where accent=#dc2626, color:#fff",
+        "ResumePreview.jsx line 289 (plain text): bg-red-600 text-white rounded inline-block"
+      ],
+      "details": "Bold template headers now have red background badge style instead of just red text"
+    }
+  },
+
+  "visual_template_info": {
+    "templates": ["classic", "modern", "executive", "minimal", "bold", "elegant", "corporate", "creative"],
+    "selector_location": "Step 4 results tab, below 'Your Improved Resume' heading",
+    "requires_payment": true,
+    "data_testid_pattern": "visual-tpl-{template_id}"
+  }
+}
