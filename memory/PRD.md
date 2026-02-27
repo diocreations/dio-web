@@ -68,7 +68,19 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 - Iteration 20: 19/19 (SEO + referral + dashboard)
 - Iteration 21: 100% (3 template/PDF bugs fixed)
 - Iteration 22: 100% (Rich text editor 22 features, template PDF, Google login)
+- Iteration 23: 100% (P0 Google Sign-In fix, P1 PDF template styling)
+
+## Fixes Applied (Dec 2025)
+- **P0 Google Sign-In**: Fixed auth.emergentagent.com parameter from `redirect_url` to `redirect`
+- **P1 PDF Templates**: Structurally different templates with Bold having red background headers
+- **P1 Contact Info**: Reduced font size from 8.5pt to 8pt for better visual hierarchy
 
 ## Credentials
 - Admin: admin@diocreations.com / adminpassword
 - Super Admin (Google): jomiejoseph@gmail.com
+
+## Deploy Readiness
+- ✅ Google Sign-In working
+- ✅ PDF templates with print-color-adjust support
+- ⏳ RESEND_API_KEY: Awaiting user to provide key for email receipts
+- ⏳ SSL for resume.diocreations.eu: Requires Emergent dashboard action
