@@ -274,6 +274,57 @@ const ResumeOptimizerPage = () => {
     finally { setDriveImporting(false); setAnalyzing(false); }
   };
 
+  const handleQuickFix = async () => {
+    if (!resumeId) return;
+    setQuickFixing(true);
+    try {
+      const res = await fetch(`${API_URL}/api/resume/quick-fix`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resume_id: resumeId }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setFixedText(data.fixed_text);
+        setEditedText(data.fixed_text);
+        setImproved({ improved_text: data.fixed_text, resume_id: resumeId });
+        setStep(4);
+        setUseOriginalLayout(true);
+        toast.success("Fixes applied! Review and edit your improved resume.");
+      } else {
+        toast.error("Quick fix failed. Please try again.");
+      }
+    } catch { toast.error("Quick fix failed."); }
+    finally { setQuickFixing(false); }
+  };
+
+  const extractResumeFilename = (text) => {
+    const content = text || editedText || "";
+    const lines = content.replace(/<[^>]*>/g, " ").split("\n").filter(l => l.trim());
+    let name = "resume";
+    let title = "";
+    if (lines[0]) {
+      name = lines[0].trim().replace(/[^a-zA-Z\s]/g, "").trim();
+    }
+    // Look for job title in professional summary or first heading content
+    for (const line of lines.slice(1, 10)) {
+      const cleaned = line.trim();
+      if (/^(senior|junior|lead|principal|staff|chief|head|director|manager|engineer|developer|analyst|designer|consultant|architect)/i.test(cleaned)) {
+        title = cleaned.split(/[,|•\n]/)[0].trim();
+        break;
+      }
+      // Also check "Title | Company" or "Title, Company" patterns
+      if (/developer|engineer|manager|analyst|designer|architect|consultant|director|specialist|coordinator/i.test(cleaned) && cleaned.length < 80) {
+        title = cleaned.split(/[,|•\n]/)[0].trim();
+        break;
+      }
+    }
+    const namePart = name.split(/\s+/).slice(0, 3).join("-");
+    const titlePart = title ? "-" + title.replace(/[^a-zA-Z\s]/g, "").trim().split(/\s+/).slice(0, 4).join("-") : "";
+    const today = new Date();
+    const datePart = `${today.getDate().toString().padStart(2, "0")}-${(today.getMonth() + 1).toString().padStart(2, "0")}-${today.getFullYear()}`;
+    return `${namePart}${titlePart}-${datePart}`.toLowerCase().replace(/--+/g, "-");
+  };
+
   const handleDownloadPDF = () => {
     if (!editedText) return;
     if (!hasDownloadAccess) { handleCheckout(); return; }
