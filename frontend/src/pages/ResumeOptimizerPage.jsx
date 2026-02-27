@@ -357,6 +357,7 @@ const ResumeOptimizerPage = () => {
         const data = await res.json();
         setFixedText(data.fixed_text);
         setEditedText(data.fixed_text);
+        setOriginalImprovedText(data.fixed_text); // Store original for reset
         setImproved({ improved_text: data.fixed_text, resume_id: resumeId, is_preview: data.is_preview || false });
         setStep(4);
         setUseOriginalLayout(true);
@@ -370,6 +371,14 @@ const ResumeOptimizerPage = () => {
       }
     } catch { toast.error("Quick fix failed."); }
     finally { setQuickFixing(false); }
+  };
+
+  // Reset to original improved text
+  const handleResetResume = () => {
+    if (originalImprovedText) {
+      setEditedText(originalImprovedText);
+      toast.success("Resume reset to original improved version");
+    }
   };
 
   const extractResumeFilename = (text) => {
