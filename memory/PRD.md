@@ -66,7 +66,8 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 - Iteration 18: 12/12 (payment-gating)
 - Iteration 19: 10/10 (email receipt)
 - Iteration 20: 19/19 (SEO + referral + dashboard)
-- Iteration 21: 100% (3 template/PDF bugs fixed and verified)
+- Iteration 21: 100% (3 template/PDF bugs fixed)
+- Iteration 22: 100% (Rich text editor 22 features, template PDF, Google login)
 
 ## Credentials
 - Admin: admin@diocreations.com / adminpassword
