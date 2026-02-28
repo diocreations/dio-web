@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/App";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,24 +8,65 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { AnimatedLogo } from "@/components/AnimatedLogo";
+import { Loader2 } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const AdminLogin = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login, user } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     name: "",
   });
 
+  // Handle Google OAuth callback
+  useEffect(() => {
+    const sessionId = searchParams.get("session_id");
+    if (sessionId) {
+      setGoogleLoading(true);
+      fetch(`${API_URL}/api/admin/google-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ session_id: sessionId }),
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.email && !data.detail) {
+            login(data);
+            toast.success("Signed in with Google!");
+            navigate("/admin");
+          } else {
+            toast.error(data.detail || "Google sign-in failed. You may not have admin access.");
+          }
+        })
+        .catch(() => toast.error("Google sign-in failed"))
+        .finally(() => setGoogleLoading(false));
+    }
+  }, [searchParams, navigate, login]);
+
   // Redirect if already logged in
   if (user) {
     navigate("/admin");
     return null;
+  }
+
+  // Show loading while processing Google auth
+  if (googleLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <Loader2 className="animate-spin h-8 w-8 mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Signing in with Google...</p>
+        </div>
+      </div>
+    );
   }
 
   const handleChange = (e) => {
