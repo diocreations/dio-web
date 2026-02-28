@@ -197,7 +197,7 @@ async def delete_all_resumes(user: dict = Depends(get_current_user)):
     await db.user_resume_data.delete_many({})
     # Note: Don't delete payments for audit trail
     
-    return {"message": f"All resumes deleted", "deleted_count": count}
+    return {"message": "All resumes deleted", "deleted_count": count}
 
 
 @router.delete("/admin/resume/{resume_id}")
@@ -713,7 +713,7 @@ async def get_resume_og_meta(resume_id: str):
         desc = f"This resume scored {ats_score}/100 on ATS compatibility. Want to see how your resume compares? Try DioAI free!"
     else:
         title = f"📊 Resume Score: {overall_score}/100"
-        desc = f"See this resume's detailed AI analysis. Get your own free resume score and improvement tips at DioAI!"
+        desc = "See this resume's detailed AI analysis. Get your own free resume score and improvement tips at DioAI!"
     
     return {
         "title": title,
