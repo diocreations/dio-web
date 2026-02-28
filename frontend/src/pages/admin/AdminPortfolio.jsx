@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Star, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, ExternalLink, Camera, Loader2 } from "lucide-react";
 import { SortableList, SortableItem } from "@/components/SortableList";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -18,6 +18,7 @@ const AdminPortfolio = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [capturingScreenshot, setCapturingScreenshot] = useState(false);
   const [formData, setFormData] = useState({
     title: "", slug: "", category: "", description: "", image_url: "",
     gallery_images: "", client_name: "", technologies: "", project_url: "",
