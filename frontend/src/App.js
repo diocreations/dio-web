@@ -331,6 +331,14 @@ const AppRouter = () => {
         }
       />
       <Route
+        path="/admin/resume-builder"
+        element={
+          <ProtectedRoute>
+            <AdminResumeBuilder />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/admin/about"
         element={
           <ProtectedRoute>
