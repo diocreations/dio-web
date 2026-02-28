@@ -35,7 +35,41 @@ async def get_footer_menu():
 @router.get("/admin/menus")
 async def get_all_menus(user: dict = Depends(get_current_user)):
     items = await db.menus.find({}, {"_id": 0}).sort([("menu_type", 1), ("order", 1)]).to_list(200)
+    # If no menus exist, seed the defaults so admin can edit them
+    if not items:
+        await _seed_default_menus()
+        items = await db.menus.find({}, {"_id": 0}).sort([("menu_type", 1), ("order", 1)]).to_list(200)
     return items
+
+
+async def _seed_default_menus():
+    """Seed default nav and footer menus if database is empty"""
+    nav_items = [
+        {"item_id": f"menu_nav_{i}", "menu_type": "nav", "label": label, "path": path, "order": i, "is_active": True, "parent_id": None}
+        for i, (label, path) in enumerate([
+            ("Home", "/"),
+            ("About", "/about"),
+            ("Services", "/services"),
+            ("Products", "/products"),
+            ("Resume AI", "/resume-optimizer"),
+            ("Portfolio", "/portfolio"),
+            ("Blog", "/blog"),
+            ("Contact", "/contact"),
+        ])
+    ]
+    footer_items = [
+        {"item_id": f"menu_footer_{i}", "menu_type": "footer", "label": label, "path": path, "order": i, "is_active": True, "parent_id": None}
+        for i, (label, path) in enumerate([
+            ("Home", "/"),
+            ("About", "/about"),
+            ("Services", "/services"),
+            ("Products", "/products"),
+            ("Portfolio", "/portfolio"),
+            ("Blog", "/blog"),
+            ("Contact", "/contact"),
+        ])
+    ]
+    await db.menus.insert_many(nav_items + footer_items)
 
 
 @router.post("/admin/menus")
