@@ -18,7 +18,13 @@ router = APIRouter(prefix="/api")
 
 
 async def is_resume_paid(resume_id: str) -> bool:
-    """Check if payment exists for a specific resume"""
+    """Check if payment exists for a specific resume OR if pricing is disabled"""
+    # First check if pricing is disabled globally
+    pricing = await db.resume_pricing.find_one({"pricing_id": "resume_optimizer"}, {"_id": 0})
+    if pricing and pricing.get("pricing_enabled") == False:
+        return True  # Free access when pricing is disabled
+    
+    # Otherwise check for payment
     payment = await db.resume_payments.find_one(
         {"resume_id": resume_id, "status": "paid"}, {"_id": 0}
     )
