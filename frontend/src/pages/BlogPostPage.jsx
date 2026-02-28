@@ -127,10 +127,33 @@ const BlogPostPage = () => {
       {/* Content */}
       <section className="py-12">
         <div className="max-w-4xl mx-auto px-6 md:px-12">
-          <div 
-            className="prose prose-lg max-w-none"
-            dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br>') }}
-          />
+          {/* AdSense: Before Content */}
+          {post.adsense_code && post.adsense_position === "before_content" && (
+            <div className="my-6" dangerouslySetInnerHTML={{ __html: post.adsense_code }} />
+          )}
+
+          {/* Render content with AdSense injection based on position */}
+          {post.adsense_code && (post.adsense_position === "after_first_paragraph" || post.adsense_position === "middle_content") ? (
+            <BlogContentWithAds content={post.content} adsenseCode={post.adsense_code} position={post.adsense_position} />
+          ) : (
+            <div 
+              className="prose prose-lg max-w-none
+                [&_img]:rounded-xl [&_img]:shadow-md [&_img]:my-6
+                [&_a]:text-primary [&_a]:no-underline [&_a]:hover:underline
+                [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-8 [&_h1]:mb-4
+                [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-3
+                [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mt-5 [&_h3]:mb-2
+                [&_blockquote]:border-l-4 [&_blockquote]:border-primary [&_blockquote]:pl-4 [&_blockquote]:italic
+                [&_pre]:bg-slate-900 [&_pre]:text-slate-100 [&_pre]:rounded-lg [&_pre]:p-4
+              "
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+          )}
+
+          {/* AdSense: After Content */}
+          {post.adsense_code && post.adsense_position === "after_content" && (
+            <div className="my-8 p-4 bg-slate-50 rounded-lg" dangerouslySetInnerHTML={{ __html: post.adsense_code }} />
+          )}
 
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (
