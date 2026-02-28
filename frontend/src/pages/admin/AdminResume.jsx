@@ -52,6 +52,26 @@ const AdminResume = () => {
     finally { setSaving(false); }
   };
 
+  const handleDeleteResume = async (resumeId, filename) => {
+    if (!window.confirm(`Delete "${filename}" and all associated data? This cannot be undone.`)) return;
+    setDeleting(resumeId);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/resume/${resumeId}`, {
+        method: "DELETE", credentials: "include",
+      });
+      if (res.ok) {
+        toast.success("Resume deleted");
+        setResumes(resumes.filter(r => r.resume_id !== resumeId));
+      } else toast.error("Failed to delete");
+    } catch { toast.error("Failed to delete"); }
+    finally { setDeleting(null); }
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "N/A";
+    return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  };
+
   if (loading) return <AdminLayout><div className="animate-pulse space-y-6">{[1, 2, 3].map((i) => <div key={i} className="bg-slate-200 h-32 rounded-lg" />)}</div></AdminLayout>;
 
   return (
