@@ -203,6 +203,30 @@ const ResumeOptimizerPage = () => {
 
       processPaymentReturn().finally(() => setPaymentLoading(false));
     }
+
+    // Handle share URL - load shared resume analysis
+    const shareId = searchParams.get("share");
+    if (shareId && !sid && !rid) {
+      setResumeId(shareId);
+      setStep(2);
+      setAnalyzing(true);
+      fetch(`${API_URL}/api/resume/share/${shareId}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => {
+          if (data) {
+            setAnalysis(data);
+            toast.info("Viewing shared resume analysis. Upload your own resume to get started!");
+          } else {
+            toast.error("Shared resume not found");
+            setStep(1);
+          }
+        })
+        .catch(() => {
+          toast.error("Could not load shared resume");
+          setStep(1);
+        })
+        .finally(() => setAnalyzing(false));
+    }
   }, [searchParams]);
 
   const handleUpload = async (e) => {
