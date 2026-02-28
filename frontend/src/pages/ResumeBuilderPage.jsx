@@ -253,6 +253,122 @@ const ResumeBuilderPage = () => {
     setLoading(false);
   };
 
+  // Export as PDF
+  const exportPdf = async () => {
+    setLoading(true);
+    toast.info("Generating PDF...", { duration: 2000 });
+    
+    const filename = personalInfo.name ? `${personalInfo.name.replace(/\s+/g, "_").toLowerCase()}_resume` : "resume";
+    
+    // Build HTML content for PDF
+    let html = `
+      <div style="font-family: Georgia, serif; padding: 40px; max-width: 700px; margin: 0 auto; color: #333; line-height: 1.5;">
+        <div style="text-align: center; border-bottom: 2px solid #1a1a2e; padding-bottom: 16px; margin-bottom: 20px;">
+          <h1 style="font-size: 24pt; font-weight: bold; color: #1a1a2e; margin: 0;">${personalInfo.name || "Your Name"}</h1>
+          <p style="font-size: 10pt; color: #666; margin: 8px 0 0;">
+            ${[personalInfo.email, personalInfo.phone, personalInfo.location].filter(Boolean).join(" | ")}
+          </p>
+          ${personalInfo.linkedin ? `<p style="font-size: 9pt; color: #2563eb; margin: 4px 0 0;">${personalInfo.linkedin}</p>` : ""}
+        </div>
+    `;
+    
+    // Summary
+    if (summary) {
+      html += `
+        <div style="margin-bottom: 16px;">
+          <h2 style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #1a1a2e; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 8px;">Professional Summary</h2>
+          <p style="font-size: 10pt; margin: 0;">${summary}</p>
+        </div>
+      `;
+    }
+    
+    // Experience
+    if (experience.some(e => e.title)) {
+      html += `<div style="margin-bottom: 16px;"><h2 style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #1a1a2e; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 8px;">Work Experience</h2>`;
+      for (const exp of experience.filter(e => e.title)) {
+        html += `
+          <div style="margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span style="font-weight: bold; font-size: 10pt;">${exp.title}</span>
+              <span style="font-size: 9pt; color: #666; font-style: italic;">${exp.start_date} - ${exp.end_date}</span>
+            </div>
+            <p style="font-size: 9pt; color: #666; margin: 2px 0 4px;">${exp.company}${exp.location ? ` | ${exp.location}` : ""}</p>
+            <ul style="margin: 0; padding-left: 18px; font-size: 10pt;">
+              ${exp.bullets.filter(b => b).map(b => `<li style="margin-bottom: 2px;">${b}</li>`).join("")}
+            </ul>
+          </div>
+        `;
+      }
+      html += `</div>`;
+    }
+    
+    // Education
+    if (education.some(e => e.degree)) {
+      html += `<div style="margin-bottom: 16px;"><h2 style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #1a1a2e; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 8px;">Education</h2>`;
+      for (const edu of education.filter(e => e.degree)) {
+        html += `
+          <div style="margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span style="font-weight: bold; font-size: 10pt;">${edu.degree}</span>
+              <span style="font-size: 9pt; color: #666;">${edu.year}</span>
+            </div>
+            <p style="font-size: 9pt; color: #666; margin: 2px 0 0;">${edu.school}${edu.location ? ` | ${edu.location}` : ""}</p>
+          </div>
+        `;
+      }
+      html += `</div>`;
+    }
+    
+    // Skills
+    if (skills.technical.length > 0 || skills.soft.length > 0) {
+      html += `<div style="margin-bottom: 16px;"><h2 style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #1a1a2e; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 8px;">Skills</h2>`;
+      if (skills.technical.length > 0) {
+        html += `<p style="font-size: 10pt; margin: 0 0 4px;"><strong>Technical:</strong> ${skills.technical.join(", ")}</p>`;
+      }
+      if (skills.soft.length > 0) {
+        html += `<p style="font-size: 10pt; margin: 0;"><strong>Soft Skills:</strong> ${skills.soft.join(", ")}</p>`;
+      }
+      html += `</div>`;
+    }
+    
+    // Certifications
+    if (certifications.length > 0) {
+      html += `<div style="margin-bottom: 16px;"><h2 style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #1a1a2e; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 8px;">Certifications</h2>`;
+      html += `<ul style="margin: 0; padding-left: 18px; font-size: 10pt;">${certifications.map(c => `<li>${c}</li>`).join("")}</ul></div>`;
+    }
+    
+    // Languages
+    if (languages.length > 0) {
+      html += `<div style="margin-bottom: 16px;"><h2 style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #1a1a2e; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 8px;">Languages</h2>`;
+      html += `<p style="font-size: 10pt; margin: 0;">${languages.map(l => `${l.name} (${l.level})`).join(", ")}</p></div>`;
+    }
+    
+    html += `</div>`;
+    
+    // Create container and generate PDF
+    const container = document.createElement("div");
+    container.innerHTML = html;
+    document.body.appendChild(container);
+    
+    try {
+      const opt = {
+        margin: [0.5, 0.6, 0.5, 0.6],
+        filename: `${filename}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+      };
+      await html2pdf().set(opt).from(container.querySelector("div")).save();
+      toast.success("PDF downloaded!");
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      toast.error("PDF generation failed");
+    } finally {
+      document.body.removeChild(container);
+      setLoading(false);
+    }
+  };
+
   // Add/Remove helpers
   const addExperience = () => setExperience([...experience, { id: Date.now(), title: "", company: "", location: "", start_date: "", end_date: "", bullets: [""] }]);
   const removeExperience = (id) => setExperience(experience.filter(e => e.id !== id));
