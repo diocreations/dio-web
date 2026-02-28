@@ -15,17 +15,29 @@ const API_URL = process.env.REACT_APP_BACKEND_URL;
 const AdminResume = () => {
   const [pricing, setPricing] = useState(null);
   const [analytics, setAnalytics] = useState(null);
+  const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(null);
 
-  useEffect(() => {
-    Promise.all([
-      fetch(`${API_URL}/api/admin/resume/pricing`, { credentials: "include" }).then((r) => r.json()),
-      fetch(`${API_URL}/api/admin/resume/analytics`, { credentials: "include" }).then((r) => r.json()),
-    ]).then(([p, a]) => { setPricing(p); setAnalytics(a); })
-      .catch(() => toast.error("Failed to load"))
-      .finally(() => setLoading(false));
-  }, []);
+  const fetchData = async () => {
+    try {
+      const [pricingRes, analyticsRes, resumesRes] = await Promise.all([
+        fetch(`${API_URL}/api/admin/resume/pricing`, { credentials: "include" }),
+        fetch(`${API_URL}/api/admin/resume/analytics`, { credentials: "include" }),
+        fetch(`${API_URL}/api/admin/resume/list`, { credentials: "include" }),
+      ]);
+      setPricing(await pricingRes.json());
+      setAnalytics(await analyticsRes.json());
+      setResumes(await resumesRes.json());
+    } catch {
+      toast.error("Failed to load data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchData(); }, []);
 
   const savePricing = async () => {
     setSaving(true);
