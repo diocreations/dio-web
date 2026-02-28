@@ -133,7 +133,13 @@ const ResumeOptimizerPage = () => {
   };
 
   useEffect(() => {
-    fetch(`${API_URL}/api/resume/pricing`).then((r) => r.json()).then(setPricing).catch(() => {});
+    fetch(`${API_URL}/api/resume/pricing`).then((r) => r.json()).then((data) => {
+      setPricing(data);
+      // If pricing is disabled, grant free access
+      if (data?.pricing_enabled === false) {
+        setHasDownloadAccess(true);
+      }
+    }).catch(() => {});
     fetch(`${API_URL}/api/resume/templates`).then((r) => r.json()).then(setTemplates).catch(() => {});
     fetch(`${API_URL}/api/drive/status`).then((r) => r.json()).then((d) => setDriveConfigured(d.configured)).catch(() => {});
     // Check for referral code in URL
