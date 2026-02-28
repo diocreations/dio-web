@@ -18,6 +18,7 @@ import html2pdf from "html2pdf.js";
 import { ScoreRing } from "@/components/resume/ScoreRing";
 import ResumePreview from "@/components/resume/ResumePreview";
 import ScoreComparison from "@/components/resume/ScoreComparison";
+import SectionEditor from "@/components/resume/SectionEditor";
 import { VISUAL_TEMPLATES, STEPS } from "@/components/resume/constants";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
