@@ -749,9 +749,26 @@ const ResumeOptimizerPage = () => {
                   </div>
                 ) : analysis ? (
                   <div className="space-y-8">
-                    <div className="flex justify-center gap-12">
-                      <ScoreRing score={analysis.overall_score} label="Overall Score" size={120} />
-                      <ScoreRing score={analysis.ats_score} label="ATS Score" size={120} />
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="flex justify-center gap-12">
+                        <ScoreRing score={analysis.overall_score} label="Overall Score" size={120} />
+                        <ScoreRing score={analysis.ats_score} label="ATS Score" size={120} />
+                      </div>
+                      {/* Share Analysis Button */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full gap-2 text-muted-foreground hover:text-foreground"
+                        onClick={() => {
+                          const shareUrl = `${window.location.origin}/resume-optimizer?share=${resumeId}`;
+                          navigator.clipboard.writeText(shareUrl);
+                          toast.success("Share link copied! Send it to friends to show your resume score.");
+                        }}
+                        data-testid="share-analysis-btn"
+                      >
+                        <Share2 size={14} />
+                        Share Your Score
+                      </Button>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-6">
