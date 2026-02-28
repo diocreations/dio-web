@@ -42,6 +42,7 @@ const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 const AdminAbout = lazy(() => import("./pages/admin/AdminAbout"));
 const AdminChatbot = lazy(() => import("./pages/admin/AdminChatbot"));
 const AdminResume = lazy(() => import("./pages/admin/AdminResume"));
+const AdminResumeBuilder = lazy(() => import("./pages/admin/AdminResumeBuilder"));
 const AdminMenus = lazy(() => import("./pages/admin/AdminMenus"));
 const AdminCurrency = lazy(() => import("./pages/admin/AdminCurrency"));
 const AdminTemplates = lazy(() => import("./pages/admin/AdminTemplates"));
