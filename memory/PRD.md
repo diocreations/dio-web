@@ -99,7 +99,8 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 - ✅ Full MS Word-like Rich Text Editor
 - ✅ Google Sign-In prominent in navbar + Resume Optimizer page
 - ✅ Production code cleanup complete
-- ⏳ RESEND_API_KEY: Awaiting user to provide key for email receipts
+- ✅ FOUC (Flash of Unstyled Content) fix - Color theme loads instantly from localStorage before React hydrates
+- ⏳ RESEND_API_KEY: Configured in backend .env (user provided key)
 - ⏳ SSL for resume.diocreations.eu: Requires Emergent dashboard action
 
 ## Final Cleanup (Dec 2025)
@@ -107,3 +108,4 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 - Added Google Sign-In button to Navbar for quick access
 - Added "Save your progress" prompt on Resume Optimizer page
 - All linting passes, no console.logs in production code paths
+- **FOUC Fix**: Moved color scheme initialization script to `<head>` in index.html for earliest possible execution
