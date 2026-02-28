@@ -172,10 +172,7 @@ Suggest 8-10 technical skills and 5-6 soft skills. Only return the JSON, nothing
     try:
         session_id = f"builder_{uuid.uuid4().hex[:8]}"
         chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=session_id, system_message="You are a professional resume writer.").with_model("gemini", "gemini-2.0-flash")
-        response = await asyncio.to_thread(
-            chat.send_message,
-            UserMessage(text=prompt)
-        )
+        response = await chat.send_message(UserMessage(text=prompt))
         import json
         # Clean response and parse JSON
         content = response.content.strip()
