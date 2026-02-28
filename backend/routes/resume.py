@@ -180,6 +180,7 @@ async def list_all_resumes(user: dict = Depends(get_current_user)):
         resume["overall_score"] = analysis.get("overall_score") if analysis else None
         resume["is_paid"] = payment is not None
         resume["amount_paid"] = payment.get("amount") if payment else 0
+        resume["has_file"] = bool(resume.get("file_content") or resume.get("filename"))
     return resumes
 
 
