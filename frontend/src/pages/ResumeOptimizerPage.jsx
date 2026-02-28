@@ -623,6 +623,19 @@ const ResumeOptimizerPage = () => {
 
   return (
     <Layout>
+      {/* Dynamic OG Meta for Shared Links */}
+      {ogMeta && (
+        <Helmet>
+          <title>{ogMeta.title}</title>
+          <meta property="og:title" content={ogMeta.title} />
+          <meta property="og:description" content={ogMeta.description} />
+          <meta property="og:image" content={ogMeta.image || "https://www.diocreations.eu/og-resume.jpg"} />
+          <meta property="og:type" content="website" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={ogMeta.title} />
+          <meta name="twitter:description" content={ogMeta.description} />
+        </Helmet>
+      )}
       <div className="min-h-screen">
         {/* Hero */}
         <section className="relative py-16 lg:py-24 bg-gradient-to-br from-primary/5 via-white to-white overflow-hidden">
