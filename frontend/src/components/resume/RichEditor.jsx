@@ -214,9 +214,9 @@ const RichEditor = ({ value, onChange, placeholder = "Edit your resume..." }) =>
   );
 
   return (
-    <div className="border rounded-lg overflow-hidden bg-white" data-testid="rich-editor">
+    <div className="border rounded-lg overflow-hidden bg-white h-full flex flex-col" data-testid="rich-editor">
       {/* Main Toolbar */}
-      <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-slate-50 flex-wrap">
+      <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-slate-50 flex-wrap flex-shrink-0">
         {/* Font Family */}
         <div className="relative" ref={fontFamilyRef}>
           <button type="button" onMouseDown={(e) => { e.preventDefault(); setShowFontFamily(!showFontFamily); }}
