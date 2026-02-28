@@ -176,7 +176,7 @@ Suggest 8-10 technical skills and 5-6 soft skills. Only return the JSON, nothing
         response = await chat.send_message(UserMessage(text=prompt))
         import json
         # Clean response and parse JSON
-        content = response.content.strip()
+        content = response.strip() if isinstance(response, str) else response.content.strip()
         if content.startswith("```"):
             content = content.split("```")[1]
             if content.startswith("json"):
