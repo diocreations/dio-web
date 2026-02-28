@@ -669,6 +669,82 @@ const AdminHomepage = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Featured Services Selector */}
+            {settings?.show_services !== false && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Layout size={20} /> Select Featured Services
+                  </CardTitle>
+                  <CardDescription>
+                    Selected: {featuredServices.length} / {settings?.featured_services_count || 6}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {services.map((service) => (
+                      <div
+                        key={service.service_id}
+                        onClick={() => toggleFeaturedService(service.service_id)}
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          featuredServices.includes(service.service_id) ? "border-primary bg-primary/5" : "hover:border-primary/50"
+                        }`}
+                      >
+                        {service.icon && <span className="text-2xl mb-2 block">{service.icon}</span>}
+                        <p className="font-medium">{service.title}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{service.short_description}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {services.length === 0 && (
+                    <p className="text-center text-muted-foreground py-4">No services found. Add services first.</p>
+                  )}
+                  <Button onClick={saveFeaturedItems} className="mt-4" disabled={saving}>
+                    <Save size={16} className="mr-2" /> Save Featured Items
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Featured Portfolio Selector */}
+            {settings?.show_portfolio !== false && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Image size={20} /> Select Featured Portfolio
+                  </CardTitle>
+                  <CardDescription>
+                    Selected: {featuredPortfolio.length} / {settings?.featured_portfolio_count || 6}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {portfolioItems.map((item) => (
+                      <div
+                        key={item.portfolio_id}
+                        onClick={() => toggleFeaturedPortfolio(item.portfolio_id)}
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          featuredPortfolio.includes(item.portfolio_id) ? "border-primary bg-primary/5" : "hover:border-primary/50"
+                        }`}
+                      >
+                        {item.image_url && (
+                          <img src={item.image_url} alt={item.title} className="w-full h-24 object-cover rounded mb-2" />
+                        )}
+                        <p className="font-medium">{item.title}</p>
+                        <p className="text-xs text-muted-foreground">{item.category}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {portfolioItems.length === 0 && (
+                    <p className="text-center text-muted-foreground py-4">No portfolio items found. Add portfolio items first.</p>
+                  )}
+                  <Button onClick={saveFeaturedItems} className="mt-4" disabled={saving}>
+                    <Save size={16} className="mr-2" /> Save Featured Items
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Stats Tab */}
