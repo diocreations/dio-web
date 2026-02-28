@@ -1020,6 +1020,19 @@ const ResumeOptimizerPage = () => {
                               </button>
                             </div>
 
+                            {/* Done Editing Button - shown when in edit mode */}
+                            {editorMode !== "preview" && (
+                              <Button 
+                                variant="default" 
+                                size="sm" 
+                                className="rounded-full bg-green-600 hover:bg-green-700"
+                                onClick={() => { setEditorMode("preview"); setIsEditing(false); toast.success("Editing complete!"); }}
+                                data-testid="done-editing-btn"
+                              >
+                                <CheckCircle size={14} className="mr-1" /> Done Editing
+                              </Button>
+                            )}
+
                             {editorMode !== "preview" && originalImprovedText && editedText !== originalImprovedText && (
                               <Button variant="ghost" size="sm" className="rounded-full text-amber-600 hover:text-amber-700 hover:bg-amber-50" onClick={handleResetResume} data-testid="reset-resume-btn">
                                 <RotateCcw size={14} className="mr-1" /> Reset
