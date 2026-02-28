@@ -4,7 +4,7 @@ Create resumes from scratch with AI assistance
 """
 from fastapi import APIRouter, HTTPException, Depends
 from database import db, EMERGENT_LLM_KEY, logger
-from helpers import get_current_user_optional, get_current_user
+from helpers import get_current_user
 from datetime import datetime, timezone
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 import uuid
