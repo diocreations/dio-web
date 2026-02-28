@@ -130,6 +130,25 @@
         </script>
     </head>
     <body>
+        <!-- Apply saved color scheme immediately to prevent flash -->
+        <script>
+            (function() {
+                var colors = {
+                    violet: { "--primary": "265 80% 50%", "--ring": "265 80% 50%", "--accent": "265 60% 60%", "--secondary": "265 30% 96%", "--secondary-foreground": "265 80% 30%" },
+                    blue: { "--primary": "221 83% 53%", "--ring": "221 83% 53%", "--accent": "221 60% 60%", "--secondary": "221 30% 96%", "--secondary-foreground": "221 83% 30%" },
+                    teal: { "--primary": "172 66% 50%", "--ring": "172 66% 50%", "--accent": "172 50% 55%", "--secondary": "172 30% 96%", "--secondary-foreground": "172 66% 30%" },
+                    pink: { "--primary": "333 71% 51%", "--ring": "333 71% 51%", "--accent": "333 55% 60%", "--secondary": "333 30% 96%", "--secondary-foreground": "333 71% 30%" },
+                    orange: { "--primary": "25 95% 53%", "--ring": "25 95% 53%", "--accent": "25 70% 60%", "--secondary": "25 30% 96%", "--secondary-foreground": "25 95% 30%" }
+                };
+                var saved = localStorage.getItem("dio_color_scheme");
+                if (saved && colors[saved]) {
+                    var root = document.documentElement;
+                    Object.keys(colors[saved]).forEach(function(key) {
+                        root.style.setProperty(key, colors[saved][key]);
+                    });
+                }
+            })();
+        </script>
         <noscript>You need to enable JavaScript to run this app.</noscript>
         <div id="root"></div>
         <!--
