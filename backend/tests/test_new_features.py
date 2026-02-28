@@ -22,7 +22,7 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://career-boost-215.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://resume-optimizer-144.preview.emergentagent.com').rstrip('/')
 
 
 # =============================================================================
