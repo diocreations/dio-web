@@ -715,8 +715,9 @@ const ResumeBuilderPage = () => {
                   {loading ? <Loader2 className="animate-spin" size={16} /> : <FileText size={16} />}
                   Export DOCX
                 </Button>
-                <Button onClick={() => toast.info("PDF export coming soon!")} className="gap-2" data-testid="export-pdf-btn">
-                  <Download size={16} /> Export PDF
+                <Button onClick={exportPdf} disabled={loading} className="gap-2" data-testid="export-pdf-btn">
+                  {loading ? <Loader2 className="animate-spin" size={16} /> : <Download size={16} />}
+                  Export PDF
                 </Button>
               </div>
             </div>
