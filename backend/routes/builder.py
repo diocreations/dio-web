@@ -245,7 +245,7 @@ Generate 2-3 relevant work experiences. Make it realistic and ATS-friendly. Only
         chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=session_id, system_message="You are a professional resume writer.").with_model("gemini", "gemini-2.0-flash")
         response = await chat.send_message(UserMessage(text=prompt))
         import json
-        content = response.content.strip()
+        content = response.strip() if isinstance(response, str) else response.content.strip()
         if content.startswith("```"):
             content = content.split("```")[1]
             if content.startswith("json"):
