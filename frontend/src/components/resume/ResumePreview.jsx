@@ -143,7 +143,7 @@ const ResumePreview = ({ text, templateId, editing, onTextChange, fontSize = 13 
   // Rich text editing mode
   if (editing) {
     return (
-      <div className="w-full" data-testid="resume-editor">
+      <div className="w-full h-full min-h-[600px]" data-testid="resume-editor">
         <RichEditor value={text} onChange={onTextChange} placeholder="Edit your resume..." />
       </div>
     );
