@@ -150,13 +150,34 @@ const AdminPortfolio = () => {
                   <div className="space-y-2"><Label htmlFor="client_name">Client Name</Label><Input id="client_name" name="client_name" value={formData.client_name} onChange={handleChange} /></div>
                 </div>
                 <div className="space-y-2"><Label htmlFor="description">Description *</Label><Textarea id="description" name="description" value={formData.description} onChange={handleChange} rows={3} required /></div>
-                <div className="space-y-2"><Label htmlFor="image_url">Featured Image URL *</Label><Input id="image_url" name="image_url" value={formData.image_url} onChange={handleChange} required /></div>
+                
+                {/* Project URL with Screenshot Capture */}
+                <div className="space-y-2">
+                  <Label htmlFor="project_url">Project URL (Live Site)</Label>
+                  <div className="flex gap-2">
+                    <Input id="project_url" name="project_url" value={formData.project_url} onChange={handleChange} placeholder="https://example.com" className="flex-1" />
+                    <Button type="button" variant="outline" onClick={captureScreenshot} disabled={capturingScreenshot || !formData.project_url} data-testid="capture-screenshot-btn">
+                      {capturingScreenshot ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
+                      <span className="ml-2 hidden sm:inline">Capture</span>
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Enter URL and click Capture to auto-grab a screenshot</p>
+                </div>
+
+                {/* Featured Image URL */}
+                <div className="space-y-2">
+                  <Label htmlFor="image_url">Featured Image URL *</Label>
+                  <Input id="image_url" name="image_url" value={formData.image_url} onChange={handleChange} required placeholder="Auto-filled when you capture screenshot" />
+                  {formData.image_url && (
+                    <div className="mt-2">
+                      <img src={formData.image_url} alt="Preview" className="w-full max-w-md h-40 object-cover rounded border" onError={(e) => e.target.style.display = 'none'} />
+                    </div>
+                  )}
+                </div>
+
                 <div className="space-y-2"><Label htmlFor="gallery_images">Gallery Images (one URL per line)</Label><Textarea id="gallery_images" name="gallery_images" value={formData.gallery_images} onChange={handleChange} rows={3} /></div>
                 <div className="space-y-2"><Label htmlFor="technologies">Technologies (comma separated)</Label><Input id="technologies" name="technologies" value={formData.technologies} onChange={handleChange} /></div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label htmlFor="project_url">Project URL</Label><Input id="project_url" name="project_url" value={formData.project_url} onChange={handleChange} /></div>
-                  <div className="space-y-2"><Label htmlFor="order">Order</Label><Input id="order" name="order" type="number" value={formData.order} onChange={handleChange} /></div>
-                </div>
+                <div className="space-y-2"><Label htmlFor="order">Order</Label><Input id="order" name="order" type="number" value={formData.order} onChange={handleChange} /></div>
                 <div className="flex gap-6">
                   <div className="flex items-center gap-2"><Switch id="is_featured" checked={formData.is_featured} onCheckedChange={(c) => setFormData((p) => ({ ...p, is_featured: c }))} /><Label htmlFor="is_featured">Featured</Label></div>
                   <div className="flex items-center gap-2"><Switch id="is_active" checked={formData.is_active} onCheckedChange={(c) => setFormData((p) => ({ ...p, is_active: c }))} /><Label htmlFor="is_active">Active</Label></div>
