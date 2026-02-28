@@ -174,7 +174,7 @@ Return as JSON with two arrays:
 Suggest 8-10 technical skills and 5-6 soft skills. Only return the JSON, nothing else."""
 
     try:
-        chat = LlmChat(api_key=EMERGENT_LLM_KEY, model="gemini-2.0-flash")
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY).with_model("gemini", "gemini-2.0-flash")
         response = await asyncio.to_thread(
             chat.send_message,
             UserMessage(content=prompt)
