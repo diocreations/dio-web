@@ -128,6 +128,7 @@ async def get_pricing_public():
         "discount_percent": pricing.get("discount_percent", 0) if pricing.get("discount_enabled") else 0,
         "linkedin_enabled": pricing.get("linkedin_enabled", True),
         "features": pricing.get("features", []),
+        "pricing_enabled": pricing.get("pricing_enabled", True),
     }
 
 
