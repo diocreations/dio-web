@@ -139,7 +139,8 @@ Format: Return ONLY the bullet points, one per line, starting with action verbs 
         session_id = f"builder_{uuid.uuid4().hex[:8]}"
         chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=session_id, system_message="You are a professional resume writer.").with_model("gemini", "gemini-2.0-flash")
         response = await chat.send_message(UserMessage(text=prompt))
-        bullets = [b.strip() for b in response.content.strip().split("\n") if b.strip()]
+        content = response.strip() if isinstance(response, str) else response.content.strip()
+        bullets = [b.strip() for b in content.split("\n") if b.strip()]
         return {"bullets": bullets}
     except Exception as e:
         logger.error(f"AI experience generation failed: {e}")
