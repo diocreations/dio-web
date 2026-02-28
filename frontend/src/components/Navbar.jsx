@@ -54,6 +54,7 @@ const Navbar = () => {
     { label: "Services", path: "/services" },
     { label: "Products", path: "/products" },
     { label: "Resume AI", path: "/resume-optimizer" },
+    { label: "Resume Builder", path: "/resume-builder" },
     { label: "Portfolio", path: "/portfolio" },
     { label: "Blog", path: "/blog" },
     { label: "Contact", path: "/contact" },
