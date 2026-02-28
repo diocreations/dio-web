@@ -14,6 +14,7 @@ import {
   Save, Loader2, Eye, Wand2,
 } from "lucide-react";
 import { toast } from "sonner";
+import html2pdf from "html2pdf.js";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
