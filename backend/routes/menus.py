@@ -72,6 +72,18 @@ async def _seed_default_menus():
     await db.menus.insert_many(nav_items + footer_items)
 
 
+@router.post("/admin/menus/seed-defaults")
+async def seed_default_menus_endpoint(user: dict = Depends(get_current_user)):
+    """Manually seed default menus - clears existing and adds defaults"""
+    # Clear existing menus
+    await db.menus.delete_many({})
+    # Seed defaults
+    await _seed_default_menus()
+    # Return the new menus
+    items = await db.menus.find({}, {"_id": 0}).sort([("menu_type", 1), ("order", 1)]).to_list(200)
+    return {"message": "Default menus loaded", "count": len(items)}
+
+
 @router.post("/admin/menus")
 async def create_menu_item(data: dict, user: dict = Depends(get_current_user)):
     item = {
