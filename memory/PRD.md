@@ -103,6 +103,23 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 - ⏳ RESEND_API_KEY: Configured in backend .env (user provided key)
 - ⏳ SSL for resume.diocreations.eu: Requires Emergent dashboard action
 
+## Resume Builder Feature (Dec 2025 - NEW)
+- **Multi-step wizard**: 7 steps (Personal Info → Summary → Experience → Education → Skills → More → Preview)
+- **AI-powered content generation**:
+  - Generate professional summary from job title
+  - Generate experience bullet points
+  - Suggest relevant skills
+  - Generate full resume from minimal input
+- **Export options**: DOCX (PDF coming soon)
+- **Draft saving**: Logged-in users can save and resume drafts
+- **Backend**: `/app/backend/routes/builder.py` with endpoints:
+  - `POST /api/builder/generate/summary` - AI summary generation
+  - `POST /api/builder/generate/experience` - AI bullet points
+  - `POST /api/builder/generate/skills` - AI skill suggestions
+  - `POST /api/builder/generate/full` - Full resume generation
+  - `POST /api/builder/export/docx` - DOCX export
+  - Draft CRUD endpoints
+
 ## Final Cleanup (Dec 2025)
 - Removed debug console.log from GoogleAnalytics.jsx
 - Added Google Sign-In button to Navbar for quick access
