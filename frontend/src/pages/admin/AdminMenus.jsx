@@ -172,14 +172,28 @@ const AdminMenus = () => {
                 {loading ? (
                   <div className="text-center py-8"><Loader2 className="animate-spin mx-auto" /></div>
                 ) : filteredMenus.length === 0 ? (
-                  <Card><CardContent className="p-8 text-center text-muted-foreground">No items. Click "Add Item" to start.</CardContent></Card>
+                  <Card>
+                    <CardContent className="p-8 text-center">
+                      <p className="text-muted-foreground mb-4">No menu items found.</p>
+                      <Button onClick={seedDefaultMenus} disabled={saving} variant="outline">
+                        Load Default Menu Items
+                      </Button>
+                    </CardContent>
+                  </Card>
                 ) : (
                   filteredMenus.map(item => <MenuItem key={item.item_id} item={item} />)
                 )}
               </div>
-              <Button onClick={addItem} disabled={saving} data-testid="add-menu-item-btn">
-                <Plus size={16} className="mr-1" /> Add Item
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={addItem} disabled={saving} data-testid="add-menu-item-btn">
+                  <Plus size={16} className="mr-1" /> Add Item
+                </Button>
+                {filteredMenus.length < 3 && (
+                  <Button onClick={seedDefaultMenus} disabled={saving} variant="outline" size="sm">
+                    Load Defaults
+                  </Button>
+                )}
+              </div>
             </TabsContent>
           ))}
         </Tabs>
