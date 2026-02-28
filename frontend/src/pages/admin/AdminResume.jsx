@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Save, FileText, Users, DollarSign, TrendingUp, Trash2, CheckCircle, XCircle, Calendar, Loader2, Settings, Database } from "lucide-react";
+import { Save, FileText, Users, DollarSign, TrendingUp, Trash2, CheckCircle, XCircle, Calendar, Loader2, Settings, Database, AlertTriangle } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -19,6 +19,7 @@ const AdminResume = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(null);
+  const [deletingAll, setDeletingAll] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -65,6 +66,36 @@ const AdminResume = () => {
       } else toast.error("Failed to delete");
     } catch { toast.error("Failed to delete"); }
     finally { setDeleting(null); }
+  };
+
+  const handleDeleteAllResumes = async () => {
+    if (resumes.length === 0) {
+      toast.info("No resumes to delete");
+      return;
+    }
+    const confirmed = window.confirm(`⚠️ DELETE ALL ${resumes.length} RESUMES?\n\nThis will permanently delete:\n- All uploaded resume files (PDFs/DOCXs)\n- All analysis data\n- All improvement data\n\nThis action CANNOT be undone!`);
+    if (!confirmed) return;
+    
+    // Double confirmation for safety
+    const doubleConfirm = window.confirm(`Are you ABSOLUTELY sure? Type count: ${resumes.length} resumes will be deleted forever.`);
+    if (!doubleConfirm) return;
+    
+    setDeletingAll(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/resume/delete-all`, {
+        method: "DELETE", credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        toast.success(`Deleted ${data.deleted_count || resumes.length} resumes`);
+        setResumes([]);
+        fetchData(); // Refresh analytics
+      } else {
+        const err = await res.json();
+        toast.error(err.detail || "Failed to delete all resumes");
+      }
+    } catch { toast.error("Failed to delete all resumes"); }
+    finally { setDeletingAll(false); }
   };
 
   const formatDate = (dateStr) => {
@@ -122,8 +153,28 @@ const AdminResume = () => {
           <TabsContent value="resumes">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><FileText size={18} /> All Uploaded Resumes</CardTitle>
-                <CardDescription>View and delete uploaded resume files</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2"><FileText size={18} /> All Uploaded Resumes</CardTitle>
+                    <CardDescription>View and delete uploaded resume files and their PDFs</CardDescription>
+                  </div>
+                  {resumes.length > 0 && (
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      onClick={handleDeleteAllResumes}
+                      disabled={deletingAll}
+                      className="gap-2"
+                      data-testid="delete-all-resumes-btn"
+                    >
+                      {deletingAll ? (
+                        <><Loader2 size={14} className="animate-spin" /> Deleting...</>
+                      ) : (
+                        <><AlertTriangle size={14} /> Delete All ({resumes.length})</>
+                      )}
+                    </Button>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 {resumes.length === 0 ? (
@@ -150,6 +201,9 @@ const AdminResume = () => {
                               ) : (
                                 <span className="flex items-center gap-1 text-slate-400"><XCircle size={10} /> Free</span>
                               )}
+                              {resume.has_file && (
+                                <span className="text-blue-500">PDF/DOCX</span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -159,6 +213,7 @@ const AdminResume = () => {
                           onClick={() => handleDeleteResume(resume.resume_id, resume.filename)}
                           disabled={deleting === resume.resume_id}
                           data-testid={`delete-resume-${resume.resume_id}`}
+                          title="Delete resume and all associated data"
                         >
                           {deleting === resume.resume_id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                         </Button>
