@@ -33,8 +33,10 @@ def truncate_preview(text: str, max_lines: int = 8) -> str:
 
 async def send_payment_receipt(email: str, amount: float, currency: str, resume_filename: str, session_id: str):
     """Send a payment receipt email via Resend"""
+    from email_templates import get_email_wrapper, get_email_header, get_success_badge, get_info_box
+    
     resend_key = os.environ.get("RESEND_API_KEY", "")
-    sender_email = os.environ.get("SENDER_EMAIL", "Diocreations <onboarding@resend.dev>")
+    sender_email = os.environ.get("SENDER_EMAIL", "Diocreations <noreply@diocreations.eu>")
     if not resend_key or not email:
         logger.info(f"Skipping receipt email: resend_key={'set' if resend_key else 'missing'}, email={email or 'missing'}")
         return
@@ -44,57 +46,30 @@ async def send_payment_receipt(email: str, amount: float, currency: str, resume_
         date_str = datetime.now(timezone.utc).strftime("%B %d, %Y at %H:%M UTC")
         receipt_id = session_id[-12:].upper() if session_id else "N/A"
         
-        # Animated butterfly SVG logo (inline, base64 would break in email)
-        logo_svg = '''<svg viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg" style="width:180px;height:54px;">
-          <style>
-            .lw,.rw{transform-origin:30px 30px;animation:flap .4s ease-in-out infinite alternate}
-            .rw{animation-name:flapr}
-            @keyframes flap{to{transform:rotate(-25deg)}}
-            @keyframes flapr{to{transform:rotate(25deg)}}
-          </style>
-          <g transform="translate(5,5)">
-            <g class="rw">
-              <path fill="#4D629A" d="M32.7 36.16c-2.36-2.36-2.64-6.14-2.64-6.14s3.98.48 6.14 2.64c1.27 1.28 1.52 3.09.56 4.06s-2.79.71-4.06-.56z"/>
-              <path fill="#00A096" d="M36.26 32.5c-3.34 0-6.2-2.48-6.2-2.48s3.16-2.48 6.2-2.48c1.8 0 3.26 1.11 3.26 2.48s-1.46 2.48-3.26 2.48z"/>
-              <path fill="#89BF4A" d="M36.19 27.39c-2.36 2.36-6.14 2.64-6.14 2.64s.48-3.99 2.64-6.14c1.27-1.27 3.09-1.52 4.05-.56s.72 2.79-.55 4.06z"/>
-            </g>
-            <g class="lw">
-              <path fill="#8F5398" d="M27.3 36.11c2.36-2.36 2.64-6.14 2.64-6.14s-3.98.48-6.14 2.64c-1.27 1.27-1.52 3.09-.56 4.06s2.79.72 4.06-.56z"/>
-              <path fill="#E16136" d="M23.74 32.45c3.34 0 6.2-2.48 6.2-2.48s-6.16-2.47-9.2-2.47c-1.8 0-3.26 1.11-3.26 2.47s1.46 2.48 3.26 2.48z"/>
-              <path fill="#F3BE33" d="M23.81 27.34c2.36 2.36 6.14 2.64 6.14 2.64s-.49-3.98-2.65-6.14c-1.27-1.27-3.09-1.52-4.05-.55s-.72 2.78.56 4.05z"/>
-            </g>
-          </g>
-          <text x="65" y="38" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="700" fill="#1a1a2e">DIO</text>
-          <text x="103" y="38" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="700" fill="#7c3aed">CREATIONS</text>
-        </svg>'''
+        header = get_email_header("Payment Receipt", "DioAI Resume & LinkedIn Optimizer")
+        success_badge = get_success_badge("Payment Successful")
+        info_box = get_info_box([
+            "Your improved resume and LinkedIn optimization are now unlocked.",
+            "Return to the optimizer to download your professional PDF."
+        ])
         
-        html = f"""
-        <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:560px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
-          <div style="background:linear-gradient(135deg,#1a1a2e 0%,#2d2d4a 100%);padding:32px 28px;text-align:center;">
-            {logo_svg}
-            <h1 style="color:#fff;margin:16px 0 0;font-size:22px;letter-spacing:0.5px;">Payment Receipt</h1>
-            <p style="color:#94a3b8;margin:6px 0 0;font-size:13px;">DioAI Resume & LinkedIn Optimizer</p>
-          </div>
-          <div style="padding:28px;">
-            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;text-align:center;margin-bottom:24px;">
-              <p style="color:#16a34a;font-weight:600;font-size:15px;margin:0;">✓ Payment Successful</p>
-            </div>
-            <table style="width:100%;border-collapse:collapse;font-size:14px;">
-              <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Product</td><td style="padding:10px 0;text-align:right;font-weight:600;border-bottom:1px solid #f3f4f6;">Resume & LinkedIn Optimizer</td></tr>
-              <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Resume</td><td style="padding:10px 0;text-align:right;border-bottom:1px solid #f3f4f6;">{resume_filename or 'Your resume'}</td></tr>
-              <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Date</td><td style="padding:10px 0;text-align:right;border-bottom:1px solid #f3f4f6;">{date_str}</td></tr>
-              <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Receipt #</td><td style="padding:10px 0;text-align:right;border-bottom:1px solid #f3f4f6;">{receipt_id}</td></tr>
-              <tr><td style="padding:14px 0;color:#1a1a2e;font-weight:700;font-size:16px;">Total Paid</td><td style="padding:14px 0;text-align:right;font-weight:700;font-size:18px;color:#7c3aed;">{currency} {amount:.2f}</td></tr>
-            </table>
-            <div style="margin-top:24px;padding:16px;background:#f8fafc;border-radius:8px;text-align:center;">
-              <p style="margin:0 0 8px;font-size:13px;color:#6b7280;">Your improved resume and LinkedIn optimization are now unlocked.</p>
-              <p style="margin:0;font-size:13px;color:#6b7280;">Return to the optimizer to download your professional PDF.</p>
-            </div>
-          </div>
-          <div style="padding:16px 28px;background:#f9fafb;text-align:center;border-top:1px solid #e5e7eb;">
-            <p style="margin:0;font-size:11px;color:#9ca3af;">Diocreations | www.diocreations.eu | This is an automated receipt</p>
-          </div>
-        </div>"""
+        body_content = f'''
+        {header}
+        <div style="padding:28px;">
+          {success_badge}
+          <table style="width:100%;border-collapse:collapse;font-size:14px;">
+            <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Product</td><td style="padding:10px 0;text-align:right;font-weight:600;border-bottom:1px solid #f3f4f6;">Resume & LinkedIn Optimizer</td></tr>
+            <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Resume</td><td style="padding:10px 0;text-align:right;border-bottom:1px solid #f3f4f6;">{resume_filename or 'Your resume'}</td></tr>
+            <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Date</td><td style="padding:10px 0;text-align:right;border-bottom:1px solid #f3f4f6;">{date_str}</td></tr>
+            <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Receipt #</td><td style="padding:10px 0;text-align:right;border-bottom:1px solid #f3f4f6;">{receipt_id}</td></tr>
+            <tr><td style="padding:14px 0;color:#1a1a2e;font-weight:700;font-size:16px;">Total Paid</td><td style="padding:14px 0;text-align:right;font-weight:700;font-size:18px;color:#7c3aed;">{currency} {amount:.2f}</td></tr>
+          </table>
+          {info_box}
+        </div>
+        '''
+        
+        html = get_email_wrapper(body_content, "Diocreations | www.diocreations.eu | This is an automated receipt")
+        
         await asyncio.to_thread(resend.Emails.send, {
             "from": sender_email,
             "to": [email],
