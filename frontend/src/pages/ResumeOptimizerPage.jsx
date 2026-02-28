@@ -1065,14 +1065,16 @@ const ResumeOptimizerPage = () => {
                         )}
                         
                         {/* Editor Content Area */}
-                        <Card className="border-0 shadow-lg overflow-hidden">
+                        <Card className="border-0 shadow-lg overflow-visible">
                           <CardContent className="p-0">
                             {editorMode === "sections" ? (
-                              <div className="p-4 bg-slate-50 min-h-[500px]">
+                              <div className="p-4 bg-slate-50 min-h-[600px] max-h-[800px] overflow-y-auto">
                                 <SectionEditor value={editedText} onChange={setEditedText} />
                               </div>
                             ) : (
-                              <ResumePreview text={editedText} templateId={activeVisualTemplate} editing={editorMode === "text"} onTextChange={setEditedText} fontSize={fontSize} />
+                              <div className="min-h-[600px]">
+                                <ResumePreview text={editedText} templateId={activeVisualTemplate} editing={editorMode === "text"} onTextChange={setEditedText} fontSize={fontSize} />
+                              </div>
                             )}
                           </CardContent>
                         </Card>
