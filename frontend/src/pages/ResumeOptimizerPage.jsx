@@ -68,6 +68,36 @@ const ResumeOptimizerPage = () => {
   const [referralDiscount, setReferralDiscount] = useState(null);
   const [pubUser, setPubUser] = useState(null);
   const [ogMeta, setOgMeta] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Drag and drop handlers
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      const ext = file.name.toLowerCase().split(".").pop();
+      if (ext === "pdf" || ext === "docx") {
+        handleUpload({ target: { files: [file] } });
+      } else {
+        toast.error("Please upload a PDF or DOCX file");
+      }
+    }
+  };
 
   // Fetch OG meta for shared links
   useEffect(() => {
