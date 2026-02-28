@@ -7,6 +7,44 @@ import { ArrowLeft, Calendar, User, Tag, Share2 } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
+// Component to inject AdSense within content
+const BlogContentWithAds = ({ content, adsenseCode, position }) => {
+  // Split content into paragraphs/blocks
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(content, 'text/html');
+  const elements = Array.from(doc.body.children);
+  
+  if (elements.length === 0) {
+    return <div dangerouslySetInnerHTML={{ __html: content }} />;
+  }
+
+  let insertIndex;
+  if (position === "after_first_paragraph") {
+    insertIndex = 1;
+  } else if (position === "middle_content") {
+    insertIndex = Math.floor(elements.length / 2);
+  }
+
+  const beforeAd = elements.slice(0, insertIndex).map(el => el.outerHTML).join('');
+  const afterAd = elements.slice(insertIndex).map(el => el.outerHTML).join('');
+
+  return (
+    <div className="prose prose-lg max-w-none
+      [&_img]:rounded-xl [&_img]:shadow-md [&_img]:my-6
+      [&_a]:text-primary [&_a]:no-underline [&_a]:hover:underline
+      [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-8 [&_h1]:mb-4
+      [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-3
+      [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mt-5 [&_h3]:mb-2
+      [&_blockquote]:border-l-4 [&_blockquote]:border-primary [&_blockquote]:pl-4 [&_blockquote]:italic
+      [&_pre]:bg-slate-900 [&_pre]:text-slate-100 [&_pre]:rounded-lg [&_pre]:p-4
+    ">
+      <div dangerouslySetInnerHTML={{ __html: beforeAd }} />
+      <div className="my-6 p-4 bg-slate-50 rounded-lg" dangerouslySetInnerHTML={{ __html: adsenseCode }} />
+      <div dangerouslySetInnerHTML={{ __html: afterAd }} />
+    </div>
+  );
+};
+
 const BlogPostPage = () => {
   const { slug } = useParams();
   const [post, setPost] = useState(null);
