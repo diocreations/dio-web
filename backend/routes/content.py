@@ -342,11 +342,33 @@ async def submit_contact(data: dict):
     await db.contact_submissions.insert_one(doc)
     resend_key = os.environ.get("RESEND_API_KEY", "")
     admin_email = os.environ.get("ADMIN_EMAIL", "")
-    sender_email = os.environ.get("SENDER_EMAIL", "onboarding@resend.dev")
+    sender_email = os.environ.get("SENDER_EMAIL", "Diocreations <onboarding@resend.dev>")
     if resend_key and admin_email:
         try:
             resend.api_key = resend_key
-            html_content = f"<h2>New Contact Form Submission</h2><p><strong>Name:</strong> {doc['name']}</p><p><strong>Email:</strong> {doc['email']}</p><p><strong>Phone:</strong> {doc.get('phone') or 'N/A'}</p><p><strong>Subject:</strong> {doc['subject']}</p><p><strong>Message:</strong></p><p>{doc['message']}</p>"
+            logo_svg = '''<svg viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg" style="width:140px;height:42px;"><g transform="translate(5,5)"><g><path fill="#4D629A" d="M32.7 36.16c-2.36-2.36-2.64-6.14-2.64-6.14s3.98.48 6.14 2.64c1.27 1.28 1.52 3.09.56 4.06s-2.79.71-4.06-.56z"/><path fill="#00A096" d="M36.26 32.5c-3.34 0-6.2-2.48-6.2-2.48s3.16-2.48 6.2-2.48c1.8 0 3.26 1.11 3.26 2.48s-1.46 2.48-3.26 2.48z"/><path fill="#89BF4A" d="M36.19 27.39c-2.36 2.36-6.14 2.64-6.14 2.64s.48-3.99 2.64-6.14c1.27-1.27 3.09-1.52 4.05-.56s.72 2.79-.55 4.06z"/></g><g><path fill="#8F5398" d="M27.3 36.11c2.36-2.36 2.64-6.14 2.64-6.14s-3.98.48-6.14 2.64c-1.27 1.27-1.52 3.09-.56 4.06s2.79.72 4.06-.56z"/><path fill="#E16136" d="M23.74 32.45c3.34 0 6.2-2.48 6.2-2.48s-6.16-2.47-9.2-2.47c-1.8 0-3.26 1.11-3.26 2.47s1.46 2.48 3.26 2.48z"/><path fill="#F3BE33" d="M23.81 27.34c2.36 2.36 6.14 2.64 6.14 2.64s-.49-3.98-2.65-6.14c-1.27-1.27-3.09-1.52-4.05-.55s-.72 2.78.56 4.05z"/></g></g><text x="65" y="38" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="700" fill="#1a1a2e">DIO</text><text x="103" y="38" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="700" fill="#7c3aed">CREATIONS</text></svg>'''
+            html_content = f"""
+            <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:560px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+              <div style="background:linear-gradient(135deg,#1a1a2e 0%,#2d2d4a 100%);padding:24px;text-align:center;">
+                {logo_svg}
+              </div>
+              <div style="padding:24px;">
+                <h2 style="color:#1a1a2e;margin:0 0 16px;font-size:18px;">New Contact Form Submission</h2>
+                <table style="width:100%;border-collapse:collapse;font-size:14px;">
+                  <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;width:100px;">Name</td><td style="padding:10px 0;font-weight:600;border-bottom:1px solid #f3f4f6;">{doc['name']}</td></tr>
+                  <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Email</td><td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><a href="mailto:{doc['email']}" style="color:#7c3aed;">{doc['email']}</a></td></tr>
+                  <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Phone</td><td style="padding:10px 0;border-bottom:1px solid #f3f4f6;">{doc.get('phone') or 'N/A'}</td></tr>
+                  <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Subject</td><td style="padding:10px 0;font-weight:600;border-bottom:1px solid #f3f4f6;">{doc['subject']}</td></tr>
+                </table>
+                <div style="margin-top:16px;padding:16px;background:#f8fafc;border-radius:8px;">
+                  <p style="margin:0 0 8px;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:1px;">Message</p>
+                  <p style="margin:0;font-size:14px;color:#374151;line-height:1.6;">{doc['message']}</p>
+                </div>
+              </div>
+              <div style="padding:12px 24px;background:#f9fafb;text-align:center;border-top:1px solid #e5e7eb;">
+                <p style="margin:0;font-size:11px;color:#9ca3af;">Diocreations Contact Form | www.diocreations.eu</p>
+              </div>
+            </div>"""
             await asyncio.to_thread(resend.Emails.send, {"from": sender_email, "to": [admin_email], "subject": f"New Contact: {doc['subject']}", "html": html_content})
         except Exception as e:
             logger.error(f"Failed to send email notification: {e}")
