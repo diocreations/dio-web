@@ -194,7 +194,12 @@ const AdminResume = () => {
                   <div className="space-y-2"><Label>Price</Label><Input type="number" step="0.01" value={pricing?.price || 0} onChange={(e) => setPricing({ ...pricing, price: parseFloat(e.target.value) })} data-testid="price-input" /></div>
                   <div className="space-y-2"><Label>Discount %</Label><Input type="number" value={pricing?.discount_percent || 0} onChange={(e) => setPricing({ ...pricing, discount_percent: parseInt(e.target.value) })} /></div>
                 </div>
-                <div className="flex gap-6">
+                <div className="flex gap-6 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <Switch checked={pricing?.pricing_enabled !== false} onCheckedChange={(c) => setPricing({ ...pricing, pricing_enabled: c })} data-testid="pricing-enabled-toggle" />
+                    <Label className="font-medium">Pricing Enabled</Label>
+                    <span className="text-xs text-muted-foreground">(OFF = Free access)</span>
+                  </div>
                   <div className="flex items-center gap-2"><Switch checked={pricing?.discount_enabled || false} onCheckedChange={(c) => setPricing({ ...pricing, discount_enabled: c })} /><Label>Enable Discount</Label></div>
                   <div className="flex items-center gap-2"><Switch checked={pricing?.linkedin_enabled !== false} onCheckedChange={(c) => setPricing({ ...pricing, linkedin_enabled: c })} /><Label>LinkedIn Optimization</Label></div>
                 </div>
