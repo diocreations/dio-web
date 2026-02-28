@@ -106,7 +106,7 @@ Key Achievements: {achievements or 'Not specified'}
 Write in first person implied (no "I"), professional tone. Focus on value proposition and measurable impact where possible."""
 
     try:
-        chat = LlmChat(api_key=EMERGENT_LLM_KEY, model="gemini-2.0-flash")
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY).with_model("gemini", "gemini-2.0-flash")
         response = await asyncio.to_thread(
             chat.send_message,
             UserMessage(content=prompt)
