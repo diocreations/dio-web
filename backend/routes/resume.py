@@ -183,6 +183,22 @@ async def list_all_resumes(user: dict = Depends(get_current_user)):
     return resumes
 
 
+@router.delete("/admin/resume/delete-all")
+async def delete_all_resumes(user: dict = Depends(get_current_user)):
+    """Delete ALL resumes and associated data - USE WITH CAUTION"""
+    # Count before deletion
+    count = await db.resume_uploads.count_documents({})
+    
+    # Delete from all resume-related collections
+    await db.resume_uploads.delete_many({})
+    await db.resume_analyses.delete_many({})
+    await db.resume_improvements.delete_many({})
+    await db.user_resume_data.delete_many({})
+    # Note: Don't delete payments for audit trail
+    
+    return {"message": f"All resumes deleted", "deleted_count": count}
+
+
 @router.delete("/admin/resume/{resume_id}")
 async def delete_resume(resume_id: str, user: dict = Depends(get_current_user)):
     """Delete a resume and all associated data"""
