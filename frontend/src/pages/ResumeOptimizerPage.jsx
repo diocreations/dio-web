@@ -1072,7 +1072,7 @@ const ResumeOptimizerPage = () => {
                                 <SectionEditor value={editedText} onChange={setEditedText} />
                               </div>
                             ) : (
-                              <div className="min-h-[600px]">
+                              <div className="min-h-[600px] h-auto">
                                 <ResumePreview text={editedText} templateId={activeVisualTemplate} editing={editorMode === "text"} onTextChange={setEditedText} fontSize={fontSize} />
                               </div>
                             )}
