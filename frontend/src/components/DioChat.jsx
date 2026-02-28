@@ -67,7 +67,92 @@ const DEFAULT_QUICK_REPLIES = [
   "What does DioCreations do?",
   "Show me your portfolio",
   "I need a website",
+  "Schedule a call",
 ];
+
+// Date picker component for scheduling
+const SchedulePicker = ({ onSchedule, onCancel }) => {
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
+  
+  // Get tomorrow's date as min date
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minDate = tomorrow.toISOString().split("T")[0];
+  
+  // Max date is 30 days from now
+  const maxDate = new Date();
+  maxDate.setDate(maxDate.getDate() + 30);
+  const maxDateStr = maxDate.toISOString().split("T")[0];
+
+  const timeSlots = [
+    "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+    "12:00 PM", "12:30 PM", "01:00 PM", "01:30 PM", "02:00 PM", "02:30 PM",
+    "03:00 PM", "03:30 PM", "04:00 PM", "04:30 PM", "05:00 PM", "05:30 PM",
+  ];
+
+  const handleConfirm = () => {
+    if (selectedDate && selectedTime) {
+      const dateObj = new Date(selectedDate);
+      const formattedDate = dateObj.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+      onSchedule({ date: selectedDate, time: selectedTime, formattedDate });
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-lg p-4 border shadow-sm space-y-4">
+      <div className="flex items-center gap-2 text-primary font-medium">
+        <Calendar size={18} />
+        <span>Schedule a Call</span>
+      </div>
+      
+      <div className="space-y-3">
+        <div>
+          <label className="text-xs text-slate-500 mb-1 block">Select Date</label>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            min={minDate}
+            max={maxDateStr}
+            className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+          />
+        </div>
+        
+        {selectedDate && (
+          <div>
+            <label className="text-xs text-slate-500 mb-1 block">Select Time</label>
+            <div className="grid grid-cols-3 gap-1.5 max-h-32 overflow-y-auto">
+              {timeSlots.map((time) => (
+                <button
+                  key={time}
+                  type="button"
+                  onClick={() => setSelectedTime(time)}
+                  className={`px-2 py-1.5 text-xs rounded-md border transition-colors ${
+                    selectedTime === time
+                      ? "bg-primary text-white border-primary"
+                      : "hover:bg-slate-50 border-slate-200"
+                  }`}
+                >
+                  {time}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      
+      <div className="flex gap-2 pt-2">
+        <Button variant="outline" size="sm" onClick={onCancel} className="flex-1">
+          Cancel
+        </Button>
+        <Button size="sm" onClick={handleConfirm} disabled={!selectedDate || !selectedTime} className="flex-1">
+          Confirm
+        </Button>
+      </div>
+    </div>
+  );
+};
 
 const DioChat = () => {
   const [isOpen, setIsOpen] = useState(false);
