@@ -331,7 +331,56 @@ const DioChat = () => {
   };
 
   const handleQuickReply = (reply) => {
-    sendMessage(reply);
+    if (reply.toLowerCase().includes("schedule")) {
+      setShowScheduler(true);
+      setQuickReplies([]);
+    } else {
+      sendMessage(reply);
+    }
+  };
+
+  const handleScheduleConfirm = async ({ date, time, formattedDate }) => {
+    setShowScheduler(false);
+    const scheduleMessage = `I'd like to schedule a call on ${formattedDate} at ${time}`;
+    setMessages((prev) => [...prev, { role: "user", content: scheduleMessage }]);
+    setIsLoading(true);
+
+    try {
+      // Save the scheduled date to the lead
+      const scheduledDateTime = `${date}T${convertTo24Hour(time)}`;
+      await fetch(`${API_URL}/api/chat/schedule`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId, scheduled_date: scheduledDateTime }),
+      });
+
+      // Send message to chat
+      const response = await fetch(`${API_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId, message: scheduleMessage }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
+        if (data.lead_info) setLeadInfo(data.lead_info);
+      } else {
+        setMessages((prev) => [...prev, { role: "assistant", content: `Great! I've noted your preferred time: ${formattedDate} at ${time}. We'll be in touch to confirm!` }]);
+      }
+    } catch {
+      setMessages((prev) => [...prev, { role: "assistant", content: `Perfect! Your call is scheduled for ${formattedDate} at ${time}. Looking forward to speaking with you!` }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const convertTo24Hour = (time12h) => {
+    const [time, modifier] = time12h.split(" ");
+    let [hours, minutes] = time.split(":");
+    if (hours === "12") hours = "00";
+    if (modifier === "PM") hours = parseInt(hours, 10) + 12;
+    return `${String(hours).padStart(2, "0")}:${minutes}:00`;
   };
 
   const clearChat = () => {
