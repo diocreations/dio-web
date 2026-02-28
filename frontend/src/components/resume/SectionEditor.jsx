@@ -484,12 +484,38 @@ const SectionEditor = ({ value, onChange }) => {
 
   return (
     <div className="section-editor" data-testid="section-editor">
-      {/* Instructions */}
-      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-        <p className="text-sm text-blue-800">
-          <strong>Drag & Drop:</strong> Grab the handle (⋮⋮) to reorder sections. 
-          <strong className="ml-2">Edit:</strong> Click the pencil icon to edit content.
-        </p>
+      {/* Toolbar with Undo/Redo */}
+      <div className="mb-4 flex items-center justify-between flex-wrap gap-3">
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg flex-1">
+          <p className="text-sm text-blue-800">
+            <strong>Drag & Drop:</strong> Grab the handle (⋮⋮) to reorder sections. 
+            <strong className="ml-2">Edit:</strong> Click the pencil icon to edit content.
+          </p>
+        </div>
+        <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleUndo}
+            disabled={historyIndex <= 0}
+            className="h-8 px-2 rounded"
+            title="Undo (Ctrl+Z)"
+            data-testid="undo-btn"
+          >
+            <Undo2 size={16} className={historyIndex <= 0 ? "text-slate-300" : "text-slate-600"} />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRedo}
+            disabled={historyIndex >= history.length - 1}
+            className="h-8 px-2 rounded"
+            title="Redo (Ctrl+Y / Ctrl+Shift+Z)"
+            data-testid="redo-btn"
+          >
+            <Redo2 size={16} className={historyIndex >= history.length - 1 ? "text-slate-300" : "text-slate-600"} />
+          </Button>
+        </div>
       </div>
 
       {/* Sortable Sections */}
