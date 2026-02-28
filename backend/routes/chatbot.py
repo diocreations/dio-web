@@ -207,3 +207,38 @@ async def delete_lead(lead_id: str, user: dict = Depends(get_current_user)):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Lead not found")
     return {"message": "Lead deleted"}
+
+
+@router.post("/chat/schedule")
+async def schedule_call(data: dict):
+    """Save scheduled date/time for a chat session lead"""
+    session_id = data.get("session_id", "")
+    scheduled_date = data.get("scheduled_date", "")
+    
+    if not session_id or not scheduled_date:
+        raise HTTPException(status_code=400, detail="session_id and scheduled_date required")
+    
+    # Update the lead with scheduled date
+    result = await db.leads.update_one(
+        {"session_id": session_id},
+        {"$set": {"scheduled_date": scheduled_date, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    # Also store in chat session for context
+    await db.chat_sessions.update_one(
+        {"session_id": session_id},
+        {"$set": {"scheduled_date": scheduled_date}},
+        upsert=True
+    )
+    
+    return {"success": True, "scheduled_date": scheduled_date}
+
+
+@router.get("/chat/{session_id}/history")
+async def get_chat_history(session_id: str, user: dict = Depends(get_current_user)):
+    """Get full chat history for a session (admin only)"""
+    session = await db.chat_sessions.find_one({"session_id": session_id}, {"_id": 0})
+    if not session:
+        return {"history": []}
+    return {"history": session.get("messages", []), "scheduled_date": session.get("scheduled_date")}
+
