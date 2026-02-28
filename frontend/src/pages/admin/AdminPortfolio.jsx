@@ -99,6 +99,33 @@ const AdminPortfolio = () => {
     setFormData({ title: "", slug: "", category: "", description: "", image_url: "", gallery_images: "", client_name: "", technologies: "", project_url: "", is_featured: false, order: 0, is_active: true });
   };
 
+  const captureScreenshot = async () => {
+    if (!formData.project_url) {
+      toast.error("Please enter a Project URL first");
+      return;
+    }
+    setCapturingScreenshot(true);
+    try {
+      const response = await fetch(`${API_URL}/api/portfolio/screenshot`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ url: formData.project_url }),
+      });
+      const data = await response.json();
+      if (data.success && data.screenshot_url) {
+        setFormData(prev => ({ ...prev, image_url: data.screenshot_url }));
+        toast.success("Screenshot captured! Preview will load shortly.");
+      } else {
+        toast.error("Failed to capture screenshot");
+      }
+    } catch (error) {
+      toast.error("Failed to capture screenshot");
+    } finally {
+      setCapturingScreenshot(false);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
