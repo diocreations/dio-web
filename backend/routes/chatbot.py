@@ -234,8 +234,8 @@ async def schedule_call(data: dict):
     return {"success": True, "scheduled_date": scheduled_date}
 
 
-@router.get("/chat/{session_id}/history")
-async def get_chat_history(session_id: str, user: dict = Depends(get_current_user)):
+@router.get("/chat/{session_id}/admin-history")
+async def get_admin_chat_history(session_id: str, user: dict = Depends(get_current_user)):
     """Get full chat history for a session (admin only)"""
     session = await db.chat_sessions.find_one({"session_id": session_id}, {"_id": 0})
     if not session:
