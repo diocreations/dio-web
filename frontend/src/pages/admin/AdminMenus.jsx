@@ -22,8 +22,22 @@ const AdminMenus = () => {
   const fetchMenus = async () => {
     try {
       const res = await fetch(`${API_URL}/api/admin/menus`, { credentials: "include" });
-      setMenus(await res.json());
-    } catch { toast.error("Failed to load menus"); }
+      if (!res.ok) {
+        if (res.status === 401) {
+          toast.error("Please login to manage menus");
+        } else {
+          toast.error("Failed to load menus");
+        }
+        setMenus([]);
+        return;
+      }
+      const data = await res.json();
+      setMenus(Array.isArray(data) ? data : []);
+    } catch (err) { 
+      console.error("Fetch menus error:", err);
+      toast.error("Failed to load menus"); 
+      setMenus([]);
+    }
     finally { setLoading(false); }
   };
 
