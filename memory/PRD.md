@@ -120,6 +120,9 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 - **Undo/Redo Support**: Full undo/redo history (50 states) with keyboard shortcuts (Ctrl+Z, Ctrl+Y)
 - **Open Graph Meta Tags**: Dynamic OG meta tags for shared resume links showing score and engaging descriptions
 - **Email Branding**: Updated payment receipt and contact form emails with Diocreations animated butterfly logo and proper branding
-  - Sender name: "Diocreations <onboarding@resend.dev>"
-  - Animated SVG butterfly logo in email header
+  - Sender: `Diocreations <noreply@diocreations.eu>` (verified domain)
+  - Created `/app/backend/email_templates.py` - reusable email template module
+  - Animated SVG butterfly logo with "DIOCREATIONS" text in header
+  - Logo also appears in footer for brand consistency
   - Professional gradient header design
+  - Same font styling as website (Segoe UI, "DIO" dark + "CREATIONS" violet)
