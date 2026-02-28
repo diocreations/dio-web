@@ -35,8 +35,12 @@ const AdminHomepage = () => {
   const [colorSchemes, setColorSchemes] = useState([]);
   const [blogPosts, setBlogPosts] = useState([]);
   const [products, setProducts] = useState([]);
+  const [services, setServices] = useState([]);
+  const [portfolioItems, setPortfolioItems] = useState([]);
   const [featuredBlog, setFeaturedBlog] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [featuredServices, setFeaturedServices] = useState([]);
+  const [featuredPortfolio, setFeaturedPortfolio] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -46,21 +50,25 @@ const AdminHomepage = () => {
 
   const fetchData = async () => {
     try {
-      const [settingsRes, heroRes, colorRes, blogRes, productsRes, featuredRes] = await Promise.all([
+      const [settingsRes, heroRes, colorRes, blogRes, productsRes, servicesRes, portfolioRes, featuredRes] = await Promise.all([
         fetch(`${API_URL}/api/homepage/settings`, { credentials: "include" }),
         fetch(`${API_URL}/api/homepage/hero-variants`, { credentials: "include" }),
         fetch(`${API_URL}/api/homepage/color-schemes`, { credentials: "include" }),
         fetch(`${API_URL}/api/blog?published_only=true`, { credentials: "include" }),
         fetch(`${API_URL}/api/products?active_only=true`, { credentials: "include" }),
+        fetch(`${API_URL}/api/services?active_only=true`, { credentials: "include" }),
+        fetch(`${API_URL}/api/portfolio?active_only=true`, { credentials: "include" }),
         fetch(`${API_URL}/api/homepage/featured-items`, { credentials: "include" }),
       ]);
 
-      const [settingsData, heroData, colorData, blogData, productsData, featuredData] = await Promise.all([
+      const [settingsData, heroData, colorData, blogData, productsData, servicesData, portfolioData, featuredData] = await Promise.all([
         settingsRes.json(),
         heroRes.json(),
         colorRes.json(),
         blogRes.json(),
         productsRes.json(),
+        servicesRes.json(),
+        portfolioRes.json(),
         featuredRes.json(),
       ]);
 
@@ -74,9 +82,13 @@ const AdminHomepage = () => {
       setColorSchemes(colorData);
       setBlogPosts(blogData);
       setProducts(productsData);
+      setServices(servicesData);
+      setPortfolioItems(portfolioData);
       
       setFeaturedBlog(featuredData.filter(f => f.item_type === "blog").map(f => f.item_id));
       setFeaturedProducts(featuredData.filter(f => f.item_type === "product").map(f => f.item_id));
+      setFeaturedServices(featuredData.filter(f => f.item_type === "service").map(f => f.item_id));
+      setFeaturedPortfolio(featuredData.filter(f => f.item_type === "portfolio").map(f => f.item_id));
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error("Failed to load homepage settings");
