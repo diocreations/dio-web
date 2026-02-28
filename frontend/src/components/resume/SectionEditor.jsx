@@ -328,6 +328,11 @@ const SectionEditor = ({ value, onChange }) => {
   const [editingId, setEditingId] = useState(null);
   const [showAddSection, setShowAddSection] = useState(false);
   
+  // Undo/Redo history
+  const [history, setHistory] = useState([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const isUndoRedo = useRef(false);
+  
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -339,15 +344,84 @@ const SectionEditor = ({ value, onChange }) => {
       const parsed = parseContentIntoSections(value);
       if (parsed.length > 0) {
         setSections(parsed);
+        // Initialize history with first state
+        setHistory([JSON.stringify(parsed)]);
+        setHistoryIndex(0);
       }
     }
   }, [value]);
+
+  // Add to history when sections change (except during undo/redo)
+  const addToHistory = useCallback((newSections) => {
+    if (isUndoRedo.current) {
+      isUndoRedo.current = false;
+      return;
+    }
+    const serialized = JSON.stringify(newSections);
+    setHistory(prev => {
+      // Remove any future history if we're not at the end
+      const newHistory = prev.slice(0, historyIndex + 1);
+      // Don't add duplicate states
+      if (newHistory[newHistory.length - 1] === serialized) return newHistory;
+      // Limit history to 50 states
+      const limited = newHistory.length >= 50 ? newHistory.slice(1) : newHistory;
+      return [...limited, serialized];
+    });
+    setHistoryIndex(prev => Math.min(prev + 1, 49));
+  }, [historyIndex]);
+
+  // Undo function
+  const handleUndo = useCallback(() => {
+    if (historyIndex > 0) {
+      isUndoRedo.current = true;
+      const newIndex = historyIndex - 1;
+      const prevState = JSON.parse(history[newIndex]);
+      setSections(prevState);
+      setHistoryIndex(newIndex);
+      const html = sectionsToHtml(prevState);
+      onChange(html);
+    }
+  }, [historyIndex, history, onChange]);
+
+  // Redo function
+  const handleRedo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      isUndoRedo.current = true;
+      const newIndex = historyIndex + 1;
+      const nextState = JSON.parse(history[newIndex]);
+      setSections(nextState);
+      setHistoryIndex(newIndex);
+      const html = sectionsToHtml(nextState);
+      onChange(html);
+    }
+  }, [historyIndex, history, onChange]);
+
+  // Keyboard shortcuts for undo/redo
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          handleRedo();
+        } else {
+          handleUndo();
+        }
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'y') {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleUndo, handleRedo]);
 
   // Update parent when sections change
   const updateParent = useCallback((newSections) => {
     const html = sectionsToHtml(newSections);
     onChange(html);
-  }, [onChange]);
+    addToHistory(newSections);
+  }, [onChange, addToHistory]);
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
