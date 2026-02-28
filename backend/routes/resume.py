@@ -122,9 +122,12 @@ async def get_resume_pricing():
 @router.get("/resume/pricing")
 async def get_pricing_public():
     pricing = await get_resume_pricing()
+    logger.info(f"Pricing from DB: {pricing}")
     price = pricing["price"]
     if pricing.get("discount_enabled") and pricing.get("discount_percent", 0) > 0:
         price = round(price * (1 - pricing["discount_percent"] / 100), 2)
+    pricing_enabled = pricing.get("pricing_enabled", True)
+    logger.info(f"pricing_enabled value: {pricing_enabled}")
     return {
         "product_name": pricing.get("product_name", "DioAI Resume & LinkedIn Optimizer"),
         "product_description": pricing.get("product_description", ""),
@@ -134,7 +137,7 @@ async def get_pricing_public():
         "discount_percent": pricing.get("discount_percent", 0) if pricing.get("discount_enabled") else 0,
         "linkedin_enabled": pricing.get("linkedin_enabled", True),
         "features": pricing.get("features", []),
-        "pricing_enabled": pricing.get("pricing_enabled", True),
+        "pricing_enabled": pricing_enabled,
     }
 
 
