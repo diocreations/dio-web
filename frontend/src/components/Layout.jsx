@@ -118,12 +118,25 @@ const Layout = ({ children }) => {
   const accentStyle = useMemo(() => {
     const schemes = colorData?.color_schemes?.filter((s) => s.is_active) || [];
     const settings = colorData?.settings;
+    let colorName = "violet";
+    
     if (settings?.enable_color_rotation && schemes.length > 0) {
       const idx = getRandomIndex("color_idx", schemes.length);
-      const name = schemes[idx]?.name?.toLowerCase() || "violet";
-      return accentCssMap[name] || accentCssMap.violet;
+      colorName = schemes[idx]?.name?.toLowerCase() || "violet";
     }
-    return accentCssMap.violet;
+    
+    // Save to localStorage for instant load on next visit
+    if (colorData) {
+      localStorage.setItem("dio_color_scheme", colorName);
+      // Also apply to document root for immediate effect
+      const root = document.documentElement;
+      const colors = accentCssMap[colorName] || accentCssMap.violet;
+      Object.entries(colors).forEach(([key, value]) => {
+        root.style.setProperty(key, value);
+      });
+    }
+    
+    return accentCssMap[colorName] || accentCssMap.violet;
   }, [colorData]);
 
   return (
