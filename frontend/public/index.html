@@ -128,9 +128,8 @@
                 document.head.appendChild(tailwindScript);
             }
         </script>
-    </head>
-    <body>
-        <!-- Apply saved color scheme immediately to prevent flash -->
+        
+        <!-- Apply saved color scheme immediately to prevent flash (MUST be in head for earliest execution) -->
         <script>
             (function() {
                 var colors = {
@@ -149,6 +148,8 @@
                 }
             })();
         </script>
+    </head>
+    <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>
         <div id="root"></div>
         <!--
