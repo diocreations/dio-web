@@ -41,6 +41,24 @@ const AdminMenus = () => {
     finally { setLoading(false); }
   };
 
+  const seedDefaultMenus = async () => {
+    if (!window.confirm("This will add default menu items. Existing items will be kept. Continue?")) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/menus/seed-defaults`, {
+        method: "POST", credentials: "include",
+      });
+      if (res.ok) {
+        toast.success("Default menus added!");
+        fetchMenus();
+      } else {
+        const err = await res.json();
+        toast.error(err.detail || "Failed to seed menus");
+      }
+    } catch { toast.error("Failed to seed menus"); }
+    finally { setSaving(false); }
+  };
+
   const filteredMenus = menus.filter(m => m.menu_type === tab && !m.parent_id);
   const childMenus = (parentId) => menus.filter(m => m.parent_id === parentId);
 
