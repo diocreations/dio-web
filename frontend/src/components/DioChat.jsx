@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Send, Loader2, ExternalLink, User, Mail, Phone } from "lucide-react";
+import { X, Send, Loader2, ExternalLink, User, Mail, Phone, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
