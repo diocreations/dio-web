@@ -21,6 +21,7 @@ import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
 import BuilderPage from "./pages/BuilderPage";
 import BuilderSuccessPage from "./pages/BuilderSuccessPage";
 import ResumeOptimizerPage from "./pages/ResumeOptimizerPage";
+import ResumeBuilderPage from "./pages/ResumeBuilderPage";
 import UserLoginPage from "./pages/UserLoginPage";
 import UserDashboardPage from "./pages/UserDashboardPage";
 import CoverLetterPage from "./pages/CoverLetterPage";
