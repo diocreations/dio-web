@@ -13,6 +13,7 @@ import {
   Loader2, Lock, Star, Sparkles, Target, ArrowRight, Linkedin, HardDrive, RotateCcw, Share2, Link,
 } from "lucide-react";
 import { toast } from "sonner";
+import html2pdf from "html2pdf.js";
 
 import { ScoreRing } from "@/components/resume/ScoreRing";
 import ResumePreview from "@/components/resume/ResumePreview";
