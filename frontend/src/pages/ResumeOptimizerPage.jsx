@@ -795,6 +795,29 @@ const ResumeOptimizerPage = () => {
                       </Button>
                     </div>
 
+                    {/* Shared Resume CTA - When viewing someone else's analysis */}
+                    {searchParams.get("share") && (
+                      <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 shadow-lg">
+                        <CardContent className="p-6 text-center">
+                          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                            <Upload size={24} className="text-primary" />
+                          </div>
+                          <h3 className="font-bold text-lg mb-2">Want to see your resume score?</h3>
+                          <p className="text-muted-foreground text-sm mb-4">Get a free AI analysis of your resume in seconds</p>
+                          <Button 
+                            onClick={() => {
+                              window.location.href = `${window.location.origin}/resume-optimizer`;
+                            }} 
+                            className="rounded-full px-8"
+                            data-testid="try-it-yourself-btn"
+                          >
+                            <Upload size={16} className="mr-2" />
+                            Analyze My Resume
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    )}
+
                     <div className="grid md:grid-cols-2 gap-6">
                       <Card><CardContent className="p-6">
                         <h3 className="font-bold text-lg flex items-center gap-2 mb-4"><CheckCircle size={20} className="text-green-500" /> Strengths</h3>
