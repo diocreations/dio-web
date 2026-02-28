@@ -199,6 +199,8 @@ const AdminHomepage = () => {
       const items = [
         ...featuredBlog.map((id, i) => ({ item_type: "blog", item_id: id, order: i })),
         ...featuredProducts.map((id, i) => ({ item_type: "product", item_id: id, order: i })),
+        ...featuredServices.map((id, i) => ({ item_type: "service", item_id: id, order: i })),
+        ...featuredPortfolio.map((id, i) => ({ item_type: "portfolio", item_id: id, order: i })),
       ];
       await fetch(`${API_URL}/api/homepage/featured-items`, {
         method: "PUT",
@@ -231,6 +233,26 @@ const AdminHomepage = () => {
       setFeaturedProducts([...featuredProducts, productId]);
     } else {
       toast.error(`Maximum ${settings?.featured_products_count || 3} products can be featured`);
+    }
+  };
+
+  const toggleFeaturedService = (serviceId) => {
+    if (featuredServices.includes(serviceId)) {
+      setFeaturedServices(featuredServices.filter(id => id !== serviceId));
+    } else if (featuredServices.length < (settings?.featured_services_count || 6)) {
+      setFeaturedServices([...featuredServices, serviceId]);
+    } else {
+      toast.error(`Maximum ${settings?.featured_services_count || 6} services can be featured`);
+    }
+  };
+
+  const toggleFeaturedPortfolio = (portfolioId) => {
+    if (featuredPortfolio.includes(portfolioId)) {
+      setFeaturedPortfolio(featuredPortfolio.filter(id => id !== portfolioId));
+    } else if (featuredPortfolio.length < (settings?.featured_portfolio_count || 6)) {
+      setFeaturedPortfolio([...featuredPortfolio, portfolioId]);
+    } else {
+      toast.error(`Maximum ${settings?.featured_portfolio_count || 6} portfolio items can be featured`);
     }
   };
 
