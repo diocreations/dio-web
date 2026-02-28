@@ -219,7 +219,7 @@ async def schedule_call(data: dict):
         raise HTTPException(status_code=400, detail="session_id and scheduled_date required")
     
     # Update the lead with scheduled date
-    result = await db.leads.update_one(
+    await db.leads.update_one(
         {"session_id": session_id},
         {"$set": {"scheduled_date": scheduled_date, "updated_at": datetime.now(timezone.utc).isoformat()}}
     )
