@@ -158,6 +158,32 @@ async def get_resume_analytics(user: dict = Depends(get_current_user)):
     }
 
 
+@router.get("/admin/resume/list")
+async def list_all_resumes(user: dict = Depends(get_current_user)):
+    """List all uploaded resumes for admin management"""
+    resumes = await db.resume_uploads.find({}, {"_id": 0}).sort("created_at", -1).limit(100).to_list(100)
+    # Add analysis and payment info
+    for resume in resumes:
+        analysis = await db.resume_analyses.find_one({"resume_id": resume["resume_id"]}, {"_id": 0, "overall_score": 1})
+        payment = await db.resume_payments.find_one({"resume_id": resume["resume_id"], "status": "paid"}, {"_id": 0, "amount": 1})
+        resume["overall_score"] = analysis.get("overall_score") if analysis else None
+        resume["is_paid"] = payment is not None
+        resume["amount_paid"] = payment.get("amount") if payment else 0
+    return resumes
+
+
+@router.delete("/admin/resume/{resume_id}")
+async def delete_resume(resume_id: str, user: dict = Depends(get_current_user)):
+    """Delete a resume and all associated data"""
+    # Delete from all resume-related collections
+    await db.resume_uploads.delete_one({"resume_id": resume_id})
+    await db.resume_analyses.delete_one({"resume_id": resume_id})
+    await db.resume_improvements.delete_one({"resume_id": resume_id})
+    await db.user_resume_data.delete_many({"resume_id": resume_id})
+    # Note: Don't delete payments for audit trail
+    return {"message": "Resume and associated data deleted"}
+
+
 @router.post("/resume/upload")
 async def upload_resume(file: UploadFile = File(...)):
     if not file.filename:
