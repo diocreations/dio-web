@@ -110,7 +110,7 @@ Write in first person implied (no "I"), professional tone. Focus on value propos
         chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=session_id, system_message="You are a professional resume writer.").with_model("gemini", "gemini-2.0-flash")
         response = await asyncio.to_thread(
             chat.send_message,
-            UserMessage(content=prompt)
+            UserMessage(text=prompt)
         )
         return {"summary": response.content.strip()}
     except Exception as e:
@@ -143,7 +143,7 @@ Format: Return ONLY the bullet points, one per line, starting with action verbs 
         chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=session_id, system_message="You are a professional resume writer.").with_model("gemini", "gemini-2.0-flash")
         response = await asyncio.to_thread(
             chat.send_message,
-            UserMessage(content=prompt)
+            UserMessage(text=prompt)
         )
         bullets = [b.strip() for b in response.content.strip().split("\n") if b.strip()]
         return {"bullets": bullets}
@@ -180,7 +180,7 @@ Suggest 8-10 technical skills and 5-6 soft skills. Only return the JSON, nothing
         chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=session_id, system_message="You are a professional resume writer.").with_model("gemini", "gemini-2.0-flash")
         response = await asyncio.to_thread(
             chat.send_message,
-            UserMessage(content=prompt)
+            UserMessage(text=prompt)
         )
         import json
         # Clean response and parse JSON
@@ -253,7 +253,7 @@ Generate 2-3 relevant work experiences. Make it realistic and ATS-friendly. Only
         chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=session_id, system_message="You are a professional resume writer.").with_model("gemini", "gemini-2.0-flash")
         response = await asyncio.to_thread(
             chat.send_message,
-            UserMessage(content=prompt)
+            UserMessage(text=prompt)
         )
         import json
         content = response.content.strip()
