@@ -682,3 +682,42 @@ async def scrape_linkedin_profile(data: dict):
     except Exception as e:
         logger.warning(f"LinkedIn scrape failed: {e}")
         return {"success": False, "name": "", "headline": "", "about": "", "experience": "", "note": "Could not access LinkedIn profile. Please paste your details manually."}
+
+
+
+@router.get("/resume/og/{resume_id}")
+async def get_resume_og_meta(resume_id: str):
+    """Return Open Graph meta data for shared resume links"""
+    analysis = await db.resume_analyses.find_one({"resume_id": resume_id}, {"_id": 0})
+    upload = await db.resume_uploads.find_one({"resume_id": resume_id}, {"_id": 0, "filename": 1})
+    
+    if not analysis:
+        return {
+            "title": "DioAI Resume Optimizer",
+            "description": "Get your resume professionally analyzed and optimized with AI",
+            "score": 0,
+        }
+    
+    overall_score = analysis.get("overall_score", 0)
+    ats_score = analysis.get("ats_score", 0)
+    filename = upload.get("filename", "Resume") if upload else "Resume"
+    
+    # Create engaging title and description based on score
+    if overall_score >= 80:
+        title = f"🌟 Resume Score: {overall_score}/100 - Excellent!"
+        desc = f"Check out this impressive resume with an ATS score of {ats_score}/100. Get your own free resume analysis at DioAI!"
+    elif overall_score >= 60:
+        title = f"📈 Resume Score: {overall_score}/100 - Good Progress!"
+        desc = f"This resume scored {ats_score}/100 on ATS compatibility. Want to see how your resume compares? Try DioAI free!"
+    else:
+        title = f"📊 Resume Score: {overall_score}/100"
+        desc = f"See this resume's detailed AI analysis. Get your own free resume score and improvement tips at DioAI!"
+    
+    return {
+        "title": title,
+        "description": desc,
+        "score": overall_score,
+        "ats_score": ats_score,
+        "filename": filename,
+        "image": "https://www.diocreations.eu/og-resume.jpg",
+    }
