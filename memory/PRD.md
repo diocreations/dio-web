@@ -117,3 +117,9 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
   - Sections can be reordered via drag-and-drop
   - Add/delete/edit individual sections
   - Auto-detects 13+ standard resume section types
+- **Undo/Redo Support**: Full undo/redo history (50 states) with keyboard shortcuts (Ctrl+Z, Ctrl+Y)
+- **Open Graph Meta Tags**: Dynamic OG meta tags for shared resume links showing score and engaging descriptions
+- **Email Branding**: Updated payment receipt and contact form emails with Diocreations animated butterfly logo and proper branding
+  - Sender name: "Diocreations <onboarding@resend.dev>"
+  - Animated SVG butterfly logo in email header
+  - Professional gradient header design
