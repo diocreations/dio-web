@@ -395,7 +395,7 @@ const RichEditor = ({ value, onChange, placeholder = "Edit your resume..." }) =>
       />
 
       {/* Status bar */}
-      <div className="flex items-center justify-between px-3 py-1.5 border-t bg-slate-50 text-xs text-slate-500">
+      <div className="flex items-center justify-between px-3 py-1.5 border-t bg-slate-50 text-xs text-slate-500 flex-shrink-0">
         <span>Tip: Use keyboard shortcuts - Ctrl+B (Bold), Ctrl+I (Italic), Ctrl+U (Underline)</span>
         <span>Click "Edit Text" to modify, "Done Editing" when finished</span>
       </div>
