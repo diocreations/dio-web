@@ -168,6 +168,7 @@ const DioChat = () => {
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
   const [quickReplies, setQuickReplies] = useState([]);
   const [showTyping, setShowTyping] = useState(false);
+  const [showScheduler, setShowScheduler] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Generate or retrieve session ID + auto-open with greeting
