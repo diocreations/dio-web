@@ -112,3 +112,8 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 - **Share Feature**: Added "Share Your Score" button allowing users to copy a shareable link to their resume analysis (viral growth feature)
 - **PDF Direct Download**: Replaced browser print dialog with html2pdf.js for direct PDF download without opening new tab
 - **Clean PDF Output**: Strips highlights, colored text, and non-professional formatting from final PDF output
+- **Section Editor (MS Word-like)**: New drag-and-drop section management with auto-detection of resume sections (Summary, Experience, Skills, etc.)
+  - Three editor modes: Preview, Text, and Sections
+  - Sections can be reordered via drag-and-drop
+  - Add/delete/edit individual sections
+  - Auto-detects 13+ standard resume section types
