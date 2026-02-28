@@ -240,5 +240,5 @@ async def get_admin_chat_history(session_id: str, user: dict = Depends(get_curre
     session = await db.chat_sessions.find_one({"session_id": session_id}, {"_id": 0})
     if not session:
         return {"history": []}
-    return {"history": session.get("messages", []), "scheduled_date": session.get("scheduled_date")}
+    return {"history": session.get("history", []), "scheduled_date": session.get("scheduled_date")}
 
