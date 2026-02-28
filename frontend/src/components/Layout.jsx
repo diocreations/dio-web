@@ -15,6 +15,20 @@ const accentCssMap = {
   orange: { "--primary": "25 95% 53%", "--ring": "25 95% 53%", "--accent": "25 70% 60%", "--secondary": "25 30% 96%", "--secondary-foreground": "25 95% 30%" },
 };
 
+// Apply color immediately from localStorage to prevent flash
+const applySavedColor = () => {
+  const saved = localStorage.getItem("dio_color_scheme");
+  if (saved && accentCssMap[saved]) {
+    const root = document.documentElement;
+    Object.entries(accentCssMap[saved]).forEach(([key, value]) => {
+      root.style.setProperty(key, value);
+    });
+  }
+};
+
+// Call immediately on module load
+applySavedColor();
+
 const getRandomIndex = (key, max) => {
   if (max <= 0) return 0;
   const stored = sessionStorage.getItem(key);
