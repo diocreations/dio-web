@@ -109,7 +109,7 @@ Write in first person implied (no "I"), professional tone. Focus on value propos
         session_id = f"builder_{uuid.uuid4().hex[:8]}"
         chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=session_id, system_message="You are a professional resume writer.").with_model("gemini", "gemini-2.0-flash")
         response = await chat.send_message(UserMessage(text=prompt))
-        return {"summary": response.content.strip()}
+        return {"summary": response.strip() if isinstance(response, str) else response.content.strip()}
     except Exception as e:
         logger.error(f"AI summary generation failed: {e}")
         raise HTTPException(status_code=500, detail="Failed to generate summary")
