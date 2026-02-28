@@ -139,7 +139,8 @@ Achievements: {achievements or 'Not specified'}
 Format: Return ONLY the bullet points, one per line, starting with action verbs (Led, Developed, Managed, Increased, etc.). No bullet characters, just the text."""
 
     try:
-        chat = LlmChat(api_key=EMERGENT_LLM_KEY).with_model("gemini", "gemini-2.0-flash")
+        session_id = f"builder_{uuid.uuid4().hex[:8]}"
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=session_id, system_message="You are a professional resume writer.").with_model("gemini", "gemini-2.0-flash")
         response = await asyncio.to_thread(
             chat.send_message,
             UserMessage(content=prompt)
