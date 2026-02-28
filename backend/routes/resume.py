@@ -591,6 +591,27 @@ CURRENT EXPERIENCE: {experience[:1000]}"""
     }
 
 
+@router.get("/resume/share/{resume_id}")
+async def get_shared_resume(resume_id: str):
+    """Public endpoint to view shared resume analysis (for viral sharing)"""
+    analysis = await db.resume_analyses.find_one({"resume_id": resume_id}, {"_id": 0})
+    if not analysis:
+        raise HTTPException(status_code=404, detail="Resume analysis not found")
+    upload = await db.resume_uploads.find_one({"resume_id": resume_id}, {"_id": 0, "filename": 1})
+    # Return analysis data for sharing (but not the improved text)
+    return {
+        "resume_id": resume_id,
+        "filename": upload.get("filename", "Resume") if upload else "Resume",
+        "overall_score": analysis.get("overall_score", 0),
+        "ats_score": analysis.get("ats_score", 0),
+        "strengths": analysis.get("strengths", []),
+        "weaknesses": analysis.get("weaknesses", []),
+        "missing_keywords": analysis.get("missing_keywords", []),
+        "suggestions": analysis.get("suggestions", []),
+        "created_at": analysis.get("created_at", ""),
+    }
+
+
 @router.post("/resume/linkedin-scrape")
 async def scrape_linkedin_profile(data: dict):
     import httpx
