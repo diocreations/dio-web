@@ -447,158 +447,57 @@ const ResumeOptimizerPage = () => {
     return `${namePart}${titlePart}-${datePart}`.toLowerCase().replace(/--+/g, "-");
   };
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     if (!editedText) return;
     if (!hasDownloadAccess) { handleCheckout(); return; }
+    
+    toast.info("Generating PDF...", { duration: 2000 });
     const filename = extractResumeFilename(editedText);
-    const isHtmlContent = editedText.includes("<h2>") || editedText.includes("<p>") || editedText.includes("<li>");
     const tpl = activeVisualTemplate || "classic";
 
-    // Template configurations with STRUCTURALLY DIFFERENT layouts
+    // Template configurations
     const configs = {
-      classic: {
-        font: "'Georgia','Times New Roman',serif",
-        accent: "#1a1a2e",
-        nameSize: "20pt",
-        contactSize: "8pt",
-        nameAlign: "center",
-        bodyColor: "#333",
-        h2Style: "border-bottom:1.5px solid #1a1a2e;color:#1a1a2e;padding-bottom:4px;",
-        accentBar: "height:2px;background:#1a1a2e;margin:10px 0 16px;width:100%;",
-      },
-      modern: {
-        font: "'Segoe UI',Calibri,sans-serif",
-        accent: "#2563eb",
-        nameSize: "22pt",
-        contactSize: "8pt",
-        nameAlign: "left",
-        bodyColor: "#374151",
-        h2Style: "color:#2563eb;border-left:3px solid #2563eb;padding-left:10px;border-bottom:none;",
-        accentBar: "height:3px;background:#2563eb;margin:10px 0 16px;width:60px;border-radius:2px;",
-      },
-      executive: {
-        font: "'Segoe UI',Calibri,sans-serif",
-        accent: "#d97706",
-        nameSize: "22pt",
-        contactSize: "8pt",
-        nameAlign: "left",
-        bodyColor: "#374151",
-        h2Style: "color:#92400e;border-bottom:2px solid #fbbf2440;padding-bottom:4px;",
-        headerBg: "#1e293b",
-        headerColor: "#ffffff",
-        accentBar: "",
-      },
-      minimal: {
-        font: "'Helvetica Neue',Helvetica,sans-serif",
-        accent: "#6b7280",
-        nameSize: "18pt",
-        contactSize: "7.5pt",
-        nameAlign: "left",
-        bodyColor: "#4b5563",
-        h2Style: "color:#9ca3af;border-bottom:none;letter-spacing:4px;font-weight:400;font-size:8pt;text-transform:uppercase;",
-        accentBar: "height:1px;background:#e5e7eb;margin:14px 0 20px;width:100%;",
-      },
-      bold: {
-        font: "'Inter','Segoe UI',sans-serif",
-        accent: "#dc2626",
-        nameSize: "24pt",
-        contactSize: "8pt",
-        nameAlign: "left",
-        bodyColor: "#1f2937",
-        // Bold template: Red background badges for section headers
-        h2Style: "background:#dc2626 !important;color:#ffffff !important;padding:6px 12px;border-radius:4px;display:inline-block;border-bottom:none;",
-        accentBar: "height:4px;background:#dc2626;margin:10px 0 16px;width:100%;border-radius:2px;",
-        printBgForce: true,
-      },
-      elegant: {
-        font: "'Georgia','Palatino Linotype',serif",
-        accent: "#0d9488",
-        nameSize: "20pt",
-        contactSize: "8pt",
-        nameAlign: "center",
-        bodyColor: "#374151",
-        h2Style: "color:#0f766e;border-bottom:1px solid #0d948840;padding-bottom:4px;",
-        accentBar: "height:1px;background:linear-gradient(90deg,transparent,#0d9488,transparent);margin:10px 0 16px;width:100%;",
-      },
-      corporate: {
-        font: "'Segoe UI',Calibri,sans-serif",
-        accent: "#1e3a5f",
-        nameSize: "20pt",
-        contactSize: "8pt",
-        nameAlign: "left",
-        bodyColor: "#374151",
-        h2Style: "color:#1e3a5f;border-bottom:2px solid #1e3a5f;padding-bottom:4px;",
-        leftBar: true,
-        accentBar: "height:2px;background:#1e3a5f40;margin:10px 0 16px;width:100%;",
-      },
-      creative: {
-        font: "'Inter','Segoe UI',sans-serif",
-        accent: "#7c3aed",
-        nameSize: "24pt",
-        contactSize: "8pt",
-        nameAlign: "left",
-        bodyColor: "#374151",
-        h2Style: "color:#7c3aed;border-bottom:2px solid #e9d5ff;padding-bottom:4px;",
-        accentBar: "height:4px;background:linear-gradient(90deg,#7c3aed,#a78bfa);margin:10px 0 16px;width:80px;border-radius:2px;",
-      },
+      classic: { font: "'Georgia','Times New Roman',serif", accent: "#1a1a2e", nameSize: "20pt", contactSize: "8pt", nameAlign: "center", bodyColor: "#333", h2Style: "border-bottom:1.5px solid #1a1a2e;color:#1a1a2e;padding-bottom:4px;", accentBar: "height:2px;background:#1a1a2e;margin:10px 0 16px;width:100%;" },
+      modern: { font: "'Segoe UI',Calibri,sans-serif", accent: "#2563eb", nameSize: "22pt", contactSize: "8pt", nameAlign: "left", bodyColor: "#374151", h2Style: "color:#2563eb;border-left:3px solid #2563eb;padding-left:10px;border-bottom:none;", accentBar: "height:3px;background:#2563eb;margin:10px 0 16px;width:60px;border-radius:2px;" },
+      executive: { font: "'Segoe UI',Calibri,sans-serif", accent: "#d97706", nameSize: "22pt", contactSize: "8pt", nameAlign: "left", bodyColor: "#374151", h2Style: "color:#92400e;border-bottom:2px solid #fbbf2440;padding-bottom:4px;", headerBg: "#1e293b", headerColor: "#ffffff", accentBar: "" },
+      minimal: { font: "'Helvetica Neue',Helvetica,sans-serif", accent: "#6b7280", nameSize: "18pt", contactSize: "7.5pt", nameAlign: "left", bodyColor: "#4b5563", h2Style: "color:#9ca3af;border-bottom:none;letter-spacing:4px;font-weight:400;font-size:8pt;text-transform:uppercase;", accentBar: "height:1px;background:#e5e7eb;margin:14px 0 20px;width:100%;" },
+      bold: { font: "'Inter','Segoe UI',sans-serif", accent: "#dc2626", nameSize: "24pt", contactSize: "8pt", nameAlign: "left", bodyColor: "#1f2937", h2Style: "background:#dc2626;color:#ffffff;padding:6px 12px;border-radius:4px;display:inline-block;border-bottom:none;", accentBar: "height:4px;background:#dc2626;margin:10px 0 16px;width:100%;border-radius:2px;" },
+      elegant: { font: "'Georgia','Palatino Linotype',serif", accent: "#0d9488", nameSize: "20pt", contactSize: "8pt", nameAlign: "center", bodyColor: "#374151", h2Style: "color:#0f766e;border-bottom:1px solid #0d948840;padding-bottom:4px;", accentBar: "height:1px;background:linear-gradient(90deg,transparent,#0d9488,transparent);margin:10px 0 16px;width:100%;" },
+      corporate: { font: "'Segoe UI',Calibri,sans-serif", accent: "#1e3a5f", nameSize: "20pt", contactSize: "8pt", nameAlign: "left", bodyColor: "#374151", h2Style: "color:#1e3a5f;border-bottom:2px solid #1e3a5f;padding-bottom:4px;", leftBar: true, accentBar: "height:2px;background:#1e3a5f40;margin:10px 0 16px;width:100%;" },
+      creative: { font: "'Inter','Segoe UI',sans-serif", accent: "#7c3aed", nameSize: "24pt", contactSize: "8pt", nameAlign: "left", bodyColor: "#374151", h2Style: "color:#7c3aed;border-bottom:2px solid #e9d5ff;padding-bottom:4px;", accentBar: "height:4px;background:linear-gradient(90deg,#7c3aed,#a78bfa);margin:10px 0 16px;width:80px;border-radius:2px;" },
     };
     const c = configs[tpl] || configs.classic;
 
-    const win = window.open("", "_blank");
-    if (!win) { toast.error("Please allow popups to download PDF"); return; }
+    // Clean HTML content - strip highlights, colored text, and non-professional formatting
+    const cleanHtmlForPdf = (html) => {
+      // Remove background colors (highlights)
+      let cleaned = html.replace(/background(-color)?:\s*[^;]+;?/gi, "");
+      // Remove colored text - replace with standard black/body color
+      cleaned = cleaned.replace(/color:\s*(?!#1a1a2e|#333|#374151|#1f2937|#4b5563)[^;]+;?/gi, "");
+      // Remove hiliteColor spans
+      cleaned = cleaned.replace(/<span[^>]*style="[^"]*background[^"]*"[^>]*>([\s\S]*?)<\/span>/gi, "$1");
+      // Remove font color spans that have non-standard colors
+      cleaned = cleaned.replace(/<font[^>]*color="(?!#1a1a2e|#333|black)"[^>]*>([\s\S]*?)<\/font>/gi, "$1");
+      return cleaned;
+    };
 
-    // Build CSS with template-specific structural differences
+    // Build HTML content
     let extraCss = "";
-    if (c.leftBar) {
-      extraCss += `body{border-left:5px solid ${c.accent} !important;padding-left:28px !important;}`;
-    }
+    if (c.leftBar) extraCss += `body{border-left:5px solid ${c.accent};padding-left:28px;}`;
     if (c.headerBg) {
-      extraCss += `.header-block{background:${c.headerBg} !important;color:${c.headerColor} !important;padding:20px 24px 16px;margin:-24px -24px 16px;print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}`;
-      extraCss += `.header-block .resume-name{color:${c.headerColor} !important;}`;
-      extraCss += `.header-block .resume-contact{color:rgba(255,255,255,0.7) !important;}`;
-    }
-    if (c.printBgForce) {
-      extraCss += `h2{print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}`;
+      extraCss += `.header-block{background:${c.headerBg};color:${c.headerColor};padding:20px 24px 16px;margin:-24px -24px 16px;}`;
+      extraCss += `.header-block .resume-name{color:${c.headerColor};}`;
+      extraCss += `.header-block .resume-contact{color:rgba(255,255,255,0.7);}`;
     }
 
-    win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${filename}</title><style>
-      *{margin:0;padding:0;box-sizing:border-box}
-      html,body{print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}
-      body{font-family:${c.font};width:100%;max-width:100%;margin:0;padding:24px;line-height:1.5;color:${c.bodyColor};font-size:10pt;}
-      ${extraCss}
-      .resume-name{font-size:${c.nameSize};font-weight:700;color:${c.accent};letter-spacing:0.5px;margin-bottom:2px;text-align:${c.nameAlign};}
-      .resume-contact{font-size:${c.contactSize};color:#555;margin-bottom:1px;line-height:1.35;text-align:${c.nameAlign};}
-      .resume-contact a{color:${c.accent};text-decoration:none;}
-      .accent-bar{${c.accentBar || "display:none;"}}
-      h2{font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;${c.h2Style}margin:14px 0 6px;}
-      h3{font-size:9.5pt;font-weight:600;color:${c.bodyColor};margin:8px 0 3px;}
-      .job-header{display:flex;justify-content:space-between;align-items:baseline;margin:8px 0 3px;flex-wrap:wrap;gap:6px;}
-      .job-title{font-weight:700;font-size:10pt;color:${c.bodyColor};}
-      .job-dates{font-style:italic;color:#777;font-size:9pt;}
-      p{margin:2px 0;line-height:1.5;font-size:10pt;}
-      ul{padding-left:18px;margin:3px 0 6px;list-style-type:disc;}
-      ol{padding-left:18px;margin:3px 0 6px;}
-      li{margin-bottom:2px;line-height:1.45;font-size:10pt;}
-      strong,b{font-weight:700;}em,i{font-style:italic;}s,strike{text-decoration:line-through;}
-      a{color:${c.accent};text-decoration:none;}
-      hr{border:none;border-top:1px solid #ddd;margin:8px 0;}
-      @media print{
-        html,body{print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}
-        body{margin:0;padding:0;width:100%;max-width:100%;}
-        @page{margin:0.5in 0.6in;size:A4;}
-        h2{print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}
-        .header-block{print-color-adjust:exact !important;-webkit-print-color-adjust:exact !important;}
-      }
-    </style></head><body>`);
+    const isHtmlContent = editedText.includes("<h2>") || editedText.includes("<p>") || editedText.includes("<li>");
+    let bodyContent = "";
 
-
-    // Parse content and build HTML
     if (isHtmlContent) {
-      let html = editedText;
+      let html = cleanHtmlForPdf(editedText);
       let firstP = false, contactDone = false;
       const nameEntries = [];
       
-      // Extract name and contact from first paragraphs
       html = html.replace(/<p([^>]*)>([\s\S]*?)<\/p>/gi, (match, attrs, content) => {
         const text = content.replace(/<[^>]*>/g, "").trim();
         if (!firstP && text && !text.startsWith("-") && !/^[A-Z][A-Z\s\/&,]{3,}$/.test(text)) {
@@ -614,22 +513,15 @@ const ResumeOptimizerPage = () => {
         return match;
       });
       
-      // Build header block (with dark background for executive template)
       let nameBlock = nameEntries.join("");
-      if (c.headerBg) {
-        nameBlock = `<div class="header-block">${nameBlock}</div>`;
-      } else {
-        nameBlock += `<div class="accent-bar"></div>`;
-      }
-      html = html.replace("%%NAME%%", nameBlock).replace(/%%CONTACT%%/g, "");
-      win.document.write(html);
+      if (c.headerBg) nameBlock = `<div class="header-block">${nameBlock}</div>`;
+      else nameBlock += `<div class="accent-bar"></div>`;
+      bodyContent = html.replace("%%NAME%%", nameBlock).replace(/%%CONTACT%%/g, "");
     } else {
-      // Plain text parsing
       const lines = editedText.split("\n");
       const nameLines = [];
       let bodyStartIdx = 0;
       
-      // Collect name and contact lines (before first section header)
       for (let i = 0; i < lines.length; i++) {
         const t = lines[i].trim();
         if (!t) { bodyStartIdx = i + 1; break; }
@@ -639,47 +531,72 @@ const ResumeOptimizerPage = () => {
         bodyStartIdx = i + 1;
       }
       
-      // Write header section
-      if (c.headerBg) win.document.write(`<div class="header-block">`);
-      if (nameLines[0]) win.document.write(`<div class="resume-name">${nameLines[0]}</div>`);
-      for (let i = 1; i < nameLines.length; i++) {
-        win.document.write(`<div class="resume-contact">${nameLines[i].replace(/\|/g, " &middot; ")}</div>`);
-      }
-      if (c.headerBg) {
-        win.document.write(`</div>`);
-      } else {
-        win.document.write(`<div class="accent-bar"></div>`);
-      }
+      if (c.headerBg) bodyContent += `<div class="header-block">`;
+      if (nameLines[0]) bodyContent += `<div class="resume-name">${nameLines[0]}</div>`;
+      for (let i = 1; i < nameLines.length; i++) bodyContent += `<div class="resume-contact">${nameLines[i].replace(/\|/g, " &middot; ")}</div>`;
+      if (c.headerBg) bodyContent += `</div>`;
+      else bodyContent += `<div class="accent-bar"></div>`;
       
-      // Write body content
       for (let i = bodyStartIdx; i < lines.length; i++) {
         const t = lines[i].trim();
-        if (!t) { win.document.write("<br/>"); continue; }
+        if (!t) { bodyContent += "<br/>"; continue; }
         const isH = /^[A-Z][A-Z\s\/&,]{3,}$/.test(t) && !t.includes("@") && !t.includes("|") && !t.includes(".com");
         const isBul = /^[-*\u2022]\s+/.test(t);
         const hasDate = /\d{4}\s*[-\u2013]\s*(present|\d{4})/i.test(t);
-        
-        if (isH) {
-          win.document.write(`<h2>${t}</h2>`);
-        } else if (isBul) {
-          win.document.write(`<li>${t.replace(/^[-*\u2022]\s+/, "")}</li>`);
-        } else if (hasDate) {
+        if (isH) bodyContent += `<h2>${t}</h2>`;
+        else if (isBul) bodyContent += `<li>${t.replace(/^[-*\u2022]\s+/, "")}</li>`;
+        else if (hasDate) {
           const dm = t.match(/(\w+\s+\d{4}\s*[-\u2013]\s*(?:Present|\w+\s+\d{4}))/i);
-          if (dm) {
-            const rest = t.replace(dm[1], "").replace(/\|/g, "").trim();
-            win.document.write(`<div class="job-header"><span class="job-title">${rest}</span><span class="job-dates">${dm[1]}</span></div>`);
-          } else {
-            win.document.write(`<p><strong>${t}</strong></p>`);
-          }
-        } else {
-          win.document.write(`<p>${t}</p>`);
-        }
+          if (dm) { const rest = t.replace(dm[1], "").replace(/\|/g, "").trim(); bodyContent += `<div class="job-header"><span class="job-title">${rest}</span><span class="job-dates">${dm[1]}</span></div>`; }
+          else bodyContent += `<p><strong>${t}</strong></p>`;
+        } else bodyContent += `<p>${t}</p>`;
       }
     }
-    
-    win.document.write("</body></html>");
-    win.document.close();
-    setTimeout(() => win.print(), 400);
+
+    // Create temporary container for PDF generation
+    const container = document.createElement("div");
+    container.innerHTML = `
+      <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:${c.font};width:100%;max-width:100%;margin:0;padding:24px;line-height:1.5;color:${c.bodyColor};font-size:10pt;}
+        ${extraCss}
+        .resume-name{font-size:${c.nameSize};font-weight:700;color:${c.accent};letter-spacing:0.5px;margin-bottom:2px;text-align:${c.nameAlign};}
+        .resume-contact{font-size:${c.contactSize};color:#555;margin-bottom:1px;line-height:1.35;text-align:${c.nameAlign};}
+        .resume-contact a{color:${c.accent};text-decoration:none;}
+        .accent-bar{${c.accentBar || "display:none;"}}
+        h2{font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;${c.h2Style}margin:14px 0 6px;}
+        h3{font-size:9.5pt;font-weight:600;color:${c.bodyColor};margin:8px 0 3px;}
+        .job-header{display:flex;justify-content:space-between;align-items:baseline;margin:8px 0 3px;flex-wrap:wrap;gap:6px;}
+        .job-title{font-weight:700;font-size:10pt;color:${c.bodyColor};}
+        .job-dates{font-style:italic;color:#777;font-size:9pt;}
+        p{margin:2px 0;line-height:1.5;font-size:10pt;}
+        ul{padding-left:18px;margin:3px 0 6px;list-style-type:disc;}
+        ol{padding-left:18px;margin:3px 0 6px;}
+        li{margin-bottom:2px;line-height:1.45;font-size:10pt;}
+        strong,b{font-weight:700;}em,i{font-style:italic;}
+        a{color:${c.accent};text-decoration:none;}
+        hr{border:none;border-top:1px solid #ddd;margin:8px 0;}
+      </style>
+      <div style="font-family:${c.font};padding:24px;line-height:1.5;color:${c.bodyColor};font-size:10pt;${c.leftBar ? `border-left:5px solid ${c.accent};padding-left:28px;` : ""}">${bodyContent}</div>
+    `;
+    document.body.appendChild(container);
+
+    try {
+      const opt = {
+        margin: [0.5, 0.6, 0.5, 0.6],
+        filename: `${filename}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+      };
+      await html2pdf().set(opt).from(container.querySelector("div")).save();
+      toast.success("PDF downloaded successfully!");
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      toast.error("PDF generation failed. Please try again.");
+    } finally {
+      document.body.removeChild(container);
+    }
   };
 
   const StepIcon = ({ id }) => {
