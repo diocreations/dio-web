@@ -67,6 +67,18 @@ const ResumeOptimizerPage = () => {
   const [referralCode, setReferralCode] = useState("");
   const [referralDiscount, setReferralDiscount] = useState(null);
   const [pubUser, setPubUser] = useState(null);
+  const [ogMeta, setOgMeta] = useState(null);
+
+  // Fetch OG meta for shared links
+  useEffect(() => {
+    const shareId = searchParams.get("share");
+    if (shareId) {
+      fetch(`${API_URL}/api/resume/og/${shareId}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => { if (data) setOgMeta(data); })
+        .catch(() => {});
+    }
+  }, [searchParams]);
 
   // Check for logged in user
   useEffect(() => {
