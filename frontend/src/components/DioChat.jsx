@@ -529,7 +529,7 @@ const DioChat = () => {
               ))}
 
               {/* Quick Reply Buttons */}
-              {quickReplies.length > 0 && !isLoading && (
+              {quickReplies.length > 0 && !isLoading && !showScheduler && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                   className="flex flex-wrap gap-2 pl-9">
                   {quickReplies.map((reply, idx) => (
@@ -539,6 +539,16 @@ const DioChat = () => {
                       {reply}
                     </button>
                   ))}
+                </motion.div>
+              )}
+
+              {/* Schedule Picker */}
+              {showScheduler && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="pl-9">
+                  <SchedulePicker
+                    onSchedule={handleScheduleConfirm}
+                    onCancel={() => setShowScheduler(false)}
+                  />
                 </motion.div>
               )}
 
