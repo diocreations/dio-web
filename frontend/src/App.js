@@ -226,6 +226,7 @@ const AppRouter = () => {
       <Route path="/builder" element={<BuilderPage />} />
       <Route path="/builder/success" element={<BuilderSuccessPage />} />
       <Route path="/resume-optimizer" element={<ResumeOptimizerPage />} />
+      <Route path="/resume-builder" element={<ResumeBuilderPage />} />
       <Route path="/login" element={<UserLoginPage />} />
       <Route path="/dashboard" element={<UserDashboardPage />} />
       <Route path="/cover-letter" element={<CoverLetterPage />} />
