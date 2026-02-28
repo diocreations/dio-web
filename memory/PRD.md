@@ -110,7 +110,7 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
   - Generate experience bullet points
   - Suggest relevant skills
   - Generate full resume from minimal input
-- **Export options**: DOCX (PDF coming soon)
+- **Export options**: PDF + DOCX
 - **Draft saving**: Logged-in users can save and resume drafts
 - **Backend**: `/app/backend/routes/builder.py` with endpoints:
   - `POST /api/builder/generate/summary` - AI summary generation
@@ -119,6 +119,12 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
   - `POST /api/builder/generate/full` - Full resume generation
   - `POST /api/builder/export/docx` - DOCX export
   - Draft CRUD endpoints
+
+## Resume Optimizer Enhancements (Dec 2025)
+- **Drag & Drop Upload**: Users can drag and drop files directly onto the upload card
+- **DOCX Support**: Both PDF and DOCX files can be uploaded for analysis
+- **Pricing Toggle**: Admin can enable/disable pricing (OFF = free access to downloads)
+- **Navigation**: Added "Resume Builder" link to navbar
 
 ## Final Cleanup (Dec 2025)
 - Removed debug console.log from GoogleAnalytics.jsx
