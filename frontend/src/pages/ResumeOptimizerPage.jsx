@@ -44,6 +44,7 @@ const ResumeOptimizerPage = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [activeVisualTemplate, setActiveVisualTemplate] = useState("classic");
   const [isEditing, setIsEditing] = useState(false);
+  const [editorMode, setEditorMode] = useState("preview"); // "preview" | "text" | "sections"
   const [editedText, setEditedText] = useState("");
   const [originalImprovedText, setOriginalImprovedText] = useState(""); // For reset functionality
 
