@@ -698,21 +698,32 @@ const ResumeOptimizerPage = () => {
             {/* STEP 1: Upload */}
             {step === 1 && (
               <motion.div key="upload" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <Card className="max-w-xl mx-auto">
+                <Card 
+                  className={`max-w-xl mx-auto transition-all duration-200 ${isDragging ? "ring-2 ring-primary ring-offset-2 bg-primary/5" : ""}`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
                   <CardContent className="p-8 text-center">
-                    <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                      <Upload size={32} className="text-primary" />
+                    <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-all ${isDragging ? "bg-primary scale-110" : "bg-primary/10"}`}>
+                      <Upload size={32} className={isDragging ? "text-white" : "text-primary"} />
                     </div>
-                    <h2 className="text-xl font-bold mb-2">Upload Your Resume</h2>
-                    <p className="text-muted-foreground mb-6">PDF or DOCX format. Max 5MB. Your free analysis starts instantly.</p>
+                    <h2 className="text-xl font-bold mb-2">{isDragging ? "Drop Your Resume Here" : "Upload Your Resume"}</h2>
+                    <p className="text-muted-foreground mb-6">
+                      {isDragging ? "Release to upload" : "Drag & drop or click to browse. PDF or DOCX format, max 5MB."}
+                    </p>
                     <label className="block">
-                      <input type="file" accept=".pdf,.docx" onChange={handleUpload} className="hidden" data-testid="resume-upload-input" />
+                      <input type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={handleUpload} className="hidden" data-testid="resume-upload-input" />
                       <Button asChild disabled={uploading} className="rounded-full px-8" data-testid="resume-upload-btn">
                         <span>{uploading ? <><Loader2 className="animate-spin mr-2" size={18} />Uploading...</> : <><Upload size={16} className="mr-2" />Choose File</>}</span>
                       </Button>
                     </label>
-                    <p className="text-xs text-muted-foreground mt-4">or import from</p>
-                    <div className="flex gap-2 justify-center mt-2">
+                    <div className="flex items-center gap-4 my-4">
+                      <div className="flex-1 border-t"></div>
+                      <span className="text-xs text-muted-foreground">or import from</span>
+                      <div className="flex-1 border-t"></div>
+                    </div>
+                    <div className="flex gap-2 justify-center">
                       <button onClick={handleGoogleDrive} disabled={driveImporting} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs border rounded-full hover:bg-slate-50 transition-colors cursor-pointer" data-testid="google-drive-btn">
                         {driveImporting ? <Loader2 className="animate-spin w-4 h-4" /> : <HardDrive size={14} />}
                         Google Drive
