@@ -31,7 +31,7 @@ const AdminLeads = () => {
   const fetchChatHistory = async (sessionId) => {
     if (chatHistories[sessionId]) return;
     try {
-      const res = await fetch(`${API_URL}/api/chat/${sessionId}/history`, { credentials: "include" });
+      const res = await fetch(`${API_URL}/api/chat/${sessionId}/admin-history`, { credentials: "include" });
       const data = await res.json();
       setChatHistories(prev => ({ ...prev, [sessionId]: data.history || [] }));
     } catch {
