@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-route
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/sonner";
 import { useState, useEffect, createContext, useContext, useRef, lazy, Suspense } from "react";
+import { HelmetProvider } from "react-helmet-async";
 
 // Public Pages
 import HomePage from "./pages/HomePage";
