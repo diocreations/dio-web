@@ -206,6 +206,7 @@ async def generate_full_resume(data: dict):
         raise HTTPException(status_code=400, detail="Job title required")
     
     skills_str = ", ".join(skills) if isinstance(skills, list) else skills
+    edu_default = "Bachelors degree"
     
     prompt = f"""Generate a complete professional resume content for:
 
@@ -213,7 +214,7 @@ Job Title: {job_title}
 Years of Experience: {years_exp or '3-5 years'}
 Industry: {industry or 'Technology'}
 Key Skills: {skills_str or 'Relevant to the role'}
-Education: {education or 'Bachelor\'s degree'}
+Education: {education or edu_default}
 
 Return as JSON with this structure:
 {{
