@@ -249,7 +249,8 @@ Return as JSON with this structure:
 Generate 2-3 relevant work experiences. Make it realistic and ATS-friendly. Only return valid JSON."""
 
     try:
-        chat = LlmChat(api_key=EMERGENT_LLM_KEY).with_model("gemini", "gemini-2.0-flash")
+        session_id = f"builder_{uuid.uuid4().hex[:8]}"
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=session_id, system_message="You are a professional resume writer.").with_model("gemini", "gemini-2.0-flash")
         response = await asyncio.to_thread(
             chat.send_message,
             UserMessage(content=prompt)
