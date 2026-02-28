@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, ChevronDown, ChevronUp, Trash2, Plus, Edit3, Check, X } from "lucide-react";
+import { GripVertical, ChevronDown, ChevronUp, Trash2, Plus, Edit3, Check, X, Undo2, Redo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // Common resume section patterns for auto-detection
