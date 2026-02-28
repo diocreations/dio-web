@@ -109,3 +109,4 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 - Added "Save your progress" prompt on Resume Optimizer page
 - All linting passes, no console.logs in production code paths
 - **FOUC Fix**: Moved color scheme initialization script to `<head>` in index.html for earliest possible execution
+- **Share Feature**: Added "Share Your Score" button allowing users to copy a shareable link to their resume analysis (viral growth feature)
