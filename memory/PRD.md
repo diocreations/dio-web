@@ -29,16 +29,17 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 - Stripe checkout with referral code support
 - Email receipt via Resend (BackgroundTasks) after payment
 - Email prompt modal collects email before checkout
+- **Pricing Toggle**: Admin can enable/disable pricing (OFF = free access)
 
-### Admin SEO Manager (NEW)
+### Admin SEO Manager
 - **Global tab**: Site title, description, default keywords (add/remove), OG image, Google/Bing verification
 - **Pages tab**: 9 site pages with per-page title, description, keywords, OG settings, canonical URL
 - **Advanced tab**: Schema.org JSON-LD config, robots.txt custom rules, custom head tags
 - **Dynamic sitemap.xml**: Includes all static pages, published blogs, services, portfolio
 - **robots.txt**: Auto-generated with custom rules support
-- **SEO injection**: Layout.jsx dynamically sets meta tags per route (title, description, keywords, og:*, twitter:*, canonical, JSON-LD)
+- **SEO injection**: Layout.jsx dynamically sets meta tags per route
 
-### Referral Discount System (NEW)
+### Referral Discount System
 - Unique DIO-XXXXXX referral codes per user
 - 20% discount for referred users, 10% earnings for referrer
 - Referral validation at checkout, self-use prevention
@@ -46,12 +47,23 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 - Admin stats: total codes, uses, discount given, top referrers
 - URL-based activation: /resume-optimizer?ref=CODE
 
-### User Dashboard (NEW)
+### User Dashboard
 - **Resumes tab**: Full resume history with versions (filename, scores, paid status, dates, open link)
 - **Payments tab**: Payment history with status, amount, currency, date
 - **Cover Letters tab**: All generated cover letters with job title, company, tone
 - **Referral tab**: Generate code, copy link, see usage count & earnings
 - **Stats cards**: Total resumes, paid downloads, AI analyses, cover letters
+
+### Resume Builder Feature (NEW)
+- **Multi-step wizard**: 7 steps (Personal Info → Summary → Experience → Education → Skills → More → Preview)
+- **AI-powered content generation**:
+  - Generate professional summary from job title
+  - Generate experience bullet points
+  - Suggest relevant skills
+  - Generate full resume from minimal input
+- **Export options**: PDF + DOCX (both functional)
+- **Draft saving**: Logged-in users can save and resume drafts
+- **Backend**: `/app/backend/routes/builder.py` with endpoints
 
 ### Other Features
 - LinkedIn Optimizer: URL scraping, manual input, AI optimization, server-side paywall
@@ -69,83 +81,47 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 - seo_global, seo_pages (SEO settings)
 - referral_config, referral_codes, referral_uses (Referral system)
 - resume_uploads, resume_analyses, resume_improvements, resume_payments
+- resume_pricing (with pricing_enabled toggle)
 - linkedin_optimizations, cover_letters
 
-## Testing Status
-- Iteration 17: 12/12 (features)
-- Iteration 18: 12/12 (payment-gating)
-- Iteration 19: 10/10 (email receipt)
-- Iteration 20: 19/19 (SEO + referral + dashboard)
-- Iteration 21: 100% (3 template/PDF bugs fixed)
-- Iteration 22: 100% (Rich text editor 22 features, template PDF, Google login)
-- Iteration 23: 100% (P0 Google Sign-In fix, P1 PDF template styling)
-- Iteration 24: 100% (Full MS Word-like editor, Reset button, PDF layout fix)
+## Bug Fixes Applied (Dec 2025)
 
-## Fixes Applied (Dec 2025)
-- **P0 Google Sign-In**: Fixed auth.emergentagent.com parameter from `redirect_url` to `redirect`
-- **P1 PDF Templates**: Structurally different templates with Bold having red background headers
-- **P1 Contact Info**: Reduced font size from 8.5pt to 8pt for better visual hierarchy
-- **PDF Layout**: Fixed blank areas by adjusting margins and using full-width layout
-- **Rich Text Editor**: Upgraded to full MS Word-like editor with 20+ features
-- **Reset Button**: Added to restore original improved text after editing
+### P0 - Editor UI Bug Fix (RESOLVED)
+- **Issue**: "Done Editing" button was missing and editor was cut in half
+- **Root Cause**: Database pricing document was missing `pricing_enabled` field, defaulting to `True` and showing paywall
+- **Fix Applied**:
+  1. Added `pricing_enabled: false` to resume_pricing document in database
+  2. Fixed CSS layout in `RichEditor.jsx` - added flex layout for proper height distribution
+  3. Fixed `ResumePreview.jsx` - added `h-full min-h-[600px]` to editing wrapper
+  4. Fixed container in `ResumeOptimizerPage.jsx` - ensured proper height allocation
+
+### P1 - Pricing Toggle
+- Admin can now toggle pricing ON/OFF via admin panel
+- When OFF, users get free access to all features (no paywall)
+
+### P1 - DOCX Export for Resume Builder  
+- Already implemented in backend (`/api/builder/export/docx`)
+- Frontend calls this endpoint and downloads the file
 
 ## Credentials
 - Admin: admin@diocreations.com / adminpassword
 - Super Admin (Google): jomiejoseph@gmail.com
 
 ## Deploy Readiness
-- ✅ Google Sign-In working (P0 fixed)
-- ✅ PDF templates with print-color-adjust support (P1 fixed)
+- ✅ Google Sign-In working
+- ✅ PDF templates with print-color-adjust support
 - ✅ Full MS Word-like Rich Text Editor
-- ✅ Google Sign-In prominent in navbar + Resume Optimizer page
-- ✅ Production code cleanup complete
-- ✅ FOUC (Flash of Unstyled Content) fix - Color theme loads instantly from localStorage before React hydrates
+- ✅ Editor mode toggle (Preview/Text/Sections) working
+- ✅ "Done Editing" button visible in edit modes
+- ✅ Editor fills container properly (not cut in half)
+- ✅ Pricing toggle functional (can disable to give free access)
+- ✅ Resume Builder with DOCX export
+- ✅ FOUC fix implemented
 - ⏳ RESEND_API_KEY: Configured in backend .env (user provided key)
 - ⏳ SSL for resume.diocreations.eu: Requires Emergent dashboard action
 
-## Resume Builder Feature (Dec 2025 - NEW)
-- **Multi-step wizard**: 7 steps (Personal Info → Summary → Experience → Education → Skills → More → Preview)
-- **AI-powered content generation**:
-  - Generate professional summary from job title
-  - Generate experience bullet points
-  - Suggest relevant skills
-  - Generate full resume from minimal input
-- **Export options**: PDF + DOCX
-- **Draft saving**: Logged-in users can save and resume drafts
-- **Backend**: `/app/backend/routes/builder.py` with endpoints:
-  - `POST /api/builder/generate/summary` - AI summary generation
-  - `POST /api/builder/generate/experience` - AI bullet points
-  - `POST /api/builder/generate/skills` - AI skill suggestions
-  - `POST /api/builder/generate/full` - Full resume generation
-  - `POST /api/builder/export/docx` - DOCX export
-  - Draft CRUD endpoints
-
-## Resume Optimizer Enhancements (Dec 2025)
-- **Drag & Drop Upload**: Users can drag and drop files directly onto the upload card
-- **DOCX Support**: Both PDF and DOCX files can be uploaded for analysis
-- **Pricing Toggle**: Admin can enable/disable pricing (OFF = free access to downloads)
-- **Navigation**: Added "Resume Builder" link to navbar
-
-## Final Cleanup (Dec 2025)
-- Removed debug console.log from GoogleAnalytics.jsx
-- Added Google Sign-In button to Navbar for quick access
-- Added "Save your progress" prompt on Resume Optimizer page
-- All linting passes, no console.logs in production code paths
-- **FOUC Fix**: Moved color scheme initialization script to `<head>` in index.html for earliest possible execution
-- **Share Feature**: Added "Share Your Score" button allowing users to copy a shareable link to their resume analysis (viral growth feature)
-- **PDF Direct Download**: Replaced browser print dialog with html2pdf.js for direct PDF download without opening new tab
-- **Clean PDF Output**: Strips highlights, colored text, and non-professional formatting from final PDF output
-- **Section Editor (MS Word-like)**: New drag-and-drop section management with auto-detection of resume sections (Summary, Experience, Skills, etc.)
-  - Three editor modes: Preview, Text, and Sections
-  - Sections can be reordered via drag-and-drop
-  - Add/delete/edit individual sections
-  - Auto-detects 13+ standard resume section types
-- **Undo/Redo Support**: Full undo/redo history (50 states) with keyboard shortcuts (Ctrl+Z, Ctrl+Y)
-- **Open Graph Meta Tags**: Dynamic OG meta tags for shared resume links showing score and engaging descriptions
-- **Email Branding**: Updated payment receipt and contact form emails with Diocreations animated butterfly logo and proper branding
-  - Sender: `Diocreations <noreply@diocreations.eu>` (verified domain)
-  - Created `/app/backend/email_templates.py` - reusable email template module
-  - Animated SVG butterfly logo with "DIOCREATIONS" text in header
-  - Logo also appears in footer for brand consistency
-  - Professional gradient header design
-  - Same font styling as website (Segoe UI, "DIO" dark + "CREATIONS" violet)
+## Files Modified in This Session
+- `/app/frontend/src/components/resume/RichEditor.jsx` - Flex layout fixes
+- `/app/frontend/src/components/resume/ResumePreview.jsx` - Height fixes for editing mode
+- `/app/frontend/src/pages/ResumeOptimizerPage.jsx` - Container height fixes
+- Database: `resume_pricing` collection - Added `pricing_enabled: false`
