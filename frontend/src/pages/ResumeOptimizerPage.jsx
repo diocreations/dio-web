@@ -914,27 +914,54 @@ const ResumeOptimizerPage = () => {
                         <div className="flex items-center justify-between flex-wrap gap-3">
                           <h3 className="text-xl font-bold">Your Improved Resume</h3>
                           <div className="flex gap-2 flex-wrap items-center">
-                            <div className="flex items-center border rounded-full overflow-hidden" data-testid="font-size-control">
-                              <button className="px-2 py-1 text-xs hover:bg-slate-100" onClick={() => setFontSize(f => Math.max(10, f - 1))} data-testid="font-decrease">A-</button>
-                              <span className="px-2 py-1 text-xs border-x bg-slate-50 min-w-[32px] text-center">{fontSize}</span>
-                              <button className="px-2 py-1 text-xs hover:bg-slate-100" onClick={() => setFontSize(f => Math.min(18, f + 1))} data-testid="font-increase">A+</button>
+                            {editorMode === "preview" && (
+                              <div className="flex items-center border rounded-full overflow-hidden" data-testid="font-size-control">
+                                <button className="px-2 py-1 text-xs hover:bg-slate-100" onClick={() => setFontSize(f => Math.max(10, f - 1))} data-testid="font-decrease">A-</button>
+                                <span className="px-2 py-1 text-xs border-x bg-slate-50 min-w-[32px] text-center">{fontSize}</span>
+                                <button className="px-2 py-1 text-xs hover:bg-slate-100" onClick={() => setFontSize(f => Math.min(18, f + 1))} data-testid="font-increase">A+</button>
+                              </div>
+                            )}
+                            
+                            {/* Editor Mode Toggle */}
+                            <div className="flex items-center border rounded-full overflow-hidden" data-testid="editor-mode-toggle">
+                              <button 
+                                onClick={() => { setEditorMode("preview"); setIsEditing(false); }}
+                                className={`px-3 py-1.5 text-xs font-medium transition-colors ${editorMode === "preview" ? "bg-primary text-white" : "hover:bg-slate-100"}`}
+                                data-testid="mode-preview"
+                              >
+                                Preview
+                              </button>
+                              <button 
+                                onClick={() => { setEditorMode("text"); setIsEditing(true); }}
+                                className={`px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1 ${editorMode === "text" ? "bg-primary text-white" : "hover:bg-slate-100"}`}
+                                data-testid="mode-text"
+                              >
+                                <Type size={12} /> Text
+                              </button>
+                              <button 
+                                onClick={() => { setEditorMode("sections"); setIsEditing(true); }}
+                                className={`px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1 ${editorMode === "sections" ? "bg-primary text-white" : "hover:bg-slate-100"}`}
+                                data-testid="mode-sections"
+                              >
+                                <Layers size={12} /> Sections
+                              </button>
                             </div>
-                            <Button variant={isEditing ? "default" : "outline"} size="sm" className="rounded-full" onClick={() => setIsEditing(!isEditing)} data-testid="toggle-edit-btn">
-                              {isEditing ? <><CheckCircle size={14} className="mr-1" /> Done Editing</> : <><FileText size={14} className="mr-1" /> Edit Text</>}
-                            </Button>
-                            {isEditing && originalImprovedText && editedText !== originalImprovedText && (
+
+                            {editorMode !== "preview" && originalImprovedText && editedText !== originalImprovedText && (
                               <Button variant="ghost" size="sm" className="rounded-full text-amber-600 hover:text-amber-700 hover:bg-amber-50" onClick={handleResetResume} data-testid="reset-resume-btn">
                                 <RotateCcw size={14} className="mr-1" /> Reset
                               </Button>
                             )}
                             {hasDownloadAccess ? (
-                              <Button onClick={handleDownloadPDF} className="rounded-full" data-testid="download-pdf-btn"><Download size={18} className="mr-2" /> Download / Print</Button>
+                              <Button onClick={handleDownloadPDF} className="rounded-full" data-testid="download-pdf-btn"><Download size={18} className="mr-2" /> Download PDF</Button>
                             ) : (
                               <Button onClick={handleCheckout} className="rounded-full bg-primary" data-testid="pay-download-btn"><Lock size={16} className="mr-2" /> Pay {displayPrice()} to Download</Button>
                             )}
                           </div>
                         </div>
-                        {!isEditing && (
+                        
+                        {/* Template selector - only show in preview mode */}
+                        {editorMode === "preview" && (
                           <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
                             {VISUAL_TEMPLATES.map(vt => (
                               <button key={vt.id} onClick={() => setActiveVisualTemplate(vt.id)} data-testid={`visual-tpl-${vt.id}`}
@@ -950,9 +977,20 @@ const ResumeOptimizerPage = () => {
                             ))}
                           </div>
                         )}
-                        <Card className="border-0 shadow-lg overflow-hidden"><CardContent className="p-0">
-                          <ResumePreview text={editedText} templateId={activeVisualTemplate} editing={isEditing} onTextChange={setEditedText} fontSize={fontSize} />
-                        </CardContent></Card>
+                        
+                        {/* Editor Content Area */}
+                        <Card className="border-0 shadow-lg overflow-hidden">
+                          <CardContent className="p-0">
+                            {editorMode === "sections" ? (
+                              <div className="p-4 bg-slate-50 min-h-[500px]">
+                                <SectionEditor value={editedText} onChange={setEditedText} />
+                              </div>
+                            ) : (
+                              <ResumePreview text={editedText} templateId={activeVisualTemplate} editing={editorMode === "text"} onTextChange={setEditedText} fontSize={fontSize} />
+                            )}
+                          </CardContent>
+                        </Card>
+                        
                         {!hasDownloadAccess && <p className="text-center text-sm text-muted-foreground">Edit your resume freely. Switch templates instantly. Pay only to download the final version.</p>}
                       </div>
                       )
