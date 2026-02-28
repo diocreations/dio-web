@@ -191,6 +191,41 @@ async def delete_portfolio_item(portfolio_id: str, user: dict = Depends(get_curr
     return {"message": "Portfolio item deleted"}
 
 
+@router.post("/portfolio/screenshot")
+async def capture_portfolio_screenshot(data: dict, user: dict = Depends(get_current_user)):
+    """Capture a screenshot from a URL using a free screenshot service"""
+    url = data.get("url", "").strip()
+    if not url:
+        raise HTTPException(status_code=400, detail="URL is required")
+    
+    # Ensure URL has protocol
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+    
+    # Use microlink.io free screenshot API (no key required)
+    import urllib.parse
+    encoded_url = urllib.parse.quote(url, safe="")
+    screenshot_url = f"https://api.microlink.io/?url={encoded_url}&screenshot=true&meta=false&embed=screenshot.url"
+    
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(screenshot_url)
+            if response.status_code == 200:
+                result = response.json()
+                if result.get("status") == "success" and result.get("data", {}).get("screenshot", {}).get("url"):
+                    return {"screenshot_url": result["data"]["screenshot"]["url"], "success": True}
+            
+            # Fallback: Use alternative free service
+            fallback_url = f"https://image.thum.io/get/width/1200/crop/800/{url}"
+            return {"screenshot_url": fallback_url, "success": True, "provider": "thum.io"}
+    except Exception as e:
+        logger.error(f"Screenshot capture failed: {e}")
+        # Return fallback service URL
+        fallback_url = f"https://image.thum.io/get/width/1200/crop/800/{url}"
+        return {"screenshot_url": fallback_url, "success": True, "provider": "thum.io"}
+
+
 # ==================== BLOG ====================
 
 @router.get("/blog")
