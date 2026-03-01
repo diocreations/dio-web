@@ -75,3 +75,31 @@ async def get_cover_letter(letter_id: str):
     if not doc:
         raise HTTPException(status_code=404, detail="Cover letter not found")
     return doc
+
+
+# Admin endpoints
+from helpers import get_current_user
+
+@router.get("/admin/cover-letters")
+async def list_all_cover_letters(user: dict = Depends(get_current_user)):
+    """List all cover letters for admin"""
+    letters = await db.cover_letters.find({}, {"_id": 0}).sort("created_at", -1).limit(200).to_list(200)
+    return letters
+
+
+@router.delete("/admin/cover-letters/delete-all")
+async def delete_all_cover_letters(user: dict = Depends(get_current_user)):
+    """Delete ALL cover letters"""
+    count = await db.cover_letters.count_documents({})
+    await db.cover_letters.delete_many({})
+    return {"message": "All cover letters deleted", "deleted_count": count}
+
+
+@router.delete("/admin/cover-letters/{letter_id}")
+async def delete_cover_letter(letter_id: str, user: dict = Depends(get_current_user)):
+    """Delete a single cover letter"""
+    result = await db.cover_letters.delete_one({"letter_id": letter_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Cover letter not found")
+    return {"message": "Cover letter deleted"}
+
