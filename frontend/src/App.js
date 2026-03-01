@@ -48,6 +48,7 @@ const AdminCurrency = lazy(() => import("./pages/admin/AdminCurrency"));
 const AdminTemplates = lazy(() => import("./pages/admin/AdminTemplates"));
 const AdminSeo = lazy(() => import("./pages/admin/AdminSeo"));
 const AdminCoverLetter = lazy(() => import("./pages/admin/AdminCoverLetter"));
+const AdminNewsletter = lazy(() => import("./pages/admin/AdminNewsletter"));
 
 const queryClient = new QueryClient();
 const API_URL = process.env.REACT_APP_BACKEND_URL;
