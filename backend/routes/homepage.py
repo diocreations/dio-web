@@ -320,3 +320,24 @@ async def get_sitemap():
         xml += f'  <url><loc>{base_url}/portfolio/{i["slug"]}</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>\n'
     xml += "</urlset>"
     return Response(content=xml, media_type="application/xml")
+
+
+# ============ PROMOTED SECTIONS ============
+
+@router.get("/homepage/promoted-sections")
+async def get_promoted_sections():
+    """Get promoted tools sections for homepage"""
+    sections = await db.promoted_sections.find({}, {"_id": 0}).sort("order", 1).to_list(20)
+    return sections
+
+
+@router.put("/homepage/promoted-sections")
+async def update_promoted_sections(sections: list, user: dict = Depends(get_current_user)):
+    """Update all promoted sections"""
+    # Clear existing and insert new
+    await db.promoted_sections.delete_many({})
+    if sections:
+        for i, section in enumerate(sections):
+            section["order"] = i
+        await db.promoted_sections.insert_many(sections)
+    return {"message": "Promoted sections updated"}
