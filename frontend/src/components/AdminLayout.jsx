@@ -23,6 +23,7 @@ import {
   DollarSign,
   Layout as LayoutIcon,
   Search,
+  PenLine,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
