@@ -391,9 +391,12 @@ const AdminHomepage = () => {
         </div>
 
         <Tabs defaultValue="hero" className="space-y-6">
-          <TabsList className="grid grid-cols-6 w-full max-w-3xl">
+          <TabsList className="grid grid-cols-7 w-full max-w-4xl">
             <TabsTrigger value="hero" className="flex items-center gap-2">
               <Layout size={16} /> Hero
+            </TabsTrigger>
+            <TabsTrigger value="promoted" className="flex items-center gap-2">
+              <Sparkles size={16} /> Promoted
             </TabsTrigger>
             <TabsTrigger value="colors" className="flex items-center gap-2">
               <Palette size={16} /> Colors
