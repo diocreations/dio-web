@@ -24,6 +24,7 @@ import {
   Layout as LayoutIcon,
   Search,
   PenLine,
+  Mail,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
