@@ -106,6 +106,16 @@ async def get_chatbot_settings_admin(user: dict = Depends(get_current_user)):
     return await get_chatbot_settings()
 
 
+@router.get("/chatbot/public-settings")
+async def get_chatbot_public_settings():
+    """Public endpoint for client-side settings (no auth required)"""
+    settings = await get_chatbot_settings()
+    return {
+        "enabled": settings.get("enabled", True),
+        "hide_on_mobile": settings.get("hide_on_mobile", False)
+    }
+
+
 @router.put("/chatbot/settings")
 async def update_chatbot_settings(update: dict, user: dict = Depends(get_current_user)):
     global _cached_system_message
