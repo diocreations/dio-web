@@ -410,7 +410,28 @@ const AdminHomepage = () => {
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <GripVertical className="text-muted-foreground cursor-move" size={20} />
+                      <div className="flex flex-col gap-0.5">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6" 
+                          onClick={() => moveHeroVariant(index, "up")}
+                          disabled={index === 0}
+                          title="Move up"
+                        >
+                          <ArrowUp size={14} />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6" 
+                          onClick={() => moveHeroVariant(index, "down")}
+                          disabled={index === heroVariants.length - 1}
+                          title="Move down"
+                        >
+                          <ArrowDown size={14} />
+                        </Button>
+                      </div>
                       <CardTitle className="text-base">Variant {index + 1}</CardTitle>
                     </div>
                     <div className="flex items-center gap-2">
