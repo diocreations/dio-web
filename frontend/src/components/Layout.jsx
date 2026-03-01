@@ -52,6 +52,11 @@ const Layout = ({ children }) => {
   const [seoData, setSeoData] = useState({ global: null, page: null });
   const hideChatbot = HIDE_CHAT_PATHS.some((p) => location.pathname.startsWith(p));
 
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   useEffect(() => {
     fetch(`${API_URL}/api/homepage/content`)
       .then((r) => r.json())
