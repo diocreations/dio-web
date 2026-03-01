@@ -41,6 +41,7 @@ const AdminHomepage = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [featuredServices, setFeaturedServices] = useState([]);
   const [featuredPortfolio, setFeaturedPortfolio] = useState([]);
+  const [promotedSections, setPromotedSections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
