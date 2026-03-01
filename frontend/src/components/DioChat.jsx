@@ -422,13 +422,59 @@ const DioChat = () => {
   };
 
   const renderMessage = (content) => {
-    const urlRegex = /(\/services\/[a-z-]+|\/products|\/portfolio|\/contact|\/blog)/g;
+    // First, handle markdown-style links: [text](/path) or [text](https://...)
+    const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    let processedContent = content;
+    const links = [];
+    let match;
+    
+    while ((match = markdownLinkRegex.exec(content)) !== null) {
+      links.push({ full: match[0], text: match[1], url: match[2] });
+    }
+    
+    if (links.length > 0) {
+      const parts = processedContent.split(markdownLinkRegex);
+      const result = [];
+      let linkIndex = 0;
+      
+      for (let i = 0; i < parts.length; i++) {
+        if (i % 3 === 0) {
+          // Regular text
+          if (parts[i]) result.push(parts[i]);
+        } else if (i % 3 === 1) {
+          // Link text - render as link
+          const link = links[linkIndex];
+          if (link) {
+            const isExternal = link.url.startsWith('http');
+            result.push(
+              isExternal ? (
+                <a key={`link-${i}`} href={link.url} target="_blank" rel="noopener noreferrer"
+                  className="text-primary-foreground/90 hover:text-primary-foreground underline font-medium">
+                  {link.text}
+                </a>
+              ) : (
+                <Link key={`link-${i}`} to={link.url} onClick={() => setIsOpen(false)}
+                  className="text-primary-foreground/90 hover:text-primary-foreground underline font-medium">
+                  {link.text}
+                </Link>
+              )
+            );
+            linkIndex++;
+          }
+        }
+        // Skip i % 3 === 2 as it's the URL part already used
+      }
+      return result;
+    }
+    
+    // Fallback: handle plain URLs like /services/web-development
+    const urlRegex = /(\/services\/[a-z-]+|\/products|\/portfolio|\/contact|\/blog|\/resume-optimizer|\/resume-builder|\/cover-letter)/g;
     const parts = content.split(urlRegex);
     return parts.map((part, i) => {
       if (part.match(urlRegex)) {
         return (
           <Link key={i} to={part} onClick={() => setIsOpen(false)}
-            className="text-primary-foreground/80 hover:text-primary-foreground underline underline font-medium">
+            className="text-primary-foreground/80 hover:text-primary-foreground underline font-medium">
             {part}
           </Link>
         );
