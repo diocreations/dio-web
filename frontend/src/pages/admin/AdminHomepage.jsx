@@ -162,13 +162,36 @@ const AdminHomepage = () => {
       subtitle: "From small business websites to enterprise-grade systems - we build solutions that scale your business",
       primary_cta_text: "Get Started",
       primary_cta_link: "/contact",
+      primary_cta_new_tab: false,
       secondary_cta_text: "View Services",
       secondary_cta_link: "/services",
+      secondary_cta_new_tab: false,
       hero_image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80",
       accent_color: "violet",
       is_active: true,
       order: heroVariants.length,
     }]);
+  };
+
+  const moveHeroVariant = async (index, direction) => {
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= heroVariants.length) return;
+    
+    const updated = [...heroVariants];
+    const temp = updated[index];
+    updated[index] = { ...updated[newIndex], order: index };
+    updated[newIndex] = { ...temp, order: newIndex };
+    setHeroVariants(updated);
+    
+    // Save both variants with new order
+    try {
+      await Promise.all([
+        saveHeroVariant(updated[index]),
+        saveHeroVariant(updated[newIndex]),
+      ]);
+    } catch (error) {
+      toast.error("Failed to reorder");
+    }
   };
 
   const updateHeroVariant = (index, field, value) => {
