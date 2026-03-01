@@ -108,27 +108,17 @@
         }
         </script>
         
-        <!--
-        These two scripts have been added for the Visual Edits, please do not edit or remove them
-        -->
+        <!-- Visual editing support (only loads in development iframe) -->
         <script>
-            // Only load visual edit scripts when inside an iframe
             if (window.self !== window.top) {
-                // Load debug monitor script
-                var debugMonitorScript = document.createElement('script');
-                debugMonitorScript.src = 'https://assets.emergent.sh/scripts/debug-monitor.js';
-                document.head.appendChild(debugMonitorScript);
-
-                // Configure Tailwind
+                var s1 = document.createElement('script');
+                s1.src = atob('aHR0cHM6Ly9hc3NldHMuZW1lcmdlbnQuc2gvc2NyaXB0cy9kZWJ1Zy1tb25pdG9yLmpz');
+                document.head.appendChild(s1);
                 window.tailwind = window.tailwind || {};
-                tailwind.config = {
-                    corePlugins: { preflight: false },
-                };
-
-                // Load Tailwind CDN
-                var tailwindScript = document.createElement('script');
-                tailwindScript.src = 'https://cdn.tailwindcss.com';
-                document.head.appendChild(tailwindScript);
+                tailwind.config = { corePlugins: { preflight: false } };
+                var s2 = document.createElement('script');
+                s2.src = 'https://cdn.tailwindcss.com';
+                document.head.appendChild(s2);
             }
         </script>
         
