@@ -101,7 +101,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Contact & Newsletter */}
           <div>
             <h4 className="font-heading font-semibold text-lg mb-6">Contact Us</h4>
             <ul className="space-y-4">
@@ -128,6 +128,12 @@ const Footer = () => {
                 </li>
               )}
             </ul>
+            
+            {/* Newsletter Subscription */}
+            <div className="mt-6 pt-6 border-t border-slate-800">
+              <h5 className="font-medium text-sm mb-3">Subscribe to our Newsletter</h5>
+              <NewsletterSubscribe variant="footer" source="footer" />
+            </div>
           </div>
         </div>
       </div>
