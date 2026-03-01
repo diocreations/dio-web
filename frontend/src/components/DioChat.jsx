@@ -179,8 +179,8 @@ const DioChat = () => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     
-    // Fetch chatbot settings
-    fetch(`${API_URL}/api/chatbot/settings`)
+    // Fetch chatbot public settings (no auth required)
+    fetch(`${API_URL}/api/chatbot/public-settings`)
       .then(res => res.json())
       .then(data => {
         setChatSettings({
