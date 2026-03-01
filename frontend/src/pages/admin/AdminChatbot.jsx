@@ -283,6 +283,48 @@ const AdminChatbot = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Settings Tab */}
+          <TabsContent value="settings" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Smartphone size={18} /> Display Settings
+                </CardTitle>
+                <CardDescription>
+                  Control when and where the Dio chatbot appears
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <Label className="font-medium">Hide on Mobile Devices</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Hide the Dio chatbot on phones and tablets (screens smaller than 768px)
+                    </p>
+                  </div>
+                  <Switch
+                    checked={settings?.hide_on_mobile || false}
+                    onCheckedChange={(v) => setSettings({ ...settings, hide_on_mobile: v })}
+                    data-testid="hide-mobile-toggle"
+                  />
+                </div>
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <Label className="font-medium">Enable Chatbot</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Master toggle to enable or disable the chatbot entirely
+                    </p>
+                  </div>
+                  <Switch
+                    checked={settings?.enabled !== false}
+                    onCheckedChange={(v) => setSettings({ ...settings, enabled: v })}
+                    data-testid="chatbot-enabled-toggle"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
     </AdminLayout>
