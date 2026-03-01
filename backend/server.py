@@ -48,6 +48,7 @@ from routes.google_drive import router as google_drive_router
 from routes.seo import router as seo_router
 from routes.referral import router as referral_router
 from routes.builder import router as builder_router
+from routes.newsletter import router as newsletter_router
 
 app.include_router(auth_router)
 app.include_router(admin_router)
@@ -68,6 +69,7 @@ app.include_router(google_drive_router)
 app.include_router(seo_router)
 app.include_router(referral_router)
 app.include_router(builder_router)
+app.include_router(newsletter_router)
 
 
 # Root endpoint
