@@ -305,6 +305,65 @@ const AdminHomepage = () => {
     setSettings({ ...settings, section_order: newOrder });
   };
 
+  // Promoted Sections functions
+  const defaultPromotedTools = [
+    { id: "resume-optimizer", title: "AI Resume Analyzer", description: "Get instant AI-powered analysis of your resume with ATS scoring and improvement suggestions.", path: "/resume-optimizer", icon: "FileSearch", is_active: true },
+    { id: "resume-builder", title: "Resume Builder", description: "Create a professional resume from scratch with AI-powered content generation.", path: "/resume-builder", icon: "FileText", is_active: true },
+    { id: "cover-letter", title: "Cover Letter Generator", description: "Generate tailored cover letters for any job application in seconds.", path: "/cover-letter", icon: "PenLine", is_active: true },
+  ];
+
+  const savePromotedSections = async () => {
+    setSaving(true);
+    try {
+      await fetch(`${API_URL}/api/homepage/promoted-sections`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(promotedSections),
+      });
+      toast.success("Promoted sections saved!");
+    } catch (error) {
+      toast.error("Failed to save promoted sections");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const addPromotedSection = () => {
+    setPromotedSections([...promotedSections, {
+      id: `section_${Date.now()}`,
+      title: "New Tool",
+      description: "Description of your tool",
+      path: "/",
+      icon: "Sparkles",
+      is_active: true,
+      order: promotedSections.length,
+    }]);
+  };
+
+  const updatePromotedSection = (index, field, value) => {
+    const updated = [...promotedSections];
+    updated[index] = { ...updated[index], [field]: value };
+    setPromotedSections(updated);
+  };
+
+  const deletePromotedSection = (index) => {
+    setPromotedSections(promotedSections.filter((_, i) => i !== index));
+  };
+
+  const movePromotedSection = (index, direction) => {
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= promotedSections.length) return;
+    const updated = [...promotedSections];
+    [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
+    setPromotedSections(updated);
+  };
+
+  const loadDefaultPromotedSections = () => {
+    setPromotedSections(defaultPromotedTools);
+    toast.success("Default tools loaded. Click 'Save Promoted' to apply.");
+  };
+
   if (loading) {
     return (
       <AdminLayout>
