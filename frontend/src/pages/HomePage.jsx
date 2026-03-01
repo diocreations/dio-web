@@ -23,6 +23,11 @@ import {
   Award,
   ThumbsUp,
   Calendar,
+  FileSearch,
+  FileText,
+  PenLine,
+  Sparkles,
+  Briefcase,
 } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -38,6 +43,12 @@ const iconMap = {
   Server: Server,
   Shield: Shield,
   Layout: LayoutIcon,
+  FileSearch: FileSearch,
+  FileText: FileText,
+  PenLine: PenLine,
+  Sparkles: Sparkles,
+  Briefcase: Briefcase,
+  Star: Star,
 };
 
 // Color accent mapping with HSL values for CSS variable override
