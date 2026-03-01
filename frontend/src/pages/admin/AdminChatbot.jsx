@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Save, Plus, Trash2, MessageCircle, BookOpen, Sparkles } from "lucide-react";
+import { Save, Plus, Trash2, MessageCircle, BookOpen, Sparkles, Settings, Smartphone } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
