@@ -376,16 +376,18 @@ const HomePage = () => {
                     alt="Digital Solutions"
                     className="rounded-2xl shadow-2xl w-full"
                   />
-                  {/* Floating Badge */}
-                  <div className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                      <Star className="text-green-600" size={20} />
+                  {/* Floating Badge - Client Rating */}
+                  {homepageContent?.settings?.show_client_rating !== false && (
+                    <div className="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg p-4 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                        <Star className="text-green-600" size={20} />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm">{homepageContent?.settings?.client_rating_value || "4.9/5"}</p>
+                        <p className="text-xs text-muted-foreground">{homepageContent?.settings?.client_rating_label || "Client Rating"}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold text-sm">4.9/5</p>
-                      <p className="text-xs text-muted-foreground">Client Rating</p>
-                    </div>
-                  </div>
+                  )}
                 </motion.div>
               </AnimatePresence>
             </motion.div>
