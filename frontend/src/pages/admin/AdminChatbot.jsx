@@ -128,15 +128,18 @@ const AdminChatbot = () => {
         </div>
 
         <Tabs defaultValue="greetings" className="space-y-6">
-          <TabsList className="grid grid-cols-3 w-full max-w-lg">
+          <TabsList className="grid grid-cols-4 w-full max-w-xl">
             <TabsTrigger value="greetings" className="flex items-center gap-2">
               <MessageCircle size={16} /> Greetings
             </TabsTrigger>
             <TabsTrigger value="knowledge" className="flex items-center gap-2">
-              <BookOpen size={16} /> Knowledge Base
+              <BookOpen size={16} /> Knowledge
             </TabsTrigger>
             <TabsTrigger value="personality" className="flex items-center gap-2">
               <Sparkles size={16} /> Personality
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings size={16} /> Settings
             </TabsTrigger>
           </TabsList>
 
