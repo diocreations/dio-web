@@ -51,7 +51,7 @@ const AdminHomepage = () => {
 
   const fetchData = async () => {
     try {
-      const [settingsRes, heroRes, colorRes, blogRes, productsRes, servicesRes, portfolioRes, featuredRes] = await Promise.all([
+      const [settingsRes, heroRes, colorRes, blogRes, productsRes, servicesRes, portfolioRes, featuredRes, promotedRes] = await Promise.all([
         fetch(`${API_URL}/api/homepage/settings`, { credentials: "include" }),
         fetch(`${API_URL}/api/homepage/hero-variants`, { credentials: "include" }),
         fetch(`${API_URL}/api/homepage/color-schemes`, { credentials: "include" }),
@@ -60,9 +60,10 @@ const AdminHomepage = () => {
         fetch(`${API_URL}/api/services?active_only=true`, { credentials: "include" }),
         fetch(`${API_URL}/api/portfolio?active_only=true`, { credentials: "include" }),
         fetch(`${API_URL}/api/homepage/featured-items`, { credentials: "include" }),
+        fetch(`${API_URL}/api/homepage/promoted-sections`, { credentials: "include" }),
       ]);
 
-      const [settingsData, heroData, colorData, blogData, productsData, servicesData, portfolioData, featuredData] = await Promise.all([
+      const [settingsData, heroData, colorData, blogData, productsData, servicesData, portfolioData, featuredData, promotedData] = await Promise.all([
         settingsRes.json(),
         heroRes.json(),
         colorRes.json(),
@@ -71,6 +72,7 @@ const AdminHomepage = () => {
         servicesRes.json(),
         portfolioRes.json(),
         featuredRes.json(),
+        promotedRes.ok ? promotedRes.json() : [],
       ]);
 
       // Ensure section_order exists
@@ -85,6 +87,7 @@ const AdminHomepage = () => {
       setProducts(productsData);
       setServices(servicesData);
       setPortfolioItems(portfolioData);
+      setPromotedSections(Array.isArray(promotedData) ? promotedData : []);
       
       setFeaturedBlog(featuredData.filter(f => f.item_type === "blog").map(f => f.item_id));
       setFeaturedProducts(featuredData.filter(f => f.item_type === "product").map(f => f.item_id));
