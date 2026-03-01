@@ -169,7 +169,29 @@ const DioChat = () => {
   const [quickReplies, setQuickReplies] = useState([]);
   const [showTyping, setShowTyping] = useState(false);
   const [showScheduler, setShowScheduler] = useState(false);
+  const [chatSettings, setChatSettings] = useState({ enabled: true, hide_on_mobile: false });
+  const [isMobile, setIsMobile] = useState(false);
   const messagesEndRef = useRef(null);
+
+  // Check for mobile device and fetch chatbot settings
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    // Fetch chatbot settings
+    fetch(`${API_URL}/api/chatbot/settings`)
+      .then(res => res.json())
+      .then(data => {
+        setChatSettings({
+          enabled: data.enabled !== false,
+          hide_on_mobile: data.hide_on_mobile || false
+        });
+      })
+      .catch(() => {});
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Generate or retrieve session ID + auto-open with greeting
   useEffect(() => {
