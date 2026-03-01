@@ -3,43 +3,69 @@
 ## Original Problem Statement
 Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide features to make it deploy-ready.
 
-## Latest Fixes (Mar 2025)
+## Latest Features (Mar 2025)
 
-### 1. Resume Builder Mobile Layout Fix
-- **Issue**: Export buttons not aligned on mobile in Preview tab (step 7)
-- **Fix**: Changed to `flex-col sm:flex-row` layout with full-width buttons on mobile, horizontal on desktop
+### Newsletter System (NEW) ✅
+Complete email newsletter system with:
 
-### 2. Page Title Fix  
-- **Issue**: "TEST_Resume Optimiser" showing in browser tab
-- **Fix**: Updated database SEO entry for resume-optimizer page to proper title
+**Subscriber Management:**
+- Email subscription form in website footer
+- Public API: `POST /api/newsletter/subscribe`
+- Unsubscribe link in all emails
+- Admin view: List all subscribers with status (active/unsubscribed)
+- Admin actions: Delete individual, Delete All, Export CSV
 
-### 3. Hide Chatbot on Mobile
-- **New Feature**: Added admin setting to hide Dio chatbot on mobile devices
-- **Location**: Admin > Chatbot > Settings tab
-- **Implementation**: 
-  - New public API endpoint `/api/chatbot/public-settings`
-  - DioChat component checks settings and hides when `hide_on_mobile: true`
-  - Currently ENABLED (chatbot is hidden on mobile)
+**Newsletter Creator:**
+- **Auto-fetch blog content** from URL (title, excerpt, image)
+- Custom subject line and preview text
+- Featured blog section with image and CTA button
+- Custom message/intro section
+- Branded HTML email template with DioCreations styling
 
-### 4. Admin Menu Editor Fixes (Previous Session)
-- Fixed input focus bug (can now type full text without losing focus)
-- Added Up/Down arrows to reorder menu items and sub-items
-- Works for both Navigation and Footer menus
+**Scheduling:**
+- Save as Draft
+- Schedule for specific date/time
+- Send immediately
+- View sending history with stats
 
-### 5. Admin Resume Management
-- "Delete All Resumes" one-click button with double confirmation
-- Individual delete buttons for each resume
+**Email Delivery:**
+- Sent via Resend API (already configured)
+- Branded HTML template with header, content, footer
+- Unsubscribe link in every email
+- Background task processing for bulk sends
 
-## Key Files Modified
-- `/app/frontend/src/pages/ResumeBuilderPage.jsx` - Mobile responsive buttons
-- `/app/frontend/src/pages/admin/AdminChatbot.jsx` - Added Settings tab with hide mobile toggle
-- `/app/frontend/src/components/DioChat.jsx` - Added mobile hide logic
-- `/app/backend/routes/chatbot.py` - Added `/api/chatbot/public-settings` endpoint
-- Database: `seo_pages` - Fixed resume-optimizer title
-- Database: `chatbot_settings` - Added `hide_on_mobile: true`
+### Files Created:
+- `/app/backend/routes/newsletter.py` - All API endpoints
+- `/app/frontend/src/pages/admin/AdminNewsletter.jsx` - Admin dashboard
+- `/app/frontend/src/components/NewsletterSubscribe.jsx` - Subscription form
+
+### API Endpoints:
+- `POST /api/newsletter/subscribe` - Public subscription
+- `GET /api/newsletter/unsubscribe/{id}` - Unsubscribe link
+- `GET /api/admin/newsletter/subscribers` - List subscribers
+- `DELETE /api/admin/newsletter/subscribers/{id}` - Delete one
+- `DELETE /api/admin/newsletter/subscribers/delete-all` - Delete all
+- `POST /api/admin/newsletter/fetch-blog` - Auto-fetch blog content
+- `POST /api/admin/newsletter/create` - Create newsletter
+- `GET /api/admin/newsletter/list` - List all newsletters
+- `POST /api/admin/newsletter/{id}/send` - Send now
+- `POST /api/admin/newsletter/{id}/schedule` - Schedule for later
+- `GET /api/admin/newsletter/{id}/preview` - HTML preview
+
+### Database Collections:
+- `newsletter_subscribers` - Email list
+- `newsletters` - Newsletter drafts and sent emails
+
+## Previous Features Summary
+- Resume Optimizer with AI analysis & editor
+- Resume Builder with multi-step wizard
+- Cover Letter generator
+- Admin panel for all features
+- Stripe payments, Referral system
+- SEO management, Dynamic menus
+- Chatbot (hide on mobile option)
 
 ## Deploy Status: READY ✅
 
 ## Credentials
 - Admin: admin@diocreations.com / adminpassword
-- Super Admin (Google): jomiejoseph@gmail.com
