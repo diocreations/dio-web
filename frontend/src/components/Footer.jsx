@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Facebook, Twitter, Linkedin, Instagram, Mail, Phone, MapPin } from "lucide-react";
 import AnimatedLogo from "./AnimatedLogo";
+import NewsletterSubscribe from "./NewsletterSubscribe";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
