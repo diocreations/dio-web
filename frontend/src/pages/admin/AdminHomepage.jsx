@@ -634,6 +634,145 @@ const AdminHomepage = () => {
             ))}
           </TabsContent>
 
+          {/* Promoted Sections Tab */}
+          <TabsContent value="promoted" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Sparkles size={18} /> Promoted Tools Section
+                    </CardTitle>
+                    <CardDescription>
+                      Promote your AI tools (Resume Optimizer, Resume Builder, Cover Letter) on the homepage
+                    </CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    {promotedSections.length === 0 && (
+                      <Button variant="outline" size="sm" onClick={loadDefaultPromotedSections}>
+                        Load Defaults
+                      </Button>
+                    )}
+                    <Button variant="outline" size="sm" onClick={addPromotedSection}>
+                      <Plus size={14} className="mr-1" /> Add Tool
+                    </Button>
+                    <Button size="sm" onClick={savePromotedSections} disabled={saving}>
+                      <Save size={14} className="mr-1" /> Save Promoted
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between mb-4 p-3 bg-slate-50 rounded-lg">
+                  <div>
+                    <Label>Show Promoted Section on Homepage</Label>
+                    <p className="text-sm text-muted-foreground">Display AI tools section below the hero</p>
+                  </div>
+                  <Switch
+                    checked={settings?.show_promoted_section !== false}
+                    onCheckedChange={(v) => setSettings({ ...settings, show_promoted_section: v })}
+                    data-testid="show-promoted-toggle"
+                  />
+                </div>
+
+                {promotedSections.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Sparkles className="mx-auto mb-2 opacity-50" size={32} />
+                    <p>No promoted tools yet. Click "Load Defaults" to get started.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {promotedSections.map((section, index) => (
+                      <Card key={section.id} className="border">
+                        <CardContent className="p-4">
+                          <div className="flex items-start gap-3">
+                            <div className="flex flex-col gap-1">
+                              <Button 
+                                variant="ghost" size="icon" className="h-6 w-6"
+                                onClick={() => movePromotedSection(index, "up")}
+                                disabled={index === 0}
+                              >
+                                <ArrowUp size={12} />
+                              </Button>
+                              <Button 
+                                variant="ghost" size="icon" className="h-6 w-6"
+                                onClick={() => movePromotedSection(index, "down")}
+                                disabled={index === promotedSections.length - 1}
+                              >
+                                <ArrowDown size={12} />
+                              </Button>
+                            </div>
+                            <div className="flex-1 space-y-3">
+                              <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1">
+                                  <Label className="text-xs">Title</Label>
+                                  <Input
+                                    value={section.title || ""}
+                                    onChange={(e) => updatePromotedSection(index, "title", e.target.value)}
+                                    placeholder="AI Resume Analyzer"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <Label className="text-xs">Path/URL</Label>
+                                  <Input
+                                    value={section.path || ""}
+                                    onChange={(e) => updatePromotedSection(index, "path", e.target.value)}
+                                    placeholder="/resume-optimizer"
+                                  />
+                                </div>
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-xs">Description</Label>
+                                <Input
+                                  value={section.description || ""}
+                                  onChange={(e) => updatePromotedSection(index, "description", e.target.value)}
+                                  placeholder="Get instant AI-powered analysis..."
+                                />
+                              </div>
+                              <div className="grid grid-cols-3 gap-3">
+                                <div className="space-y-1">
+                                  <Label className="text-xs">Icon</Label>
+                                  <select
+                                    value={section.icon || "Sparkles"}
+                                    onChange={(e) => updatePromotedSection(index, "icon", e.target.value)}
+                                    className="w-full h-9 rounded-md border px-2 text-sm"
+                                  >
+                                    <option value="FileSearch">FileSearch (Resume AI)</option>
+                                    <option value="FileText">FileText (Builder)</option>
+                                    <option value="PenLine">PenLine (Cover Letter)</option>
+                                    <option value="Sparkles">Sparkles</option>
+                                    <option value="Briefcase">Briefcase</option>
+                                    <option value="Star">Star</option>
+                                  </select>
+                                </div>
+                                <div className="flex items-end gap-2">
+                                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={section.is_active !== false}
+                                      onChange={(e) => updatePromotedSection(index, "is_active", e.target.checked)}
+                                      className="rounded"
+                                    />
+                                    Active
+                                  </label>
+                                </div>
+                                <div className="flex items-end justify-end">
+                                  <Button variant="ghost" size="sm" onClick={() => deletePromotedSection(index)} className="text-red-500">
+                                    <Trash2 size={14} />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Color Schemes Tab */}
           <TabsContent value="colors" className="space-y-6">
             <Card>
