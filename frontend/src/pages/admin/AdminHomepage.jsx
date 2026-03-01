@@ -527,6 +527,15 @@ const AdminHomepage = () => {
                         value={variant.primary_cta_link || ""}
                         onChange={(e) => updateHeroVariant(index, "primary_cta_link", e.target.value)}
                       />
+                      <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={variant.primary_cta_new_tab || false}
+                          onChange={(e) => updateHeroVariant(index, "primary_cta_new_tab", e.target.checked)}
+                          className="rounded"
+                        />
+                        Open in new tab
+                      </label>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -543,6 +552,15 @@ const AdminHomepage = () => {
                         value={variant.secondary_cta_link || ""}
                         onChange={(e) => updateHeroVariant(index, "secondary_cta_link", e.target.value)}
                       />
+                      <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={variant.secondary_cta_new_tab || false}
+                          onChange={(e) => updateHeroVariant(index, "secondary_cta_new_tab", e.target.checked)}
+                          className="rounded"
+                        />
+                        Open in new tab
+                      </label>
                     </div>
                   </div>
                 </CardContent>
