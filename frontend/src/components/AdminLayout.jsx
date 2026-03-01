@@ -45,6 +45,7 @@ const AdminLayout = ({ children }) => {
     { name: "Chatbot", path: "/admin/chatbot", icon: Bot },
     { name: "Resume AI", path: "/admin/resume", icon: FileSearch },
     { name: "Resume Builder", path: "/admin/resume-builder", icon: FileText },
+    { name: "Cover Letter", path: "/admin/cover-letter", icon: PenLine },
     { name: "Templates", path: "/admin/templates", icon: LayoutIcon },
     { name: "Menus", path: "/admin/menus", icon: Navigation },
     { name: "Currency", path: "/admin/currency", icon: DollarSign },
