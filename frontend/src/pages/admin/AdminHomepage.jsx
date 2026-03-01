@@ -1051,6 +1051,41 @@ const AdminHomepage = () => {
                 )}
               </CardContent>
             </Card>
+
+            {/* Client Rating Badge */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Client Rating Badge</CardTitle>
+                <CardDescription>The floating rating badge shown in the hero section</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between mb-4">
+                  <Label>Show Client Rating Badge</Label>
+                  <Switch
+                    checked={settings?.show_client_rating !== false}
+                    onCheckedChange={(v) => setSettings({ ...settings, show_client_rating: v })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Rating Value</Label>
+                    <Input
+                      value={settings?.client_rating_value || "4.9/5"}
+                      onChange={(e) => setSettings({ ...settings, client_rating_value: e.target.value })}
+                      placeholder="4.9/5"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Rating Label</Label>
+                    <Input
+                      value={settings?.client_rating_label || "Client Rating"}
+                      onChange={(e) => setSettings({ ...settings, client_rating_label: e.target.value })}
+                      placeholder="Client Rating"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Sections Visibility Tab */}
