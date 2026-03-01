@@ -117,6 +117,7 @@ const HomePage = () => {
   const [portfolio, setPortfolio] = useState([]);
   const [blogPosts, setBlogPosts] = useState([]);
   const [homepageContent, setHomepageContent] = useState(null);
+  const [promotedSections, setPromotedSections] = useState([]);
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -140,9 +141,11 @@ const HomePage = () => {
       fetch(`${API_URL}/api/testimonials?active_only=true`).then((r) => r.json()),
       fetch(`${API_URL}/api/portfolio?active_only=true`).then((r) => r.json()),
       fetch(`${API_URL}/api/blog?published_only=true`).then((r) => r.json()),
+      fetch(`${API_URL}/api/homepage/promoted-sections`).then((r) => r.ok ? r.json() : []),
     ])
-      .then(([homepageData, servicesData, productsData, testimonialsData, portfolioData, blogData]) => {
+      .then(([homepageData, servicesData, productsData, testimonialsData, portfolioData, blogData, promotedData]) => {
         setHomepageContent(homepageData);
+        setPromotedSections(Array.isArray(promotedData) ? promotedData.filter(p => p.is_active !== false) : []);
         setServices(servicesData.slice(0, 6));
         setProducts(productsData.slice(0, 4));
         setTestimonials(testimonialsData.slice(0, 3));
