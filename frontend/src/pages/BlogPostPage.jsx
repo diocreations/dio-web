@@ -228,7 +228,7 @@ const BlogPostPage = () => {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* Newsletter CTA */}
       <section className="py-20 bg-slate-50">
         <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
           <h2 className="font-heading font-bold text-2xl md:text-3xl text-foreground mb-4">
@@ -237,13 +237,9 @@ const BlogPostPage = () => {
           <p className="text-muted-foreground mb-6">
             Subscribe to our newsletter for more insights
           </p>
-          <Button
-            asChild
-            size="lg"
-            className="bg-primary text-primary-foreground rounded-full px-8"
-          >
-            <Link to="/contact">Subscribe Now</Link>
-          </Button>
+          <div className="flex justify-center">
+            <NewsletterSubscribe source="blog" />
+          </div>
         </div>
       </section>
     </Layout>
