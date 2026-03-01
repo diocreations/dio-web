@@ -340,6 +340,14 @@ const AppRouter = () => {
         }
       />
       <Route
+        path="/admin/cover-letter"
+        element={
+          <ProtectedRoute>
+            <AdminCoverLetter />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/admin/about"
         element={
           <ProtectedRoute>
