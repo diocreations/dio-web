@@ -299,10 +299,17 @@ const HomePage = () => {
                   className={`${currentAccent.primary} text-white rounded-full px-8 h-12`}
                   data-testid="hero-cta-primary"
                 >
-                  <Link to={currentHero.primary_cta_link}>
-                    {currentHero.primary_cta_text}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
+                  {currentHero.primary_cta_new_tab ? (
+                    <a href={currentHero.primary_cta_link} target="_blank" rel="noopener noreferrer">
+                      {currentHero.primary_cta_text}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </a>
+                  ) : (
+                    <Link to={currentHero.primary_cta_link}>
+                      {currentHero.primary_cta_text}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  )}
                 </Button>
                 <Button
                   asChild
@@ -311,7 +318,13 @@ const HomePage = () => {
                   className={`rounded-full px-8 h-12 border-2 ${currentAccent.border}`}
                   data-testid="hero-cta-secondary"
                 >
-                  <Link to={currentHero.secondary_cta_link}>{currentHero.secondary_cta_text}</Link>
+                  {currentHero.secondary_cta_new_tab ? (
+                    <a href={currentHero.secondary_cta_link} target="_blank" rel="noopener noreferrer">
+                      {currentHero.secondary_cta_text}
+                    </a>
+                  ) : (
+                    <Link to={currentHero.secondary_cta_link}>{currentHero.secondary_cta_text}</Link>
+                  )}
                 </Button>
               </div>
 
