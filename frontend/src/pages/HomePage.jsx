@@ -410,6 +410,58 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Promoted AI Tools Section */}
+      {homepageContent?.settings?.show_promoted_section !== false && promotedSections.length > 0 && (
+        <section className="py-16 bg-gradient-to-b from-slate-50 to-white" data-testid="promoted-tools-section">
+          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
+            <div className="text-center mb-12">
+              <span className={`inline-block px-4 py-1.5 rounded-full text-sm font-medium mb-4 ${currentAccent.badge}`}>
+                AI-Powered Tools
+              </span>
+              <h2 className="font-heading font-bold text-3xl md:text-4xl text-foreground mb-4">
+                Supercharge Your Career
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Use our AI-powered tools to optimize your job search and stand out from the competition
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {promotedSections.map((tool, index) => {
+                const IconComponent = iconMap[tool.icon] || Sparkles;
+                return (
+                  <motion.div
+                    key={tool.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  >
+                    <Link to={tool.path}>
+                      <Card className={`h-full hover:shadow-lg transition-all duration-300 ${currentAccent.hoverBorder} hover:border-2 group cursor-pointer`}>
+                        <CardContent className="p-6">
+                          <div className={`w-14 h-14 rounded-xl ${currentAccent.light} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                            <IconComponent className={`${currentAccent.badge.split(" ")[1]}`} size={28} />
+                          </div>
+                          <h3 className="font-heading font-semibold text-xl mb-2 group-hover:text-primary transition-colors">
+                            {tool.title}
+                          </h3>
+                          <p className="text-muted-foreground text-sm mb-4">
+                            {tool.description}
+                          </p>
+                          <span className={`inline-flex items-center text-sm font-medium ${currentAccent.badge.split(" ")[1]} group-hover:gap-2 transition-all`}>
+                            Try Now <ArrowRight size={14} className="ml-1" />
+                          </span>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Render sections in order */}
       {sectionOrder.map((sectionId) => renderSection(sectionId))}
     </Layout>
