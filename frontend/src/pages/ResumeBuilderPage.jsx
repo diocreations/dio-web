@@ -705,17 +705,17 @@ const ResumeBuilderPage = () => {
       case 7:
         return (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="text-center sm:text-left">
                 <h2 className="text-xl font-bold">Preview & Export</h2>
                 <p className="text-muted-foreground text-sm">Review your resume and download</p>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={exportDocx} disabled={loading} className="gap-2" data-testid="export-docx-btn">
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <Button variant="outline" onClick={exportDocx} disabled={loading} className="gap-2 w-full sm:w-auto" data-testid="export-docx-btn">
                   {loading ? <Loader2 className="animate-spin" size={16} /> : <FileText size={16} />}
                   Export DOCX
                 </Button>
-                <Button onClick={exportPdf} disabled={loading} className="gap-2" data-testid="export-pdf-btn">
+                <Button onClick={exportPdf} disabled={loading} className="gap-2 w-full sm:w-auto" data-testid="export-pdf-btn">
                   {loading ? <Loader2 className="animate-spin" size={16} /> : <Download size={16} />}
                   Export PDF
                 </Button>
