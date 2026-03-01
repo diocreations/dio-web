@@ -349,6 +349,14 @@ const AppRouter = () => {
         }
       />
       <Route
+        path="/admin/newsletter"
+        element={
+          <ProtectedRoute>
+            <AdminNewsletter />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/admin/about"
         element={
           <ProtectedRoute>
