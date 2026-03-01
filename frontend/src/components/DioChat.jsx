@@ -437,6 +437,10 @@ const DioChat = () => {
     });
   };
 
+  // Don't render chatbot if disabled or hidden on mobile
+  if (!chatSettings.enabled) return null;
+  if (chatSettings.hide_on_mobile && isMobile) return null;
+
   return (
     <>
       {/* Toggle Button + Label */}
