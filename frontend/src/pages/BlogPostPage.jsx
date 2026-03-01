@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, User, Tag, Share2 } from "lucide-react";
+import NewsletterSubscribe from "@/components/NewsletterSubscribe";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
