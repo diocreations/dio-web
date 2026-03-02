@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Save, Globe, Search, Tag, FileText, Code, Plus, X, Loader2 } from "lucide-react";
+import { Save, Globe, Search, Tag, FileText, Code, Plus, X, Loader2, Upload, Image } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
