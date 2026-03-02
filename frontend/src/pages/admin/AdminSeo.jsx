@@ -331,8 +331,8 @@ const AdminSeo = () => {
           <TabsContent value="pages" className="space-y-4 mt-6">
             <p className="text-sm text-muted-foreground">Set unique meta tags, titles, and keywords for each page to maximize search visibility</p>
             {SITE_PAGES.map((page) => (
-              <PageSeoCard key={page.slug} page={page} seo={pageSeo[page.slug] || {}} saving={saving}
-                updatePageField={updatePageField} addPageKeyword={addPageKeyword} removePageKeyword={removePageKeyword} savePage={savePage} />
+              <PageSeoCard key={page.slug} page={page} seo={pageSeo[page.slug] || {}} saving={saving} uploading={uploading}
+                updatePageField={updatePageField} addPageKeyword={addPageKeyword} removePageKeyword={removePageKeyword} savePage={savePage} uploadPageOgImage={uploadOgImage} />
             ))}
           </TabsContent>
 
