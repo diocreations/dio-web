@@ -191,8 +191,11 @@ const AdminSeo = () => {
     const formData = new FormData();
     formData.append("file", file);
     
+    // Add page_slug query parameter for page-specific uploads
+    const queryParam = target !== "global" ? `?page_slug=${target}` : "";
+    
     try {
-      const res = await fetch(`${API_URL}/api/seo/upload-og-image`, {
+      const res = await fetch(`${API_URL}/api/seo/upload-og-image${queryParam}`, {
         method: "POST",
         credentials: "include",
         body: formData,
@@ -201,15 +204,15 @@ const AdminSeo = () => {
       if (res.ok) {
         const data = await res.json();
         // Use production domain for OG image URL (social media crawlers need absolute production URL)
-        // The image is saved as og-default.png in the public folder
-        const productionUrl = "https://www.diocreations.eu/og-default.png";
+        const productionUrl = `https://www.diocreations.eu${data.url}`;
         
         if (target === "global") {
           setGlobalSeo({ ...globalSeo, default_og_image: productionUrl });
+          toast.success("Image uploaded as og-default.png! Click 'Save Global SEO' to apply changes.");
         } else {
           updatePageField(target, "og_image", productionUrl);
+          toast.success(`Image uploaded as og-${target}.png! Click 'Save' to apply changes.`);
         }
-        toast.success("Image uploaded as og-default.png! Click 'Save Global SEO' to apply changes.");
       } else {
         const err = await res.json();
         toast.error(err.detail || "Upload failed");
