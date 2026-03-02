@@ -243,7 +243,7 @@ const AdminSeo = () => {
                   <div className="space-y-2">
                     <Label>Default OG Image URL</Label>
                     <div className="flex gap-2">
-                      <Input value={globalSeo?.default_og_image || ""} onChange={(e) => setGlobalSeo({ ...globalSeo, default_og_image: e.target.value })} placeholder="https://..." className="flex-1" />
+                      <Input value={globalSeo?.default_og_image || ""} onChange={(e) => setGlobalSeo({ ...globalSeo, default_og_image: e.target.value })} placeholder="https://www.diocreations.eu/og-default.png" className="flex-1" />
                       <label className="cursor-pointer">
                         <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadOgImage(e, "global")} disabled={uploading} />
                         <Button type="button" variant="outline" size="icon" disabled={uploading} asChild>
@@ -251,7 +251,9 @@ const AdminSeo = () => {
                         </Button>
                       </label>
                     </div>
-                    <p className="text-xs text-muted-foreground">Upload or paste URL (1200x630px recommended for social media)</p>
+                    <p className="text-xs text-muted-foreground">
+                      <strong>Upload recommended</strong> - Replaces og-default.png (1200×630px for best social media display)
+                    </p>
                     {globalSeo?.default_og_image && (
                       <div className="mt-2 border rounded-lg p-2 bg-slate-50">
                         <p className="text-xs text-muted-foreground mb-1">Preview:</p>
