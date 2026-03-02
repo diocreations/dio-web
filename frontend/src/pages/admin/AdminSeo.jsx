@@ -169,6 +169,44 @@ const AdminSeo = () => {
     updatePageField(slug, "keywords", current.filter((_, i) => i !== idx));
   };
 
+  const uploadOgImage = async (e, target = "global") => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    
+    try {
+      const res = await fetch(`${API_URL}/api/seo/upload-og-image`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        // Construct full URL
+        const fullUrl = `${window.location.origin}${data.url}`;
+        
+        if (target === "global") {
+          setGlobalSeo({ ...globalSeo, default_og_image: fullUrl });
+        } else {
+          updatePageField(target, "og_image", fullUrl);
+        }
+        toast.success("Image uploaded! Remember to save your changes.");
+      } else {
+        const err = await res.json();
+        toast.error(err.detail || "Upload failed");
+      }
+    } catch {
+      toast.error("Upload failed");
+    } finally {
+      setUploading(false);
+      e.target.value = ""; // Reset input
+    }
+  };
+
   if (loading) {
     return (<AdminLayout><div className="flex items-center justify-center h-64"><Loader2 className="animate-spin" size={32} /></div></AdminLayout>);
   }
