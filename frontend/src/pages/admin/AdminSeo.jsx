@@ -241,8 +241,22 @@ const AdminSeo = () => {
                   </div>
                   <div className="space-y-2">
                     <Label>Default OG Image URL</Label>
-                    <Input value={globalSeo?.default_og_image || ""} onChange={(e) => setGlobalSeo({ ...globalSeo, default_og_image: e.target.value })} placeholder="https://..." />
-                    <p className="text-xs text-muted-foreground">Shared image for social media (1200x630px)</p>
+                    <div className="flex gap-2">
+                      <Input value={globalSeo?.default_og_image || ""} onChange={(e) => setGlobalSeo({ ...globalSeo, default_og_image: e.target.value })} placeholder="https://..." className="flex-1" />
+                      <label className="cursor-pointer">
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadOgImage(e, "global")} disabled={uploading} />
+                        <Button type="button" variant="outline" size="icon" disabled={uploading} asChild>
+                          <span>{uploading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}</span>
+                        </Button>
+                      </label>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Upload or paste URL (1200x630px recommended for social media)</p>
+                    {globalSeo?.default_og_image && (
+                      <div className="mt-2 border rounded-lg p-2 bg-slate-50">
+                        <p className="text-xs text-muted-foreground mb-1">Preview:</p>
+                        <img src={globalSeo.default_og_image} alt="OG Preview" className="max-h-32 rounded" onError={(e) => e.target.style.display = 'none'} />
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-2">
