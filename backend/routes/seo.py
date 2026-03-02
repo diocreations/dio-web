@@ -16,30 +16,36 @@ os.makedirs(OG_IMAGES_DIR, exist_ok=True)
 
 
 @router.post("/seo/upload-og-image")
-async def upload_og_image(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
-    """Upload an OG image for social sharing - saves directly as og-default.png for production persistence"""
+async def upload_og_image(file: UploadFile = File(...), page_slug: str = None, user: dict = Depends(get_current_user)):
+    """Upload an OG image for social sharing - saves to public folder for production persistence"""
     # Validate file type
     allowed_types = ["image/jpeg", "image/png", "image/webp", "image/gif"]
     if file.content_type not in allowed_types:
         raise HTTPException(status_code=400, detail="Invalid file type. Use JPG, PNG, WebP, or GIF.")
     
-    # Always save as og-default.png in public folder for production deployment persistence
-    # This ensures the file is included in the build and deployed to production
     public_dir = "/app/frontend/public"
-    filepath = os.path.join(public_dir, "og-default.png")
+    
+    # Determine filename based on page slug
+    if page_slug and page_slug != "global":
+        # Page-specific OG image: og-{slug}.png
+        filename = f"og-{page_slug}.png"
+    else:
+        # Global/default OG image
+        filename = "og-default.png"
+    
+    filepath = os.path.join(public_dir, filename)
     
     # Read file content
     content = await file.read()
     
-    # If it's not a PNG, we still save it (browsers handle it fine)
-    # For best compatibility, keep the .png extension
+    # Save the file
     with open(filepath, "wb") as buffer:
         buffer.write(content)
     
-    logger.info(f"OG image uploaded and saved as og-default.png ({len(content)} bytes)")
+    logger.info(f"OG image uploaded and saved as {filename} ({len(content)} bytes)")
     
     # Return the public URL path
-    return {"url": "/og-default.png", "filename": "og-default.png", "size": len(content)}
+    return {"url": f"/{filename}", "filename": filename, "size": len(content)}
 
 
 @router.delete("/seo/og-image/{filename}")
