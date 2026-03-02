@@ -122,18 +122,33 @@ async def update_global_seo(data: dict, user: dict = Depends(get_current_user)):
             with open(index_path, "r") as f:
                 content = f.read()
             
-            # Update og:image meta tag
             import re
+            
+            # Determine the full URL for the image
+            # If it's a relative path like /og-default.png, prepend the domain
+            if og_image.startswith("/"):
+                full_og_url = f"https://www.diocreations.eu{og_image}"
+            else:
+                full_og_url = og_image
+            
+            # Update og:image meta tag
             new_content = re.sub(
                 r'<meta property="og:image" content="[^"]*"',
-                f'<meta property="og:image" content="{og_image}"',
+                f'<meta property="og:image" content="{full_og_url}"',
                 content
+            )
+            
+            # Also update twitter:image meta tag
+            new_content = re.sub(
+                r'<meta property="twitter:image" content="[^"]*"',
+                f'<meta property="twitter:image" content="{full_og_url}"',
+                new_content
             )
             
             with open(index_path, "w") as f:
                 f.write(new_content)
             
-            logger.info(f"Updated index.html og:image to: {og_image}")
+            logger.info(f"Updated index.html og:image and twitter:image to: {full_og_url}")
         except Exception as e:
             logger.error(f"Failed to update index.html: {e}")
     
