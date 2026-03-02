@@ -1,12 +1,49 @@
 """SEO management routes: meta tags, keywords, sitemap, robots.txt"""
-from fastapi import APIRouter, HTTPException, Depends, Request
-from fastapi.responses import PlainTextResponse, Response
+from fastapi import APIRouter, HTTPException, Depends, Request, UploadFile, File
+from fastapi.responses import PlainTextResponse, Response, FileResponse
 from database import db, logger
 from helpers import get_current_user
 from datetime import datetime, timezone
 import uuid
+import os
+import shutil
 
 router = APIRouter(prefix="/api")
+
+# Directory for uploaded OG images
+OG_IMAGES_DIR = "/app/frontend/public/og-images"
+os.makedirs(OG_IMAGES_DIR, exist_ok=True)
+
+
+@router.post("/seo/upload-og-image")
+async def upload_og_image(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
+    """Upload an OG image for social sharing"""
+    # Validate file type
+    allowed_types = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Invalid file type. Use JPG, PNG, WebP, or GIF.")
+    
+    # Generate unique filename
+    ext = file.filename.split(".")[-1] if "." in file.filename else "jpg"
+    filename = f"og-{uuid.uuid4().hex[:8]}.{ext}"
+    filepath = os.path.join(OG_IMAGES_DIR, filename)
+    
+    # Save file
+    with open(filepath, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    # Return the URL path (will be served from /og-images/)
+    return {"url": f"/og-images/{filename}", "filename": filename}
+
+
+@router.delete("/seo/og-image/{filename}")
+async def delete_og_image(filename: str, user: dict = Depends(get_current_user)):
+    """Delete an uploaded OG image"""
+    filepath = os.path.join(OG_IMAGES_DIR, filename)
+    if os.path.exists(filepath):
+        os.remove(filepath)
+        return {"message": "Image deleted"}
+    raise HTTPException(status_code=404, detail="Image not found")
 
 
 # ==================== SEO SETTINGS (Admin) ====================
