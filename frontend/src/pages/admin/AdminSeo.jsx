@@ -186,15 +186,16 @@ const AdminSeo = () => {
       
       if (res.ok) {
         const data = await res.json();
-        // Construct full URL
-        const fullUrl = `${window.location.origin}${data.url}`;
+        // Use production domain for OG image URL (social media crawlers need absolute production URL)
+        // The image is saved as og-default.png in the public folder
+        const productionUrl = "https://www.diocreations.eu/og-default.png";
         
         if (target === "global") {
-          setGlobalSeo({ ...globalSeo, default_og_image: fullUrl });
+          setGlobalSeo({ ...globalSeo, default_og_image: productionUrl });
         } else {
-          updatePageField(target, "og_image", fullUrl);
+          updatePageField(target, "og_image", productionUrl);
         }
-        toast.success("Image uploaded! Remember to save your changes.");
+        toast.success("Image uploaded as og-default.png! Click 'Save Global SEO' to apply changes.");
       } else {
         const err = await res.json();
         toast.error(err.detail || "Upload failed");
