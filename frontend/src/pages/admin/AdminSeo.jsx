@@ -83,6 +83,7 @@ const AdminSeo = () => {
   const [pageSeo, setPageSeo] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [activeTab, setActiveTab] = useState("global");
   const [newKeyword, setNewKeyword] = useState("");
 
