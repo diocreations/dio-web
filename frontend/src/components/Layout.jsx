@@ -78,7 +78,9 @@ const Layout = ({ children }) => {
       const keywords = [...(page?.keywords || []), ...(global?.default_keywords || [])].join(", ");
       const ogTitle = page?.og_title || title;
       const ogDesc = page?.og_description || desc;
-      const ogImage = page?.og_image || global?.default_og_image || "";
+      const siteUrl = process.env.REACT_APP_BACKEND_URL || window.location.origin;
+      const defaultOgImage = `${siteUrl}/og-default.png`;
+      const ogImage = page?.og_image || global?.default_og_image || defaultOgImage;
       const canonical = page?.canonical_url || "";
 
       if (title) document.title = title;
@@ -86,12 +88,13 @@ const Layout = ({ children }) => {
       setMeta("keywords", keywords);
       setMeta("og:title", ogTitle, "property");
       setMeta("og:description", ogDesc, "property");
-      if (ogImage) setMeta("og:image", ogImage, "property");
+      setMeta("og:image", ogImage, "property");
       setMeta("og:type", "website", "property");
       setMeta("og:url", window.location.href, "property");
       setMeta("twitter:card", "summary_large_image", "name");
       setMeta("twitter:title", ogTitle, "name");
       setMeta("twitter:description", ogDesc, "name");
+      setMeta("twitter:image", ogImage, "name");
 
       // Google/Bing verification
       if (global?.google_verification) setMeta("google-site-verification", global.google_verification);
