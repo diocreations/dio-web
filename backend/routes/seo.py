@@ -107,6 +107,30 @@ async def update_global_seo(data: dict, user: dict = Depends(get_current_user)):
     data["config_id"] = "global_seo"
     data["updated_at"] = datetime.now(timezone.utc).isoformat()
     await db.seo_global.update_one({"config_id": "global_seo"}, {"$set": data}, upsert=True)
+    
+    # Update index.html with the new OG image (for social media crawlers)
+    og_image = data.get("default_og_image", "")
+    if og_image:
+        try:
+            index_path = "/app/frontend/public/index.html"
+            with open(index_path, "r") as f:
+                content = f.read()
+            
+            # Update og:image meta tag
+            import re
+            new_content = re.sub(
+                r'<meta property="og:image" content="[^"]*"',
+                f'<meta property="og:image" content="{og_image}"',
+                content
+            )
+            
+            with open(index_path, "w") as f:
+                f.write(new_content)
+            
+            logger.info(f"Updated index.html og:image to: {og_image}")
+        except Exception as e:
+            logger.error(f"Failed to update index.html: {e}")
+    
     return await db.seo_global.find_one({"config_id": "global_seo"}, {"_id": 0})
 
 
