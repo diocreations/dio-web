@@ -23,7 +23,7 @@ const SITE_PAGES = [
   { slug: "cover-letter", label: "Cover Letter", path: "/cover-letter" },
 ];
 
-const PageSeoCard = ({ page, seo, saving, updatePageField, addPageKeyword, removePageKeyword, savePage }) => {
+const PageSeoCard = ({ page, seo, saving, updatePageField, addPageKeyword, removePageKeyword, savePage, uploadPageOgImage, uploading }) => {
   const [pkw, setPkw] = useState("");
   return (
     <Card>
@@ -56,7 +56,21 @@ const PageSeoCard = ({ page, seo, saving, updatePageField, addPageKeyword, remov
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs">OG Image URL</Label>
-            <Input value={seo.og_image || ""} onChange={(e) => updatePageField(page.slug, "og_image", e.target.value)} className="text-sm" placeholder="https://..." />
+            <div className="flex gap-1.5">
+              <Input value={seo.og_image || ""} onChange={(e) => updatePageField(page.slug, "og_image", e.target.value)} className="text-sm flex-1" placeholder="https://www.diocreations.eu/og-{page}.png" />
+              <label className="cursor-pointer">
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadPageOgImage(e, page.slug)} disabled={uploading} />
+                <Button type="button" variant="outline" size="icon" disabled={uploading} asChild className="h-9 w-9">
+                  <span>{uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}</span>
+                </Button>
+              </label>
+            </div>
+            <p className="text-[10px] text-muted-foreground">Upload saves as og-{page.slug}.png (1200×630px recommended)</p>
+            {seo.og_image && (
+              <div className="mt-1.5 border rounded p-1.5 bg-slate-50">
+                <img src={seo.og_image} alt="OG Preview" className="max-h-20 rounded" onError={(e) => e.target.style.display = 'none'} />
+              </div>
+            )}
           </div>
         </div>
         <div className="space-y-1.5">
