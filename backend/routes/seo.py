@@ -17,23 +17,29 @@ os.makedirs(OG_IMAGES_DIR, exist_ok=True)
 
 @router.post("/seo/upload-og-image")
 async def upload_og_image(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
-    """Upload an OG image for social sharing"""
+    """Upload an OG image for social sharing - saves directly as og-default.png for production persistence"""
     # Validate file type
     allowed_types = ["image/jpeg", "image/png", "image/webp", "image/gif"]
     if file.content_type not in allowed_types:
         raise HTTPException(status_code=400, detail="Invalid file type. Use JPG, PNG, WebP, or GIF.")
     
-    # Generate unique filename
-    ext = file.filename.split(".")[-1] if "." in file.filename else "jpg"
-    filename = f"og-{uuid.uuid4().hex[:8]}.{ext}"
-    filepath = os.path.join(OG_IMAGES_DIR, filename)
+    # Always save as og-default.png in public folder for production deployment persistence
+    # This ensures the file is included in the build and deployed to production
+    public_dir = "/app/frontend/public"
+    filepath = os.path.join(public_dir, "og-default.png")
     
-    # Save file
+    # Read file content
+    content = await file.read()
+    
+    # If it's not a PNG, we still save it (browsers handle it fine)
+    # For best compatibility, keep the .png extension
     with open(filepath, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+        buffer.write(content)
     
-    # Return the URL path (will be served from /og-images/)
-    return {"url": f"/og-images/{filename}", "filename": filename}
+    logger.info(f"OG image uploaded and saved as og-default.png ({len(content)} bytes)")
+    
+    # Return the public URL path
+    return {"url": "/og-default.png", "filename": "og-default.png", "size": len(content)}
 
 
 @router.delete("/seo/og-image/{filename}")
