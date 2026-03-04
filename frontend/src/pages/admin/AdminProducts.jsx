@@ -24,6 +24,7 @@ const AdminProducts = () => {
     title: "", slug: "", short_description: "", description: "", icon: "Globe",
     price: "", price_unit: "per month", currency: "EUR", features: "", is_popular: false,
     cta_text: "Get Started", cta_link: "", order: 0, is_active: true,
+    external_url: "", open_in_new_tab: false,
   });
 
   const fetchProducts = () => {
