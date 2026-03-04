@@ -5,6 +5,48 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Homepage Layout & Client Logos ✅
+**Date: Mar 4, 2025**
+
+**Features Implemented:**
+1. **Stats Section Repositioned** - Moved below "Trusted by" section
+   - Previously: Stats (230+ Projects, etc.) were inside the hero section
+   - Now: Stats appear BELOW the client logos/trust badges section
+   - Stats now show 4 items instead of 3 with improved styling
+
+2. **Client Logos Section** - Dynamic trust badges with admin control
+   - Client company logos displayed in "Trusted by" section
+   - Grayscale effect with color on hover
+   - Default logos: Google, Microsoft, Amazon, Meta, Apple
+   - Optional link URL for each logo
+
+3. **Admin Client Logos Manager** - New "Clients" tab in Homepage Manager
+   - Add/Edit/Delete client logos
+   - Reorder with up/down arrows
+   - Toggle active/inactive
+   - Editable section title
+   - Preview thumbnail for each logo
+
+4. **Favicon Enhancement** - Better Google Search indexing
+   - Added `site.webmanifest` file
+   - Added absolute URL shortcut icon reference
+   - Note: Google may take days/weeks to update favicon in search results
+
+**Files Modified:**
+- `/app/frontend/src/pages/HomePage.jsx` - Layout changes, client logos rendering
+- `/app/frontend/src/pages/admin/AdminHomepage.jsx` - New Clients tab
+- `/app/backend/routes/homepage.py` - Client logos CRUD API endpoints
+- `/app/frontend/public/site.webmanifest` - NEW
+- `/app/frontend/public/index.html` - Favicon references
+
+**API Endpoints:**
+- `GET /api/homepage/client-logos` - Public, returns active logos
+- `GET /api/homepage/client-logos/all` - Admin, returns all logos
+- `POST /api/homepage/client-logos` - Create logo
+- `PUT /api/homepage/client-logos/{id}` - Update logo
+- `DELETE /api/homepage/client-logos/{id}` - Delete logo
+- `PUT /api/homepage/client-logos/reorder` - Reorder logos
+
 ### Products External Link & Currency Fix ✅
 **Date: Mar 4, 2025**
 
