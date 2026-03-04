@@ -5,6 +5,17 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Dio Chatbot - Link Text Visibility Fixed ✅
+**Date: Mar 4, 2025**
+
+**Bug Fixed:**
+- Links in chatbot messages (like "/services/web-development") were invisible (white text on white background)
+- **Root cause:** Link CSS class used `text-primary-foreground` (white) instead of `text-primary` (purple)
+- **Fix:** Changed link styling from `text-primary-foreground/90` to `text-primary`
+
+**Files Modified:**
+- `/app/frontend/src/components/DioChat.jsx` - Lines 451-478: Fixed link color classes
+
 ### Resume Optimizer - Empty Content After Editing Fixed ✅
 **Date: Mar 4, 2025**
 
