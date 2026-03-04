@@ -368,6 +368,80 @@ const AdminHomepage = () => {
     toast.success("Default tools loaded. Click 'Save Promoted' to apply.");
   };
 
+  // Client Logos functions
+  const saveClientLogos = async () => {
+    setSaving(true);
+    try {
+      for (const logo of clientLogos) {
+        if (logo.logo_id) {
+          await fetch(`${API_URL}/api/homepage/client-logos/${logo.logo_id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(logo),
+          });
+        }
+      }
+      toast.success("Client logos saved!");
+    } catch (error) {
+      toast.error("Failed to save client logos");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const addClientLogo = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/homepage/client-logos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: "New Client",
+          image_url: "https://via.placeholder.com/200x80?text=Logo",
+          url: "",
+          is_active: true,
+          order: clientLogos.length,
+        }),
+      });
+      const newLogo = await res.json();
+      setClientLogos([...clientLogos, newLogo]);
+      toast.success("Client logo added!");
+    } catch (error) {
+      toast.error("Failed to add client logo");
+    }
+  };
+
+  const updateClientLogo = (index, field, value) => {
+    const updated = [...clientLogos];
+    updated[index] = { ...updated[index], [field]: value };
+    setClientLogos(updated);
+  };
+
+  const deleteClientLogo = async (index) => {
+    const logo = clientLogos[index];
+    if (!logo.logo_id) return;
+    try {
+      await fetch(`${API_URL}/api/homepage/client-logos/${logo.logo_id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      setClientLogos(clientLogos.filter((_, i) => i !== index));
+      toast.success("Client logo deleted!");
+    } catch (error) {
+      toast.error("Failed to delete client logo");
+    }
+  };
+
+  const moveClientLogo = (index, direction) => {
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= clientLogos.length) return;
+    const updated = [...clientLogos];
+    [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
+    updated.forEach((logo, i) => logo.order = i);
+    setClientLogos(updated);
+  };
+
   if (loading) {
     return (
       <AdminLayout>
