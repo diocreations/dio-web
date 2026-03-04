@@ -61,6 +61,13 @@ const ResumeBuilderPage = () => {
   const [langInput, setLangInput] = useState({ name: "", level: "Professional" });
   
   const [projects, setProjects] = useState([]);
+  
+  // NEW: Photo and Hobbies for Professional templates
+  const [photo, setPhoto] = useState(null);
+  const [hobbies, setHobbies] = useState([]);
+  const [hobbyInput, setHobbyInput] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState("classic");
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   // Check for logged in user
   useEffect(() => {
