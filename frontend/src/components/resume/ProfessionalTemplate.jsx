@@ -27,7 +27,7 @@ const HobbyTag = ({ hobby, accentColor }) => (
 
 // Parse resume data from text/HTML
 const parseResumeData = (text, personalInfo, skills, education, experience, certifications, languages, hobbies, photo) => {
-  // If we have structured data, use it directly
+  // If we have structured data from Resume Builder, use it directly
   if (personalInfo?.name) {
     return {
       name: personalInfo.name || "Your Name",
@@ -51,31 +51,185 @@ const parseResumeData = (text, personalInfo, skills, education, experience, cert
     };
   }
   
-  // Fallback: parse from text
-  const lines = (text || "").replace(/<[^>]*>/g, '').split('\n').filter(l => l.trim());
-  let name = lines[0] || "Your Name";
-  let contact = {};
+  // Parse from HTML/text (Resume Optimizer scenario)
+  const htmlContent = text || "";
   
-  // Try to extract contact info
-  for (const line of lines.slice(0, 5)) {
-    if (line.includes('@')) contact.email = line.match(/[\w.-]+@[\w.-]+/)?.[0] || "";
-    if (line.match(/\+?\d[\d\s\-()]{8,}/)) contact.phone = line.match(/\+?\d[\d\s\-()]{8,}/)?.[0] || "";
-    if (line.toLowerCase().includes('linkedin')) contact.linkedin = line;
+  // Helper to strip HTML and get text
+  const stripHtml = (html) => {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent || div.innerText || '';
+  };
+  
+  // Helper to find section content
+  const findSection = (html, sectionNames) => {
+    for (const name of sectionNames) {
+      // Try to find h2/h3/strong with section name
+      const patterns = [
+        new RegExp(`<h[23][^>]*>[^<]*${name}[^<]*</h[23]>([\\s\\S]*?)(?=<h[23]|$)`, 'i'),
+        new RegExp(`<strong[^>]*>[^<]*${name}[^<]*</strong>([\\s\\S]*?)(?=<strong|<h[23]|$)`, 'i'),
+        new RegExp(`<b>[^<]*${name}[^<]*</b>([\\s\\S]*?)(?=<b>|<h[23]|$)`, 'i'),
+      ];
+      for (const pattern of patterns) {
+        const match = html.match(pattern);
+        if (match) return match[1];
+      }
+    }
+    return '';
+  };
+  
+  // Extract name (usually first line or h1)
+  let name = "Your Name";
+  const h1Match = htmlContent.match(/<h1[^>]*>([^<]+)<\/h1>/i);
+  if (h1Match) {
+    name = stripHtml(h1Match[1]).trim();
+  } else {
+    const plainText = stripHtml(htmlContent);
+    const firstLine = plainText.split('\n').find(l => l.trim().length > 2 && l.trim().length < 50);
+    if (firstLine) name = firstLine.trim();
+  }
+  
+  // Extract contact info
+  const contact = {
+    email: (htmlContent.match(/[\w.-]+@[\w.-]+\.\w+/) || [])[0] || "",
+    phone: (htmlContent.match(/\+?[\d\s\-()]{10,}/) || [])[0]?.trim() || "",
+    location: "",
+    linkedin: (htmlContent.match(/linkedin\.com\/in\/[\w-]+/) || [])[0] || "",
+    website: "",
+  };
+  
+  // Extract summary/professional summary
+  const summarySection = findSection(htmlContent, ['Summary', 'Professional Summary', 'Profile', 'About', 'Objective']);
+  const summary = stripHtml(summarySection).trim().slice(0, 500);
+  
+  // Extract experience
+  const experienceSection = findSection(htmlContent, ['Experience', 'Work Experience', 'Employment', 'Professional Experience']);
+  const experienceItems = [];
+  if (experienceSection) {
+    // Try to parse experience items from list items or paragraphs
+    const expDiv = document.createElement('div');
+    expDiv.innerHTML = experienceSection;
+    
+    // Look for job entries (usually strong/b for title, followed by company)
+    const strongElements = expDiv.querySelectorAll('strong, b');
+    let currentExp = null;
+    
+    strongElements.forEach((el, index) => {
+      const text = el.textContent.trim();
+      // Check if this looks like a job title (not a bullet point)
+      if (text.length > 3 && text.length < 100 && !text.startsWith('•')) {
+        if (currentExp) experienceItems.push(currentExp);
+        currentExp = {
+          title: text,
+          company: "",
+          location: "",
+          start_date: "",
+          end_date: "",
+          bullets: []
+        };
+        
+        // Try to get company from next sibling text
+        let nextText = el.nextSibling?.textContent || "";
+        if (nextText.includes('|') || nextText.includes(',')) {
+          const parts = nextText.split(/[|,]/);
+          currentExp.company = parts[0]?.trim() || "";
+        }
+      }
+    });
+    if (currentExp) experienceItems.push(currentExp);
+    
+    // Extract bullets from list items
+    const listItems = expDiv.querySelectorAll('li');
+    listItems.forEach(li => {
+      const bulletText = li.textContent.trim();
+      if (bulletText && experienceItems.length > 0) {
+        experienceItems[experienceItems.length - 1].bullets.push(bulletText);
+      }
+    });
+    
+    // If no structured experience found, create a generic one from text
+    if (experienceItems.length === 0) {
+      const plainExp = stripHtml(experienceSection);
+      if (plainExp.length > 20) {
+        experienceItems.push({
+          title: "Professional",
+          company: "",
+          location: "",
+          start_date: "",
+          end_date: "",
+          bullets: plainExp.split('\n').filter(l => l.trim().length > 10).slice(0, 5)
+        });
+      }
+    }
+  }
+  
+  // Extract education
+  const educationSection = findSection(htmlContent, ['Education', 'Academic', 'Qualifications']);
+  const educationItems = [];
+  if (educationSection) {
+    const plainEdu = stripHtml(educationSection);
+    const lines = plainEdu.split('\n').filter(l => l.trim());
+    for (let i = 0; i < lines.length; i += 2) {
+      if (lines[i]) {
+        educationItems.push({
+          degree: lines[i].trim(),
+          school: lines[i + 1]?.trim() || "",
+          year: (lines[i].match(/\d{4}/) || [])[0] || "",
+          gpa: ""
+        });
+      }
+    }
+  }
+  
+  // Extract skills
+  const skillsSection = findSection(htmlContent, ['Skills', 'Technical Skills', 'Core Competencies', 'Expertise']);
+  const skillsList = [];
+  if (skillsSection) {
+    const plainSkills = stripHtml(skillsSection);
+    // Split by common delimiters
+    const skillItems = plainSkills.split(/[,•|\n]/).map(s => s.trim()).filter(s => s.length > 1 && s.length < 50);
+    skillItems.forEach((skill, i) => {
+      skillsList.push({ name: skill, level: Math.max(60, 95 - i * 5) });
+    });
+  }
+  
+  // Extract certifications
+  const certSection = findSection(htmlContent, ['Certifications', 'Certificates', 'Licenses']);
+  const certList = [];
+  if (certSection) {
+    const plainCerts = stripHtml(certSection);
+    const certItems = plainCerts.split('\n').map(s => s.trim()).filter(s => s.length > 3);
+    certList.push(...certItems.slice(0, 5));
+  }
+  
+  // Extract languages
+  const langSection = findSection(htmlContent, ['Languages', 'Language Skills']);
+  const langList = [];
+  if (langSection) {
+    const plainLang = stripHtml(langSection);
+    const langItems = plainLang.split(/[,\n]/).map(s => s.trim()).filter(s => s.length > 1);
+    langItems.forEach(lang => {
+      const parts = lang.split(/[-–:]/);
+      langList.push({
+        name: parts[0]?.trim() || lang,
+        level: parts[1]?.trim() || "Professional"
+      });
+    });
   }
   
   return {
     name,
-    title: "Professional",
-    summary: "",
+    title: experienceItems[0]?.title || "Professional",
+    summary,
     contact,
     photo: photo || null,
-    skills: [],
+    skills: skillsList.slice(0, 8),
     softSkills: [],
-    hobbies: [],
-    education: [],
-    certifications: [],
-    languages: [],
-    experience: [],
+    hobbies: hobbies || [],
+    education: educationItems.slice(0, 3),
+    certifications: certList,
+    languages: langList.slice(0, 4),
+    experience: experienceItems.slice(0, 4),
   };
 };
 
