@@ -58,6 +58,15 @@ const ResumeOptimizerPage = () => {
   const [driveToken, setDriveToken] = useState(null);
   const [showDrivePicker, setShowDrivePicker] = useState(false);
   const [driveImporting, setDriveImporting] = useState(false);
+  
+  // Photo for professional templates
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  
+  // Check if selected template requires photo
+  const isProfessionalTemplate = (templateId) => {
+    return ['professional', 'professional-blue', 'professional-minimal'].includes(templateId);
+  };
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [quickFixing, setQuickFixing] = useState(false);
   const [fixedText, setFixedText] = useState(null);
