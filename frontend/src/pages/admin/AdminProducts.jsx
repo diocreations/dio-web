@@ -172,6 +172,21 @@ const AdminProducts = () => {
                   <div className="space-y-2"><Label htmlFor="cta_text">CTA Text</Label><Input id="cta_text" name="cta_text" value={formData.cta_text} onChange={handleChange} /></div>
                   <div className="space-y-2"><Label htmlFor="order">Order</Label><Input id="order" name="order" type="number" value={formData.order} onChange={handleChange} /></div>
                 </div>
+                {/* External Link Section */}
+                <div className="border rounded-lg p-4 space-y-4 bg-slate-50">
+                  <h4 className="font-medium text-sm text-foreground">External Link (Optional)</h4>
+                  <p className="text-xs text-muted-foreground">Add an external URL to redirect users instead of the checkout flow</p>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="external_url">External URL</Label>
+                      <Input id="external_url" name="external_url" value={formData.external_url || ""} onChange={handleChange} placeholder="https://your-external-site.com/product" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Switch id="open_in_new_tab" checked={formData.open_in_new_tab || false} onCheckedChange={(c) => setFormData((p) => ({ ...p, open_in_new_tab: c }))} />
+                    <Label htmlFor="open_in_new_tab" className="text-sm">Open in new tab</Label>
+                  </div>
+                </div>
                 <div className="flex gap-6">
                   <div className="flex items-center gap-2"><Switch id="is_popular" checked={formData.is_popular} onCheckedChange={(c) => setFormData((p) => ({ ...p, is_popular: c }))} /><Label htmlFor="is_popular">Popular</Label></div>
                   <div className="flex items-center gap-2"><Switch id="is_active" checked={formData.is_active} onCheckedChange={(c) => setFormData((p) => ({ ...p, is_active: c }))} /><Label htmlFor="is_active">Active</Label></div>
