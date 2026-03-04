@@ -28,7 +28,8 @@ const STEPS = [
   { id: 4, title: "Education", icon: GraduationCap },
   { id: 5, title: "Skills", icon: Code },
   { id: 6, title: "More", icon: Award },
-  { id: 7, title: "Preview", icon: Eye },
+  { id: 7, title: "Template", icon: LayoutIcon },
+  { id: 8, title: "Preview", icon: Eye },
 ];
 
 const ResumeBuilderPage = () => {
