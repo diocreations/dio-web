@@ -5,6 +5,22 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Resume Optimizer - Editor & Parsing Fixes ✅
+**Date: Mar 4, 2025**
+
+**Bugs Fixed:**
+1. **Professional templates now editable** - Clicking "Edit Text" shows RichEditor even when professional template is selected
+2. **Experience parsing improved** - Job entries like "Senior AEM Developer, Tata Consultancy Services (TCS) Feb 2021 – Present" now correctly parsed:
+   - Title: "Senior AEM Developer"
+   - Company: "Tata Consultancy Services (TCS)"
+   - Date: "Feb 2021 - Present"
+3. **Button labels renamed** - "Text" → "Edit Text", "Sections" → "Edit Sections" for clarity
+
+**Files Modified:**
+- `/app/frontend/src/pages/ResumeOptimizerPage.jsx` - Button renames
+- `/app/frontend/src/components/resume/ResumePreview.jsx` - Editing check moved before template check
+- `/app/frontend/src/components/resume/ProfessionalTemplate.jsx` - Enhanced experience parsing
+
 ### Resume Optimizer - Professional Templates Bug Fix ✅
 **Date: Mar 4, 2025**
 
