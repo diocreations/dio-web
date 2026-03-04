@@ -1125,6 +1125,39 @@ const ResumeOptimizerPage = () => {
                           </div>
                         )}
                         
+                        {/* Photo Upload for Professional Templates */}
+                        {isProfessionalTemplate(activeVisualTemplate) && (
+                          <Card className="mb-4 bg-slate-50 border-dashed">
+                            <CardContent className="p-4">
+                              <div className="flex items-center gap-4">
+                                <div className="relative">
+                                  {profilePhoto ? (
+                                    <img src={profilePhoto} alt="Profile" className="w-16 h-16 rounded-full object-cover border-2 border-primary" />
+                                  ) : (
+                                    <div className="w-16 h-16 rounded-full bg-slate-200 flex items-center justify-center">
+                                      <User className="text-slate-400" size={24} />
+                                    </div>
+                                  )}
+                                  <label className="absolute -bottom-1 -right-1 bg-primary text-white p-1 rounded-full cursor-pointer hover:bg-primary/90">
+                                    <Camera size={12} />
+                                    <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+                                  </label>
+                                </div>
+                                <div className="flex-1">
+                                  <p className="font-medium text-sm">Profile Photo</p>
+                                  <p className="text-xs text-muted-foreground">Required for Professional templates</p>
+                                  {uploadingPhoto && <p className="text-xs text-primary"><Loader2 className="inline animate-spin mr-1" size={10} />Uploading...</p>}
+                                </div>
+                                {profilePhoto && (
+                                  <Button variant="ghost" size="sm" onClick={() => setProfilePhoto(null)} className="text-red-500">
+                                    <Trash2 size={14} />
+                                  </Button>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        )}
+                        
                         {/* Editor Content Area */}
                         <Card className="border-0 shadow-lg overflow-visible">
                           <CardContent className="p-0">
@@ -1134,7 +1167,14 @@ const ResumeOptimizerPage = () => {
                               </div>
                             ) : (
                               <div className="min-h-[600px] h-auto">
-                                <ResumePreview text={editedText} templateId={activeVisualTemplate} editing={editorMode === "text"} onTextChange={setEditedText} fontSize={fontSize} />
+                                <ResumePreview 
+                                  text={editedText} 
+                                  templateId={activeVisualTemplate} 
+                                  editing={editorMode === "text"} 
+                                  onTextChange={setEditedText} 
+                                  fontSize={fontSize}
+                                  photo={profilePhoto}
+                                />
                               </div>
                             )}
                           </CardContent>
