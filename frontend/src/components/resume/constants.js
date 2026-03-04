@@ -47,6 +47,28 @@ export const VISUAL_TEMPLATES = [
     desc: "Vibrant purple accents with modern flair",
     preview: { bg: "#fff", accent: "#7c3aed", font: "sans", layout: "left" },
   },
+  // NEW: Professional Two-Column Templates with Photo
+  {
+    id: "professional",
+    name: "Professional",
+    desc: "Two-column layout with photo, skill bars & lavender accent",
+    preview: { bg: "#fff", accent: "#a78bfa", font: "sans", layout: "two-column-photo" },
+    hasPhoto: true,
+  },
+  {
+    id: "professional-blue",
+    name: "Corporate Blue",
+    desc: "Two-column with photo, skill bars & blue accent",
+    preview: { bg: "#fff", accent: "#3b82f6", font: "sans", layout: "two-column-photo" },
+    hasPhoto: true,
+  },
+  {
+    id: "professional-minimal",
+    name: "Clean Minimal",
+    desc: "Two-column with photo, clean design without skill bars",
+    preview: { bg: "#fff", accent: "#64748b", font: "sans", layout: "two-column-photo-minimal" },
+    hasPhoto: true,
+  },
 ];
 
 export const STEPS = [
