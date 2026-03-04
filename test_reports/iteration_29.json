@@ -1,0 +1,89 @@
+{
+  "summary": "Iteration 29: All 3 bug fixes verified for Resume Optimizer. (1) 'Text' button renamed to 'Edit Text', (2) 'Sections' button renamed to 'Edit Sections', (3) RichEditor appears when clicking 'Edit Text' with professional template selected, (4) Experience parsing correctly handles 'Title, Company (Abbr) Date - Present' format.",
+
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+
+  "passed_tests": [
+    "Resume Optimizer: 'Text' button renamed to 'Edit Text' (data-testid='mode-text')",
+    "Resume Optimizer: 'Sections' button renamed to 'Edit Sections' (data-testid='mode-sections')",
+    "Resume Optimizer: 'Preview' button present (data-testid='mode-preview')",
+    "Resume Optimizer: RichEditor appears when clicking 'Edit Text' with Professional template selected",
+    "Resume Optimizer: RichEditor shows formatting toolbar (Font, Bold, Italic, Underline, etc.)",
+    "Resume Optimizer: 'Done Editing' button appears when in edit mode",
+    "Resume Optimizer: Experience parsing - 'Senior AEM Developer, Tata Consultancy Services (TCS) Feb 2021 – Present' correctly parsed",
+    "Resume Optimizer: Job title 'Senior AEM Developer' displayed separately from company name",
+    "Resume Optimizer: Company 'Tata Consultancy Services (TCS)' displayed on separate line below title",
+    "Resume Optimizer: Date 'Feb 2021 - Present' displayed right-aligned",
+    "Resume Optimizer: Second job entry 'Full Stack Developer, Infosys Limited (INFY) Jan 2018 – Jan 2021' also correctly parsed",
+    "Resume Optimizer: Professional template shows two-column layout with sidebar (Contact, Skills, Education) and main content (Summary, Experience)"
+  ],
+
+  "test_report_links": [
+    "/app/test_reports/iteration_29.json"
+  ],
+
+  "action_items": [],
+
+  "critical_code_review_comments": [
+    "ResumePreview.jsx line 161-167: Editing check moved BEFORE professional template check - RichEditor now shows when editing=true regardless of template",
+    "ProfessionalTemplate.jsx lines 200-280: Enhanced experience parsing handles multiple formats including 'Title, Company (Abbr) Date - Present'",
+    "ResumeOptimizerPage.jsx lines 1073, 1081: Buttons correctly renamed from 'Text'/'Sections' to 'Edit Text'/'Edit Sections'"
+  ],
+
+  "updated_files": [],
+
+  "success_rate": {
+    "backend": "N/A (frontend-only testing)",
+    "frontend": "100% (12/12 tests passed)"
+  },
+
+  "test_credentials": {
+    "admin_email": "admin@diocreations.com",
+    "admin_password": "adminpassword"
+  },
+
+  "seed_data_creation": "Created test DOCX file with experience entries in 'Title, Company (Abbr) Date - Present' format",
+
+  "retest_needed": false,
+
+  "should_main_agent_self_test": false,
+
+  "context_for_next_testing_agent": "Iteration 29 verified 3 bug fixes: (1) Button renames - 'Edit Text' and 'Edit Sections' buttons visible in editor mode toggle. (2) RichEditor fix - When professional template is selected and user clicks 'Edit Text', the RichEditor with formatting toolbar appears instead of the professional template preview. This was fixed by moving the editing check BEFORE the professional template check in ResumePreview.jsx. (3) Experience parsing - The parseResumeData function in ProfessionalTemplate.jsx now correctly handles formats like 'Senior AEM Developer, Tata Consultancy Services (TCS) Feb 2021 – Present' by extracting title, company (with abbreviation), and date separately.",
+
+  "bug_fix_verification": {
+    "fix_1_button_rename": {
+      "status": "PASS",
+      "description": "'Text' renamed to 'Edit Text', 'Sections' renamed to 'Edit Sections'",
+      "location": "ResumeOptimizerPage.jsx lines 1073, 1081",
+      "evidence": "Screenshot shows 'Edit Text' and 'Edit Sections' buttons in editor mode toggle"
+    },
+    "fix_2_rich_editor_with_professional_template": {
+      "status": "PASS",
+      "description": "RichEditor appears when clicking 'Edit Text' with professional template selected",
+      "location": "ResumePreview.jsx lines 161-167",
+      "evidence": "Screenshot shows RichEditor with formatting toolbar after clicking 'Edit Text' while Professional template is selected"
+    },
+    "fix_3_experience_parsing": {
+      "status": "PASS",
+      "description": "Experience entries like 'Title, Company (Abbr) Date - Present' correctly parsed",
+      "location": "ProfessionalTemplate.jsx lines 200-280",
+      "evidence": "Screenshot shows 'Senior AEM Developer' as title, 'Tata Consultancy Services (TCS)' as company, 'Feb 2021 - Present' as date - all on separate lines"
+    }
+  },
+
+  "screenshots": [
+    ".screenshots/04_editing_interface.png - Shows 'Edit Text' and 'Edit Sections' buttons",
+    ".screenshots/05_professional_template_selected.png - Shows Professional template with parsed experience",
+    ".screenshots/06_rich_editor_visible.png - Shows RichEditor with toolbar after clicking 'Edit Text'",
+    ".screenshots/07_experience_parsing.png - Shows full resume with correctly parsed experience entries"
+  ]
+}
