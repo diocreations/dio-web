@@ -495,6 +495,38 @@ const ResumeBuilderPage = () => {
           <div className="space-y-4">
             <h2 className="text-xl font-bold">Personal Information</h2>
             <p className="text-muted-foreground text-sm">Start with your basic contact details</p>
+            
+            {/* Photo Upload for Professional Templates */}
+            <Card className="bg-slate-50 border-dashed">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    {photo ? (
+                      <img src={photo} alt="Profile" className="w-20 h-20 rounded-full object-cover border-2 border-primary" />
+                    ) : (
+                      <div className="w-20 h-20 rounded-full bg-slate-200 flex items-center justify-center">
+                        <User className="text-slate-400" size={32} />
+                      </div>
+                    )}
+                    <label className="absolute -bottom-1 -right-1 bg-primary text-white p-1.5 rounded-full cursor-pointer hover:bg-primary/90 transition-colors">
+                      <Camera size={14} />
+                      <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+                    </label>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">Profile Photo</p>
+                    <p className="text-xs text-muted-foreground">Required for Professional templates. Square photo recommended.</p>
+                    {uploadingPhoto && <p className="text-xs text-primary mt-1"><Loader2 className="inline animate-spin mr-1" size={12} />Uploading...</p>}
+                  </div>
+                  {photo && (
+                    <Button variant="ghost" size="sm" onClick={() => setPhoto(null)} className="text-red-500">
+                      <Trash2 size={14} />
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>Full Name *</Label>
