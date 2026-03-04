@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"b9f14978325449a7a58c24e3f077b098","collectionName":"resume_pricing","type":"collection"}
