@@ -191,10 +191,39 @@ const parseResumeData = (text, personalInfo, skills, education, experience, cert
       }
     });
     
-    // If no structured experience found, create a generic one from text
+    // If no structured experience found, try plain text parsing
     if (experienceItems.length === 0) {
       const plainExp = stripHtml(experienceSection);
-      if (plainExp.length > 20) {
+      const lines = plainExp.split('\n').filter(l => l.trim());
+      let currentPlainExp = null;
+      
+      for (const line of lines) {
+        const trimmed = line.trim();
+        // Check if this line looks like a job header (contains | and date pattern)
+        if (trimmed.includes('|') && /\d{4}/.test(trimmed)) {
+          if (currentPlainExp) experienceItems.push(currentPlainExp);
+          
+          // Parse "Title | Company | Date" format
+          const parts = trimmed.split('|').map(p => p.trim());
+          const dateMatch = trimmed.match(/(\w+\s+\d{4})\s*[-–]\s*(Present|\w+\s+\d{4})/i);
+          
+          currentPlainExp = {
+            title: parts[0] || "Professional",
+            company: parts[1] || "",
+            location: "",
+            start_date: dateMatch ? dateMatch[1] : "",
+            end_date: dateMatch ? dateMatch[2] : "",
+            bullets: []
+          };
+        } else if (currentPlainExp && trimmed.length > 10) {
+          // This is a bullet point
+          currentPlainExp.bullets.push(trimmed.replace(/^[-•*]\s*/, ''));
+        }
+      }
+      if (currentPlainExp) experienceItems.push(currentPlainExp);
+      
+      // If still no experience found, create a generic one
+      if (experienceItems.length === 0 && plainExp.length > 20) {
         experienceItems.push({
           title: "Professional",
           company: "",
