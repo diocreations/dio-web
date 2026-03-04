@@ -73,6 +73,7 @@ const AdminProducts = () => {
       features: product.features?.join("\n") || "",
       is_popular: product.is_popular, cta_text: product.cta_text, cta_link: product.cta_link || "",
       order: product.order, is_active: product.is_active, is_purchasable: product.is_purchasable !== false,
+      external_url: product.external_url || "", open_in_new_tab: product.open_in_new_tab || false,
     });
     setDialogOpen(true);
   };
