@@ -259,11 +259,25 @@ const parseResumeData = (text, personalInfo, skills, education, experience, cert
   const skillsList = [];
   if (skillsSection) {
     const plainSkills = stripHtml(skillsSection);
-    // Split by common delimiters
-    const skillItems = plainSkills.split(/[,•|\n]/).map(s => s.trim()).filter(s => s.length > 1 && s.length < 50);
-    skillItems.forEach((skill, i) => {
-      skillsList.push({ name: skill, level: Math.max(60, 95 - i * 5) });
-    });
+    // Handle format like "Programming Languages: Python (Expert), JavaScript (Advanced)"
+    // or simple comma-separated list
+    const lines = plainSkills.split('\n').filter(l => l.trim());
+    
+    for (const line of lines) {
+      // Check if line has a category prefix like "Programming Languages:"
+      const colonIdx = line.indexOf(':');
+      const skillPart = colonIdx > 0 ? line.slice(colonIdx + 1) : line;
+      
+      // Split by common delimiters
+      const skillItems = skillPart.split(/[,•|]/).map(s => s.trim()).filter(s => s.length > 1 && s.length < 80);
+      skillItems.forEach((skill, i) => {
+        // Remove parenthetical skill levels like "(Expert)"
+        const cleanSkill = skill.replace(/\s*\([^)]+\)\s*/g, '').trim();
+        if (cleanSkill.length > 1 && cleanSkill.length < 50) {
+          skillsList.push({ name: cleanSkill, level: Math.max(60, 95 - skillsList.length * 5) });
+        }
+      });
+    }
   }
   
   // Extract certifications
