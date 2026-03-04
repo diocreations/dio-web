@@ -137,9 +137,45 @@ function renderHtmlContent(html, tplId, fSize) {
   );
 }
 
-const ResumePreview = ({ text, templateId, editing, onTextChange, fontSize = 13 }) => {
-  if (!text) return null;
+const ResumePreview = ({ 
+  text, 
+  templateId, 
+  editing, 
+  onTextChange, 
+  fontSize = 13,
+  // New props for professional templates
+  personalInfo,
+  skills,
+  education,
+  experience,
+  certifications,
+  languages,
+  hobbies,
+  photo,
+  summary,
+}) => {
+  if (!text && !personalInfo?.name) return null;
   const tpl = templateId || "classic";
+
+  // Professional templates with photo support
+  if (tpl === "professional" || tpl === "professional-blue" || tpl === "professional-minimal") {
+    return (
+      <ProfessionalTemplate
+        text={text}
+        templateId={tpl}
+        personalInfo={personalInfo}
+        skills={skills}
+        education={education}
+        experience={experience}
+        certifications={certifications}
+        languages={languages}
+        hobbies={hobbies}
+        photo={photo}
+        summary={summary}
+        fontSize={fontSize}
+      />
+    );
+  }
 
   // Rich text editing mode
   if (editing) {
