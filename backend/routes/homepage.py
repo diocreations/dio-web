@@ -386,6 +386,14 @@ async def create_client_logo(logo: dict, user: dict = Depends(get_current_user))
     return logo
 
 
+@router.put("/homepage/client-logos/reorder")
+async def reorder_client_logos(data: dict, user: dict = Depends(get_current_user)):
+    """Reorder client logos - MUST be before /{logo_id} route"""
+    for idx, logo_id in enumerate(data.get("order", [])):
+        await db.client_logos.update_one({"logo_id": logo_id}, {"$set": {"order": idx}})
+    return {"message": "Client logos reordered"}
+
+
 @router.put("/homepage/client-logos/{logo_id}")
 async def update_client_logo(logo_id: str, update: dict, user: dict = Depends(get_current_user)):
     """Update a client logo"""
@@ -404,11 +412,3 @@ async def delete_client_logo(logo_id: str, user: dict = Depends(get_current_user
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Client logo not found")
     return {"message": "Client logo deleted"}
-
-
-@router.put("/homepage/client-logos/reorder")
-async def reorder_client_logos(data: dict, user: dict = Depends(get_current_user)):
-    """Reorder client logos"""
-    for idx, logo_id in enumerate(data.get("order", [])):
-        await db.client_logos.update_one({"logo_id": logo_id}, {"$set": {"order": idx}})
-    return {"message": "Client logos reordered"}
