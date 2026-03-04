@@ -1,4 +1,5 @@
 import RichEditor from "./RichEditor";
+import ProfessionalTemplate from "./ProfessionalTemplate";
 
 function parseSections(text) {
   const lines = (text || "").split("\n");
