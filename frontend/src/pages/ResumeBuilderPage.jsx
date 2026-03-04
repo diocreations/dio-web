@@ -896,7 +896,7 @@ const ResumeBuilderPage = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="text-center sm:text-left">
                 <h2 className="text-xl font-bold">Preview & Export</h2>
-                <p className="text-muted-foreground text-sm">Review your resume and download</p>
+                <p className="text-muted-foreground text-sm">Review your resume and download ({VISUAL_TEMPLATES.find(t => t.id === selectedTemplate)?.name || "Classic"} template)</p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <Button variant="outline" onClick={exportDocx} disabled={loading} className="gap-2 w-full sm:w-auto" data-testid="export-docx-btn">
@@ -910,89 +910,23 @@ const ResumeBuilderPage = () => {
               </div>
             </div>
             
-            {/* Preview */}
-            <Card className="shadow-lg">
-              <CardContent className="p-8 bg-white">
-                <div className="max-w-2xl mx-auto space-y-6 text-sm" style={{ fontFamily: "Georgia, serif" }}>
-                  {/* Header */}
-                  <div className="text-center border-b pb-4">
-                    <h1 className="text-2xl font-bold text-slate-800">{personalInfo.name || "Your Name"}</h1>
-                    <p className="text-slate-600 text-xs mt-1">
-                      {[personalInfo.email, personalInfo.phone, personalInfo.location].filter(Boolean).join(" | ")}
-                    </p>
-                    {personalInfo.linkedin && <p className="text-xs text-blue-600">{personalInfo.linkedin}</p>}
-                  </div>
-                  
-                  {/* Summary */}
-                  {summary && (
-                    <div>
-                      <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider border-b mb-2">Professional Summary</h2>
-                      <p className="text-slate-700 leading-relaxed">{summary}</p>
-                    </div>
-                  )}
-                  
-                  {/* Experience */}
-                  {experience.some(e => e.title) && (
-                    <div>
-                      <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider border-b mb-2">Work Experience</h2>
-                      {experience.filter(e => e.title).map((exp, i) => (
-                        <div key={i} className="mb-4">
-                          <div className="flex justify-between items-baseline">
-                            <span className="font-semibold">{exp.title}</span>
-                            <span className="text-xs text-slate-500">{exp.start_date} - {exp.end_date}</span>
-                          </div>
-                          <p className="text-slate-600 text-xs">{exp.company} {exp.location && `| ${exp.location}`}</p>
-                          <ul className="list-disc list-inside mt-1 text-slate-700">
-                            {exp.bullets.filter(b => b).map((b, j) => <li key={j}>{b}</li>)}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {/* Education */}
-                  {education.some(e => e.degree) && (
-                    <div>
-                      <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider border-b mb-2">Education</h2>
-                      {education.filter(e => e.degree).map((edu, i) => (
-                        <div key={i} className="mb-2">
-                          <div className="flex justify-between items-baseline">
-                            <span className="font-semibold">{edu.degree}</span>
-                            <span className="text-xs text-slate-500">{edu.year}</span>
-                          </div>
-                          <p className="text-slate-600 text-xs">{edu.school} {edu.location && `| ${edu.location}`}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {/* Skills */}
-                  {(skills.technical.length > 0 || skills.soft.length > 0) && (
-                    <div>
-                      <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider border-b mb-2">Skills</h2>
-                      {skills.technical.length > 0 && <p><strong>Technical:</strong> {skills.technical.join(", ")}</p>}
-                      {skills.soft.length > 0 && <p><strong>Soft Skills:</strong> {skills.soft.join(", ")}</p>}
-                    </div>
-                  )}
-                  
-                  {/* Certifications */}
-                  {certifications.length > 0 && (
-                    <div>
-                      <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider border-b mb-2">Certifications</h2>
-                      <ul className="list-disc list-inside">
-                        {certifications.map((c, i) => <li key={i}>{c}</li>)}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  {/* Languages */}
-                  {languages.length > 0 && (
-                    <div>
-                      <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider border-b mb-2">Languages</h2>
-                      <p>{languages.map(l => `${l.name} (${l.level})`).join(", ")}</p>
-                    </div>
-                  )}
-                </div>
+            {/* Preview using ResumePreview component */}
+            <Card className="shadow-lg overflow-hidden" id="resume-preview-container">
+              <CardContent className="p-0 bg-white">
+                <ResumePreview
+                  text={summary}
+                  templateId={selectedTemplate}
+                  personalInfo={personalInfo}
+                  skills={skills}
+                  education={education}
+                  experience={experience}
+                  certifications={certifications}
+                  languages={languages}
+                  hobbies={hobbies}
+                  photo={photo}
+                  summary={summary}
+                  fontSize={12}
+                />
               </CardContent>
             </Card>
           </div>
