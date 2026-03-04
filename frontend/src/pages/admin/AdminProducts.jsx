@@ -93,6 +93,7 @@ const AdminProducts = () => {
       price: "", price_unit: "month", pricing_type: "one_time", billing_period: "",
       currency: "EUR", features: "", is_popular: false, cta_text: "Get Started", cta_link: "", 
       order: 0, is_active: true, is_purchasable: true,
+      external_url: "", open_in_new_tab: false,
     });
   };
 
