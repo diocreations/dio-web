@@ -143,10 +143,12 @@ const HomePage = () => {
       fetch(`${API_URL}/api/portfolio?active_only=true`).then((r) => r.json()),
       fetch(`${API_URL}/api/blog?published_only=true`).then((r) => r.json()),
       fetch(`${API_URL}/api/homepage/promoted-sections`).then((r) => r.ok ? r.json() : []),
+      fetch(`${API_URL}/api/homepage/client-logos`).then((r) => r.ok ? r.json() : []),
     ])
-      .then(([homepageData, servicesData, productsData, testimonialsData, portfolioData, blogData, promotedData]) => {
+      .then(([homepageData, servicesData, productsData, testimonialsData, portfolioData, blogData, promotedData, clientLogosData]) => {
         setHomepageContent(homepageData);
         setPromotedSections(Array.isArray(promotedData) ? promotedData.filter(p => p.is_active !== false) : []);
+        setClientLogos(Array.isArray(clientLogosData) ? clientLogosData.filter(l => l.is_active !== false) : []);
         setServices(servicesData.slice(0, 6));
         setProducts(productsData.slice(0, 4));
         setTestimonials(testimonialsData.slice(0, 3));
