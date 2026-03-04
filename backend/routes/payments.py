@@ -21,6 +21,14 @@ RESELLERCLUB_API_URL = "https://httpapi.com/api"
 
 @router.get("/currency-rates")
 async def get_currency_rates():
+    # Fetch admin-configured currency settings
+    settings = await db.currency_settings.find_one({"settings_id": "currency"}, {"_id": 0})
+    if settings and settings.get("rates"):
+        return {
+            "base_currency": "EUR",
+            "rates": settings.get("rates", CURRENCY_RATES),
+            "supported_currencies": list(settings.get("rates", CURRENCY_RATES).keys())
+        }
     return {"base_currency": "EUR", "rates": CURRENCY_RATES, "supported_currencies": list(CURRENCY_RATES.keys())}
 
 
