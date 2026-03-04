@@ -5,6 +5,24 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Resume Optimizer - Empty Content After Editing Fixed ✅
+**Date: Mar 4, 2025**
+
+**Bug Fixed:**
+- Professional templates showed blank/empty content after editing in RichEditor and clicking "Done Editing"
+- **Root cause:** RichEditor outputs HTML (`<p>`, `<br>` tags) but `parseResumeData` wasn't handling HTML properly
+- **Fix:** Complete rewrite of `parseResumeData` function to:
+  1. Detect if content is HTML or plain text
+  2. Normalize HTML to plain text using `normalizeContent()` while preserving structure
+  3. Use section patterns (`EXPERIENCE`, `SKILLS`, etc.) to find content sections
+  4. Parse experience entries with various formats (comma, pipe, "at" separators)
+
+**Verified Working:**
+- Upload resume → Analyze → Select Professional template → Edit Text → Edit content → Done Editing → Content displays correctly
+
+**Files Modified:**
+- `/app/frontend/src/components/resume/ProfessionalTemplate.jsx` - Complete rewrite of parseResumeData function (lines 25-260)
+
 ### Resume Optimizer - Editor & Parsing Fixes ✅
 **Date: Mar 4, 2025**
 
