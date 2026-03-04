@@ -286,7 +286,7 @@ const ProductsPage = () => {
                         {displayPrice ? (
                           <div className="py-4 border-y border-slate-100">
                             <span className="font-heading font-bold text-4xl text-foreground">
-                              {CURRENCY_SYMBOLS[currency]}{displayPrice}
+                              {currencySymbol}{displayPrice}
                             </span>
                             <span className="text-muted-foreground text-sm">
                               {product.price_unit ? `/${product.price_unit}` : ""}
@@ -322,25 +322,48 @@ const ProductsPage = () => {
                           </ul>
                         )}
 
-                        <Button
-                          onClick={() => handleBuyClick(product)}
-                          className={`w-full rounded-full ${
-                            product.is_popular
-                              ? "bg-primary text-white"
-                              : ""
-                          }`}
-                          variant={product.is_popular ? "default" : "outline"}
-                          data-testid={`product-buy-${product.slug}`}
-                        >
-                          {product.price ? (
-                            <>
-                              <ShoppingCart className="mr-2 h-4 w-4" />
-                              Buy Now
-                            </>
-                          ) : (
-                            product.cta_text || "Get Quote"
-                          )}
-                        </Button>
+                        {/* Product CTA - External link or Buy Now */}
+                        {product.external_url ? (
+                          <Button
+                            asChild
+                            className={`w-full rounded-full ${
+                              product.is_popular
+                                ? "bg-primary text-white"
+                                : ""
+                            }`}
+                            variant={product.is_popular ? "default" : "outline"}
+                            data-testid={`product-link-${product.slug}`}
+                          >
+                            <a 
+                              href={product.external_url}
+                              target={product.open_in_new_tab ? "_blank" : "_self"}
+                              rel={product.open_in_new_tab ? "noopener noreferrer" : undefined}
+                            >
+                              {product.cta_text || "Learn More"}
+                              {product.open_in_new_tab && <ExternalLink className="ml-2 h-4 w-4" />}
+                            </a>
+                          </Button>
+                        ) : (
+                          <Button
+                            onClick={() => handleBuyClick(product)}
+                            className={`w-full rounded-full ${
+                              product.is_popular
+                                ? "bg-primary text-white"
+                                : ""
+                            }`}
+                            variant={product.is_popular ? "default" : "outline"}
+                            data-testid={`product-buy-${product.slug}`}
+                          >
+                            {product.price ? (
+                              <>
+                                <ShoppingCart className="mr-2 h-4 w-4" />
+                                Buy Now
+                              </>
+                            ) : (
+                              product.cta_text || "Get Quote"
+                            )}
+                          </Button>
+                        )}
                       </CardContent>
                     </Card>
                   </motion.div>
