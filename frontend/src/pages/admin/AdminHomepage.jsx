@@ -854,6 +854,128 @@ const AdminHomepage = () => {
             </Card>
           </TabsContent>
 
+          {/* Client Logos Tab */}
+          <TabsContent value="clients" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Building2 size={18} /> Client Logos
+                    </CardTitle>
+                    <CardDescription>
+                      Manage client/company logos displayed in the "Trusted by" section on the homepage
+                    </CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={addClientLogo}>
+                      <Plus size={14} className="mr-1" /> Add Logo
+                    </Button>
+                    <Button size="sm" onClick={saveClientLogos} disabled={saving}>
+                      <Save size={14} className="mr-1" /> Save Logos
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4 p-3 bg-slate-50 rounded-lg">
+                  <div className="space-y-2">
+                    <Label>Section Title</Label>
+                    <Input
+                      value={settings?.trust_section_title || "Trusted by innovative companies worldwide"}
+                      onChange={(e) => setSettings({ ...settings, trust_section_title: e.target.value })}
+                      placeholder="Trusted by innovative companies worldwide"
+                    />
+                    <p className="text-xs text-muted-foreground">Displayed above the client logos on the homepage</p>
+                  </div>
+                </div>
+
+                {clientLogos.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Building2 className="mx-auto mb-2 opacity-50" size={32} />
+                    <p>No client logos yet. Click "Add Logo" to get started.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {clientLogos.map((logo, index) => (
+                      <Card key={logo.logo_id || index} className="border">
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-4">
+                            <div className="flex flex-col gap-1">
+                              <Button 
+                                variant="ghost" size="icon" className="h-6 w-6"
+                                onClick={() => moveClientLogo(index, "up")}
+                                disabled={index === 0}
+                              >
+                                <ArrowUp size={12} />
+                              </Button>
+                              <Button 
+                                variant="ghost" size="icon" className="h-6 w-6"
+                                onClick={() => moveClientLogo(index, "down")}
+                                disabled={index === clientLogos.length - 1}
+                              >
+                                <ArrowDown size={12} />
+                              </Button>
+                            </div>
+                            
+                            {/* Logo Preview */}
+                            <div className="w-24 h-12 bg-slate-100 rounded flex items-center justify-center overflow-hidden">
+                              {logo.image_url ? (
+                                <img src={logo.image_url} alt={logo.name} className="max-h-full max-w-full object-contain" />
+                              ) : (
+                                <Building2 className="text-slate-300" size={24} />
+                              )}
+                            </div>
+
+                            <div className="flex-1 grid grid-cols-3 gap-3">
+                              <div className="space-y-1">
+                                <Label className="text-xs">Company Name</Label>
+                                <Input
+                                  value={logo.name || ""}
+                                  onChange={(e) => updateClientLogo(index, "name", e.target.value)}
+                                  placeholder="Company Name"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-xs">Logo Image URL</Label>
+                                <Input
+                                  value={logo.image_url || ""}
+                                  onChange={(e) => updateClientLogo(index, "image_url", e.target.value)}
+                                  placeholder="https://example.com/logo.png"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-xs">Link URL (optional)</Label>
+                                <Input
+                                  value={logo.url || ""}
+                                  onChange={(e) => updateClientLogo(index, "url", e.target.value)}
+                                  placeholder="https://company.com"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-2">
+                                <Switch
+                                  checked={logo.is_active !== false}
+                                  onCheckedChange={(v) => updateClientLogo(index, "is_active", v)}
+                                />
+                                <Label className="text-xs">Active</Label>
+                              </div>
+                              <Button variant="ghost" size="sm" onClick={() => deleteClientLogo(index)} className="text-red-500">
+                                <Trash2 size={14} />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Color Schemes Tab */}
           <TabsContent value="colors" className="space-y-6">
             <Card>
