@@ -1070,14 +1070,14 @@ const ResumeOptimizerPage = () => {
                                 className={`px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1 ${editorMode === "text" ? "bg-primary text-white" : "hover:bg-slate-100"}`}
                                 data-testid="mode-text"
                               >
-                                <Type size={12} /> Text
+                                <Type size={12} /> Edit Text
                               </button>
                               <button 
                                 onClick={() => { setEditorMode("sections"); setIsEditing(true); }}
                                 className={`px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1 ${editorMode === "sections" ? "bg-primary text-white" : "hover:bg-slate-100"}`}
                                 data-testid="mode-sections"
                               >
-                                <Layers size={12} /> Sections
+                                <Layers size={12} /> Edit Sections
                               </button>
                             </div>
 
