@@ -1021,7 +1021,7 @@ const ResumeOptimizerPage = () => {
                           <div className="relative">
                             <Card className="border-0 shadow-lg overflow-hidden"><CardContent className="p-0">
                               <div className="select-none pointer-events-none">
-                                <ResumePreview text={editedText} templateId={activeVisualTemplate} fontSize={fontSize} />
+                                <ResumePreview text={editedText} templateId={activeVisualTemplate} fontSize={fontSize} photo={profilePhoto} />
                               </div>
                               <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t from-white via-white/95 to-transparent" />
                             </CardContent></Card>
