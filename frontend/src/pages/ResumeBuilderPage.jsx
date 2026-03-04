@@ -803,10 +803,94 @@ const ResumeBuilderPage = () => {
                 </div>
               </CardContent>
             </Card>
+            
+            {/* Hobbies - NEW */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2"><Heart size={18} /> Hobbies & Interests</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-xs text-muted-foreground">Optional: Add hobbies for Professional templates (displayed as tags)</p>
+                <div className="flex gap-2">
+                  <Input value={hobbyInput} onChange={e => setHobbyInput(e.target.value)} placeholder="e.g., Photography, Hiking, Reading" onKeyPress={e => e.key === 'Enter' && addHobby()} />
+                  <Button onClick={addHobby} size="icon"><Plus size={16} /></Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {hobbies.map((hobby, i) => (
+                    <span key={i} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm flex items-center gap-1">
+                      {hobby}
+                      <button onClick={() => setHobbies(hobbies.filter((_, j) => j !== i))} className="hover:text-red-500"><Trash2 size={12} /></button>
+                    </span>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         );
       
       case 7:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold">Choose Your Template</h2>
+            <p className="text-muted-foreground text-sm">Select a design that best represents you. Professional templates require a photo.</p>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {VISUAL_TEMPLATES.map((tpl) => (
+                <div
+                  key={tpl.id}
+                  onClick={() => {
+                    if (tpl.hasPhoto && !photo) {
+                      toast.error("Please upload a photo first (Step 1) for this template");
+                      return;
+                    }
+                    setSelectedTemplate(tpl.id);
+                  }}
+                  className={`cursor-pointer rounded-lg border-2 p-3 transition-all hover:shadow-md ${
+                    selectedTemplate === tpl.id ? "border-primary bg-primary/5" : "border-slate-200"
+                  } ${tpl.hasPhoto && !photo ? "opacity-50" : ""}`}
+                  data-testid={`template-${tpl.id}`}
+                >
+                  <div 
+                    className="h-24 rounded mb-2 flex items-center justify-center"
+                    style={{ backgroundColor: tpl.preview.bg === "#fff" ? "#f8fafc" : tpl.preview.bg }}
+                  >
+                    {tpl.hasPhoto ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full" style={{ backgroundColor: tpl.preview.accent + "40" }} />
+                        <div className="space-y-1">
+                          <div className="w-12 h-1.5 rounded" style={{ backgroundColor: tpl.preview.accent }} />
+                          <div className="w-8 h-1 rounded bg-slate-300" />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5">
+                        <div className="w-16 h-2 rounded mx-auto" style={{ backgroundColor: tpl.preview.accent }} />
+                        <div className="w-12 h-1 rounded bg-slate-300 mx-auto" />
+                        <div className="w-10 h-1 rounded bg-slate-200 mx-auto" />
+                      </div>
+                    )}
+                  </div>
+                  <p className="font-medium text-sm text-center">{tpl.name}</p>
+                  <p className="text-xs text-muted-foreground text-center line-clamp-2">{tpl.desc}</p>
+                  {tpl.hasPhoto && (
+                    <div className="flex items-center justify-center gap-1 mt-1">
+                      <Camera size={10} className="text-primary" />
+                      <span className="text-[10px] text-primary">Requires photo</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            
+            {!photo && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-700">
+                <strong>Tip:</strong> Upload a photo in Step 1 to unlock Professional templates with two-column layout and skill bars.
+              </div>
+            )}
+          </div>
+        );
+      
+      case 8:
         return (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
