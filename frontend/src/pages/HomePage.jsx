@@ -344,18 +344,6 @@ const HomePage = () => {
                   )}
                 </Button>
               </div>
-
-              {/* Stats */}
-              {hpSettings.show_stats !== false && (
-                <div className="flex flex-wrap gap-8">
-                  {stats.slice(0, 3).map((stat, index) => (
-                    <div key={index} className="text-center">
-                      <p className={`font-heading font-bold text-2xl md:text-3xl bg-gradient-to-r ${currentAccent.gradient} bg-clip-text text-transparent`}>{stat.value}</p>
-                      <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
             </motion.div>
 
             {/* Right - Hero Image (rotates with hero variant) */}
@@ -397,22 +385,76 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Trust Badges */}
+        {/* Client Logos / Trust Section */}
         <div className="border-t border-slate-100 bg-white/50 backdrop-blur">
-          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 py-6">
-            <p className="text-center text-sm text-muted-foreground mb-4">
-              Trusted by innovative companies worldwide
+          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 py-8">
+            <p className="text-center text-sm text-muted-foreground mb-6">
+              {homepageContent?.settings?.trust_section_title || "Trusted by innovative companies worldwide"}
             </p>
-            <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
-              {trustLogos.map((logo, index) => (
-                <div key={index} className="flex items-center gap-2 text-slate-400">
-                  <logo.icon size={20} />
-                  <span className="text-sm font-medium">{logo.name}</span>
-                </div>
-              ))}
+            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+              {clientLogos.length > 0 ? (
+                clientLogos.map((logo, index) => (
+                  <motion.div
+                    key={logo.logo_id || index}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                    className="grayscale hover:grayscale-0 transition-all duration-300"
+                  >
+                    {logo.url ? (
+                      <a href={logo.url} target="_blank" rel="noopener noreferrer" title={logo.name}>
+                        <img 
+                          src={logo.image_url} 
+                          alt={logo.name} 
+                          className="h-8 md:h-10 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity"
+                        />
+                      </a>
+                    ) : (
+                      <img 
+                        src={logo.image_url} 
+                        alt={logo.name} 
+                        className="h-8 md:h-10 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity"
+                        title={logo.name}
+                      />
+                    )}
+                  </motion.div>
+                ))
+              ) : (
+                // Fallback to icon-based trust badges if no client logos
+                defaultTrustLogos.map((logo, index) => (
+                  <div key={index} className="flex items-center gap-2 text-slate-400">
+                    <logo.icon size={20} />
+                    <span className="text-sm font-medium">{logo.name}</span>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
+
+        {/* Stats Section - Moved below trust badges */}
+        {hpSettings.show_stats !== false && (
+          <div className="border-t border-slate-100 bg-gradient-to-b from-white to-slate-50">
+            <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 py-10">
+              <div className="flex flex-wrap justify-center gap-12 md:gap-16 lg:gap-24">
+                {stats.slice(0, 4).map((stat, index) => (
+                  <motion.div 
+                    key={index} 
+                    className="text-center"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  >
+                    <p className={`font-heading font-bold text-3xl md:text-4xl bg-gradient-to-r ${currentAccent.gradient} bg-clip-text text-transparent`}>
+                      {stat.value}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Promoted AI Tools Section */}
