@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, GripVertical, Star } from "lucide-react";
+import { Plus, Pencil, Trash2, GripVertical, Star, ExternalLink } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
