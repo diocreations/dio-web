@@ -449,12 +449,12 @@ const DioChat = () => {
             result.push(
               isExternal ? (
                 <a key={`link-${i}`} href={link.url} target="_blank" rel="noopener noreferrer"
-                  className="text-primary-foreground/90 hover:text-primary-foreground underline font-medium">
+                  className="text-primary hover:text-primary/80 underline font-medium">
                   {link.text}
                 </a>
               ) : (
                 <Link key={`link-${i}`} to={link.url} onClick={() => setIsOpen(false)}
-                  className="text-primary-foreground/90 hover:text-primary-foreground underline font-medium">
+                  className="text-primary hover:text-primary/80 underline font-medium">
                   {link.text}
                 </Link>
               )
@@ -474,7 +474,7 @@ const DioChat = () => {
       if (part.match(urlRegex)) {
         return (
           <Link key={i} to={part} onClick={() => setIsOpen(false)}
-            className="text-primary-foreground/80 hover:text-primary-foreground underline font-medium">
+            className="text-primary hover:text-primary/80 underline font-medium">
             {part}
           </Link>
         );
