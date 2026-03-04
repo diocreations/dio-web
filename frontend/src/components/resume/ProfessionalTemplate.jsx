@@ -54,130 +54,230 @@ const parseResumeData = (text, personalInfo, skills, education, experience, cert
   // Parse from HTML/text (Resume Optimizer scenario)
   const htmlContent = text || "";
   
+  // Check if content is HTML
+  const isHtmlContent = htmlContent.includes('<') && (
+    htmlContent.includes('<p>') || 
+    htmlContent.includes('<div>') || 
+    htmlContent.includes('<h') ||
+    htmlContent.includes('<strong>') ||
+    htmlContent.includes('<br')
+  );
+  
   // Helper to strip HTML and get text
   const stripHtml = (html) => {
+    if (!html) return '';
     const div = document.createElement('div');
     div.innerHTML = html;
     return div.textContent || div.innerText || '';
   };
   
-  // Helper to find section content
-  const findSection = (html, sectionNames) => {
-    // First try HTML patterns
-    for (const name of sectionNames) {
-      // Try to find h2/h3/strong with section name
-      const patterns = [
-        new RegExp(`<h[23][^>]*>[^<]*${name}[^<]*</h[23]>([\\s\\S]*?)(?=<h[23]|$)`, 'i'),
-        new RegExp(`<strong[^>]*>[^<]*${name}[^<]*</strong>([\\s\\S]*?)(?=<strong|<h[23]|$)`, 'i'),
-        new RegExp(`<b>[^<]*${name}[^<]*</b>([\\s\\S]*?)(?=<b>|<h[23]|$)`, 'i'),
-      ];
-      for (const pattern of patterns) {
-        const match = html.match(pattern);
-        if (match) return match[1];
-      }
-    }
+  // Convert HTML to normalized plain text with section markers
+  const normalizeContent = (html) => {
+    if (!html) return '';
     
-    // If no HTML patterns found, try plain text with ALL CAPS headers
-    const plainText = stripHtml(html);
-    const lines = plainText.split('\n');
-    
-    for (const name of sectionNames) {
-      const upperName = name.toUpperCase();
-      // Find the line index where this section starts
-      let startIdx = -1;
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
-        // Check if line is ALL CAPS and contains the section name
-        if (line === upperName || 
-            line === name.toUpperCase().replace(/\s+/g, ' ') ||
-            (line.toUpperCase() === line && line.length > 3 && line.includes(upperName.split(' ')[0]))) {
-          startIdx = i;
-          break;
-        }
-      }
-      
-      if (startIdx !== -1) {
-        // Find the next section header (ALL CAPS line)
-        let endIdx = lines.length;
-        for (let i = startIdx + 1; i < lines.length; i++) {
-          const line = lines[i].trim();
-          // Check if this is another ALL CAPS header (section boundary)
-          if (line.length > 3 && line.length < 50 && 
-              line === line.toUpperCase() && 
-              /^[A-Z][A-Z\s\/&,]+$/.test(line) &&
-              !line.includes('@') && !line.includes('|')) {
-            endIdx = i;
-            break;
-          }
-        }
-        
-        // Extract content between start and end
-        const sectionContent = lines.slice(startIdx + 1, endIdx).join('\n');
-        if (sectionContent.trim()) {
-          return sectionContent;
-        }
-      }
-    }
-    
-    return '';
+    // Replace <br> with newlines
+    let normalized = html.replace(/<br\s*\/?>/gi, '\n');
+    // Replace </p>, </div>, </h1>, </h2>, </h3> with double newlines
+    normalized = normalized.replace(/<\/(p|div|h[1-6])>/gi, '\n\n');
+    // Replace <li> with bullet marker
+    normalized = normalized.replace(/<li[^>]*>/gi, '\n• ');
+    // Strip remaining HTML tags
+    const div = document.createElement('div');
+    div.innerHTML = normalized;
+    return (div.textContent || div.innerText || '').trim();
   };
   
-  // Extract name (usually first line or h1)
+  // Get normalized content for parsing
+  const normalizedText = isHtmlContent ? normalizeContent(htmlContent) : htmlContent;
+  const lines = normalizedText.split('\n').map(l => l.trim()).filter(l => l);
+  
+  // Section detection patterns
+  const sectionPatterns = {
+    summary: /^(SUMMARY|PROFESSIONAL\s*SUMMARY|PROFILE|ABOUT|OBJECTIVE|CAREER\s*SUMMARY)/i,
+    experience: /^(EXPERIENCE|WORK\s*EXPERIENCE|EMPLOYMENT|PROFESSIONAL\s*EXPERIENCE|CAREER\s*HISTORY)/i,
+    education: /^(EDUCATION|ACADEMIC|QUALIFICATIONS|EDUCATIONAL\s*BACKGROUND)/i,
+    skills: /^(SKILLS|TECHNICAL\s*SKILLS|CORE\s*COMPETENCIES|EXPERTISE|KEY\s*SKILLS)/i,
+    certifications: /^(CERTIFICATIONS|CERTIFICATES|LICENSES|CREDENTIALS)/i,
+    languages: /^(LANGUAGES|LANGUAGE\s*SKILLS)/i,
+  };
+  
+  // Find sections
+  const findSectionContent = (pattern) => {
+    let startIdx = -1;
+    let endIdx = lines.length;
+    
+    // Find start of section
+    for (let i = 0; i < lines.length; i++) {
+      if (pattern.test(lines[i])) {
+        startIdx = i;
+        break;
+      }
+    }
+    
+    if (startIdx === -1) return [];
+    
+    // Find end of section (next section header)
+    for (let i = startIdx + 1; i < lines.length; i++) {
+      const line = lines[i];
+      const isHeader = Object.values(sectionPatterns).some(p => p.test(line)) ||
+        (line.length < 50 && line === line.toUpperCase() && /^[A-Z][A-Z\s\/&,]+$/.test(line));
+      if (isHeader) {
+        endIdx = i;
+        break;
+      }
+    }
+    
+    return lines.slice(startIdx + 1, endIdx);
+  };
+  
+  // Extract name (first significant line that's not a section header)
   let name = "Your Name";
-  const h1Match = htmlContent.match(/<h1[^>]*>([^<]+)<\/h1>/i);
-  if (h1Match) {
-    name = stripHtml(h1Match[1]).trim();
-  } else {
-    const plainText = stripHtml(htmlContent);
-    const firstLine = plainText.split('\n').find(l => l.trim().length > 2 && l.trim().length < 50);
-    if (firstLine) name = firstLine.trim();
+  for (const line of lines.slice(0, 5)) {
+    const isHeader = Object.values(sectionPatterns).some(p => p.test(line));
+    if (!isHeader && line.length > 2 && line.length < 60 && !/[@|•]/.test(line)) {
+      name = line;
+      break;
+    }
   }
   
-  // Extract contact info
+  // Extract contact info from full text
+  const fullText = normalizedText;
   const contact = {
-    email: (htmlContent.match(/[\w.-]+@[\w.-]+\.\w+/) || [])[0] || "",
-    phone: (htmlContent.match(/\+?[\d\s\-()]{10,}/) || [])[0]?.trim() || "",
+    email: (fullText.match(/[\w.-]+@[\w.-]+\.\w+/) || [])[0] || "",
+    phone: (fullText.match(/\+?[\d\s\-()]{10,}/) || [])[0]?.trim() || "",
     location: "",
-    linkedin: (htmlContent.match(/linkedin\.com\/in\/[\w-]+/) || [])[0] || "",
+    linkedin: (fullText.match(/linkedin\.com\/in\/[\w-]+/) || [])[0] || "",
     website: "",
   };
   
-  // Extract summary/professional summary
-  const summarySection = findSection(htmlContent, ['Summary', 'Professional Summary', 'Profile', 'About', 'Objective']);
-  const summary = stripHtml(summarySection).trim().slice(0, 500);
+  // Extract summary
+  const summaryLines = findSectionContent(sectionPatterns.summary);
+  const summary = summaryLines.filter(l => !l.startsWith('•')).join(' ').slice(0, 500);
   
   // Extract experience
-  const experienceSection = findSection(htmlContent, ['Experience', 'Work Experience', 'Employment', 'Professional Experience']);
+  const expLines = findSectionContent(sectionPatterns.experience);
   const experienceItems = [];
-  if (experienceSection) {
-    // Try to parse experience items from list items or paragraphs
-    const expDiv = document.createElement('div');
-    expDiv.innerHTML = experienceSection;
+  let currentExp = null;
+  
+  for (const line of expLines) {
+    // Check if this is a job header line (contains date pattern)
+    const hasDate = /\d{4}/.test(line) || /present/i.test(line);
+    const isBullet = line.startsWith('•') || line.startsWith('-') || line.startsWith('*');
     
-    // Look for job entries (usually strong/b for title, followed by company)
-    const strongElements = expDiv.querySelectorAll('strong, b');
-    let currentExp = null;
-    
-    strongElements.forEach((el, index) => {
-      const text = el.textContent.trim();
-      // Check if this looks like a job title (not a bullet point)
-      if (text.length > 3 && text.length < 100 && !text.startsWith('•')) {
-        if (currentExp) experienceItems.push(currentExp);
-        currentExp = {
-          title: text,
-          company: "",
-          location: "",
-          start_date: "",
-          end_date: "",
-          bullets: []
-        };
-        
-        // Try to get company from next sibling text
-        let nextText = el.nextSibling?.textContent || "";
-        if (nextText.includes('|') || nextText.includes(',')) {
-          const parts = nextText.split(/[|,]/);
-          currentExp.company = parts[0]?.trim() || "";
-        }
+    if (hasDate && !isBullet && line.length > 15) {
+      // This looks like a job header
+      if (currentExp) experienceItems.push(currentExp);
+      
+      // Parse the job header
+      let title = "";
+      let company = "";
+      let startDate = "";
+      let endDate = "";
+      
+      // Extract dates
+      const dateMatch = line.match(/(\w{3,9}\s+\d{4}|\d{4})\s*[-–—]\s*(Present|\w{3,9}\s+\d{4}|\d{4})/i);
+      let remaining = line;
+      if (dateMatch) {
+        startDate = dateMatch[1];
+        endDate = dateMatch[2];
+        remaining = line.replace(dateMatch[0], '').trim();
+      }
+      
+      // Parse title and company
+      // Pattern: "Title, Company" or "Title | Company" or "Title at Company"
+      if (remaining.includes('|')) {
+        const parts = remaining.split('|').map(p => p.trim());
+        title = parts[0];
+        company = parts[1];
+      } else if (remaining.includes(',')) {
+        const commaIdx = remaining.indexOf(',');
+        title = remaining.substring(0, commaIdx).trim();
+        company = remaining.substring(commaIdx + 1).trim();
+      } else if (/\s+at\s+/i.test(remaining)) {
+        const parts = remaining.split(/\s+at\s+/i);
+        title = parts[0].trim();
+        company = parts[1]?.trim() || "";
+      } else {
+        title = remaining;
+      }
+      
+      currentExp = {
+        title: title || "Professional",
+        company: company,
+        location: "",
+        start_date: startDate,
+        end_date: endDate,
+        bullets: []
+      };
+    } else if (currentExp && (isBullet || line.length > 20)) {
+      // Add as bullet point
+      currentExp.bullets.push(line.replace(/^[-•*]\s*/, ''));
+    }
+  }
+  if (currentExp) experienceItems.push(currentExp);
+  
+  // Extract education
+  const eduLines = findSectionContent(sectionPatterns.education);
+  const educationItems = [];
+  for (let i = 0; i < eduLines.length; i++) {
+    const line = eduLines[i];
+    if (line.length > 5 && !line.startsWith('•')) {
+      const yearMatch = line.match(/\d{4}/);
+      educationItems.push({
+        degree: line.replace(/\d{4}.*$/, '').trim(),
+        school: eduLines[i + 1]?.startsWith('•') ? "" : eduLines[i + 1] || "",
+        year: yearMatch ? yearMatch[0] : "",
+        gpa: ""
+      });
+      if (eduLines[i + 1] && !eduLines[i + 1].startsWith('•')) i++;
+    }
+  }
+  
+  // Extract skills
+  const skillLines = findSectionContent(sectionPatterns.skills);
+  const skillsList = [];
+  for (const line of skillLines) {
+    // Split by common delimiters
+    const items = line.split(/[,•|]/).map(s => s.trim()).filter(s => s.length > 1 && s.length < 50);
+    items.forEach((skill, i) => {
+      if (skill && !skillsList.find(s => s.name.toLowerCase() === skill.toLowerCase())) {
+        skillsList.push({ name: skill, level: Math.max(60, 95 - skillsList.length * 5) });
+      }
+    });
+  }
+  
+  // Extract certifications
+  const certLines = findSectionContent(sectionPatterns.certifications);
+  const certList = certLines.filter(l => l.length > 3 && !l.startsWith('•')).slice(0, 5);
+  
+  // Extract languages
+  const langLines = findSectionContent(sectionPatterns.languages);
+  const langList = [];
+  for (const line of langLines) {
+    if (line.length > 2) {
+      const parts = line.split(/[-–:]/);
+      langList.push({
+        name: parts[0]?.trim() || line,
+        level: parts[1]?.trim() || "Professional"
+      });
+    }
+  }
+  
+  return {
+    name,
+    title: experienceItems[0]?.title || "Professional",
+    summary,
+    contact,
+    photo: photo || null,
+    skills: skillsList.slice(0, 8),
+    softSkills: [],
+    hobbies: hobbies || [],
+    education: educationItems.slice(0, 3),
+    certifications: certList,
+    languages: langList.slice(0, 4),
+    experience: experienceItems.slice(0, 5),
+  };
+};
       }
     });
     if (currentExp) experienceItems.push(currentExp);
