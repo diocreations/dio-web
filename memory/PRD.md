@@ -5,6 +5,47 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Professional Resume Templates with Photo ✅
+**Date: Mar 4, 2025**
+
+**Features Implemented:**
+1. **3 New Professional Templates** - Two-column layout with photo support
+   - **Professional** (Lavender accent) - Skill bars, hobbies tags, sidebar layout
+   - **Corporate Blue** - Same layout with blue accent
+   - **Clean Minimal** - Two-column without skill bars, cleaner look
+
+2. **Photo Upload** - Required for professional templates
+   - Added to Personal Info step (Step 1)
+   - Auto-resize to 300px max
+   - Circular crop display
+   - Validation: Templates requiring photo can't be selected without uploading
+
+3. **Hobbies Field** - New field in "More" step
+   - Tag-style input with pill-shaped badges
+   - Displayed in sidebar for professional templates
+
+4. **Resume Builder Improvements**
+   - Now 8 steps (added "Template" step between More and Preview)
+   - Template selection with visual preview
+   - "Requires photo" indicator for professional templates
+   - PDF + DOCX export
+
+**New Files:**
+- `/app/frontend/src/components/resume/ProfessionalTemplate.jsx` - Two-column template component
+- `/app/frontend/src/components/resume/constants.js` - Updated with 3 new templates
+
+**Files Modified:**
+- `/app/frontend/src/pages/ResumeBuilderPage.jsx` - Photo upload, hobbies, template step
+- `/app/frontend/src/components/resume/ResumePreview.jsx` - Routes to ProfessionalTemplate
+
+**Template Features:**
+| Feature | Professional | Corporate Blue | Clean Minimal |
+|---------|-------------|----------------|---------------|
+| Photo | ✅ Required | ✅ Required | ✅ Required |
+| Skill Bars | ✅ Yes | ✅ Yes | ❌ No |
+| Hobbies Tags | ✅ Yes | ✅ Yes | ✅ Yes |
+| Two-Column | ✅ Yes | ✅ Yes | ✅ Yes |
+
 ### Homepage Layout & Client Logos ✅
 **Date: Mar 4, 2025**
 
