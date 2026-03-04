@@ -199,28 +199,100 @@ const parseResumeData = (text, personalInfo, skills, education, experience, cert
       
       for (const line of lines) {
         const trimmed = line.trim();
-        // Check if this line looks like a job header (contains | and date pattern)
-        if (trimmed.includes('|') && /\d{4}/.test(trimmed)) {
-          if (currentPlainExp) experienceItems.push(currentPlainExp);
+        
+        // Skip empty lines
+        if (!trimmed) continue;
+        
+        // Check if this line looks like a job header
+        // Pattern 1: "Title | Company | Date" format
+        // Pattern 2: "Title, Company Date - Present" format
+        // Pattern 3: "Senior AEM Developer, Tata Consultancy Services (TCS) Feb 2021 – Present"
+        const isJobHeader = (
+          // Contains date pattern (month year or just year)
+          (/\d{4}/.test(trimmed) || /present/i.test(trimmed)) &&
+          // Contains some separator or company indicator
+          (trimmed.includes('|') || trimmed.includes(',') || /\(.*\)/.test(trimmed) || /(at|@)\s/i.test(trimmed)) &&
+          // Is not too short (job title + company + date)
+          trimmed.length > 20 &&
+          // Is not a bullet point
+          !trimmed.startsWith('•') && !trimmed.startsWith('-') && !trimmed.startsWith('*')
+        );
+        
+        if (isJobHeader) {
+          if (currentPlainExp && currentPlainExp.title) {
+            experienceItems.push(currentPlainExp);
+          }
           
-          // Parse "Title | Company | Date" format
-          const parts = trimmed.split('|').map(p => p.trim());
-          const dateMatch = trimmed.match(/(\w+\s+\d{4})\s*[-–]\s*(Present|\w+\s+\d{4})/i);
+          // Parse different formats
+          let title = "";
+          let company = "";
+          let startDate = "";
+          let endDate = "";
+          
+          // Extract date first (common pattern at the end)
+          const dateMatch = trimmed.match(/(\w{3,9}\s+\d{4}|\d{4})\s*[-–—]\s*(Present|\w{3,9}\s+\d{4}|\d{4})/i);
+          let withoutDate = trimmed;
+          if (dateMatch) {
+            startDate = dateMatch[1];
+            endDate = dateMatch[2];
+            withoutDate = trimmed.replace(dateMatch[0], '').trim();
+          }
+          
+          // Check for pipe separator
+          if (withoutDate.includes('|')) {
+            const parts = withoutDate.split('|').map(p => p.trim());
+            title = parts[0] || "";
+            company = parts[1] || "";
+          } 
+          // Check for parentheses (company abbreviation pattern)
+          else if (/\(.*\)/.test(withoutDate)) {
+            const parenMatch = withoutDate.match(/^(.+?),\s*(.+?\(.*?\))/);
+            if (parenMatch) {
+              title = parenMatch[1].trim();
+              company = parenMatch[2].trim();
+            } else {
+              // Try splitting by comma
+              const commaIdx = withoutDate.indexOf(',');
+              if (commaIdx > 0) {
+                title = withoutDate.substring(0, commaIdx).trim();
+                company = withoutDate.substring(commaIdx + 1).trim();
+              } else {
+                title = withoutDate;
+              }
+            }
+          }
+          // Check for comma separator
+          else if (withoutDate.includes(',')) {
+            const commaIdx = withoutDate.indexOf(',');
+            title = withoutDate.substring(0, commaIdx).trim();
+            company = withoutDate.substring(commaIdx + 1).trim();
+          }
+          // Check for " at " pattern
+          else if (/\s+at\s+/i.test(withoutDate)) {
+            const atParts = withoutDate.split(/\s+at\s+/i);
+            title = atParts[0].trim();
+            company = atParts[1]?.trim() || "";
+          }
+          else {
+            title = withoutDate;
+          }
           
           currentPlainExp = {
-            title: parts[0] || "Professional",
-            company: parts[1] || "",
+            title: title || "Professional",
+            company: company,
             location: "",
-            start_date: dateMatch ? dateMatch[1] : "",
-            end_date: dateMatch ? dateMatch[2] : "",
+            start_date: startDate,
+            end_date: endDate,
             bullets: []
           };
         } else if (currentPlainExp && trimmed.length > 10) {
-          // This is a bullet point
+          // This is a bullet point - only add if we have a current experience
           currentPlainExp.bullets.push(trimmed.replace(/^[-•*]\s*/, ''));
         }
       }
-      if (currentPlainExp) experienceItems.push(currentPlainExp);
+      if (currentPlainExp && currentPlainExp.title) {
+        experienceItems.push(currentPlainExp);
+      }
       
       // If still no experience found, create a generic one
       if (experienceItems.length === 0 && plainExp.length > 20) {
