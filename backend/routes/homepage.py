@@ -341,3 +341,74 @@ async def update_promoted_sections(sections: list, user: dict = Depends(get_curr
             section["order"] = i
         await db.promoted_sections.insert_many(sections)
     return {"message": "Promoted sections updated"}
+
+
+# ============ CLIENT LOGOS ============
+
+# Default client logos for initial setup
+_DEFAULT_CLIENT_LOGOS = [
+    {"logo_id": "logo_google", "name": "Google", "image_url": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png", "url": "", "is_active": True, "order": 0},
+    {"logo_id": "logo_microsoft", "name": "Microsoft", "image_url": "https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31", "url": "", "is_active": True, "order": 1},
+    {"logo_id": "logo_amazon", "name": "Amazon", "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/200px-Amazon_logo.svg.png", "url": "", "is_active": True, "order": 2},
+    {"logo_id": "logo_meta", "name": "Meta", "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Meta_Platforms_Inc._logo.svg/200px-Meta_Platforms_Inc._logo.svg.png", "url": "", "is_active": True, "order": 3},
+    {"logo_id": "logo_apple", "name": "Apple", "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/80px-Apple_logo_black.svg.png", "url": "", "is_active": True, "order": 4},
+]
+
+
+@router.get("/homepage/client-logos")
+async def get_client_logos():
+    """Get client logos for trust section on homepage"""
+    logos = await db.client_logos.find({"is_active": True}, {"_id": 0}).sort("order", 1).to_list(20)
+    return logos
+
+
+@router.get("/homepage/client-logos/all")
+async def get_all_client_logos(user: dict = Depends(get_current_user)):
+    """Get all client logos for admin (including inactive)"""
+    logos = await db.client_logos.find({}, {"_id": 0}).sort("order", 1).to_list(50)
+    if not logos:
+        # Initialize with default logos
+        for logo in _DEFAULT_CLIENT_LOGOS:
+            await db.client_logos.insert_one({**logo})
+        logos = list(_DEFAULT_CLIENT_LOGOS)
+    return logos
+
+
+@router.post("/homepage/client-logos")
+async def create_client_logo(logo: dict, user: dict = Depends(get_current_user)):
+    """Create a new client logo"""
+    import uuid as _uuid
+    logo["logo_id"] = f"logo_{_uuid.uuid4().hex[:8]}"
+    logo["is_active"] = logo.get("is_active", True)
+    logo["order"] = logo.get("order", 0)
+    await db.client_logos.insert_one(logo)
+    logo.pop("_id", None)
+    return logo
+
+
+@router.put("/homepage/client-logos/{logo_id}")
+async def update_client_logo(logo_id: str, update: dict, user: dict = Depends(get_current_user)):
+    """Update a client logo"""
+    update.pop("_id", None)
+    update.pop("logo_id", None)
+    result = await db.client_logos.update_one({"logo_id": logo_id}, {"$set": update})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Client logo not found")
+    return await db.client_logos.find_one({"logo_id": logo_id}, {"_id": 0})
+
+
+@router.delete("/homepage/client-logos/{logo_id}")
+async def delete_client_logo(logo_id: str, user: dict = Depends(get_current_user)):
+    """Delete a client logo"""
+    result = await db.client_logos.delete_one({"logo_id": logo_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Client logo not found")
+    return {"message": "Client logo deleted"}
+
+
+@router.put("/homepage/client-logos/reorder")
+async def reorder_client_logos(data: dict, user: dict = Depends(get_current_user)):
+    """Reorder client logos"""
+    for idx, logo_id in enumerate(data.get("order", [])):
+        await db.client_logos.update_one({"logo_id": logo_id}, {"$set": {"order": idx}})
+    return {"message": "Client logos reordered"}
