@@ -72,45 +72,48 @@ const CURRENCY_SYMBOLS = {
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currency, setCurrency] = useState("EUR");
+  const [currency, setCurrency] = useState("USD");
+  const [currencySymbol, setCurrencySymbol] = useState("$");
+  const [currencyRate, setCurrencyRate] = useState(1);
   const [currencyRates, setCurrencyRates] = useState({ EUR: 1 });
+  const [allCurrencies, setAllCurrencies] = useState([]);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [customerInfo, setCustomerInfo] = useState({ name: "", email: "" });
 
-  // Detect user's currency based on timezone/locale
+  // Fetch visitor's currency from geo-detection API
   useEffect(() => {
-    const detectCurrency = () => {
+    const fetchGeoCurrency = async () => {
       try {
-        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const locale = navigator.language || "en-US";
-        
-        // Map timezones/locales to currencies
-        if (timezone.includes("America") || locale.startsWith("en-US")) return "USD";
-        if (timezone.includes("Europe/London") || locale.startsWith("en-GB")) return "GBP";
-        if (timezone.includes("Asia/Kolkata") || timezone.includes("Asia/Calcutta") || locale.startsWith("hi") || locale.startsWith("en-IN")) return "INR";
-        if (timezone.includes("Asia/Dubai") || timezone.includes("Asia/Muscat")) return "AED";
-        if (timezone.includes("Australia")) return "AUD";
-        if (timezone.includes("Canada") || locale.startsWith("en-CA")) return "CAD";
-        if (timezone.includes("Asia/Singapore")) return "SGD";
-        if (timezone.includes("Europe/Zurich")) return "CHF";
-        if (timezone.includes("Europe")) return "EUR";
-        
-        return "EUR"; // Default
-      } catch {
-        return "EUR";
+        const res = await fetch(`${API_URL}/api/geo/currency`);
+        if (res.ok) {
+          const data = await res.json();
+          setCurrency(data.currency || "USD");
+          setCurrencySymbol(data.currency_symbol || "$");
+          setCurrencyRate(data.currency_rate || 1);
+          setAllCurrencies(data.all_currencies || Object.keys(CURRENCY_SYMBOLS));
+        }
+      } catch (err) {
+        console.error("Failed to fetch geo currency:", err);
+        // Fallback to USD
+        setCurrency("USD");
+        setCurrencySymbol("$");
       }
     };
-
-    setCurrency(detectCurrency());
+    fetchGeoCurrency();
   }, []);
 
-  // Fetch currency rates
+  // Fetch currency rates for manual currency switching
   useEffect(() => {
-    fetch(`${API_URL}/api/currency-rates`)
+    fetch(`${API_URL}/api/admin/currency/settings`)
       .then((res) => res.json())
-      .then((data) => setCurrencyRates(data.rates))
+      .then((data) => {
+        if (data.rates) setCurrencyRates(data.rates);
+        if (data.symbols) {
+          // Update symbol when currency changes manually
+        }
+      })
       .catch(console.error);
   }, []);
 
@@ -128,10 +131,18 @@ const ProductsPage = () => {
       });
   }, []);
 
+  // Handle manual currency change
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+    setCurrencySymbol(CURRENCY_SYMBOLS[newCurrency] || newCurrency);
+    const rate = currencyRates[newCurrency] || 1;
+    setCurrencyRate(rate);
+  };
+
   const convertPrice = (basePrice) => {
     if (!basePrice) return null;
-    const rate = currencyRates[currency] || 1;
-    return (parseFloat(basePrice) * rate).toFixed(2);
+    // Use the currency rate from geo-detection or manual selection
+    return (parseFloat(basePrice) * currencyRate).toFixed(2);
   };
 
   const handleBuyClick = (product) => {
