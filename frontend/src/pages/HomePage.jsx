@@ -100,8 +100,8 @@ const accentColors = {
   },
 };
 
-// Trust logos
-const trustLogos = [
+// Trust logos - fallback if no client logos from API
+const defaultTrustLogos = [
   { name: "User Focused", icon: Users },
   { name: "Premium Work", icon: Award },
   { name: "Award-Winning", icon: Award },
@@ -118,6 +118,7 @@ const HomePage = () => {
   const [blogPosts, setBlogPosts] = useState([]);
   const [homepageContent, setHomepageContent] = useState(null);
   const [promotedSections, setPromotedSections] = useState([]);
+  const [clientLogos, setClientLogos] = useState([]);
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
