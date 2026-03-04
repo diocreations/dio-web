@@ -3,7 +3,32 @@
 ## Original Problem Statement
 Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide features to make it deploy-ready.
 
-## Latest Features (Mar 2025)
+## Latest Updates (Mar 2025)
+
+### Products External Link & Currency Fix ✅
+**Date: Mar 4, 2025**
+
+**Issues Fixed:**
+1. **Currency Display Issue** - Products page was using client-side timezone detection instead of server-side geo-detection
+   - Now uses `/api/geo/currency` endpoint for accurate visitor currency detection
+   - Default fallback is USD for unrecognized regions
+   - Prices convert correctly based on admin-configured rates
+
+2. **External Link for Products** - Added external URL support with new tab option
+   - Admin can add external URL to redirect users instead of checkout
+   - Toggle to open link in new tab
+   - If external URL set, shows "Learn More" button instead of "Buy Now"
+
+**Files Modified:**
+- `/app/frontend/src/pages/ProductsPage.jsx` - Geo currency fetch, external link handling
+- `/app/frontend/src/pages/admin/AdminProducts.jsx` - External URL input, new tab toggle
+- `/app/backend/routes/payments.py` - Currency rates now from admin settings
+
+**Hero Carousel External Link** (Already implemented):
+- Primary and Secondary CTA buttons have "Open in new tab" checkbox
+- Admin can set external URLs that open in new tabs
+
+### Previous Features (Mar 2025)
 
 ### Newsletter System (NEW) ✅
 Complete email newsletter system with:
