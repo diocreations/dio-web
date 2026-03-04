@@ -5,6 +5,26 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Resume Optimizer - Professional Templates Bug Fix ✅
+**Date: Mar 4, 2025**
+
+**Bug Fixed:**
+- Professional templates were showing blank content when used in Resume Optimizer
+- Root cause: `parseResumeData` function only parsed HTML format but Resume Optimizer uses plain text with ALL CAPS headers
+
+**Features Added:**
+1. **Photo Upload in Resume Optimizer** - Appears when professional template is selected
+2. **Template Badges** - "Photo" indicator on professional templates in selector
+3. **Content Parsing** - Enhanced parser for:
+   - ALL CAPS section headers (EXPERIENCE, SKILLS, etc.)
+   - Contact info extraction (email, phone, LinkedIn)
+   - Skills from "Category: skill1, skill2" format
+   - Experience from "Title | Company | Date" format
+
+**Files Modified:**
+- `/app/frontend/src/pages/ResumeOptimizerPage.jsx` - Added photo upload UI & handler
+- `/app/frontend/src/components/resume/ProfessionalTemplate.jsx` - Enhanced parseResumeData
+
 ### Professional Resume Templates with Photo ✅
 **Date: Mar 4, 2025**
 
