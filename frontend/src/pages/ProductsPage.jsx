@@ -216,14 +216,14 @@ const ProductsPage = () => {
               {/* Currency Selector */}
               <div className="flex items-center justify-center gap-3">
                 <span className="text-sm text-muted-foreground">Currency:</span>
-                <Select value={currency} onValueChange={setCurrency}>
+                <Select value={currency} onValueChange={handleCurrencyChange}>
                   <SelectTrigger className="w-32" data-testid="currency-selector">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.keys(CURRENCY_SYMBOLS).map((curr) => (
+                    {(allCurrencies.length > 0 ? allCurrencies : Object.keys(CURRENCY_SYMBOLS)).map((curr) => (
                       <SelectItem key={curr} value={curr}>
-                        {CURRENCY_SYMBOLS[curr]} {curr}
+                        {CURRENCY_SYMBOLS[curr] || curr} {curr}
                       </SelectItem>
                     ))}
                   </SelectContent>
