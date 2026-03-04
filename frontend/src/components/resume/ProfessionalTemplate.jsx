@@ -63,6 +63,7 @@ const parseResumeData = (text, personalInfo, skills, education, experience, cert
   
   // Helper to find section content
   const findSection = (html, sectionNames) => {
+    // First try HTML patterns
     for (const name of sectionNames) {
       // Try to find h2/h3/strong with section name
       const patterns = [
@@ -75,6 +76,49 @@ const parseResumeData = (text, personalInfo, skills, education, experience, cert
         if (match) return match[1];
       }
     }
+    
+    // If no HTML patterns found, try plain text with ALL CAPS headers
+    const plainText = stripHtml(html);
+    const lines = plainText.split('\n');
+    
+    for (const name of sectionNames) {
+      const upperName = name.toUpperCase();
+      // Find the line index where this section starts
+      let startIdx = -1;
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        // Check if line is ALL CAPS and contains the section name
+        if (line === upperName || 
+            line === name.toUpperCase().replace(/\s+/g, ' ') ||
+            (line.toUpperCase() === line && line.length > 3 && line.includes(upperName.split(' ')[0]))) {
+          startIdx = i;
+          break;
+        }
+      }
+      
+      if (startIdx !== -1) {
+        // Find the next section header (ALL CAPS line)
+        let endIdx = lines.length;
+        for (let i = startIdx + 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          // Check if this is another ALL CAPS header (section boundary)
+          if (line.length > 3 && line.length < 50 && 
+              line === line.toUpperCase() && 
+              /^[A-Z][A-Z\s\/&,]+$/.test(line) &&
+              !line.includes('@') && !line.includes('|')) {
+            endIdx = i;
+            break;
+          }
+        }
+        
+        // Extract content between start and end
+        const sectionContent = lines.slice(startIdx + 1, endIdx).join('\n');
+        if (sectionContent.trim()) {
+          return sectionContent;
+        }
+      }
+    }
+    
     return '';
   };
   
