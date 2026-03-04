@@ -1023,8 +1023,8 @@ const ResumeBuilderPage = () => {
                     </Button>
                   )}
                   
-                  {step < 7 ? (
-                    <Button onClick={() => setStep(Math.min(7, step + 1))} className="gap-2" data-testid="next-step-btn">
+                  {step < 8 ? (
+                    <Button onClick={() => setStep(Math.min(8, step + 1))} className="gap-2" data-testid="next-step-btn">
                       Next <ChevronRight size={16} />
                     </Button>
                   ) : (
