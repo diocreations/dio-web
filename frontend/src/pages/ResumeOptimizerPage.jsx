@@ -1114,12 +1114,30 @@ const ResumeOptimizerPage = () => {
                               <button key={vt.id} onClick={() => setActiveVisualTemplate(vt.id)} data-testid={`visual-tpl-${vt.id}`}
                                 className={`flex-shrink-0 rounded-lg border-2 p-2 transition-all text-left w-32 ${activeVisualTemplate === vt.id ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "border-slate-200 hover:border-slate-300"}`}>
                                 <div className="h-16 rounded border bg-white mb-1.5 overflow-hidden p-1.5 relative" style={{ borderTopWidth: "2px", borderTopColor: vt.preview.accent }}>
-                                  <div className="h-1.5 w-12 rounded-full" style={{ backgroundColor: vt.preview.accent }} />
-                                  <div className="h-[2px] w-full bg-slate-100 rounded-full mt-1.5" />
-                                  <div className="h-[2px] w-4/5 bg-slate-100 rounded-full mt-1" />
+                                  {vt.hasPhoto ? (
+                                    <div className="flex items-center gap-1">
+                                      <div className="w-6 h-6 rounded-full" style={{ backgroundColor: vt.preview.accent + "40" }} />
+                                      <div className="space-y-1 flex-1">
+                                        <div className="h-1.5 w-10 rounded-full" style={{ backgroundColor: vt.preview.accent }} />
+                                        <div className="h-1 w-6 rounded-full bg-slate-200" />
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <div className="h-1.5 w-12 rounded-full" style={{ backgroundColor: vt.preview.accent }} />
+                                      <div className="h-[2px] w-full bg-slate-100 rounded-full mt-1.5" />
+                                      <div className="h-[2px] w-4/5 bg-slate-100 rounded-full mt-1" />
+                                    </>
+                                  )}
                                 </div>
                                 <p className="text-xs font-semibold truncate">{vt.name}</p>
                                 <p className="text-[10px] text-muted-foreground truncate">{vt.desc}</p>
+                                {vt.hasPhoto && (
+                                  <div className="flex items-center gap-1 mt-0.5">
+                                    <Camera size={8} className="text-primary" />
+                                    <span className="text-[8px] text-primary">Photo</span>
+                                  </div>
+                                )}
                               </button>
                             ))}
                           </div>
