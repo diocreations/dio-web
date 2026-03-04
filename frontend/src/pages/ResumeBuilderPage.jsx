@@ -425,6 +425,68 @@ const ResumeBuilderPage = () => {
     }
   };
 
+  // Photo upload handler
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please upload an image file");
+      return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be less than 5MB");
+      return;
+    }
+    
+    setUploadingPhoto(true);
+    
+    // Convert to base64 for preview (in production, upload to server)
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      // Create an image to resize
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxSize = 300;
+        let width = img.width;
+        let height = img.height;
+        
+        if (width > height) {
+          if (width > maxSize) {
+            height *= maxSize / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width *= maxSize / height;
+            height = maxSize;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        setPhoto(resizedDataUrl);
+        setUploadingPhoto(false);
+        toast.success("Photo uploaded!");
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Hobby handlers
+  const addHobby = () => {
+    if (hobbyInput.trim() && !hobbies.includes(hobbyInput.trim())) {
+      setHobbies([...hobbies, hobbyInput.trim()]);
+      setHobbyInput("");
+    }
+  };
+
   // Render step content
   const renderStepContent = () => {
     switch (step) {
