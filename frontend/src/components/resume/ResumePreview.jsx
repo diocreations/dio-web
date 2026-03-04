@@ -157,7 +157,16 @@ const ResumePreview = ({
   if (!text && !personalInfo?.name) return null;
   const tpl = templateId || "classic";
 
-  // Professional templates with photo support
+  // Rich text editing mode - always show RichEditor when editing is true
+  if (editing) {
+    return (
+      <div className="w-full h-full min-h-[600px]" data-testid="resume-editor">
+        <RichEditor value={text} onChange={onTextChange} placeholder="Edit your resume..." />
+      </div>
+    );
+  }
+
+  // Professional templates with photo support (preview mode only)
   if (tpl === "professional" || tpl === "professional-blue" || tpl === "professional-minimal") {
     return (
       <ProfessionalTemplate
@@ -174,15 +183,6 @@ const ResumePreview = ({
         summary={summary}
         fontSize={fontSize}
       />
-    );
-  }
-
-  // Rich text editing mode
-  if (editing) {
-    return (
-      <div className="w-full h-full min-h-[600px]" data-testid="resume-editor">
-        <RichEditor value={text} onChange={onTextChange} placeholder="Edit your resume..." />
-      </div>
     );
   }
 
