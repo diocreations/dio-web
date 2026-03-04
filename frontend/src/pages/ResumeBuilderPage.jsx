@@ -11,10 +11,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Briefcase, GraduationCap, Award, Code, Languages, FolderOpen,
   Sparkles, Download, FileText, Plus, Trash2, ChevronRight, ChevronLeft,
-  Save, Loader2, Eye, Wand2,
+  Save, Loader2, Eye, Wand2, Camera, Heart, Layout as LayoutIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import html2pdf from "html2pdf.js";
+import ResumePreview from "@/components/resume/ResumePreview";
+import { VISUAL_TEMPLATES } from "@/components/resume/constants";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
