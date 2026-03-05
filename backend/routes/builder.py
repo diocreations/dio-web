@@ -416,8 +416,8 @@ async def export_docx(data: dict):
 
 # ==================== PRICING ====================
 
-@router.get("/pricing")
-async def get_builder_pricing():
+@router.get("/resume-pricing")
+async def get_resume_builder_pricing():
     """Get resume builder pricing settings"""
     pricing = await db.builder_pricing.find_one({"pricing_id": "resume_builder"}, {"_id": 0})
     if not pricing:
@@ -433,8 +433,8 @@ async def get_builder_pricing():
     return pricing
 
 
-@router.put("/pricing")
-async def update_builder_pricing(data: dict, user: dict = Depends(get_current_user)):
+@router.put("/resume-pricing")
+async def update_resume_builder_pricing(data: dict, user: dict = Depends(get_current_user)):
     """Update resume builder pricing (admin only)"""
     pricing_doc = {
         "pricing_id": "resume_builder",
