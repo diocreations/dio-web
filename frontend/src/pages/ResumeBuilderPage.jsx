@@ -80,7 +80,7 @@ const ResumeBuilderPage = () => {
     if (stored) setPubUser(JSON.parse(stored));
     
     // Fetch builder pricing to check if AI features should be hidden
-    fetch(`${API_URL}/api/builder/pricing`)
+    fetch(`${API_URL}/api/builder/resume-pricing`)
       .then(r => r.json())
       .then(data => {
         setPricing(data);
