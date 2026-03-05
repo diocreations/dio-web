@@ -577,10 +577,12 @@ const ResumeBuilderPage = () => {
                 <h2 className="text-xl font-bold">Professional Summary</h2>
                 <p className="text-muted-foreground text-sm">A brief overview of your career highlights</p>
               </div>
-              <Button variant="outline" size="sm" onClick={generateSummary} disabled={generating} className="gap-2" data-testid="generate-summary-btn">
-                {generating ? <Loader2 className="animate-spin" size={16} /> : <Wand2 size={16} />}
-                AI Generate
-              </Button>
+              {aiEnabled && (
+                <Button variant="outline" size="sm" onClick={generateSummary} disabled={generating} className="gap-2" data-testid="generate-summary-btn">
+                  {generating ? <Loader2 className="animate-spin" size={16} /> : <Wand2 size={16} />}
+                  AI Generate
+                </Button>
+              )}
             </div>
             <Textarea 
               value={summary} 
