@@ -32,7 +32,7 @@ const AdminResumeBuilder = () => {
     setLoading(true);
     try {
       // Fetch pricing settings
-      const pricingRes = await fetch(`${API_URL}/api/builder/pricing`);
+      const pricingRes = await fetch(`${API_URL}/api/builder/resume-pricing`);
       if (pricingRes.ok) {
         const data = await pricingRes.json();
         if (data.pricing_id) {
