@@ -1,0 +1,78 @@
+{
+  "summary": "Iteration 31: Admin pricing toggle feature for Resume Builder tested and bug fixed. The pricing toggle now correctly controls AI button visibility - when pricing is disabled (default), AI buttons are visible; when enabled, AI buttons are hidden.",
+
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+
+  "bug_fixed": {
+    "description": "Admin pricing toggle was using 'pricing_enabled' field but backend expected 'enabled' field",
+    "file": "/app/frontend/src/pages/admin/AdminResumeBuilder.jsx",
+    "fix": "Changed state field from 'pricing_enabled' to 'enabled' to match backend API",
+    "lines_changed": [18-24, 170-177]
+  },
+
+  "passed_tests": [
+    "GET /api/builder/resume-pricing returns 200",
+    "GET /api/builder/resume-pricing returns correct JSON format (pricing_id, enabled, price, currency)",
+    "Default pricing is disabled (enabled: false)",
+    "Pricing includes product_name and description",
+    "POST /api/builder/generate/summary endpoint exists",
+    "POST /api/builder/generate/experience endpoint exists",
+    "POST /api/builder/generate/skills endpoint exists",
+    "POST /api/builder/generate/summary validates job_title requirement",
+    "POST /api/builder/export/docx endpoint exists",
+    "POST /api/builder/export/docx returns base64 encoded file",
+    "Resume Builder: AI Generate Summary button VISIBLE when pricing disabled",
+    "Resume Builder: AI Generate Bullets button VISIBLE when pricing disabled",
+    "Resume Builder: AI Suggest Skills button VISIBLE when pricing disabled",
+    "Admin Resume Builder: Pricing tab accessible",
+    "Admin Resume Builder: Pricing toggle visible and functional",
+    "Admin Resume Builder: Save Pricing button works",
+    "Resume Builder: AI buttons HIDDEN when pricing enabled",
+    "Admin Resume Builder: Pricing toggle correctly updates backend"
+  ],
+
+  "test_report_links": [
+    "/app/backend/tests/test_resume_builder_pricing.py",
+    "/app/test_reports/pytest/resume_builder_pricing_results.xml"
+  ],
+
+  "action_items": [],
+
+  "critical_code_review_comments": [
+    "ResumeBuilderPage.jsx: Pricing fetch logic correctly handles enabled=false and undefined cases (line 89)",
+    "AdminResumeBuilder.jsx: Fixed field name mismatch - now uses 'enabled' to match backend API",
+    "builder.py: GET /api/builder/resume-pricing returns correct default when no pricing exists",
+    "builder.py: PUT /api/builder/resume-pricing correctly updates pricing with upsert"
+  ],
+
+  "updated_files": [
+    "/app/frontend/src/pages/admin/AdminResumeBuilder.jsx"
+  ],
+
+  "success_rate": {
+    "backend": "100% (10/10 tests passed)",
+    "frontend": "100% (8/8 UI tests passed)"
+  },
+
+  "test_credentials": {
+    "admin_email": "admin@diocreations.com",
+    "admin_password": "adminpassword"
+  },
+
+  "seed_data_creation": "None - used existing admin credentials",
+
+  "retest_needed": false,
+
+  "should_main_agent_self_test": false,
+
+  "context_for_next_testing_agent": "Iteration 31 tested the admin pricing toggle feature for Resume Builder. A bug was found and fixed where the admin page was using 'pricing_enabled' but the backend expected 'enabled'. The fix was applied to AdminResumeBuilder.jsx. All tests pass: when pricing is disabled (default), AI buttons (Generate Summary, Generate Bullets, AI Suggest Skills) are visible; when pricing is enabled via admin toggle, AI buttons are hidden. The /api/builder/resume-pricing endpoint returns correct format with enabled, price, currency, product_name, description fields."
+}
