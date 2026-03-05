@@ -49,7 +49,7 @@ const AdminResumeBuilder = () => {
     setSaving(true);
     try {
       const token = localStorage.getItem("admin_token");
-      const res = await fetch(`${API_URL}/api/builder/pricing`, {
+      const res = await fetch(`${API_URL}/api/builder/resume-pricing`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
