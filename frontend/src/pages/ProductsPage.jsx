@@ -456,7 +456,7 @@ const ProductsPage = () => {
           <DialogHeader>
             <DialogTitle>Complete Your Purchase</DialogTitle>
             <DialogDescription>
-              {selectedProduct?.title} - {currencySymbol}{convertPrice(selectedProduct?.price)}
+              {selectedProduct?.title} - {currencySymbol}{convertPrice(selectedProduct?.price, selectedProduct?.currency || "EUR")}
               {selectedProduct?.price_unit ? `/${selectedProduct.price_unit}` : ""}
             </DialogDescription>
           </DialogHeader>
