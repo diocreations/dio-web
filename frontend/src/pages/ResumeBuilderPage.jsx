@@ -38,6 +38,8 @@ const ResumeBuilderPage = () => {
   const [generating, setGenerating] = useState(false);
   const [draftId, setDraftId] = useState(null);
   const [pubUser, setPubUser] = useState(null);
+  const [pricing, setPricing] = useState(null);
+  const [aiEnabled, setAiEnabled] = useState(true); // AI features visibility
   
   // Form state
   const [personalInfo, setPersonalInfo] = useState({
