@@ -643,9 +643,11 @@ const ResumeBuilderPage = () => {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <Label>Key Achievements / Responsibilities</Label>
-                      <Button variant="ghost" size="sm" onClick={() => generateBullets(expIndex)} disabled={generating} className="gap-1 text-xs">
-                        <Wand2 size={14} /> AI Generate
-                      </Button>
+                      {aiEnabled && (
+                        <Button variant="ghost" size="sm" onClick={() => generateBullets(expIndex)} disabled={generating} className="gap-1 text-xs">
+                          <Wand2 size={14} /> AI Generate
+                        </Button>
+                      )}
                     </div>
                     {exp.bullets.map((bullet, bIndex) => (
                       <div key={bIndex} className="flex gap-2 mb-2">
