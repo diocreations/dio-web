@@ -140,10 +140,23 @@ const ProductsPage = () => {
     setCurrencyRate(rate);
   };
 
-  const convertPrice = (basePrice) => {
+  // Convert price from product's native currency to display currency
+  const convertPrice = (basePrice, productCurrency = "EUR") => {
     if (!basePrice) return null;
-    // Use the currency rate from geo-detection or manual selection
-    return (parseFloat(basePrice) * currencyRate).toFixed(2);
+    
+    const price = parseFloat(basePrice);
+    
+    // If product currency matches display currency, no conversion needed
+    if (productCurrency === currency) {
+      return price.toFixed(2);
+    }
+    
+    // Convert from product currency to EUR (base), then to display currency
+    const productToEurRate = currencyRates[productCurrency] || 1;
+    const priceInEur = price / productToEurRate;
+    const displayRate = currencyRates[currency] || 1;
+    
+    return (priceInEur * displayRate).toFixed(2);
   };
 
   const handleBuyClick = (product) => {
