@@ -74,10 +74,21 @@ const ResumeBuilderPage = () => {
   const [selectedTemplate, setSelectedTemplate] = useState("classic");
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
-  // Check for logged in user
+  // Check for logged in user and fetch pricing settings
   useEffect(() => {
     const stored = localStorage.getItem("pub_user");
     if (stored) setPubUser(JSON.parse(stored));
+    
+    // Fetch builder pricing to check if AI features should be hidden
+    fetch(`${API_URL}/api/builder/pricing`)
+      .then(r => r.json())
+      .then(data => {
+        setPricing(data);
+        // If pricing is enabled, hide AI features for non-paying users
+        // If pricing is disabled (enabled: false), show all AI features
+        setAiEnabled(data?.enabled === false || data?.enabled === undefined);
+      })
+      .catch(() => setAiEnabled(true)); // Default to enabled if fetch fails
   }, []);
 
   // Auto-save draft
