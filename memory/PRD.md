@@ -5,6 +5,23 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Product Pricing Currency Conversion Fixed ✅
+**Date: Mar 5, 2025**
+
+**Bug Fixed:**
+- Products priced in INR (e.g., ₹499) were showing ₹45,159.50 (incorrectly converted from EUR)
+- **Root cause:** `convertPrice` function was applying EUR→visitor_currency conversion to ALL products regardless of their native currency
+- **Fix:** Updated conversion logic to:
+  1. If product currency = display currency → No conversion
+  2. Otherwise: Convert product currency → EUR → display currency
+
+**Example (After Fix):**
+- WaaS: 499 INR → Shows ₹499.00 when viewing in INR ✅
+- SEO Package: 499 EUR → Shows ₹45,159.50 when viewing in INR ✅
+
+**Files Modified:**
+- `/app/frontend/src/pages/ProductsPage.jsx` - Fixed `convertPrice()` function (lines 144-163)
+
 ### Dio Chatbot - Link Text Visibility Fixed ✅
 **Date: Mar 4, 2025**
 
