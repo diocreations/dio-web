@@ -975,8 +975,8 @@ const ResumeBuilderPage = () => {
               Create a professional resume in minutes. Fill in your details, let AI enhance your content, and export in PDF or DOCX.
             </p>
             
-            {/* Quick Generate Button */}
-            {step === 1 && experience[0]?.title && (
+            {/* Quick Generate Button - only shown when AI is enabled */}
+            {aiEnabled && step === 1 && experience[0]?.title && (
               <Button onClick={generateFullResume} disabled={generating} className="gap-2 mb-8" size="lg" data-testid="generate-full-btn">
                 {generating ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />}
                 AI Generate Full Resume
