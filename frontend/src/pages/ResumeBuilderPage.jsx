@@ -718,10 +718,12 @@ const ResumeBuilderPage = () => {
                 <h2 className="text-xl font-bold">Skills</h2>
                 <p className="text-muted-foreground text-sm">Add your technical and soft skills</p>
               </div>
-              <Button variant="outline" size="sm" onClick={generateSkills} disabled={generating} className="gap-2" data-testid="generate-skills-btn">
-                {generating ? <Loader2 className="animate-spin" size={16} /> : <Wand2 size={16} />}
-                AI Suggest
-              </Button>
+              {aiEnabled && (
+                <Button variant="outline" size="sm" onClick={generateSkills} disabled={generating} className="gap-2" data-testid="generate-skills-btn">
+                  {generating ? <Loader2 className="animate-spin" size={16} /> : <Wand2 size={16} />}
+                  AI Suggest
+                </Button>
+              )}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
