@@ -5,6 +5,41 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Admin Pricing Toggles Implemented ✅
+**Date: Mar 5, 2025**
+
+**Features Implemented:**
+- Admin can now control whether AI features are available for free or require payment
+- Resume Builder and Resume Optimizer both respect their respective pricing settings
+- When pricing is disabled (default): All AI features are visible and free
+- When pricing is enabled: AI features are hidden for non-paying users
+
+**Technical Changes:**
+1. **Renamed API endpoint** from `/api/builder/pricing` to `/api/builder/resume-pricing` to avoid conflict with website builder tier pricing
+2. **Resume Builder** - Conditionally hides AI buttons (Generate Summary, Generate Bullets, AI Suggest Skills, Generate Full Resume) based on `enabled` field
+3. **Admin UI** - Fixed field name mismatch (`pricing_enabled` → `enabled`) to match backend API
+
+**Files Modified:**
+- `/app/frontend/src/pages/ResumeBuilderPage.jsx` - Added pricing state, conditional AI button rendering
+- `/app/frontend/src/pages/admin/AdminResumeBuilder.jsx` - Fixed field name, updated API endpoint
+- `/app/backend/routes/builder.py` - Renamed endpoints to `/resume-pricing`
+
+**API Endpoints:**
+- `GET /api/builder/resume-pricing` - Returns pricing settings
+- `PUT /api/builder/resume-pricing` - Updates pricing settings (admin only)
+
+**Default Behavior:**
+```json
+{
+  "pricing_id": "resume_builder",
+  "enabled": false,
+  "price": 4.99,
+  "currency": "EUR",
+  "product_name": "Resume Builder Pro",
+  "description": "Create professional resumes with AI assistance"
+}
+```
+
 ### Product Pricing Currency Conversion Fixed ✅
 **Date: Mar 5, 2025**
 
