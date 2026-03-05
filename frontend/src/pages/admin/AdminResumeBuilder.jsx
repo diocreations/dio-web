@@ -16,7 +16,7 @@ const AdminResumeBuilder = () => {
   const [saving, setSaving] = useState(false);
   const [drafts, setDrafts] = useState([]);
   const [pricing, setPricing] = useState({
-    pricing_enabled: false,
+    enabled: false,
     price: 4.99,
     currency: "EUR",
     product_name: "Resume Builder Pro",
