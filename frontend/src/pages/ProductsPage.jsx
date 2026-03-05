@@ -263,7 +263,7 @@ const ProductsPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {products.map((product, index) => {
                 const IconComponent = iconMap[product.icon] || Globe;
-                const displayPrice = convertPrice(product.price);
+                const displayPrice = convertPrice(product.price, product.currency || "EUR");
                 return (
                   <motion.div
                     key={product.product_id}
