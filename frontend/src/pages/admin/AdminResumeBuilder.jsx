@@ -168,13 +168,13 @@ const AdminResumeBuilder = () => {
                     <p className="text-sm text-muted-foreground">When OFF, exports are free for all users</p>
                   </div>
                   <Switch 
-                    checked={pricing.pricing_enabled || false} 
-                    onCheckedChange={(c) => setPricing({...pricing, pricing_enabled: c})}
+                    checked={pricing.enabled || false} 
+                    onCheckedChange={(c) => setPricing({...pricing, enabled: c})}
                     data-testid="pricing-enabled-toggle"
                   />
                 </div>
 
-                {pricing.pricing_enabled && (
+                {pricing.enabled && (
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
                       <Label>Product Name</Label>
