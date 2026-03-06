@@ -336,6 +336,9 @@ async def submit_contact(data: dict):
         "name": data.get("name", ""),
         "email": data.get("email", ""),
         "phone": data.get("phone"),
+        "company": data.get("company"),
+        "service_interest": data.get("service_interest"),
+        "budget_range": data.get("budget_range"),
         "subject": data.get("subject", ""),
         "message": data.get("message", ""),
         "is_read": False,
@@ -354,9 +357,12 @@ async def submit_contact(data: dict):
             <div style="padding:24px;">
               <h2 style="color:#1a1a2e;margin:0 0 16px;font-size:18px;">New Contact Form Submission</h2>
               <table style="width:100%;border-collapse:collapse;font-size:14px;">
-                <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;width:100px;">Name</td><td style="padding:10px 0;font-weight:600;border-bottom:1px solid #f3f4f6;">{doc['name']}</td></tr>
+                <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;width:120px;">Name</td><td style="padding:10px 0;font-weight:600;border-bottom:1px solid #f3f4f6;">{doc['name']}</td></tr>
                 <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Email</td><td style="padding:10px 0;border-bottom:1px solid #f3f4f6;"><a href="mailto:{doc['email']}" style="color:#7c3aed;">{doc['email']}</a></td></tr>
                 <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Phone</td><td style="padding:10px 0;border-bottom:1px solid #f3f4f6;">{doc.get('phone') or 'N/A'}</td></tr>
+                <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Company</td><td style="padding:10px 0;border-bottom:1px solid #f3f4f6;">{doc.get('company') or 'N/A'}</td></tr>
+                <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Service Interest</td><td style="padding:10px 0;border-bottom:1px solid #f3f4f6;">{doc.get('service_interest') or 'N/A'}</td></tr>
+                <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Budget Range</td><td style="padding:10px 0;border-bottom:1px solid #f3f4f6;">{doc.get('budget_range') or 'N/A'}</td></tr>
                 <tr><td style="padding:10px 0;color:#6b7280;border-bottom:1px solid #f3f4f6;">Subject</td><td style="padding:10px 0;font-weight:600;border-bottom:1px solid #f3f4f6;">{doc['subject']}</td></tr>
               </table>
               <div style="margin-top:16px;padding:16px;background:#f8fafc;border-radius:8px;">
