@@ -243,6 +243,9 @@ const AppRouter = () => {
       <Route path="/login" element={<UserLoginPage />} />
       <Route path="/dashboard" element={<UserDashboardPage />} />
       <Route path="/cover-letter" element={<CoverLetterPage />} />
+      
+      {/* Custom Pages */}
+      <Route path="/page/:slug" element={<CustomPage />} />
 
       {/* Admin Routes */}
       <Route path="/admin/login" element={<AdminLogin />} />
