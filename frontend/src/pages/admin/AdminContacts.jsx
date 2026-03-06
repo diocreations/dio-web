@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Mail, Phone, Calendar, Eye, Trash2, CheckCircle } from "lucide-react";
+import { Mail, Phone, Calendar, Eye, Trash2, Building2, Briefcase, DollarSign } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -103,7 +103,12 @@ const AdminContacts = () => {
                     <p className="text-sm text-muted-foreground">{selectedSubmission.email}</p>
                   </div>
                 </div>
-                {selectedSubmission.phone && (<div className="flex items-center gap-2 text-sm"><Phone size={14} className="text-muted-foreground" /><span>{selectedSubmission.phone}</span></div>)}
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  {selectedSubmission.phone && (<div className="flex items-center gap-2"><Phone size={14} className="text-muted-foreground" /><span>{selectedSubmission.phone}</span></div>)}
+                  {selectedSubmission.company && (<div className="flex items-center gap-2"><Building2 size={14} className="text-muted-foreground" /><span>{selectedSubmission.company}</span></div>)}
+                  {selectedSubmission.service_interest && (<div className="flex items-center gap-2"><Briefcase size={14} className="text-muted-foreground" /><span>{selectedSubmission.service_interest}</span></div>)}
+                  {selectedSubmission.budget_range && (<div className="flex items-center gap-2"><DollarSign size={14} className="text-muted-foreground" /><span>{selectedSubmission.budget_range}</span></div>)}
+                </div>
                 <div className="bg-slate-50 rounded-lg p-4">
                   <p className="font-medium text-foreground mb-2">{selectedSubmission.subject}</p>
                   <p className="text-muted-foreground whitespace-pre-wrap">{selectedSubmission.message}</p>
