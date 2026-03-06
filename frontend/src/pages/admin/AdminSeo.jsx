@@ -20,7 +20,11 @@ const SITE_PAGES = [
   { slug: "blog", label: "Blog", path: "/blog" },
   { slug: "contact", label: "Contact", path: "/contact" },
   { slug: "resume-optimizer", label: "Resume Optimizer", path: "/resume-optimizer" },
+  { slug: "resume-builder", label: "Resume Builder", path: "/resume-builder" },
   { slug: "cover-letter", label: "Cover Letter", path: "/cover-letter" },
+  { slug: "resume-builder-info", label: "Resume Builder Landing", path: "/resume-builder-info" },
+  { slug: "resume-analyzer-info", label: "Resume Analyzer Landing", path: "/resume-analyzer-info" },
+  { slug: "cover-letter-info", label: "Cover Letter Landing", path: "/cover-letter-info" },
 ];
 
 const PageSeoCard = ({ page, seo, saving, updatePageField, addPageKeyword, removePageKeyword, savePage, uploadPageOgImage, uploading }) => {
