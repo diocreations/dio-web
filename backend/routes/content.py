@@ -23,6 +23,32 @@ async def get_page(slug: str):
     return page
 
 
+@router.post("/pages")
+async def create_page(data: dict, user: dict = Depends(get_current_user)):
+    """Create a new custom page"""
+    slug = data.get("slug", "").lower().replace(" ", "-")
+    if not slug:
+        raise HTTPException(status_code=400, detail="Slug is required")
+    
+    existing = await db.pages.find_one({"slug": slug})
+    if existing:
+        raise HTTPException(status_code=400, detail="Page with this slug already exists")
+    
+    page_doc = {
+        "page_id": f"page_{uuid.uuid4().hex[:12]}",
+        "slug": slug,
+        "title": data.get("title", slug.title()),
+        "is_custom": True,
+        "is_published": data.get("is_published", False),
+        "content": data.get("content", {}),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.pages.insert_one(page_doc)
+    page_doc.pop("_id", None)
+    return page_doc
+
+
 @router.put("/pages/{slug}")
 async def update_page(slug: str, update: dict, user: dict = Depends(get_current_user)):
     update.pop("_id", None)
@@ -32,6 +58,67 @@ async def update_page(slug: str, update: dict, user: dict = Depends(get_current_
         page_doc = {"slug": slug, "title": update.get("title", slug.title()), "page_id": f"page_{uuid.uuid4().hex[:12]}", **update}
         await db.pages.insert_one(page_doc)
     return await db.pages.find_one({"slug": slug}, {"_id": 0})
+
+
+@router.delete("/pages/{slug}")
+async def delete_page(slug: str, user: dict = Depends(get_current_user)):
+    """Delete a custom page"""
+    page = await db.pages.find_one({"slug": slug})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    if not page.get("is_custom"):
+        raise HTTPException(status_code=400, detail="Cannot delete system pages")
+    
+    await db.pages.delete_one({"slug": slug})
+    return {"message": "Page deleted"}
+
+
+# ==================== CONTACT FORM SETTINGS ====================
+
+@router.get("/contact-settings")
+async def get_contact_settings():
+    """Get contact form settings (budget ranges, service options)"""
+    settings = await db.contact_settings.find_one({"settings_id": "contact_form"}, {"_id": 0})
+    if not settings:
+        # Return defaults
+        return {
+            "settings_id": "contact_form",
+            "budget_ranges": [
+                "Under $1,000",
+                "$1,000 - $5,000",
+                "$5,000 - $10,000",
+                "$10,000 - $25,000",
+                "$25,000 - $50,000",
+                "$50,000+",
+                "Not Sure Yet"
+            ],
+            "service_options": [
+                "Web Development",
+                "Mobile App Development",
+                "SEO Services",
+                "AI Solutions",
+                "E-commerce Development",
+                "Digital Marketing",
+                "Resume Services",
+                "Other"
+            ]
+        }
+    return settings
+
+
+@router.put("/contact-settings")
+async def update_contact_settings(data: dict, user: dict = Depends(get_current_user)):
+    """Update contact form settings"""
+    data.pop("_id", None)
+    data["settings_id"] = "contact_form"
+    data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.contact_settings.update_one(
+        {"settings_id": "contact_form"},
+        {"$set": data},
+        upsert=True
+    )
+    return await db.contact_settings.find_one({"settings_id": "contact_form"}, {"_id": 0})
 
 
 # ==================== SERVICES ====================
