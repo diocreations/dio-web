@@ -38,14 +38,16 @@ async def seed_data():
             p["created_at"] = datetime.now(timezone.utc).isoformat()
             await db.products.insert_one(p)
 
-    blog_posts = [
-        {"title": "10 Essential SEO Tips for Small Businesses in 2025", "slug": "seo-tips-small-businesses-2025", "excerpt": "Discover the most effective SEO strategies.", "content": "SEO is crucial for small businesses...", "featured_image": "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=800&q=80", "category": "SEO", "tags": ["SEO", "small business", "digital marketing"], "author": "DioCreations Team", "is_published": True},
-        {"title": "How AI is Revolutionizing Web Development", "slug": "ai-revolutionizing-web-development", "excerpt": "Explore how AI is changing the landscape.", "content": "Artificial intelligence is transforming...", "featured_image": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80", "category": "Technology", "tags": ["AI", "web development", "technology"], "author": "DioCreations Team", "is_published": True},
-        {"title": "The Complete Guide to E-commerce Success", "slug": "ecommerce-success-guide", "excerpt": "Learn the secrets to e-commerce success.", "content": "E-commerce has become essential...", "featured_image": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80", "category": "E-commerce", "tags": ["e-commerce", "online store", "business"], "author": "DioCreations Team", "is_published": True},
-    ]
-    for post in blog_posts:
-        existing = await db.blog.find_one({"slug": post["slug"]})
-        if not existing:
+    # Only seed blog posts if the collection is completely empty
+    # This prevents re-adding default blogs after user has added their own content
+    existing_blog_count = await db.blog.count_documents({})
+    if existing_blog_count == 0:
+        blog_posts = [
+            {"title": "10 Essential SEO Tips for Small Businesses in 2025", "slug": "seo-tips-small-businesses-2025", "excerpt": "Discover the most effective SEO strategies.", "content": "SEO is crucial for small businesses...", "featured_image": "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=800&q=80", "category": "SEO", "tags": ["SEO", "small business", "digital marketing"], "author": "DioCreations Team", "is_published": True},
+            {"title": "How AI is Revolutionizing Web Development", "slug": "ai-revolutionizing-web-development", "excerpt": "Explore how AI is changing the landscape.", "content": "Artificial intelligence is transforming...", "featured_image": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&q=80", "category": "Technology", "tags": ["AI", "web development", "technology"], "author": "DioCreations Team", "is_published": True},
+            {"title": "The Complete Guide to E-commerce Success", "slug": "ecommerce-success-guide", "excerpt": "Learn the secrets to e-commerce success.", "content": "E-commerce has become essential...", "featured_image": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80", "category": "E-commerce", "tags": ["e-commerce", "online store", "business"], "author": "DioCreations Team", "is_published": True},
+        ]
+        for post in blog_posts:
             post["post_id"] = f"blog_{uuid.uuid4().hex[:12]}"
             post["published_at"] = datetime.now(timezone.utc).isoformat()
             post["created_at"] = datetime.now(timezone.utc).isoformat()
