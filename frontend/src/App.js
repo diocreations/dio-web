@@ -53,6 +53,9 @@ const AdminSeo = lazy(() => import("./pages/admin/AdminSeo"));
 const AdminCoverLetter = lazy(() => import("./pages/admin/AdminCoverLetter"));
 const AdminNewsletter = lazy(() => import("./pages/admin/AdminNewsletter"));
 const AdminLandingPages = lazy(() => import("./pages/admin/AdminLandingPages"));
+const AdminCustomPages = lazy(() => import("./pages/admin/AdminCustomPages"));
+const AdminContactSettings = lazy(() => import("./pages/admin/AdminContactSettings"));
+import CustomPage from "./pages/CustomPage";
 
 const queryClient = new QueryClient();
 const API_URL = process.env.REACT_APP_BACKEND_URL;
