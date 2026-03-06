@@ -26,6 +26,8 @@ import {
   PenLine,
   Mail,
   Layers,
+  Globe,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -44,12 +46,14 @@ const AdminLayout = ({ children }) => {
     { name: "Blog", path: "/admin/blog", icon: FileText },
     { name: "Testimonials", path: "/admin/testimonials", icon: Star },
     { name: "Contacts", path: "/admin/contacts", icon: MessageSquare },
+    { name: "Contact Settings", path: "/admin/contact-settings", icon: SlidersHorizontal },
     { name: "Leads", path: "/admin/leads", icon: Users },
     { name: "Chatbot", path: "/admin/chatbot", icon: Bot },
     { name: "Resume AI", path: "/admin/resume", icon: FileSearch },
     { name: "Resume Builder", path: "/admin/resume-builder", icon: FileText },
     { name: "Cover Letter", path: "/admin/cover-letter", icon: PenLine },
     { name: "Landing Pages", path: "/admin/landing-pages", icon: Layers },
+    { name: "Custom Pages", path: "/admin/custom-pages", icon: Globe },
     { name: "Newsletter", path: "/admin/newsletter", icon: Mail },
     { name: "Templates", path: "/admin/templates", icon: LayoutIcon },
     { name: "Menus", path: "/admin/menus", icon: Navigation },
