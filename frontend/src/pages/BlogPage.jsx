@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, User, ArrowRight, Tag } from "lucide-react";
+import NewsletterSubscribe from "@/components/NewsletterSubscribe";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -177,17 +178,9 @@ const BlogPage = () => {
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
             Subscribe to our newsletter for the latest insights and updates
           </p>
-          <Button
-            asChild
-            size="lg"
-            className="bg-primary text-primary-foreground rounded-full px-8"
-            data-testid="blog-newsletter-cta"
-          >
-            <Link to="/contact">
-              Subscribe Now
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+          <div className="flex justify-center" data-testid="blog-newsletter-cta">
+            <NewsletterSubscribe source="blog-page" />
+          </div>
         </div>
       </section>
     </Layout>
