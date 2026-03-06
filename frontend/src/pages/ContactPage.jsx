@@ -371,7 +371,7 @@ const ContactPage = () => {
                           <SelectValue placeholder="Select a service" />
                         </SelectTrigger>
                         <SelectContent>
-                          {SERVICES.map((service) => (
+                          {serviceOptions.map((service) => (
                             <SelectItem key={service} value={service}>
                               {service}
                             </SelectItem>
@@ -389,7 +389,7 @@ const ContactPage = () => {
                           <SelectValue placeholder="Select budget range" />
                         </SelectTrigger>
                         <SelectContent>
-                          {BUDGET_RANGES.map((range) => (
+                          {budgetRanges.map((range) => (
                             <SelectItem key={range} value={range}>
                               {range}
                             </SelectItem>
