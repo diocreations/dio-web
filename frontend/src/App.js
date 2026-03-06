@@ -425,6 +425,22 @@ const AppRouter = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/custom-pages"
+        element={
+          <ProtectedRoute>
+            <AdminCustomPages />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/contact-settings"
+        element={
+          <ProtectedRoute>
+            <AdminContactSettings />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
     </Suspense>
   );
