@@ -25,6 +25,9 @@ import ResumeBuilderPage from "./pages/ResumeBuilderPage";
 import UserLoginPage from "./pages/UserLoginPage";
 import UserDashboardPage from "./pages/UserDashboardPage";
 import CoverLetterPage from "./pages/CoverLetterPage";
+import ResumeBuilderLandingPage from "./pages/ResumeBuilderLandingPage";
+import ResumeAnalyzerLandingPage from "./pages/ResumeAnalyzerLandingPage";
+import CoverLetterLandingPage from "./pages/CoverLetterLandingPage";
 
 // Admin Pages (lazy loaded)
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
@@ -49,6 +52,7 @@ const AdminTemplates = lazy(() => import("./pages/admin/AdminTemplates"));
 const AdminSeo = lazy(() => import("./pages/admin/AdminSeo"));
 const AdminCoverLetter = lazy(() => import("./pages/admin/AdminCoverLetter"));
 const AdminNewsletter = lazy(() => import("./pages/admin/AdminNewsletter"));
+const AdminLandingPages = lazy(() => import("./pages/admin/AdminLandingPages"));
 
 const queryClient = new QueryClient();
 const API_URL = process.env.REACT_APP_BACKEND_URL;
