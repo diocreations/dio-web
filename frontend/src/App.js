@@ -411,6 +411,14 @@ const AppRouter = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/landing-pages"
+        element={
+          <ProtectedRoute>
+            <AdminLandingPages />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
     </Suspense>
   );
