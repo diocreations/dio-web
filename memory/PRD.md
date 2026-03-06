@@ -5,6 +5,71 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Blog Newsletter & Landing Pages & Contact Page Enhancements ✅
+**Date: Mar 6, 2025**
+
+**Features Implemented:**
+
+1. **Blog Page Newsletter Fix**
+   - Fixed newsletter button on blog page that was redirecting to /contact
+   - Now uses NewsletterSubscribe component with email input + Subscribe button
+   - Properly integrates with existing newsletter subscription API
+
+2. **New Landing Pages (Admin-Editable)**
+   - Created 3 new marketing landing pages:
+     - `/resume-builder-info` - AI Resume Builder landing page
+     - `/resume-analyzer-info` - Resume Analyzer & LinkedIn Optimizer landing page
+     - `/cover-letter-info` - Cover Letter Generator landing page
+   - Each page features: Hero section, Stats bar, Features grid, Testimonials, CTA section
+   - All content editable via Admin Panel → Landing Pages
+
+3. **Admin Landing Pages Manager**
+   - New admin section at `/admin/landing-pages`
+   - Edit hero badge, title, highlight text, description, CTA button, image
+   - Manage stats (value + label pairs)
+   - Manage features (icon, title, description)
+   - Manage testimonials (Resume Builder page only)
+   - Edit bottom CTA section
+
+4. **Admin SEO Updates**
+   - Added Resume Builder to SEO Manager
+   - Added all 3 landing pages to SEO Manager
+   - Can now manage SEO metadata for: resume-builder, resume-builder-info, resume-analyzer-info, cover-letter-info
+
+5. **Contact Page Redesign**
+   - Added trust indicators bar (Fast Response, 100% Confidential, Expert Team)
+   - New form fields: Company Name, Service Interest (dropdown), Budget Range (dropdown)
+   - Quick Response Guarantee card
+   - Privacy policy link
+   - Enhanced visual design with icons and better spacing
+
+**Files Created:**
+- `/app/frontend/src/pages/ResumeBuilderLandingPage.jsx`
+- `/app/frontend/src/pages/ResumeAnalyzerLandingPage.jsx`
+- `/app/frontend/src/pages/CoverLetterLandingPage.jsx`
+- `/app/frontend/src/pages/admin/AdminLandingPages.jsx`
+
+**Files Modified:**
+- `/app/frontend/src/pages/BlogPage.jsx` - Newsletter component integration
+- `/app/frontend/src/pages/ContactPage.jsx` - Complete redesign with new fields
+- `/app/frontend/src/pages/admin/AdminSeo.jsx` - Added new pages to SITE_PAGES
+- `/app/frontend/src/pages/admin/AdminContacts.jsx` - Show new contact fields
+- `/app/frontend/src/components/AdminLayout.jsx` - Added Landing Pages menu item
+- `/app/frontend/src/App.js` - Added routes for new pages
+- `/app/backend/routes/content.py` - Handle new contact form fields
+
+**Landing Pages API:**
+- `GET /api/pages/{slug}` - Fetch page content
+- `PUT /api/pages/{slug}` - Update page content (admin)
+
+**Service Interest Options:**
+- Web Development, Mobile App Development, SEO Services, AI Solutions, E-commerce Development, Digital Marketing, Resume Services, Other
+
+**Budget Range Options:**
+- Under $1,000, $1,000-$5,000, $5,000-$10,000, $10,000-$25,000, $25,000-$50,000, $50,000+, Not Sure Yet
+
+---
+
 ### Admin Pricing Toggles Implemented ✅
 **Date: Mar 5, 2025**
 
