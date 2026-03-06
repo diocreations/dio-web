@@ -12,7 +12,7 @@ import { Mail, Phone, MapPin, Send, Clock, CheckCircle, MessageSquare, Zap, Shie
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-const SERVICES = [
+const DEFAULT_SERVICES = [
   "Web Development",
   "Mobile App Development",
   "SEO Services",
@@ -23,7 +23,7 @@ const SERVICES = [
   "Other"
 ];
 
-const BUDGET_RANGES = [
+const DEFAULT_BUDGET_RANGES = [
   "Under $1,000",
   "$1,000 - $5,000",
   "$5,000 - $10,000",
@@ -35,6 +35,7 @@ const BUDGET_RANGES = [
 
 const ContactPage = () => {
   const [settings, setSettings] = useState(null);
+  const [contactSettings, setContactSettings] = useState(null);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -48,11 +49,26 @@ const ContactPage = () => {
   });
 
   useEffect(() => {
+    // Fetch site settings
     fetch(`${API_URL}/api/settings`)
       .then((res) => res.json())
       .then((data) => setSettings(data))
       .catch(console.error);
+    
+    // Fetch contact form settings
+    fetch(`${API_URL}/api/contact-settings`)
+      .then((res) => res.json())
+      .then((data) => setContactSettings(data))
+      .catch(console.error);
   }, []);
+
+  const serviceOptions = contactSettings?.service_options?.length > 0 
+    ? contactSettings.service_options 
+    : DEFAULT_SERVICES;
+  
+  const budgetRanges = contactSettings?.budget_ranges?.length > 0 
+    ? contactSettings.budget_ranges 
+    : DEFAULT_BUDGET_RANGES;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
