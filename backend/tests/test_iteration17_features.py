@@ -311,7 +311,7 @@ class TestResumeCheckout:
             f"{BASE_URL}/api/resume/checkout",
             json={
                 "resume_id": uploaded_resume_id,
-                "origin_url": "https://job-tools-pro.preview.emergentagent.com"
+                "origin_url": "https://ai-resume-platform.preview.emergentagent.com"
             },
             headers={"Content-Type": "application/json"}
         )
