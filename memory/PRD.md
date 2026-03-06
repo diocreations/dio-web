@@ -5,6 +5,49 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Admin-Editable Contact Form & Custom Pages ✅
+**Date: Mar 6, 2025**
+
+**Features Implemented:**
+
+1. **Contact Form Settings (Admin-Editable)**
+   - New admin page at `/admin/contact-settings`
+   - Edit Budget Ranges - add/remove options, change currency (€, $, £, etc.)
+   - Edit Service Options - add/remove services from dropdown
+   - Changes reflect immediately on the Contact page
+
+2. **Custom Pages Manager**
+   - New admin page at `/admin/custom-pages`
+   - Create unlimited custom landing pages
+   - Each page can have:
+     - Hero section (badge, title, highlight text, description, CTA, image)
+     - Stats bar (value + label pairs)
+     - Features grid (icon, title, description)
+     - Benefits list (checkmark items)
+     - Testimonials (name, role, quote, rating)
+     - Bottom CTA section
+   - Publish/unpublish toggle
+   - Pages accessible at `/page/{slug}`
+
+**Files Created:**
+- `/app/frontend/src/pages/admin/AdminContactSettings.jsx`
+- `/app/frontend/src/pages/admin/AdminCustomPages.jsx`
+- `/app/frontend/src/pages/CustomPage.jsx`
+
+**Files Modified:**
+- `/app/backend/routes/content.py` - Added contact-settings and page CRUD APIs
+- `/app/frontend/src/pages/ContactPage.jsx` - Fetches settings from API
+- `/app/frontend/src/components/AdminLayout.jsx` - Added new menu items
+- `/app/frontend/src/App.js` - Added new routes
+
+**API Endpoints:**
+- `GET /api/contact-settings` - Get contact form dropdown options
+- `PUT /api/contact-settings` - Update contact form settings
+- `POST /api/pages` - Create new custom page
+- `DELETE /api/pages/{slug}` - Delete custom page
+
+---
+
 ### Blog Newsletter & Landing Pages & Contact Page Enhancements ✅
 **Date: Mar 6, 2025**
 
