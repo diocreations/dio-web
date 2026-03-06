@@ -25,6 +25,7 @@ import {
   Search,
   PenLine,
   Mail,
+  Layers,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ const AdminLayout = ({ children }) => {
     { name: "Resume AI", path: "/admin/resume", icon: FileSearch },
     { name: "Resume Builder", path: "/admin/resume-builder", icon: FileText },
     { name: "Cover Letter", path: "/admin/cover-letter", icon: PenLine },
+    { name: "Landing Pages", path: "/admin/landing-pages", icon: Layers },
     { name: "Newsletter", path: "/admin/newsletter", icon: Mail },
     { name: "Templates", path: "/admin/templates", icon: LayoutIcon },
     { name: "Menus", path: "/admin/menus", icon: Navigation },
