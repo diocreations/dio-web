@@ -119,6 +119,61 @@ async def get_resume_pricing():
     return pricing
 
 
+@router.get("/resume/user-resumes")
+async def get_user_resumes(user_id: str = None, user_email: str = None):
+    """Get all resumes for a user (by user_id or email)"""
+    if not user_id and not user_email:
+        return []
+    
+    query = {}
+    if user_id and user_email:
+        query = {"$or": [{"user_id": user_id}, {"user_email": user_email}]}
+    elif user_id:
+        query = {"user_id": user_id}
+    else:
+        query = {"user_email": user_email}
+    
+    resumes = await db.resume_uploads.find(query, {"_id": 0, "text": 0}).sort("created_at", -1).to_list(50)
+    
+    # Enrich with analysis and payment status
+    for resume in resumes:
+        analysis = await db.resume_analyses.find_one({"resume_id": resume["resume_id"]}, {"_id": 0, "overall_score": 1, "ats_score": 1})
+        payment = await db.resume_payments.find_one({"resume_id": resume["resume_id"], "status": "paid"}, {"_id": 0})
+        improvement = await db.resume_improvements.find_one({"resume_id": resume["resume_id"]}, {"_id": 0, "improved_text": 1})
+        
+        resume["has_analysis"] = analysis is not None
+        resume["overall_score"] = analysis.get("overall_score") if analysis else None
+        resume["ats_score"] = analysis.get("ats_score") if analysis else None
+        resume["is_paid"] = payment is not None
+        resume["has_improvement"] = improvement is not None
+    
+    return resumes
+
+
+@router.get("/resume/{resume_id}/full")
+async def get_resume_full(resume_id: str):
+    """Get full resume data including text, analysis, and improvements"""
+    upload = await db.resume_uploads.find_one({"resume_id": resume_id}, {"_id": 0})
+    if not upload:
+        raise HTTPException(status_code=404, detail="Resume not found")
+    
+    analysis = await db.resume_analyses.find_one({"resume_id": resume_id}, {"_id": 0})
+    improvement = await db.resume_improvements.find_one({"resume_id": resume_id}, {"_id": 0})
+    payment = await db.resume_payments.find_one({"resume_id": resume_id, "status": "paid"}, {"_id": 0})
+    linkedin = await db.resume_improvements.find_one({"resume_id": resume_id, "linkedin_optimization": {"$exists": True}}, {"_id": 0, "linkedin_optimization": 1})
+    
+    return {
+        "resume_id": resume_id,
+        "filename": upload.get("filename"),
+        "text": upload.get("text"),
+        "created_at": upload.get("created_at"),
+        "analysis": analysis,
+        "improvement": improvement,
+        "is_paid": payment is not None,
+        "linkedin_optimization": linkedin.get("linkedin_optimization") if linkedin else None
+    }
+
+
 @router.get("/resume/pricing")
 async def get_pricing_public():
     pricing = await get_resume_pricing()
