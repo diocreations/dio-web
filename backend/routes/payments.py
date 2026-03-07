@@ -44,10 +44,26 @@ async def create_checkout_session(request: Request, data: dict):
     base_price = product.get("price")
     if not base_price:
         raise HTTPException(status_code=400, detail="Product has no price set")
-    currency = data.get("currency", "EUR").upper()
-    if currency not in CURRENCY_RATES:
-        currency = "EUR"
-    converted_price = round(float(base_price) * CURRENCY_RATES[currency], 2)
+    
+    # Get product's native currency (default to EUR if not specified)
+    product_currency = product.get("currency", "EUR").upper()
+    # Get requested display/checkout currency
+    display_currency = data.get("currency", "EUR").upper()
+    if display_currency not in CURRENCY_RATES:
+        display_currency = "EUR"
+    
+    # Convert price from product currency to display currency
+    price_value = float(base_price)
+    if product_currency == display_currency:
+        # No conversion needed
+        converted_price = round(price_value, 2)
+    else:
+        # Convert: product_currency -> EUR -> display_currency
+        product_to_eur_rate = CURRENCY_RATES.get(product_currency, 1.0)
+        price_in_eur = price_value / product_to_eur_rate
+        display_rate = CURRENCY_RATES.get(display_currency, 1.0)
+        converted_price = round(price_in_eur * display_rate, 2)
+    
     origin_url = data.get("origin_url", "")
     success_url = f"{origin_url}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = f"{origin_url}/products"
@@ -60,9 +76,11 @@ async def create_checkout_session(request: Request, data: dict):
         "customer_email": data.get("customer_email", ""),
         "customer_name": data.get("customer_name", ""),
         "pricing_type": product.get("pricing_type", "one_time"),
+        "original_price": str(base_price),
+        "original_currency": product_currency,
     }
     session = await stripe_checkout.create_checkout_session(CheckoutSessionRequest(
-        amount=converted_price, currency=currency.lower(), success_url=success_url, cancel_url=cancel_url, metadata=metadata,
+        amount=converted_price, currency=display_currency.lower(), success_url=success_url, cancel_url=cancel_url, metadata=metadata,
     ))
     txn_doc = {
         "transaction_id": f"txn_{uuid.uuid4().hex[:12]}",
@@ -70,7 +88,9 @@ async def create_checkout_session(request: Request, data: dict):
         "product_id": data.get("product_id"),
         "product_title": product["title"],
         "amount": converted_price,
-        "currency": currency,
+        "currency": display_currency,
+        "original_amount": base_price,
+        "original_currency": product_currency,
         "customer_email": data.get("customer_email"),
         "customer_name": data.get("customer_name"),
         "payment_status": "pending",
