@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,7 @@ import { useSearchParams } from "react-router-dom";
 import {
   Upload, FileText, Zap, Download, CheckCircle, XCircle, AlertTriangle,
   Loader2, Lock, Star, Sparkles, Target, ArrowRight, Linkedin, HardDrive, RotateCcw, Share2, Link,
-  Layers, Type, Camera, User, Trash2,
+  Layers, Type, Camera, User, Trash2, History,
 } from "lucide-react";
 import { toast } from "sonner";
 import html2pdf from "html2pdf.js";
