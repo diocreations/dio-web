@@ -45,11 +45,15 @@ async def create_checkout_session(request: Request, data: dict):
     if not base_price:
         raise HTTPException(status_code=400, detail="Product has no price set")
     
+    # Fetch currency rates from database
+    currency_settings = await db.currency_settings.find_one({"settings_id": "currency"}, {"_id": 0})
+    rates = currency_settings.get("rates", CURRENCY_RATES) if currency_settings else CURRENCY_RATES
+    
     # Get product's native currency (default to EUR if not specified)
     product_currency = product.get("currency", "EUR").upper()
     # Get requested display/checkout currency
     display_currency = data.get("currency", "EUR").upper()
-    if display_currency not in CURRENCY_RATES:
+    if display_currency not in rates:
         display_currency = "EUR"
     
     # Convert price from product currency to display currency
@@ -59,9 +63,9 @@ async def create_checkout_session(request: Request, data: dict):
         converted_price = round(price_value, 2)
     else:
         # Convert: product_currency -> EUR -> display_currency
-        product_to_eur_rate = CURRENCY_RATES.get(product_currency, 1.0)
+        product_to_eur_rate = rates.get(product_currency, 1.0)
         price_in_eur = price_value / product_to_eur_rate
-        display_rate = CURRENCY_RATES.get(display_currency, 1.0)
+        display_rate = rates.get(display_currency, 1.0)
         converted_price = round(price_in_eur * display_rate, 2)
     
     origin_url = data.get("origin_url", "")
