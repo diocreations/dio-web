@@ -233,15 +233,23 @@ const HomePage = () => {
     return variants[currentHeroIndex % variants.length];
   }, [homepageContent, currentHeroIndex]);
 
-  // Currency formatting
-  const currency = homepageContent?.visitor_currency || "EUR";
-  const currencySymbol = homepageContent?.currency_symbol || "€";
-  const currencyRate = homepageContent?.currency_rate || 1;
-
-  const formatPrice = (price) => {
+  // Currency formatting with proper conversion considering product's native currency
+  const formatPrice = (price, productCurrency = "EUR") => {
     if (!price) return null;
-    const converted = (parseFloat(price) * currencyRate).toFixed(2);
-    return `${currencySymbol}${converted}`;
+    const priceValue = parseFloat(price);
+    
+    // If product currency matches visitor currency, no conversion needed
+    if (productCurrency === visitorCurrency) {
+      return `${visitorCurrencySymbol}${priceValue.toFixed(2)}`;
+    }
+    
+    // Convert: product_currency -> EUR -> visitor_currency
+    const productToEurRate = currencyRates[productCurrency] || 1;
+    const priceInEur = priceValue / productToEurRate;
+    const displayRate = currencyRates[visitorCurrency] || 1;
+    const converted = (priceInEur * displayRate).toFixed(2);
+    
+    return `${visitorCurrencySymbol}${converted}`;
   };
 
   // Homepage settings
