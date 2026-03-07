@@ -288,26 +288,36 @@ async def upload_resume(file: UploadFile = File(...), user_id: str = None, user_
     import hashlib
     content_hash = hashlib.md5(text.encode()).hexdigest()
     
-    # Check if user has uploaded this same resume before (by content hash)
+    # Check if this exact resume (by content) already exists for this user
     if user_id or user_email:
+        query_conditions = []
+        if user_id:
+            query_conditions.append({"user_id": user_id})
+        if user_email:
+            query_conditions.append({"user_email": user_email})
+        
         existing_resume = await db.resume_uploads.find_one({
-            "$or": [
-                {"user_id": user_id} if user_id else {"_skip": True},
-                {"user_email": user_email} if user_email else {"_skip": True}
-            ],
+            "$or": query_conditions,
             "content_hash": content_hash
         }, {"_id": 0})
         
         if existing_resume:
-            # Return existing resume instead of creating new one
+            # Check if this existing resume is paid
+            payment = await db.resume_payments.find_one({
+                "resume_id": existing_resume["resume_id"],
+                "status": "paid"
+            })
+            
             return {
                 "resume_id": existing_resume["resume_id"],
                 "text_preview": existing_resume["text"][:500],
                 "word_count": len(existing_resume["text"].split()),
                 "is_existing": True,
+                "is_paid": payment is not None,
                 "message": "Found your existing resume - continuing where you left off"
             }
     
+    # This is a NEW resume - create new entry
     resume_id = f"resume_{uuid.uuid4().hex[:12]}"
     resume_doc = {
         "resume_id": resume_id,
@@ -324,7 +334,17 @@ async def upload_resume(file: UploadFile = File(...), user_id: str = None, user_
         resume_doc["user_email"] = user_email
     
     await db.resume_uploads.insert_one(resume_doc)
-    return {"resume_id": resume_id, "text_preview": text[:500], "word_count": len(text.split()), "is_existing": False}
+    
+    # For new resumes, payment is NOT carried over - user must pay again
+    return {
+        "resume_id": resume_id, 
+        "text_preview": text[:500], 
+        "word_count": len(text.split()), 
+        "is_existing": False,
+        "is_paid": False,
+        "is_new_resume": True,
+        "message": "New resume uploaded - analysis is free, payment required for full optimization"
+    }
 
 
 @router.post("/resume/analyze")
