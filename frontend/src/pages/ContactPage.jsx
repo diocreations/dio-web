@@ -12,6 +12,21 @@ import { Mail, Phone, MapPin, Send, Clock, CheckCircle, MessageSquare, Zap, Shie
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
+const CURRENCY_SYMBOLS = {
+  EUR: "€", USD: "$", GBP: "£", INR: "₹", AED: "د.إ", AUD: "A$", CAD: "C$", SGD: "S$", CHF: "Fr",
+};
+
+// Base budget ranges in EUR for conversion
+const BASE_BUDGET_RANGES_EUR = [
+  { min: 0, max: 1000, label: "Under" },
+  { min: 1000, max: 5000 },
+  { min: 5000, max: 10000 },
+  { min: 10000, max: 25000 },
+  { min: 25000, max: 50000 },
+  { min: 50000, max: null, label: "+" },
+  { label: "Not Sure Yet", isFixed: true },
+];
+
 const DEFAULT_SERVICES = [
   "Web Development",
   "Mobile App Development",
@@ -23,20 +38,13 @@ const DEFAULT_SERVICES = [
   "Other"
 ];
 
-const DEFAULT_BUDGET_RANGES = [
-  "Under $1,000",
-  "$1,000 - $5,000",
-  "$5,000 - $10,000",
-  "$10,000 - $25,000",
-  "$25,000 - $50,000",
-  "$50,000+",
-  "Not Sure Yet"
-];
-
 const ContactPage = () => {
   const [settings, setSettings] = useState(null);
   const [contactSettings, setContactSettings] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [visitorCurrency, setVisitorCurrency] = useState("USD");
+  const [currencySymbol, setCurrencySymbol] = useState("$");
+  const [currencyRate, setCurrencyRate] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -60,15 +68,50 @@ const ContactPage = () => {
       .then((res) => res.json())
       .then((data) => setContactSettings(data))
       .catch(console.error);
+    
+    // Fetch visitor currency for budget auto-conversion
+    fetch(`${API_URL}/api/geo/currency`)
+      .then((res) => res.json())
+      .then((data) => {
+        setVisitorCurrency(data.currency || "USD");
+        setCurrencySymbol(data.currency_symbol || CURRENCY_SYMBOLS[data.currency] || "$");
+        setCurrencyRate(data.currency_rate || 1);
+      })
+      .catch(console.error);
   }, []);
 
   const serviceOptions = contactSettings?.service_options?.length > 0 
     ? contactSettings.service_options 
     : DEFAULT_SERVICES;
   
-  const budgetRanges = contactSettings?.budget_ranges?.length > 0 
-    ? contactSettings.budget_ranges 
-    : DEFAULT_BUDGET_RANGES;
+  // Generate budget ranges with visitor's currency
+  const generateBudgetRanges = () => {
+    // If admin has set custom budget ranges, use those
+    if (contactSettings?.budget_ranges?.length > 0) {
+      return contactSettings.budget_ranges;
+    }
+    
+    // Auto-generate with visitor's currency
+    const symbol = currencySymbol;
+    const rate = currencyRate;
+    
+    return BASE_BUDGET_RANGES_EUR.map(range => {
+      if (range.isFixed) return range.label;
+      
+      const minConverted = Math.round(range.min * rate);
+      const maxConverted = range.max ? Math.round(range.max * rate) : null;
+      
+      if (range.label === "Under") {
+        return `Under ${symbol}${minConverted.toLocaleString()}`;
+      }
+      if (range.label === "+") {
+        return `${symbol}${minConverted.toLocaleString()}+`;
+      }
+      return `${symbol}${minConverted.toLocaleString()} - ${symbol}${maxConverted.toLocaleString()}`;
+    });
+  };
+
+  const budgetRanges = generateBudgetRanges();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
