@@ -374,7 +374,7 @@ const RichEditor = ({ value, onChange, placeholder = "Edit your resume..." }) =>
         onInput={handleInput}
         data-testid="resume-edit-area"
         data-placeholder={placeholder}
-        className="flex-1 min-h-[550px] p-6 outline-none prose prose-sm max-w-none overflow-y-auto
+        className="flex-1 min-h-[650px] p-8 outline-none prose prose-sm max-w-none overflow-y-auto
           [&_h2]:text-sm [&_h2]:font-bold [&_h2]:uppercase [&_h2]:tracking-[2px] [&_h2]:text-slate-800 [&_h2]:border-b [&_h2]:border-slate-300 [&_h2]:pb-1 [&_h2]:mb-2 [&_h2]:mt-4
           [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:text-slate-700 [&_h3]:mb-1 [&_h3]:mt-3
           [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-slate-700 [&_p]:my-0.5
