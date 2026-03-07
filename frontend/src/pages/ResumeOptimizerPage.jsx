@@ -124,7 +124,24 @@ const ResumeOptimizerPage = () => {
   // Check for logged in user
   useEffect(() => {
     const stored = localStorage.getItem("pub_user");
-    if (stored) setPubUser(JSON.parse(stored));
+    if (stored) {
+      const user = JSON.parse(stored);
+      setPubUser(user);
+      // Fetch user's previous resumes
+      if (user?.email || user?.user_id) {
+        const params = new URLSearchParams();
+        if (user.user_id) params.append("user_id", user.user_id);
+        if (user.email) params.append("user_email", user.email);
+        fetch(`${API_URL}/api/resume/user-resumes?${params}`)
+          .then(r => r.json())
+          .then(resumes => {
+            if (resumes?.length > 0) {
+              setUserResumes(resumes);
+            }
+          })
+          .catch(() => {});
+      }
+    }
   }, []);
 
   // Google Sign-In handler for quick access
