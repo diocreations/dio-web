@@ -349,6 +349,54 @@ const ResumeOptimizerPage = () => {
     finally { setUploading(false); setAnalyzing(false); }
   };
 
+  // Load an existing resume from history
+  const loadExistingResume = async (resume) => {
+    setShowResumeHistory(false);
+    setUploading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/resume/${resume.resume_id}/full`);
+      if (res.ok) {
+        const data = await res.json();
+        setResumeId(data.resume_id);
+        setTextPreview(data.text?.substring(0, 500) || "");
+        setWordCount(data.text?.split(/\s+/).length || 0);
+        
+        if (data.analysis) {
+          setAnalysis(data.analysis);
+        }
+        
+        if (data.is_paid) {
+          setHasDownloadAccess(true);
+          if (data.improvement?.improved_text) {
+            setImprovedText(data.improvement.improved_text);
+            setEditedText(data.improvement.improved_text);
+            setOriginalImprovedText(data.improvement.improved_text);
+          }
+          setStep(4);
+          toast.success("Loaded your resume - you have full access!");
+        } else if (data.analysis) {
+          setStep(2);
+          toast.info("Resume loaded - continue where you left off");
+        } else {
+          setStep(2);
+          setAnalyzing(true);
+          const analysisRes = await fetch(`${API_URL}/api/resume/analyze`, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ resume_id: data.resume_id }),
+          });
+          if (analysisRes.ok) setAnalysis(await analysisRes.json());
+        }
+      } else {
+        toast.error("Could not load resume");
+      }
+    } catch {
+      toast.error("Failed to load resume");
+    } finally {
+      setUploading(false);
+      setAnalyzing(false);
+    }
+  };
+
   // Photo upload handler for professional templates
   const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
