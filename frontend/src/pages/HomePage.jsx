@@ -110,6 +110,10 @@ const defaultTrustLogos = [
   { name: "Global Reach", icon: Globe },
 ];
 
+const CURRENCY_SYMBOLS = {
+  EUR: "€", USD: "$", GBP: "£", INR: "₹", AED: "د.إ", AUD: "A$", CAD: "C$", SGD: "S$", CHF: "Fr",
+};
+
 const HomePage = () => {
   const [services, setServices] = useState([]);
   const [products, setProducts] = useState([]);
@@ -121,6 +125,9 @@ const HomePage = () => {
   const [clientLogos, setClientLogos] = useState([]);
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [currencyRates, setCurrencyRates] = useState({ EUR: 1 });
+  const [visitorCurrency, setVisitorCurrency] = useState("EUR");
+  const [visitorCurrencySymbol, setVisitorCurrencySymbol] = useState("€");
 
   // Get random index based on session storage to persist across page
   const getRandomIndex = (key, max) => {
