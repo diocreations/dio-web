@@ -283,7 +283,7 @@ const HomePage = () => {
       case "services":
         return hpSettings.show_services !== false && <ServicesSection key="services" services={services} accent={currentAccent} />;
       case "products":
-        return hpSettings.show_products !== false && <ProductsSection key="products" products={featuredProducts} formatPrice={formatPrice} currency={currency} accent={currentAccent} />;
+        return hpSettings.show_products !== false && <ProductsSection key="products" products={featuredProducts} formatPrice={formatPrice} currency={visitorCurrency} accent={currentAccent} />;
       case "blog":
         return hpSettings.show_blog !== false && featuredBlog.length > 0 && <BlogSection key="blog" posts={featuredBlog} accent={currentAccent} />;
       case "portfolio":
