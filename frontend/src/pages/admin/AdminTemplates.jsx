@@ -124,7 +124,7 @@ const AdminTemplates = () => {
         ) : (
           <div className="space-y-4">
             {templates.map(tpl => (
-              <Card key={tpl.template_id} data-testid={`template-${tpl.template_id}`}>
+              <Card key={tpl.template_id} data-testid={`template-${tpl.template_id}`} className={pendingSaves[tpl.template_id] ? "ring-2 ring-amber-400" : ""}>
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 space-y-2">
@@ -183,9 +183,16 @@ const AdminTemplates = () => {
                         </div>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => deleteTemplate(tpl.template_id)} className="text-red-500 hover:text-red-700">
-                      <Trash2 size={16} />
-                    </Button>
+                    <div className="flex flex-col gap-1">
+                      {pendingSaves[tpl.template_id] && (
+                        <Button variant="default" size="sm" onClick={() => saveTemplate(tpl.template_id)} disabled={saving} className="bg-green-600 hover:bg-green-700">
+                          <Save size={14} className="mr-1" /> Save
+                        </Button>
+                      )}
+                      <Button variant="ghost" size="sm" onClick={() => deleteTemplate(tpl.template_id)} className="text-red-500 hover:text-red-700">
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
