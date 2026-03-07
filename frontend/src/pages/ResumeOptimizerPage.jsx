@@ -863,6 +863,21 @@ const ResumeOptimizerPage = () => {
                         <span>{uploading ? <><Loader2 className="animate-spin mr-2" size={18} />Uploading...</> : <><Upload size={16} className="mr-2" />Choose File</>}</span>
                       </Button>
                     </label>
+                    
+                    {/* User's previous resumes */}
+                    {pubUser && userResumes.length > 0 && (
+                      <div className="mt-6 pt-6 border-t">
+                        <button 
+                          onClick={() => setShowResumeHistory(true)} 
+                          className="text-sm text-primary hover:underline flex items-center gap-2 mx-auto"
+                          data-testid="resume-history-btn"
+                        >
+                          <History size={14} />
+                          Continue editing a previous resume ({userResumes.length})
+                        </button>
+                      </div>
+                    )}
+                    
                     <div className="flex items-center gap-4 my-4">
                       <div className="flex-1 border-t"></div>
                       <span className="text-xs text-muted-foreground">or import from</span>
@@ -892,6 +907,49 @@ const ResumeOptimizerPage = () => {
                     )}
                   </CardContent>
                 </Card>
+                
+                {/* Resume History Modal */}
+                {showResumeHistory && (
+                  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowResumeHistory(false)}>
+                    <Card className="w-full max-w-lg max-h-[80vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+                      <CardHeader className="border-b">
+                        <CardTitle className="flex items-center gap-2">
+                          <History size={20} />
+                          Your Previous Resumes
+                        </CardTitle>
+                        <CardDescription>Click on a resume to continue editing</CardDescription>
+                      </CardHeader>
+                      <CardContent className="p-0 max-h-[60vh] overflow-y-auto">
+                        {userResumes.map((resume) => (
+                          <button
+                            key={resume.resume_id}
+                            onClick={() => loadExistingResume(resume)}
+                            className="w-full p-4 text-left hover:bg-slate-50 border-b last:border-b-0 transition-colors"
+                            data-testid={`resume-history-item-${resume.resume_id}`}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium truncate">{resume.filename}</p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {new Date(resume.created_at).toLocaleDateString()} 
+                                  {resume.overall_score && ` • Score: ${resume.overall_score}/100`}
+                                </p>
+                              </div>
+                              <div className="flex flex-col items-end gap-1">
+                                {resume.is_paid && (
+                                  <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">Paid</span>
+                                )}
+                                {resume.has_improvement && (
+                                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">Improved</span>
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
               </motion.div>
             )}
 
