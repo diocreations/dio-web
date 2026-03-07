@@ -160,8 +160,8 @@ const ResumePreview = ({
   // Rich text editing mode - always show RichEditor when editing is true
   if (editing) {
     return (
-      <div className="w-full h-full min-h-[600px]" data-testid="resume-editor">
-        <RichEditor value={text} onChange={onTextChange} placeholder="Edit your resume..." />
+      <div className="w-full h-full min-h-[700px]" data-testid="resume-editor">
+        <RichEditor value={text} onChange={onTextChange} placeholder="Edit your resume content here..." />
       </div>
     );
   }
