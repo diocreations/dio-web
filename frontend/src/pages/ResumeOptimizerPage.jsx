@@ -316,6 +316,11 @@ const ResumeOptimizerPage = () => {
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
+    
+    // Add user info for resume association
+    if (pubUser?.user_id) formData.append("user_id", pubUser.user_id);
+    if (pubUser?.email) formData.append("user_email", pubUser.email);
+    
     try {
       const res = await fetch(`${API_URL}/api/resume/upload`, { method: "POST", body: formData });
       if (res.ok) {
@@ -323,6 +328,12 @@ const ResumeOptimizerPage = () => {
         setResumeId(data.resume_id);
         setTextPreview(data.text_preview);
         setWordCount(data.word_count);
+        
+        // Show message if resuming existing resume
+        if (data.is_existing) {
+          toast.success(data.message || "Resuming your previous session");
+        }
+        
         setStep(2);
         setAnalyzing(true);
         const analysisRes = await fetch(`${API_URL}/api/resume/analyze`, {
