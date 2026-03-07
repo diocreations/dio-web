@@ -329,9 +329,19 @@ const ResumeOptimizerPage = () => {
         setTextPreview(data.text_preview);
         setWordCount(data.word_count);
         
-        // Show message if resuming existing resume
+        // Handle existing resume with payment status
         if (data.is_existing) {
-          toast.success(data.message || "Resuming your previous session");
+          if (data.is_paid) {
+            toast.success("Welcome back! Loading your paid resume...");
+            setHasDownloadAccess(true);
+          } else {
+            toast.info(data.message || "Resuming your previous session");
+          }
+        } else if (data.is_new_resume) {
+          // New resume - show info that payment is required
+          toast.info("New resume detected! Free analysis included, payment required for full optimization.", {
+            duration: 5000
+          });
         }
         
         setStep(2);
