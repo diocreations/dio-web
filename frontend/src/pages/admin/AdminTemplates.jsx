@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2, Save, Loader2, FileText, Palette } from "lucide-react";
+import { Plus, Trash2, Save, Loader2, FileText, Palette, Check } from "lucide-react";
 import { toast } from "sonner";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -15,6 +15,7 @@ const AdminTemplates = () => {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [pendingSaves, setPendingSaves] = useState({});
 
   useEffect(() => { fetchTemplates(); }, []);
 
@@ -36,20 +37,51 @@ const AdminTemplates = () => {
       });
       const tpl = await res.json();
       setTemplates(prev => [...prev, tpl]);
-      toast.success("Template created");
+      toast.success("Template created - don't forget to save your changes!");
     } catch { toast.error("Failed"); }
     finally { setSaving(false); }
   };
 
-  const updateTemplate = async (templateId, updates) => {
+  const updateTemplate = (templateId, updates) => {
     setTemplates(prev => prev.map(t => t.template_id === templateId ? { ...t, ...updates } : t));
+    setPendingSaves(prev => ({ ...prev, [templateId]: true }));
+  };
+
+  const saveTemplate = async (templateId) => {
+    const template = templates.find(t => t.template_id === templateId);
+    if (!template) return;
+    
+    setSaving(true);
     try {
       await fetch(`${API_URL}/api/admin/resume/templates/${templateId}`, {
         method: "PUT", credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
+        body: JSON.stringify(template),
       });
+      setPendingSaves(prev => ({ ...prev, [templateId]: false }));
+      toast.success("Template saved!");
     } catch { toast.error("Save failed"); }
+    finally { setSaving(false); }
+  };
+
+  const saveAllTemplates = async () => {
+    setSaving(true);
+    const pendingIds = Object.keys(pendingSaves).filter(id => pendingSaves[id]);
+    try {
+      for (const templateId of pendingIds) {
+        const template = templates.find(t => t.template_id === templateId);
+        if (template) {
+          await fetch(`${API_URL}/api/admin/resume/templates/${templateId}`, {
+            method: "PUT", credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(template),
+          });
+        }
+      }
+      setPendingSaves({});
+      toast.success("All templates saved!");
+    } catch { toast.error("Save failed"); }
+    finally { setSaving(false); }
   };
 
   const deleteTemplate = async (templateId) => {
@@ -57,9 +89,12 @@ const AdminTemplates = () => {
     try {
       await fetch(`${API_URL}/api/admin/resume/templates/${templateId}`, { method: "DELETE", credentials: "include" });
       setTemplates(prev => prev.filter(t => t.template_id !== templateId));
+      setPendingSaves(prev => { const n = { ...prev }; delete n[templateId]; return n; });
       toast.success("Deleted");
     } catch { toast.error("Failed"); }
   };
+
+  const hasPendingChanges = Object.values(pendingSaves).some(v => v);
 
   return (
     <AdminLayout>
@@ -69,9 +104,17 @@ const AdminTemplates = () => {
             <h1 className="text-2xl font-bold" data-testid="admin-templates-heading">Resume Templates</h1>
             <p className="text-sm text-muted-foreground">Manage ATS-friendly resume templates for users</p>
           </div>
-          <Button onClick={addTemplate} disabled={saving} data-testid="add-template-btn">
-            <Plus size={16} className="mr-1" /> Add Template
-          </Button>
+          <div className="flex gap-2">
+            {hasPendingChanges && (
+              <Button onClick={saveAllTemplates} disabled={saving} variant="default" className="bg-green-600 hover:bg-green-700" data-testid="save-all-templates-btn">
+                {saving ? <Loader2 size={16} className="mr-1 animate-spin" /> : <Save size={16} className="mr-1" />}
+                Save All Changes
+              </Button>
+            )}
+            <Button onClick={addTemplate} disabled={saving} variant="outline" data-testid="add-template-btn">
+              <Plus size={16} className="mr-1" /> Add Template
+            </Button>
+          </div>
         </div>
 
         {loading ? (
