@@ -78,6 +78,8 @@ const ResumeOptimizerPage = () => {
   const [pubUser, setPubUser] = useState(null);
   const [ogMeta, setOgMeta] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [userResumes, setUserResumes] = useState([]);
+  const [showResumeHistory, setShowResumeHistory] = useState(false);
 
   // Drag and drop handlers
   const handleDragOver = (e) => {
