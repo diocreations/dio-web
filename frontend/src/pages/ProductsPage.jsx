@@ -105,15 +105,12 @@ const ProductsPage = () => {
     fetchGeoCurrency();
   }, []);
 
-  // Fetch currency rates for manual currency switching
+  // Fetch currency rates for manual currency switching (public endpoint)
   useEffect(() => {
-    fetch(`${API_URL}/api/admin/currency/settings`)
+    fetch(`${API_URL}/api/currency/rates`)
       .then((res) => res.json())
       .then((data) => {
         if (data.rates) setCurrencyRates(data.rates);
-        if (data.symbols) {
-          // Update symbol when currency changes manually
-        }
       })
       .catch(console.error);
   }, []);
