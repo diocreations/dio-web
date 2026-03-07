@@ -142,6 +142,16 @@ const HomePage = () => {
   useEffect(() => {
     fetch(`${API_URL}/api/seed`, { method: "POST" }).catch(() => {});
     
+    // Fetch visitor currency and rates
+    Promise.all([
+      fetch(`${API_URL}/api/geo/currency`).then(r => r.json()).catch(() => ({ currency: "EUR", currency_symbol: "€" })),
+      fetch(`${API_URL}/api/currency/rates`).then(r => r.json()).catch(() => ({ rates: { EUR: 1 } })),
+    ]).then(([geoCurrency, ratesData]) => {
+      setVisitorCurrency(geoCurrency.currency || "EUR");
+      setVisitorCurrencySymbol(geoCurrency.currency_symbol || CURRENCY_SYMBOLS[geoCurrency.currency] || "€");
+      setCurrencyRates(ratesData.rates || { EUR: 1 });
+    });
+    
     Promise.all([
       fetch(`${API_URL}/api/homepage/content`).then((r) => r.json()),
       fetch(`${API_URL}/api/services?active_only=true`).then((r) => r.json()),
