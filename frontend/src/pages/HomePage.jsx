@@ -622,6 +622,7 @@ const ProductsSection = ({ products, formatPrice, currency, accent }) => (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {products.map((product, index) => {
           const IconComponent = iconMap[product.icon] || Globe;
+          const productCurrency = product.currency || "EUR";
           return (
             <motion.div
               key={product.product_id}
@@ -645,7 +646,7 @@ const ProductsSection = ({ products, formatPrice, currency, accent }) => (
                   {product.price && (
                     <div className="pt-2">
                       <span className="font-heading font-bold text-2xl text-foreground">
-                        {product.display_price ? `${product.currency_symbol}${product.display_price}` : formatPrice(product.price)}
+                        {formatPrice(product.price, productCurrency)}
                       </span>
                       <span className="text-muted-foreground text-sm">/{product.price_unit}</span>
                     </div>
