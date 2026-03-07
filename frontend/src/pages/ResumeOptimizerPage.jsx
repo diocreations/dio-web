@@ -927,7 +927,9 @@ const ResumeOptimizerPage = () => {
                           <History size={20} />
                           Your Previous Resumes
                         </CardTitle>
-                        <CardDescription>Click on a resume to continue editing</CardDescription>
+                        <CardDescription>
+                          Click on a resume to continue. Payment is per-resume - paid resumes have full access.
+                        </CardDescription>
                       </CardHeader>
                       <CardContent className="p-0 max-h-[60vh] overflow-y-auto">
                         {userResumes.map((resume) => (
@@ -946,8 +948,14 @@ const ResumeOptimizerPage = () => {
                                 </p>
                               </div>
                               <div className="flex flex-col items-end gap-1">
-                                {resume.is_paid && (
-                                  <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">Paid</span>
+                                {resume.is_paid ? (
+                                  <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full flex items-center gap-1">
+                                    <CheckCircle size={10} /> Full Access
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full flex items-center gap-1">
+                                    <Lock size={10} /> Payment Required
+                                  </span>
                                 )}
                                 {resume.has_improvement && (
                                   <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">Improved</span>
@@ -957,6 +965,11 @@ const ResumeOptimizerPage = () => {
                           </button>
                         ))}
                       </CardContent>
+                      <div className="p-4 border-t bg-slate-50">
+                        <p className="text-xs text-muted-foreground text-center">
+                          💡 Tip: Upload a new resume to get a new analysis. Each resume requires separate payment.
+                        </p>
+                      </div>
                     </Card>
                   </div>
                 )}
