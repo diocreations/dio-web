@@ -109,6 +109,17 @@ async def get_visitor_currency(request: Request):
     return result
 
 
+@router.get("/currency/rates")
+async def get_public_currency_rates():
+    """Public endpoint to get currency rates for frontend conversion"""
+    cs = await get_currency_settings()
+    return {
+        "rates": cs["rates"],
+        "symbols": cs["symbols"],
+        "default_currency": cs["default_currency"],
+    }
+
+
 # ---- Admin endpoints ----
 
 @router.get("/admin/currency/settings")
