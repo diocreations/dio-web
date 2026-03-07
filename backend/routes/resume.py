@@ -213,7 +213,7 @@ async def delete_resume(resume_id: str, user: dict = Depends(get_current_user)):
 
 
 @router.post("/resume/upload")
-async def upload_resume(file: UploadFile = File(...)):
+async def upload_resume(file: UploadFile = File(...), user_id: str = None, user_email: str = None):
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file provided")
     ext = file.filename.lower().split(".")[-1]
@@ -228,14 +228,48 @@ async def upload_resume(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail=f"Could not extract text: {str(e)}")
     if len(text.strip()) < 50:
         raise HTTPException(status_code=400, detail="Could not extract enough text from file")
+    
+    # Generate content hash for deduplication
+    import hashlib
+    content_hash = hashlib.md5(text.encode()).hexdigest()
+    
+    # Check if user has uploaded this same resume before (by content hash)
+    if user_id or user_email:
+        existing_resume = await db.resume_uploads.find_one({
+            "$or": [
+                {"user_id": user_id} if user_id else {"_skip": True},
+                {"user_email": user_email} if user_email else {"_skip": True}
+            ],
+            "content_hash": content_hash
+        }, {"_id": 0})
+        
+        if existing_resume:
+            # Return existing resume instead of creating new one
+            return {
+                "resume_id": existing_resume["resume_id"],
+                "text_preview": existing_resume["text"][:500],
+                "word_count": len(existing_resume["text"].split()),
+                "is_existing": True,
+                "message": "Found your existing resume - continuing where you left off"
+            }
+    
     resume_id = f"resume_{uuid.uuid4().hex[:12]}"
-    await db.resume_uploads.insert_one({
+    resume_doc = {
         "resume_id": resume_id,
         "filename": file.filename,
         "text": text,
+        "content_hash": content_hash,
         "created_at": datetime.now(timezone.utc).isoformat(),
-    })
-    return {"resume_id": resume_id, "text_preview": text[:500], "word_count": len(text.split())}
+    }
+    
+    # Associate with user if provided
+    if user_id:
+        resume_doc["user_id"] = user_id
+    if user_email:
+        resume_doc["user_email"] = user_email
+    
+    await db.resume_uploads.insert_one(resume_doc)
+    return {"resume_id": resume_id, "text_preview": text[:500], "word_count": len(text.split()), "is_existing": False}
 
 
 @router.post("/resume/analyze")
