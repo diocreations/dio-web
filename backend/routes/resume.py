@@ -362,11 +362,32 @@ async def upload_resume(file: UploadFile = File(...), user_id: str = None, user_
     if len(text.strip()) < 50:
         raise HTTPException(status_code=400, detail="Could not extract enough text from file")
     
-    # Generate content hash for deduplication
-    import hashlib
-    content_hash = hashlib.md5(text.encode()).hexdigest()
+    # Normalize text for comparison (remove extra whitespace, lowercase)
+    def normalize_text(t):
+        import re
+        # Remove extra whitespace and normalize
+        t = re.sub(r'\s+', ' ', t.strip().lower())
+        # Remove common PDF artifacts
+        t = re.sub(r'[^\w\s@.\-]', '', t)
+        return t
     
-    # Check if this exact resume (by content) already exists for this user
+    normalized_text = normalize_text(text)
+    
+    # Generate content hash from normalized text for better deduplication
+    import hashlib
+    content_hash = hashlib.md5(normalized_text.encode()).hexdigest()
+    
+    # Calculate text similarity (Jaccard similarity on word sets)
+    def calculate_similarity(text1, text2):
+        words1 = set(normalize_text(text1).split())
+        words2 = set(normalize_text(text2).split())
+        if not words1 or not words2:
+            return 0.0
+        intersection = len(words1 & words2)
+        union = len(words1 | words2)
+        return intersection / union if union > 0 else 0.0
+    
+    # Check for existing resumes for this user
     if user_id or user_email:
         query_conditions = []
         if user_id:
@@ -374,13 +395,14 @@ async def upload_resume(file: UploadFile = File(...), user_id: str = None, user_
         if user_email:
             query_conditions.append({"user_email": user_email})
         
+        # First check by exact hash (fastest)
         existing_resume = await db.resume_uploads.find_one({
             "$or": query_conditions,
             "content_hash": content_hash
         }, {"_id": 0})
         
         if existing_resume:
-            # Check if this existing resume is paid
+            # Exact match found
             payment = await db.resume_payments.find_one({
                 "resume_id": existing_resume["resume_id"],
                 "status": "paid"
@@ -394,8 +416,53 @@ async def upload_resume(file: UploadFile = File(...), user_id: str = None, user_
                 "is_paid": payment is not None,
                 "message": "Found your existing resume - continuing where you left off"
             }
+        
+        # Check for similar resumes (not exact match but high similarity)
+        user_resumes = await db.resume_uploads.find(
+            {"$or": query_conditions},
+            {"_id": 0, "resume_id": 1, "text": 1, "filename": 1}
+        ).to_list(10)
+        
+        for existing in user_resumes:
+            similarity = calculate_similarity(text, existing.get("text", ""))
+            
+            if similarity >= 0.70:  # 70% similarity threshold - same resume with minor edits
+                payment = await db.resume_payments.find_one({
+                    "resume_id": existing["resume_id"],
+                    "status": "paid"
+                })
+                
+                # Update the existing resume with new content (allow edits)
+                await db.resume_uploads.update_one(
+                    {"resume_id": existing["resume_id"]},
+                    {"$set": {
+                        "text": text,
+                        "filename": file.filename,
+                        "content_hash": content_hash,
+                        "updated_at": datetime.now(timezone.utc).isoformat(),
+                    }}
+                )
+                
+                return {
+                    "resume_id": existing["resume_id"],
+                    "text_preview": text[:500],
+                    "word_count": len(text.split()),
+                    "is_existing": True,
+                    "is_paid": payment is not None,
+                    "is_updated": True,
+                    "similarity": round(similarity * 100, 1),
+                    "message": "Your resume has been updated with the new content"
+                }
+            elif similarity < 0.30 and user_resumes:  # Less than 30% similarity - completely different resume
+                # Block upload of a different resume (one resume per account policy)
+                return {
+                    "error": True,
+                    "message": "You already have a resume on file. Resume Analyzer allows only one resume per account. You can edit your existing resume but cannot upload a completely different one.",
+                    "existing_resume_id": user_resumes[0]["resume_id"],
+                    "existing_filename": user_resumes[0].get("filename", "Your previous resume"),
+                }
     
-    # This is a NEW resume - create new entry
+    # This is a NEW resume for a new user - create new entry
     resume_id = f"resume_{uuid.uuid4().hex[:12]}"
     resume_doc = {
         "resume_id": resume_id,
