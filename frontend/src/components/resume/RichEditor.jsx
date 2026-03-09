@@ -257,10 +257,10 @@ const RichEditor = ({ value, onChange, placeholder = "Edit your resume..." }) =>
   );
 
   return (
-    <div className="border rounded-lg overflow-hidden bg-white h-full flex flex-col" data-testid="rich-editor">
+    <div className="border rounded-lg bg-white h-full flex flex-col" data-testid="rich-editor">
       {/* Main Toolbar - STICKY */}
-      <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-slate-50 flex-wrap flex-shrink-0 sticky top-0 z-40"
-           style={{ position: 'sticky', top: 0 }}>
+      <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-slate-50 flex-wrap flex-shrink-0 sticky top-0 z-50 shadow-sm"
+           style={{ position: 'sticky', top: 0, backgroundColor: '#f8fafc' }}>
         {/* Font Family */}
         <div className="relative" ref={fontFamilyRef}>
           <button type="button" onMouseDown={(e) => { e.preventDefault(); setShowFontFamily(!showFontFamily); }}
