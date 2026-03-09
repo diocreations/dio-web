@@ -684,7 +684,17 @@ const ResumeOptimizerPage = () => {
     const filename = extractResumeFilename(editedText);
     const tpl = activeVisualTemplate || "classic";
 
-    // Template configurations
+    // Check if using professional template (with photo support)
+    const isProfessional = ['professional', 'professional-blue', 'professional-minimal'].includes(tpl);
+    
+    // Professional template color schemes
+    const professionalColors = {
+      professional: { accent: "#a78bfa", headerBg: "#f8f7ff" },
+      "professional-blue": { accent: "#3b82f6", headerBg: "#f0f7ff" },
+      "professional-minimal": { accent: "#64748b", headerBg: "#f8fafc" },
+    };
+
+    // Template configurations for standard templates
     const configs = {
       classic: { font: "'Georgia','Times New Roman',serif", accent: "#1a1a2e", nameSize: "20pt", contactSize: "8pt", nameAlign: "center", bodyColor: "#333", h2Style: "border-bottom:1.5px solid #1a1a2e;color:#1a1a2e;padding-bottom:4px;", accentBar: "height:2px;background:#1a1a2e;margin:10px 0 16px;width:100%;" },
       modern: { font: "'Segoe UI',Calibri,sans-serif", accent: "#2563eb", nameSize: "22pt", contactSize: "8pt", nameAlign: "left", bodyColor: "#374151", h2Style: "color:#2563eb;border-left:3px solid #2563eb;padding-left:10px;border-bottom:none;", accentBar: "height:3px;background:#2563eb;margin:10px 0 16px;width:60px;border-radius:2px;" },
@@ -695,119 +705,311 @@ const ResumeOptimizerPage = () => {
       corporate: { font: "'Segoe UI',Calibri,sans-serif", accent: "#1e3a5f", nameSize: "20pt", contactSize: "8pt", nameAlign: "left", bodyColor: "#374151", h2Style: "color:#1e3a5f;border-bottom:2px solid #1e3a5f;padding-bottom:4px;", leftBar: true, accentBar: "height:2px;background:#1e3a5f40;margin:10px 0 16px;width:100%;" },
       creative: { font: "'Inter','Segoe UI',sans-serif", accent: "#7c3aed", nameSize: "24pt", contactSize: "8pt", nameAlign: "left", bodyColor: "#374151", h2Style: "color:#7c3aed;border-bottom:2px solid #e9d5ff;padding-bottom:4px;", accentBar: "height:4px;background:linear-gradient(90deg,#7c3aed,#a78bfa);margin:10px 0 16px;width:80px;border-radius:2px;" },
     };
-    const c = configs[tpl] || configs.classic;
-
-    // Clean HTML content - strip highlights, colored text, and non-professional formatting
-    const cleanHtmlForPdf = (html) => {
-      // Remove background colors (highlights)
-      let cleaned = html.replace(/background(-color)?:\s*[^;]+;?/gi, "");
-      // Remove colored text - replace with standard black/body color
-      cleaned = cleaned.replace(/color:\s*(?!#1a1a2e|#333|#374151|#1f2937|#4b5563)[^;]+;?/gi, "");
-      // Remove hiliteColor spans
-      cleaned = cleaned.replace(/<span[^>]*style="[^"]*background[^"]*"[^>]*>([\s\S]*?)<\/span>/gi, "$1");
-      // Remove font color spans that have non-standard colors
-      cleaned = cleaned.replace(/<font[^>]*color="(?!#1a1a2e|#333|black)"[^>]*>([\s\S]*?)<\/font>/gi, "$1");
-      return cleaned;
-    };
-
-    // Build HTML content
-    let extraCss = "";
-    if (c.leftBar) extraCss += `body{border-left:5px solid ${c.accent};padding-left:28px;}`;
-    if (c.headerBg) {
-      extraCss += `.header-block{background:${c.headerBg};color:${c.headerColor};padding:20px 24px 16px;margin:-24px -24px 16px;}`;
-      extraCss += `.header-block .resume-name{color:${c.headerColor};}`;
-      extraCss += `.header-block .resume-contact{color:rgba(255,255,255,0.7);}`;
-    }
-
-    const isHtmlContent = editedText.includes("<h2>") || editedText.includes("<p>") || editedText.includes("<li>");
-    let bodyContent = "";
-
-    if (isHtmlContent) {
-      let html = cleanHtmlForPdf(editedText);
-      let firstP = false, contactDone = false;
-      const nameEntries = [];
-      
-      html = html.replace(/<p([^>]*)>([\s\S]*?)<\/p>/gi, (match, attrs, content) => {
-        const text = content.replace(/<[^>]*>/g, "").trim();
-        if (!firstP && text && !text.startsWith("-") && !/^[A-Z][A-Z\s\/&,]{3,}$/.test(text)) {
-          firstP = true;
-          nameEntries.push(`<div class="resume-name">${content}</div>`);
-          return "%%NAME%%";
-        }
-        if (firstP && !contactDone && (text.includes("@") || text.includes("|") || /\+?\d[\d\s\-()]{5,}/.test(text) || /linkedin/i.test(text))) {
-          contactDone = true;
-          nameEntries.push(`<div class="resume-contact">${content.replace(/\|/g, " &middot; ")}</div>`);
-          return "%%CONTACT%%";
-        }
-        return match;
-      });
-      
-      let nameBlock = nameEntries.join("");
-      if (c.headerBg) nameBlock = `<div class="header-block">${nameBlock}</div>`;
-      else nameBlock += `<div class="accent-bar"></div>`;
-      bodyContent = html.replace("%%NAME%%", nameBlock).replace(/%%CONTACT%%/g, "");
-    } else {
-      const lines = editedText.split("\n");
-      const nameLines = [];
-      let bodyStartIdx = 0;
-      
-      for (let i = 0; i < lines.length; i++) {
-        const t = lines[i].trim();
-        if (!t) { bodyStartIdx = i + 1; break; }
-        const isH = /^[A-Z][A-Z\s\/&,]{3,}$/.test(t) && !t.includes("@") && !t.includes("|") && !t.includes(".com");
-        if (isH) { bodyStartIdx = i; break; }
-        nameLines.push(t);
-        bodyStartIdx = i + 1;
-      }
-      
-      if (c.headerBg) bodyContent += `<div class="header-block">`;
-      if (nameLines[0]) bodyContent += `<div class="resume-name">${nameLines[0]}</div>`;
-      for (let i = 1; i < nameLines.length; i++) bodyContent += `<div class="resume-contact">${nameLines[i].replace(/\|/g, " &middot; ")}</div>`;
-      if (c.headerBg) bodyContent += `</div>`;
-      else bodyContent += `<div class="accent-bar"></div>`;
-      
-      for (let i = bodyStartIdx; i < lines.length; i++) {
-        const t = lines[i].trim();
-        if (!t) { bodyContent += "<br/>"; continue; }
-        const isH = /^[A-Z][A-Z\s\/&,]{3,}$/.test(t) && !t.includes("@") && !t.includes("|") && !t.includes(".com");
-        const isBul = /^[-*\u2022]\s+/.test(t);
-        const hasDate = /\d{4}\s*[-\u2013]\s*(present|\d{4})/i.test(t);
-        if (isH) bodyContent += `<h2>${t}</h2>`;
-        else if (isBul) bodyContent += `<li>${t.replace(/^[-*\u2022]\s+/, "")}</li>`;
-        else if (hasDate) {
-          const dm = t.match(/(\w+\s+\d{4}\s*[-\u2013]\s*(?:Present|\w+\s+\d{4}))/i);
-          if (dm) { const rest = t.replace(dm[1], "").replace(/\|/g, "").trim(); bodyContent += `<div class="job-header"><span class="job-title">${rest}</span><span class="job-dates">${dm[1]}</span></div>`; }
-          else bodyContent += `<p><strong>${t}</strong></p>`;
-        } else bodyContent += `<p>${t}</p>`;
-      }
-    }
 
     // Create temporary container for PDF generation
     const container = document.createElement("div");
-    container.innerHTML = `
-      <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:${c.font};width:100%;max-width:100%;margin:0;padding:24px;line-height:1.5;color:${c.bodyColor};font-size:10pt;}
-        ${extraCss}
-        .resume-name{font-size:${c.nameSize};font-weight:700;color:${c.accent};letter-spacing:0.5px;margin-bottom:2px;text-align:${c.nameAlign};}
-        .resume-contact{font-size:${c.contactSize};color:#555;margin-bottom:1px;line-height:1.35;text-align:${c.nameAlign};}
-        .resume-contact a{color:${c.accent};text-decoration:none;}
-        .accent-bar{${c.accentBar || "display:none;"}}
-        h2{font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;${c.h2Style}margin:14px 0 6px;}
-        h3{font-size:9.5pt;font-weight:600;color:${c.bodyColor};margin:8px 0 3px;}
-        .job-header{display:flex;justify-content:space-between;align-items:baseline;margin:8px 0 3px;flex-wrap:wrap;gap:6px;}
-        .job-title{font-weight:700;font-size:10pt;color:${c.bodyColor};}
-        .job-dates{font-style:italic;color:#777;font-size:9pt;}
-        p{margin:2px 0;line-height:1.5;font-size:10pt;}
-        ul{padding-left:18px;margin:3px 0 6px;list-style-type:disc;}
-        ol{padding-left:18px;margin:3px 0 6px;}
-        li{margin-bottom:2px;line-height:1.45;font-size:10pt;}
-        strong,b{font-weight:700;}em,i{font-style:italic;}
-        a{color:${c.accent};text-decoration:none;}
-        hr{border:none;border-top:1px solid #ddd;margin:8px 0;}
-      </style>
-      <div style="font-family:${c.font};padding:24px;line-height:1.5;color:${c.bodyColor};font-size:10pt;${c.leftBar ? `border-left:5px solid ${c.accent};padding-left:28px;` : ""}">${bodyContent}</div>
-    `;
+    
+    if (isProfessional) {
+      // Professional template PDF generation with photo support
+      const pColors = professionalColors[tpl];
+      const accent = pColors.accent;
+      const headerBg = pColors.headerBg;
+      
+      // Parse content from editedText for professional template
+      const parseResumeContent = (text) => {
+        const htmlContent = text || "";
+        const isHtmlContent = htmlContent.includes('<') && (htmlContent.includes('<p>') || htmlContent.includes('<h2>'));
+        
+        const stripHtml = (html) => {
+          if (!html) return '';
+          const div = document.createElement('div');
+          div.innerHTML = html;
+          return div.textContent || div.innerText || '';
+        };
+        
+        const normalizeContent = (html) => {
+          if (!html) return '';
+          let normalized = html.replace(/<br\s*\/?>/gi, '\n');
+          normalized = normalized.replace(/<\/(p|div|h[1-6])>/gi, '\n\n');
+          normalized = normalized.replace(/<li[^>]*>/gi, '\n• ');
+          const div = document.createElement('div');
+          div.innerHTML = normalized;
+          return (div.textContent || div.innerText || '').trim();
+        };
+        
+        const normalizedText = isHtmlContent ? normalizeContent(htmlContent) : htmlContent;
+        const lines = normalizedText.split('\n').map(l => l.trim()).filter(l => l);
+        
+        const sectionPatterns = {
+          summary: /^(SUMMARY|PROFESSIONAL\s*SUMMARY|PROFILE|ABOUT|OBJECTIVE|CAREER\s*SUMMARY)/i,
+          experience: /^(EXPERIENCE|WORK\s*EXPERIENCE|EMPLOYMENT|PROFESSIONAL\s*EXPERIENCE|CAREER\s*HISTORY)/i,
+          education: /^(EDUCATION|ACADEMIC|QUALIFICATIONS|EDUCATIONAL\s*BACKGROUND)/i,
+          skills: /^(SKILLS|TECHNICAL\s*SKILLS|CORE\s*COMPETENCIES|EXPERTISE|KEY\s*SKILLS)/i,
+          certifications: /^(CERTIFICATIONS|CERTIFICATES|LICENSES|CREDENTIALS)/i,
+          languages: /^(LANGUAGES|LANGUAGE\s*SKILLS)/i,
+        };
+        
+        const findSectionContent = (pattern) => {
+          let startIdx = -1;
+          let endIdx = lines.length;
+          for (let i = 0; i < lines.length; i++) {
+            if (pattern.test(lines[i])) { startIdx = i; break; }
+          }
+          if (startIdx === -1) return [];
+          for (let i = startIdx + 1; i < lines.length; i++) {
+            const line = lines[i];
+            const isHeader = Object.values(sectionPatterns).some(p => p.test(line)) ||
+              (line.length < 50 && line === line.toUpperCase() && /^[A-Z][A-Z\s\/&,]+$/.test(line));
+            if (isHeader) { endIdx = i; break; }
+          }
+          return lines.slice(startIdx + 1, endIdx);
+        };
+        
+        let name = "Your Name";
+        for (const line of lines.slice(0, 5)) {
+          const isHeader = Object.values(sectionPatterns).some(p => p.test(line));
+          if (!isHeader && line.length > 2 && line.length < 60 && !/[@|•]/.test(line)) {
+            name = line; break;
+          }
+        }
+        
+        const fullText = normalizedText;
+        const contact = {
+          email: (fullText.match(/[\w.-]+@[\w.-]+\.\w+/) || [])[0] || "",
+          phone: (fullText.match(/\+?[\d\s\-()]{10,}/) || [])[0]?.trim() || "",
+          linkedin: (fullText.match(/linkedin\.com\/in\/[\w-]+/) || [])[0] || "",
+        };
+        
+        const summaryLines = findSectionContent(sectionPatterns.summary);
+        const summary = summaryLines.filter(l => !l.startsWith('•')).join(' ').slice(0, 500);
+        
+        const expLines = findSectionContent(sectionPatterns.experience);
+        const experienceItems = [];
+        let currentExp = null;
+        for (const line of expLines) {
+          const hasDate = /\d{4}/.test(line) || /present/i.test(line);
+          const isBullet = line.startsWith('•') || line.startsWith('-') || line.startsWith('*');
+          if (hasDate && !isBullet && line.length > 15) {
+            if (currentExp) experienceItems.push(currentExp);
+            let title = "", company = "", startDate = "", endDate = "";
+            const dateMatch = line.match(/(\w{3,9}\s+\d{4}|\d{4})\s*[-–—]\s*(Present|\w{3,9}\s+\d{4}|\d{4})/i);
+            let remaining = line;
+            if (dateMatch) {
+              startDate = dateMatch[1]; endDate = dateMatch[2];
+              remaining = line.replace(dateMatch[0], '').trim();
+            }
+            if (remaining.includes('|')) {
+              const parts = remaining.split('|').map(p => p.trim());
+              title = parts[0]; company = parts[1];
+            } else if (remaining.includes(',')) {
+              const commaIdx = remaining.indexOf(',');
+              title = remaining.substring(0, commaIdx).trim();
+              company = remaining.substring(commaIdx + 1).trim();
+            } else { title = remaining; }
+            currentExp = { title: title || "Professional", company, startDate, endDate, bullets: [] };
+          } else if (currentExp && (isBullet || line.length > 20)) {
+            currentExp.bullets.push(line.replace(/^[-•*]\s*/, ''));
+          }
+        }
+        if (currentExp) experienceItems.push(currentExp);
+        
+        const skillLines = findSectionContent(sectionPatterns.skills);
+        const skillsList = [];
+        for (const line of skillLines) {
+          const items = line.split(/[,•|]/).map(s => s.trim()).filter(s => s.length > 1 && s.length < 50);
+          items.forEach(skill => { if (!skillsList.includes(skill)) skillsList.push(skill); });
+        }
+        
+        const eduLines = findSectionContent(sectionPatterns.education);
+        const eduItems = [];
+        for (let i = 0; i < eduLines.length; i++) {
+          const line = eduLines[i];
+          if (line.length > 5 && !line.startsWith('•')) {
+            const yearMatch = line.match(/\d{4}/);
+            eduItems.push({ degree: line.replace(/\d{4}.*$/, '').trim(), year: yearMatch ? yearMatch[0] : "" });
+          }
+        }
+        
+        return { name, contact, summary, experience: experienceItems, skills: skillsList.slice(0, 8), education: eduItems.slice(0, 3) };
+      };
+      
+      const data = parseResumeContent(editedText);
+      
+      // Build professional template HTML for PDF
+      const photoHtml = profilePhoto 
+        ? `<img src="${profilePhoto}" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:3px solid ${accent};" />`
+        : `<div style="width:70px;height:70px;border-radius:50%;background:${accent}20;border:3px solid ${accent};display:flex;align-items:center;justify-content:center;color:${accent};font-size:24px;">👤</div>`;
+      
+      const contactHtml = [
+        data.contact.email && `<span>✉ ${data.contact.email}</span>`,
+        data.contact.phone && `<span>📞 ${data.contact.phone}</span>`,
+        data.contact.linkedin && `<span>🔗 ${data.contact.linkedin}</span>`,
+      ].filter(Boolean).join(' &nbsp;•&nbsp; ');
+      
+      const skillsHtml = data.skills.length > 0 
+        ? `<div class="section"><h2>Skills</h2><div style="display:flex;flex-wrap:wrap;gap:6px;">${data.skills.map(s => `<span style="background:${accent}15;color:#374151;padding:3px 8px;border-radius:4px;font-size:9pt;">${s}</span>`).join('')}</div></div>` 
+        : '';
+      
+      const experienceHtml = data.experience.length > 0 
+        ? `<div class="section"><h2>Work Experience</h2>${data.experience.map(exp => `
+            <div style="margin-bottom:12px;page-break-inside:avoid;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">
+                <div><strong style="font-size:10pt;">${exp.title}</strong>${exp.company ? `<div style="font-size:9pt;color:#666;">${exp.company}</div>` : ''}</div>
+                <span style="font-size:8pt;color:#777;white-space:nowrap;">${exp.startDate} - ${exp.endDate || 'Present'}</span>
+              </div>
+              ${exp.bullets.length > 0 ? `<ul style="margin:4px 0 0 16px;padding:0;">${exp.bullets.map(b => `<li style="font-size:9pt;margin-bottom:2px;">${b}</li>`).join('')}</ul>` : ''}
+            </div>`).join('')}</div>` 
+        : '';
+      
+      const educationHtml = data.education.length > 0 
+        ? `<div class="section"><h2>Education</h2>${data.education.map(edu => `<div style="margin-bottom:6px;"><strong style="font-size:9pt;">${edu.degree}</strong> ${edu.year ? `<span style="color:#777;font-size:8pt;">(${edu.year})</span>` : ''}</div>`).join('')}</div>` 
+        : '';
+      
+      container.innerHTML = `
+        <style>
+          *{margin:0;padding:0;box-sizing:border-box}
+          body{font-family:'Segoe UI',Calibri,sans-serif;color:#374151;font-size:10pt;line-height:1.5;}
+          .header{background:${headerBg};padding:20px;border-bottom:3px solid ${accent};}
+          .header-content{display:flex;gap:16px;align-items:center;}
+          .header-text{flex:1;}
+          .name{font-size:20pt;font-weight:700;color:#374151;margin-bottom:2px;}
+          .title{font-size:10pt;color:${accent};margin-bottom:8px;}
+          .contact{font-size:8pt;color:#666;display:flex;flex-wrap:wrap;gap:8px;}
+          .main{padding:20px;}
+          .section{margin-bottom:14px;}
+          h2{font-size:9pt;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:${accent};border-bottom:1px solid ${accent};padding-bottom:3px;margin-bottom:8px;}
+          p{margin:0 0 6px;font-size:9pt;}
+          ul{list-style-type:disc;padding-left:16px;}
+          li{font-size:9pt;margin-bottom:2px;}
+        </style>
+        <div>
+          <div class="header">
+            <div class="header-content">
+              ${photoHtml}
+              <div class="header-text">
+                <div class="name">${data.name}</div>
+                ${data.experience[0]?.title ? `<div class="title">${data.experience[0].title}</div>` : ''}
+                <div class="contact">${contactHtml}</div>
+              </div>
+            </div>
+          </div>
+          <div class="main">
+            ${data.summary ? `<div class="section"><h2>Professional Summary</h2><p>${data.summary}</p></div>` : ''}
+            ${skillsHtml}
+            ${experienceHtml}
+            ${educationHtml}
+          </div>
+        </div>
+      `;
+    } else {
+      // Standard template PDF generation
+      const c = configs[tpl] || configs.classic;
+
+      const cleanHtmlForPdf = (html) => {
+        let cleaned = html.replace(/background(-color)?:\s*[^;]+;?/gi, "");
+        cleaned = cleaned.replace(/color:\s*(?!#1a1a2e|#333|#374151|#1f2937|#4b5563)[^;]+;?/gi, "");
+        cleaned = cleaned.replace(/<span[^>]*style="[^"]*background[^"]*"[^>]*>([\s\S]*?)<\/span>/gi, "$1");
+        cleaned = cleaned.replace(/<font[^>]*color="(?!#1a1a2e|#333|black)"[^>]*>([\s\S]*?)<\/font>/gi, "$1");
+        return cleaned;
+      };
+
+      let extraCss = "";
+      if (c.leftBar) extraCss += `body{border-left:5px solid ${c.accent};padding-left:28px;}`;
+      if (c.headerBg) {
+        extraCss += `.header-block{background:${c.headerBg};color:${c.headerColor};padding:20px 24px 16px;margin:-24px -24px 16px;}`;
+        extraCss += `.header-block .resume-name{color:${c.headerColor};}`;
+        extraCss += `.header-block .resume-contact{color:rgba(255,255,255,0.7);}`;
+      }
+
+      const isHtmlContent = editedText.includes("<h2>") || editedText.includes("<p>") || editedText.includes("<li>");
+      let bodyContent = "";
+
+      if (isHtmlContent) {
+        let html = cleanHtmlForPdf(editedText);
+        let firstP = false, contactDone = false;
+        const nameEntries = [];
+        
+        html = html.replace(/<p([^>]*)>([\s\S]*?)<\/p>/gi, (match, attrs, content) => {
+          const text = content.replace(/<[^>]*>/g, "").trim();
+          if (!firstP && text && !text.startsWith("-") && !/^[A-Z][A-Z\s\/&,]{3,}$/.test(text)) {
+            firstP = true;
+            nameEntries.push(`<div class="resume-name">${content}</div>`);
+            return "%%NAME%%";
+          }
+          if (firstP && !contactDone && (text.includes("@") || text.includes("|") || /\+?\d[\d\s\-()]{5,}/.test(text) || /linkedin/i.test(text))) {
+            contactDone = true;
+            nameEntries.push(`<div class="resume-contact">${content.replace(/\|/g, " &middot; ")}</div>`);
+            return "%%CONTACT%%";
+          }
+          return match;
+        });
+        
+        let nameBlock = nameEntries.join("");
+        if (c.headerBg) nameBlock = `<div class="header-block">${nameBlock}</div>`;
+        else nameBlock += `<div class="accent-bar"></div>`;
+        bodyContent = html.replace("%%NAME%%", nameBlock).replace(/%%CONTACT%%/g, "");
+      } else {
+        const lines = editedText.split("\n");
+        const nameLines = [];
+        let bodyStartIdx = 0;
+        
+        for (let i = 0; i < lines.length; i++) {
+          const t = lines[i].trim();
+          if (!t) { bodyStartIdx = i + 1; break; }
+          const isH = /^[A-Z][A-Z\s\/&,]{3,}$/.test(t) && !t.includes("@") && !t.includes("|") && !t.includes(".com");
+          if (isH) { bodyStartIdx = i; break; }
+          nameLines.push(t);
+          bodyStartIdx = i + 1;
+        }
+        
+        if (c.headerBg) bodyContent += `<div class="header-block">`;
+        if (nameLines[0]) bodyContent += `<div class="resume-name">${nameLines[0]}</div>`;
+        for (let i = 1; i < nameLines.length; i++) bodyContent += `<div class="resume-contact">${nameLines[i].replace(/\|/g, " &middot; ")}</div>`;
+        if (c.headerBg) bodyContent += `</div>`;
+        else bodyContent += `<div class="accent-bar"></div>`;
+        
+        for (let i = bodyStartIdx; i < lines.length; i++) {
+          const t = lines[i].trim();
+          if (!t) { bodyContent += "<br/>"; continue; }
+          const isH = /^[A-Z][A-Z\s\/&,]{3,}$/.test(t) && !t.includes("@") && !t.includes("|") && !t.includes(".com");
+          const isBul = /^[-*\u2022]\s+/.test(t);
+          const hasDate = /\d{4}\s*[-\u2013]\s*(present|\d{4})/i.test(t);
+          if (isH) bodyContent += `<h2>${t}</h2>`;
+          else if (isBul) bodyContent += `<li>${t.replace(/^[-*\u2022]\s+/, "")}</li>`;
+          else if (hasDate) {
+            const dm = t.match(/(\w+\s+\d{4}\s*[-\u2013]\s*(?:Present|\w+\s+\d{4}))/i);
+            if (dm) { const rest = t.replace(dm[1], "").replace(/\|/g, "").trim(); bodyContent += `<div class="job-header"><span class="job-title">${rest}</span><span class="job-dates">${dm[1]}</span></div>`; }
+            else bodyContent += `<p><strong>${t}</strong></p>`;
+          } else bodyContent += `<p>${t}</p>`;
+        }
+      }
+
+      container.innerHTML = `
+        <style>
+          *{margin:0;padding:0;box-sizing:border-box}
+          body{font-family:${c.font};width:100%;max-width:100%;margin:0;padding:24px;line-height:1.5;color:${c.bodyColor};font-size:10pt;}
+          ${extraCss}
+          .resume-name{font-size:${c.nameSize};font-weight:700;color:${c.accent};letter-spacing:0.5px;margin-bottom:2px;text-align:${c.nameAlign};}
+          .resume-contact{font-size:${c.contactSize};color:#555;margin-bottom:1px;line-height:1.35;text-align:${c.nameAlign};}
+          .resume-contact a{color:${c.accent};text-decoration:none;}
+          .accent-bar{${c.accentBar || "display:none;"}}
+          h2{font-size:10pt;font-weight:700;text-transform:uppercase;letter-spacing:2px;${c.h2Style}margin:14px 0 6px;}
+          h3{font-size:9.5pt;font-weight:600;color:${c.bodyColor};margin:8px 0 3px;}
+          .job-header{display:flex;justify-content:space-between;align-items:baseline;margin:8px 0 3px;flex-wrap:wrap;gap:6px;}
+          .job-title{font-weight:700;font-size:10pt;color:${c.bodyColor};}
+          .job-dates{font-style:italic;color:#777;font-size:9pt;}
+          p{margin:2px 0;line-height:1.5;font-size:10pt;}
+          ul{padding-left:18px;margin:3px 0 6px;list-style-type:disc;}
+          ol{padding-left:18px;margin:3px 0 6px;}
+          li{margin-bottom:2px;line-height:1.45;font-size:10pt;}
+          strong,b{font-weight:700;}em,i{font-style:italic;}
+          a{color:${c.accent};text-decoration:none;}
+          hr{border:none;border-top:1px solid #ddd;margin:8px 0;}
+        </style>
+        <div style="font-family:${c.font};padding:24px;line-height:1.5;color:${c.bodyColor};font-size:10pt;${c.leftBar ? `border-left:5px solid ${c.accent};padding-left:28px;` : ""}">${bodyContent}</div>
+      `;
+    }
+    
     document.body.appendChild(container);
 
     try {
@@ -817,7 +1019,7 @@ const ResumeOptimizerPage = () => {
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, logging: false },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'], after: ['h2'] },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
       };
       await html2pdf().set(opt).from(container.querySelector("div")).save();
       toast.success("PDF downloaded successfully!");
