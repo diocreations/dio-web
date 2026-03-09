@@ -5,6 +5,38 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Resume Editor & Invitation Signup Fixes ✅
+**Date: Mar 9, 2025**
+
+**Issues Fixed (Req #18 & #19):**
+
+1. **#18A. Resume Editor Full-Width & Sticky Toolbar**
+   - RichEditor toolbar now sticky with `sticky top-0 z-50 shadow-sm`
+   - Removed `overflow-hidden` from container (breaks sticky)
+   - Editor uses full width with `w-full` class
+   - Toolbar stays visible when scrolling long resumes
+
+2. **#18B. Edit Resume Function**
+   - "Edit Text" button functional
+   - "Done Editing" button visible when editing
+   - Content updates and formatting preserved
+   - All resume sections editable
+
+3. **#18C. Photo-Enabled Template Multi-Page Support**
+   - ProfessionalTemplate uses `alignItems: 'stretch'` for flex container
+   - Sidebar stretches to match main content height
+   - All resume content displays fully
+   - Templates: Professional, Corporate Blue, Clean Minimal support photos
+
+4. **#19. Invitation Signup Button Fix**
+   - Button disabled logic fixed: `disabled={loading || (inviteToken && inviteValid === false)}`
+   - Button NOT disabled when `inviteValid === null` (verifying)
+   - Button NOT disabled when `inviteValid === true` (valid invitation)
+   - Added "Verifying invitation..." message during check
+   - Added error message for invalid invitations
+
+---
+
 ### Auth, Password Reset, Google Login & Invitation Flow Fixes ✅
 **Date: Mar 9, 2025**
 
