@@ -83,7 +83,7 @@ async def send_invitation_email(to_email: str, inviter_name: str, inviter_email:
         await asyncio.to_thread(resend.Emails.send, {
             "from": sender_email,
             "to": [to_email],
-            "subject": f"You're invited to join Diocreations AI Career Tools!",
+            "subject": "You're invited to join Diocreations AI Career Tools!",
             "html": html_content,
         })
         logger.info(f"Invitation email sent to {to_email}")
