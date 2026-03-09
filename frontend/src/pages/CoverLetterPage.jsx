@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import {
   PenLine, FileText, Upload, Loader2, Copy, Check,
-  Briefcase, Building2, Sparkles,
+  Briefcase, Building2, Sparkles, Link, Globe,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -17,8 +17,10 @@ const API_URL = process.env.REACT_APP_BACKEND_URL;
 const CoverLetterPage = () => {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [fetchingUrl, setFetchingUrl] = useState(false);
   const [result, setResult] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [jobUrl, setJobUrl] = useState("");
   const [form, setForm] = useState({
     resume_text: "",
     job_description: "",
