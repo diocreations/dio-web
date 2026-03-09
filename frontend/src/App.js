@@ -242,6 +242,7 @@ const AppRouter = () => {
       <Route path="/resume-analyzer-info" element={<ResumeAnalyzerLandingPage />} />
       <Route path="/cover-letter-info" element={<CoverLetterLandingPage />} />
       <Route path="/login" element={<UserLoginPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/dashboard" element={<UserDashboardPage />} />
       <Route path="/cover-letter" element={<CoverLetterPage />} />
       
