@@ -55,6 +55,35 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
    - Updated AI analysis prompt with fair scoring guidelines
    - Platform-generated resumes now parse correctly and maintain strong ATS scores
 
+8. **Resume Editor Improvements (Req #2)**
+   - Made RichEditor toolbar sticky (stays visible when scrolling)
+   - Made editor full-width (removed unused margins)
+   - Added explicit w-full classes to editor container
+
+9. **LinkedIn URL Formatting Bug Fix (Req #3)**
+   - Fixed issue where editing URLs caused surrounding text to become bold
+   - Improved insertLink() to pre-fill existing URL when editing
+   - Improved removeLink() to properly clean up link without affecting formatting
+
+10. **Template Compatibility & Multi-Page Support (Req #4)**
+    - Updated ProfessionalTemplate to use dynamic height instead of fixed min-height
+    - Added PDF pagebreak settings for proper multi-page rendering
+    - Templates now properly expand to accommodate longer resumes
+
+11. **Cover Letter Job URL Import (Req #9)**
+    - Added "Import Job from URL" feature to Cover Letter page
+    - Users can paste job posting URL (LinkedIn, Indeed, Glassdoor, etc.)
+    - System auto-extracts job title, company name, and description
+    - Backend uses httpx for async HTTP + BeautifulSoup for parsing + Gemini AI for extraction
+    - New endpoint: POST /api/cover-letter/fetch-job
+
+12. **Resume Upload Error Handling Post-Payment (Req #12)**
+    - Added detailed error messages when upload fails after payment
+    - Error message includes "Contact Support" link to Contact page
+    - Error message includes "Chat with Dio" button for chatbot
+    - User is instructed to mention "Resume Error" subject
+    - Error state properly tracked with uploadError state variable
+
 **Files Created:**
 - `/app/frontend/src/pages/ResetPasswordPage.jsx`
 
