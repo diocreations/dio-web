@@ -212,6 +212,7 @@ const AdminResume = () => {
         <Tabs defaultValue="resumes" className="w-full">
           <TabsList>
             <TabsTrigger value="resumes" className="gap-2"><Database size={14} /> Uploaded Resumes</TabsTrigger>
+            <TabsTrigger value="paid-users" className="gap-2"><UserCheck size={14} /> Paid Users</TabsTrigger>
             <TabsTrigger value="pricing" className="gap-2"><Settings size={14} /> Pricing Settings</TabsTrigger>
           </TabsList>
 
