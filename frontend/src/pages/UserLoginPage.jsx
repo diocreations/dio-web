@@ -177,7 +177,17 @@ const UserLoginPage = () => {
                       </div>
                     </div>
                     <div>
-                      <Label htmlFor="login-password">Password</Label>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="login-password">Password</Label>
+                        <button
+                          type="button"
+                          onClick={() => setShowForgotPassword(true)}
+                          className="text-xs text-primary hover:underline"
+                          data-testid="forgot-password-link"
+                        >
+                          Forgot password?
+                        </button>
+                      </div>
                       <div className="relative mt-1">
                         <Lock size={16} className="absolute left-3 top-3 text-muted-foreground" />
                         <Input id="login-password" type="password" placeholder="Enter password" className="pl-10" required data-testid="login-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
