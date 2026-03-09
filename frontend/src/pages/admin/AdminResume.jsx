@@ -111,6 +111,64 @@ const AdminResume = () => {
     return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
   };
 
+  const handleGrantAccess = async (resumeId, email) => {
+    if (!resumeId) {
+      toast.error("Resume ID is required");
+      return;
+    }
+    setGrantingAccess(resumeId);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/resume/grant-access`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ resume_id: resumeId, email }),
+      });
+      if (res.ok) {
+        toast.success("Access granted successfully");
+        fetchData();
+        setGrantEmail("");
+        setGrantResumeId("");
+      } else {
+        const err = await res.json();
+        toast.error(err.detail || "Failed to grant access");
+      }
+    } catch {
+      toast.error("Failed to grant access");
+    } finally {
+      setGrantingAccess(null);
+    }
+  };
+
+  const handleRevokeAccess = async (resumeId) => {
+    if (!window.confirm("Revoke paid access for this resume? The user will need to pay again.")) return;
+    setRevokingAccess(resumeId);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/resume/revoke-access/${resumeId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        toast.success("Access revoked");
+        fetchData();
+      } else {
+        const err = await res.json();
+        toast.error(err.detail || "Failed to revoke access");
+      }
+    } catch {
+      toast.error("Failed to revoke access");
+    } finally {
+      setRevokingAccess(null);
+    }
+  };
+
+  const filteredPaidUsers = paidUsers.filter(u => 
+    !searchTerm || 
+    u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.filename?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.resume_id?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (loading) return <AdminLayout><div className="animate-pulse space-y-6">{[1, 2, 3].map((i) => <div key={i} className="bg-slate-200 h-32 rounded-lg" />)}</div></AdminLayout>;
 
   return (
