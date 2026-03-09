@@ -5,6 +5,69 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### User Authentication & Admin Paid Users Management ✅
+**Date: Mar 9, 2025**
+
+**Features Implemented:**
+
+1. **Diocreations Login Branding**
+   - Changed login page title from "Your Account" to "Diocreations Login"
+   - Updated UserLoginPage.jsx with proper branding
+
+2. **Forgot Password Flow**
+   - Added "Forgot password?" link on login page
+   - Created forgot password form with email input
+   - Shows success message after submission
+   - Sends password reset email via Resend integration
+   - Backend endpoints: POST /api/user/forgot-password, POST /api/user/reset-password
+
+3. **Reset Password Page**
+   - New page at `/reset-password?token=xxx`
+   - Validates token from URL
+   - Shows error if token is invalid/expired
+   - Allows setting new password with confirmation
+
+4. **Admin Paid Users Management**
+   - New "Paid Users" tab in Admin Resume page
+   - View all users who paid for Resume AI with:
+     - Email, resume filename, payment amount, date, score
+     - Revoke access button
+   - Grant Paid Access form to manually grant access by Resume ID
+   - Backend endpoints: GET /api/admin/resume/paid-users, POST /api/admin/resume/grant-access, DELETE /api/admin/resume/revoke-access/{resume_id}
+
+5. **LinkedIn Optimizer Access Control**
+   - Toggle in Admin Paid Users tab
+   - ON = Available to all users, OFF = Paid users only
+   - Saved with pricing settings
+
+6. **Improved Resume Deduplication**
+   - Changed from exact MD5 hash to similarity-based comparison
+   - Uses Jaccard similarity on normalized text (word sets)
+   - 70%+ similarity = Same resume (allows edits, retains payment)
+   - <30% similarity = Different resume (blocked for same account)
+   - One resume per account policy for Resume Analyzer
+
+**Files Created:**
+- `/app/frontend/src/pages/ResetPasswordPage.jsx`
+
+**Files Modified:**
+- `/app/frontend/src/pages/UserLoginPage.jsx` - Diocreations branding, forgot password UI
+- `/app/backend/routes/public_auth.py` - Forgot/reset password endpoints
+- `/app/backend/routes/resume.py` - Paid users endpoints, similarity-based deduplication
+- `/app/frontend/src/pages/admin/AdminResume.jsx` - Paid Users tab with grant/revoke
+- `/app/frontend/src/pages/ResumeOptimizerPage.jsx` - Handle upload error for blocked resumes
+- `/app/frontend/src/App.js` - Added /reset-password route
+
+**API Endpoints:**
+- `POST /api/user/forgot-password` - Request password reset email
+- `POST /api/user/reset-password` - Reset password with token
+- `GET /api/admin/resume/paid-users` - List all paid users
+- `POST /api/admin/resume/grant-access` - Manually grant access
+- `DELETE /api/admin/resume/revoke-access/{resume_id}` - Revoke paid access
+
+---
+
+
 ### Admin-Editable Contact Form & Custom Pages ✅
 **Date: Mar 6, 2025**
 
