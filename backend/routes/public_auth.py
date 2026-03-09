@@ -1,10 +1,69 @@
-from fastapi import APIRouter, Request, Response, Depends
+from fastapi import APIRouter, Request, Response, Depends, HTTPException, BackgroundTasks
 from database import db, logger
 from helpers import hash_password, verify_password, generate_token, get_current_public_user, optional_public_user
 from datetime import datetime, timezone, timedelta
 import uuid
+import os
+import asyncio
 
 router = APIRouter(prefix="/api")
+
+
+async def send_password_reset_email(email: str, reset_token: str, origin_url: str):
+    """Send password reset email via Resend"""
+    resend_key = os.environ.get("RESEND_API_KEY", "")
+    sender_email = os.environ.get("SENDER_EMAIL", "Diocreations <noreply@diocreations.eu>")
+    
+    if not resend_key:
+        logger.error("RESEND_API_KEY not configured - cannot send password reset email")
+        return
+    
+    try:
+        import resend
+        resend.api_key = resend_key
+        
+        reset_link = f"{origin_url}/reset-password?token={reset_token}"
+        
+        html_content = f'''
+        <div style="max-width:600px;margin:0 auto;font-family:'Segoe UI',Arial,sans-serif;background:#ffffff;">
+            <div style="background:linear-gradient(135deg,#7c3aed 0%,#6d28d9 100%);padding:32px;text-align:center;">
+                <h1 style="color:#ffffff;margin:0;font-size:24px;">Password Reset Request</h1>
+            </div>
+            <div style="padding:32px;">
+                <p style="color:#374151;font-size:16px;line-height:1.6;">
+                    Hi there,
+                </p>
+                <p style="color:#374151;font-size:16px;line-height:1.6;">
+                    We received a request to reset your password for your Diocreations account. Click the button below to set a new password:
+                </p>
+                <div style="text-align:center;margin:32px 0;">
+                    <a href="{reset_link}" style="display:inline-block;background:#7c3aed;color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:8px;font-weight:600;font-size:16px;">
+                        Reset Password
+                    </a>
+                </div>
+                <p style="color:#6b7280;font-size:14px;line-height:1.6;">
+                    This link will expire in 1 hour for security reasons.
+                </p>
+                <p style="color:#6b7280;font-size:14px;line-height:1.6;">
+                    If you didn't request this password reset, you can safely ignore this email. Your password will remain unchanged.
+                </p>
+                <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">
+                <p style="color:#9ca3af;font-size:12px;text-align:center;">
+                    Diocreations | www.diocreations.eu
+                </p>
+            </div>
+        </div>
+        '''
+        
+        await asyncio.to_thread(resend.Emails.send, {
+            "from": sender_email,
+            "to": [email],
+            "subject": "Reset Your Diocreations Password",
+            "html": html_content,
+        })
+        logger.info(f"Password reset email sent to {email}")
+    except Exception as e:
+        logger.error(f"Failed to send password reset email: {e}")
 
 
 @router.post("/user/register")
