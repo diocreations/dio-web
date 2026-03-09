@@ -49,6 +49,7 @@ from routes.seo import router as seo_router
 from routes.referral import router as referral_router
 from routes.builder import router as builder_router
 from routes.newsletter import router as newsletter_router
+from routes.invitations import router as invitations_router
 
 app.include_router(auth_router)
 app.include_router(admin_router)
@@ -70,6 +71,7 @@ app.include_router(seo_router)
 app.include_router(referral_router)
 app.include_router(builder_router)
 app.include_router(newsletter_router)
+app.include_router(invitations_router)
 
 
 # Root endpoint
