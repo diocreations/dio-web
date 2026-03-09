@@ -155,9 +155,25 @@ def clean_extracted_text(text: str) -> str:
 
 
 def extract_text_from_docx(file_bytes: bytes) -> str:
+    """Extract text from DOCX with improved structure preservation"""
     doc = DocxDocument(BytesIO(file_bytes))
-    text = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
-    return text[:8000]
+    
+    paragraphs = []
+    for p in doc.paragraphs:
+        text = p.text.strip()
+        if text:
+            # Check if it's a heading style
+            if p.style and 'Heading' in p.style.name:
+                paragraphs.append(f"\n{text.upper()}\n")
+            else:
+                paragraphs.append(text)
+    
+    raw_text = "\n".join(paragraphs)
+    
+    # Apply same cleaning as PDF
+    cleaned = clean_extracted_text(raw_text)
+    
+    return cleaned[:8000]
 
 
 async def get_resume_pricing():
