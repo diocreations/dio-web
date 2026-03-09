@@ -80,6 +80,7 @@ const ResumeOptimizerPage = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [userResumes, setUserResumes] = useState([]);
   const [showResumeHistory, setShowResumeHistory] = useState(false);
+  const [uploadError, setUploadError] = useState(null); // For showing detailed error with support options
 
   // Drag and drop handlers
   const handleDragOver = (e) => {
