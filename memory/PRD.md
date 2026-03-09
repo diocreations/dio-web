@@ -92,8 +92,13 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 - `/app/backend/routes/public_auth.py` - Forgot/reset password endpoints
 - `/app/backend/routes/resume.py` - Paid users endpoints, similarity-based deduplication, improved PDF extraction
 - `/app/frontend/src/pages/admin/AdminResume.jsx` - Paid Users tab with grant/revoke
-- `/app/frontend/src/pages/ResumeOptimizerPage.jsx` - Handle upload error for blocked resumes
+- `/app/frontend/src/pages/ResumeOptimizerPage.jsx` - Handle upload error for blocked resumes, PDF pagebreak, full-width editor
 - `/app/frontend/src/App.js` - Added /reset-password route
+- `/app/frontend/src/pages/CoverLetterPage.jsx` - Job URL import feature
+- `/app/backend/routes/cover_letter.py` - fetch_job_from_url endpoint
+- `/app/frontend/src/components/resume/RichEditor.jsx` - Sticky toolbar, improved link handling
+- `/app/frontend/src/components/resume/ResumePreview.jsx` - Full-width editor wrapper
+- `/app/frontend/src/components/resume/ProfessionalTemplate.jsx` - Dynamic height for multi-page
 
 **API Endpoints:**
 - `POST /api/user/forgot-password` - Request password reset email
