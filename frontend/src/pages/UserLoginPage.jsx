@@ -407,8 +407,13 @@ const UserLoginPage = () => {
                     </div>
                     <Button type="submit" className="w-full" disabled={loading || (inviteToken && inviteValid === false)} data-testid="register-submit">
                       {loading ? <Loader2 className="animate-spin mr-2" size={16} /> : <UserPlus size={16} className="mr-2" />}
-                      Create Account
+                      {inviteToken ? "Create Account" : "Create Account"}
                     </Button>
+                    {inviteToken && inviteValid === false && (
+                      <p className="text-xs text-red-500 text-center mt-2">
+                        Invalid or expired invitation. Please request a new one.
+                      </p>
+                    )}
                   </form>
                 </TabsContent>
               </Tabs>
