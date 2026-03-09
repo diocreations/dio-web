@@ -23,6 +23,48 @@ const UserLoginPage = () => {
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
+  const [inviteToken, setInviteToken] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteValid, setInviteValid] = useState(null); // null = not checked, true/false = result
+
+  // Handle invitation token in URL
+  useEffect(() => {
+    const invite = searchParams.get("invite");
+    const emailParam = searchParams.get("email");
+    
+    if (invite) {
+      setInviteToken(invite);
+      setTab("signup"); // Switch to signup tab for invitations
+      
+      // If email is in URL, pre-fill it
+      if (emailParam) {
+        const decodedEmail = decodeURIComponent(emailParam);
+        setInviteEmail(decodedEmail);
+        setForm(f => ({ ...f, email: decodedEmail }));
+      }
+      
+      // Verify invitation token
+      fetch(`${API_URL}/api/invitation/verify/${invite}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.valid) {
+            setInviteValid(true);
+            if (data.email) {
+              setInviteEmail(data.email);
+              setForm(f => ({ ...f, email: data.email }));
+            }
+            toast.success(`Welcome! This invitation is for ${data.email || emailParam}`);
+          } else {
+            setInviteValid(false);
+            toast.error(data.message || "Invalid or expired invitation");
+          }
+        })
+        .catch(() => {
+          setInviteValid(false);
+          toast.error("Could not verify invitation");
+        });
+    }
+  }, [searchParams]);
 
   // Handle Google OAuth callback (session_id in URL fragment)
   useEffect(() => {
@@ -41,6 +83,12 @@ const UserLoginPage = () => {
             localStorage.setItem("pub_user", JSON.stringify(data));
             localStorage.setItem("pub_session_token", data.session_token);
             toast.success("Signed in with Google!");
+            
+            // Mark invitation as accepted if we have one
+            if (inviteToken) {
+              fetch(`${API_URL}/api/invitation/accept/${inviteToken}`, { method: "POST" }).catch(() => {});
+            }
+            
             navigate("/dashboard");
           } else {
             toast.error(data.detail || "Google sign-in failed");
@@ -49,7 +97,7 @@ const UserLoginPage = () => {
         .catch(() => toast.error("Google sign-in failed"))
         .finally(() => setGoogleLoading(false));
     }
-  }, [searchParams, navigate]);
+  }, [searchParams, navigate, inviteToken]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
