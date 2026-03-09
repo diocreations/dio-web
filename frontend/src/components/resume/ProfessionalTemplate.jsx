@@ -316,74 +316,77 @@ const ProfessionalTemplate = ({
       style={{ fontFamily: "'Segoe UI', Calibri, Arial, sans-serif", fontSize: `${fontSize}px` }}
       data-testid="resume-preview"
     >
-      {/* Header Section with Photo */}
+      {/* Header Section with Photo - Professional Side-by-Side Layout */}
       <div 
-        className="p-6 pb-4"
+        className="p-6 pb-5"
         style={{ backgroundColor: colors.sidebar, borderBottom: `3px solid ${colors.accent}` }}
       >
-        <div className="flex items-start gap-6">
-          {/* Photo */}
+        <div className="flex items-start gap-5">
+          {/* Left: Profile Photo */}
           <div className="flex-shrink-0">
             {data.photo ? (
               <img 
                 src={data.photo} 
                 alt={data.name}
-                className="w-24 h-24 rounded-full object-cover border-4"
-                style={{ borderColor: colors.accent }}
+                className="w-[90px] h-[90px] rounded-full object-cover shadow-md"
+                style={{ border: `3px solid ${colors.accent}` }}
               />
             ) : (
               <div 
-                className="w-24 h-24 rounded-full flex items-center justify-center border-4"
-                style={{ borderColor: colors.accent, backgroundColor: `${colors.accent}20` }}
+                className="w-[90px] h-[90px] rounded-full flex items-center justify-center shadow-md"
+                style={{ border: `3px solid ${colors.accent}`, backgroundColor: `${colors.accent}15` }}
               >
-                <User size={36} style={{ color: colors.accent }} />
+                <User size={40} style={{ color: colors.accent }} />
               </div>
             )}
           </div>
           
-          {/* Name and Title */}
-          <div className="flex-1">
+          {/* Right: Name, Title, and Contact Information */}
+          <div className="flex-1 min-w-0">
+            {/* Name */}
             <h1 
-              className="text-2xl font-bold mb-1"
+              className="text-2xl font-bold leading-tight mb-1"
               style={{ color: colors.text }}
             >
               {data.name}
             </h1>
+            
+            {/* Job Title */}
             {data.title && (
-              <p className="text-sm font-medium mb-3" style={{ color: colors.accent }}>
+              <p className="text-sm font-semibold mb-3" style={{ color: colors.accent }}>
                 {data.title}
               </p>
             )}
             
-            {/* Contact Info - Horizontal */}
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+            {/* Contact Information - Horizontal with Icons */}
+            <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs">
               {data.contact.email && (
-                <div className="flex items-center gap-1">
-                  <Mail size={12} style={{ color: colors.accent }} />
+                <div className="flex items-center gap-1.5">
+                  <Mail size={13} style={{ color: colors.accent }} />
                   <span className="text-slate-600">{data.contact.email}</span>
                 </div>
               )}
               {data.contact.phone && (
-                <div className="flex items-center gap-1">
-                  <Phone size={12} style={{ color: colors.accent }} />
+                <div className="flex items-center gap-1.5">
+                  <Phone size={13} style={{ color: colors.accent }} />
                   <span className="text-slate-600">{data.contact.phone}</span>
                 </div>
               )}
               {data.contact.location && (
-                <div className="flex items-center gap-1">
-                  <MapPin size={12} style={{ color: colors.accent }} />
+                <div className="flex items-center gap-1.5">
+                  <MapPin size={13} style={{ color: colors.accent }} />
                   <span className="text-slate-600">{data.contact.location}</span>
                 </div>
               )}
               {data.contact.linkedin && (
-                <div className="flex items-center gap-1">
-                  <Linkedin size={12} style={{ color: colors.accent }} />
+                <div className="flex items-center gap-1.5">
+                  <Linkedin size={13} style={{ color: colors.accent }} />
                   <span className="text-slate-600 text-[10px]">{data.contact.linkedin}</span>
                 </div>
               )}
               {data.contact.website && (
-                <div className="flex items-center gap-1">
-                  <Globe size={12} style={{ color: colors.accent }} />
+                <div className="flex items-center gap-1.5">
+                  <Globe size={13} style={{ color: colors.accent }} />
                   <span className="text-slate-600 text-[10px]">{data.contact.website}</span>
                 </div>
               )}
