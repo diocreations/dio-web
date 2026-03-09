@@ -5,6 +5,49 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Photo Template Header Layout Improved ✅
+**Date: Mar 9, 2025 (Iteration 41 - Req #26)**
+
+**Issue:** Photo template header wasted space with name/contact appearing BELOW the photo
+
+**New Layout Structure:**
+```
+[ Photo ]   [ Name
+              Job Title
+              ✉ Email | 📞 Phone | 🔗 LinkedIn | 📍 Location ]
+```
+
+**Changes Implemented:**
+
+1. **Side-by-Side Layout (Flexbox)**
+   - Photo: 85px circular on LEFT with accent border and shadow
+   - Name/Title/Contact: On RIGHT beside the photo
+   - Gap: 20px between photo and content
+
+2. **Contact Info with Icons**
+   - Email: ✉ icon
+   - Phone: 📞 icon  
+   - LinkedIn: 🔗 icon
+   - Location: 📍 icon
+   - Horizontal layout with separators
+
+3. **Compact Professional Header**
+   - Maximizes usable page space for resume content
+   - Similar to Resume.io, Zety, Novoresume templates
+
+4. **PDF Generation Updated**
+   - Same side-by-side structure in downloaded PDFs
+   - Consistent rendering across preview and PDF
+
+**Files Modified:**
+- `/app/frontend/src/components/resume/ResumePreview.jsx` - Unified renderer header
+- `/app/frontend/src/components/resume/ProfessionalTemplate.jsx` - Template header
+- `/app/frontend/src/pages/ResumeOptimizerPage.jsx` - PDF generation
+
+**Test Report:** `/app/test_reports/iteration_41.json` - 100% pass rate
+
+---
+
 ### Cover Letter AI Error Handling Fixed ✅
 **Date: Mar 9, 2025 (Iteration 40 - Req #25)**
 
