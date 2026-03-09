@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import {
   FileText, Download, Clock, LogOut, Trash2, Loader2, FileSearch, PenLine,
   ChevronRight, CheckCircle, XCircle, CreditCard, Share2, Copy, Gift, BarChart3,
+  Send, Mail,
 } from "lucide-react";
 import { toast } from "sonner";
 
