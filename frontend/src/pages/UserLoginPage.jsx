@@ -63,13 +63,20 @@ const UserLoginPage = () => {
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Failed");
+      if (!res.ok) throw new Error(data.detail || "Authentication failed. Please try again.");
       localStorage.setItem("pub_user", JSON.stringify(data));
       localStorage.setItem("pub_session_token", data.session_token);
       toast.success(tab === "login" ? "Welcome back!" : "Account created!");
       navigate("/dashboard");
     } catch (err) {
-      toast.error(err.message);
+      // Handle network errors with user-friendly messages
+      if (err.message === "Failed to fetch" || err.name === "TypeError") {
+        toast.error("Unable to connect to server. Please check your internet connection and try again.");
+      } else if (err.message.includes("NetworkError")) {
+        toast.error("Network error. Please check your connection.");
+      } else {
+        toast.error(err.message || "Something went wrong. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
