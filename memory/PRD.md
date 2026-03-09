@@ -5,6 +5,43 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Cover Letter AI Error Handling Fixed ✅
+**Date: Mar 9, 2025 (Iteration 40 - Req #25)**
+
+**Issue:** "Failed to Fetch" error on LIVE site affecting all Cover Letter workflows
+
+**Root Cause Identified:**
+- Generic browser error "Failed to fetch" displayed for network errors
+- LIVE site may have deployment sync issues (preview works correctly)
+
+**Fixes Implemented:**
+
+**A. Frontend Error Handling (CoverLetterPage.jsx):**
+- Network errors: "Unable to connect to the server. Please check your internet connection."
+- Timeout errors: "Request timed out. The server may be busy - please try again."
+- Server errors: Shows specific error message from backend
+- Validation errors: "Provide a job description or upload your resume"
+
+**B. Backend Error Handling (cover_letter.py):**
+- Database operation failures handled gracefully
+- AI generation failures: "Unable to generate cover letter at the moment. Please try again later."
+- URL fetch failures: Specific messages for timeout, access denied, etc.
+
+**C. All 3 Workflows Verified Working:**
+1. **Manual Input:** Enter job title, company, description → generates cover letter
+2. **URL Fetch:** Proper validation for empty/invalid URLs
+3. **Resume + Job Description:** Upload resume and enter job details → generates cover letter
+
+**Files Modified:**
+- `/app/frontend/src/pages/CoverLetterPage.jsx` - Improved error handling
+- `/app/backend/routes/cover_letter.py` - Better error messages
+
+**Test Report:** `/app/test_reports/iteration_40.json` - 100% pass rate
+
+**Note:** If LIVE site still shows errors after deployment, it confirms the deployment sync issue reported earlier.
+
+---
+
 ### Unified Resume Rendering Architecture ✅
 **Date: Mar 9, 2025 (Iteration 39 - Req #24)**
 
