@@ -842,14 +842,15 @@ const ResumeOptimizerPage = () => {
       
       // Build professional template HTML for PDF
       const photoHtml = profilePhoto 
-        ? `<img src="${profilePhoto}" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:3px solid ${accent};" />`
-        : `<div style="width:70px;height:70px;border-radius:50%;background:${accent}20;border:3px solid ${accent};display:flex;align-items:center;justify-content:center;color:${accent};font-size:24px;">👤</div>`;
+        ? `<img src="${profilePhoto}" style="width:85px;height:85px;border-radius:50%;object-fit:cover;border:3px solid ${accent};box-shadow:0 2px 8px rgba(0,0,0,0.1);" />`
+        : `<div style="width:85px;height:85px;border-radius:50%;background:${accent}15;border:3px solid ${accent};display:flex;align-items:center;justify-content:center;color:${accent};font-size:28px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">👤</div>`;
       
-      const contactHtml = [
-        data.contact.email && `<span>✉ ${data.contact.email}</span>`,
-        data.contact.phone && `<span>📞 ${data.contact.phone}</span>`,
-        data.contact.linkedin && `<span>🔗 ${data.contact.linkedin}</span>`,
-      ].filter(Boolean).join(' &nbsp;•&nbsp; ');
+      // Build contact HTML with icons in horizontal layout
+      const contactItems = [];
+      if (data.contact.email) contactItems.push(`<span style="display:inline-flex;align-items:center;gap:4px;"><span style="color:${accent};">✉</span> ${data.contact.email}</span>`);
+      if (data.contact.phone) contactItems.push(`<span style="display:inline-flex;align-items:center;gap:4px;"><span style="color:${accent};">📞</span> ${data.contact.phone}</span>`);
+      if (data.contact.linkedin) contactItems.push(`<span style="display:inline-flex;align-items:center;gap:4px;"><span style="color:${accent};">🔗</span> ${data.contact.linkedin}</span>`);
+      const contactHtml = contactItems.join('<span style="margin:0 8px;color:#ccc;">|</span>');
       
       const skillsHtml = data.skills.length > 0 
         ? `<div class="section"><h2>Skills</h2><div style="display:flex;flex-wrap:wrap;gap:6px;">${data.skills.map(s => `<span style="background:${accent}15;color:#374151;padding:3px 8px;border-radius:4px;font-size:9pt;">${s}</span>`).join('')}</div></div>` 
