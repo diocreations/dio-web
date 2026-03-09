@@ -209,6 +209,7 @@ const AppRouter = () => {
         <Routes>
           <Route path="/" element={<ResumeOptimizerPage />} />
           <Route path="/login" element={<UserLoginPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/dashboard" element={<UserDashboardPage />} />
           <Route path="/cover-letter" element={<CoverLetterPage />} />
           <Route path="*" element={<ResumeOptimizerPage />} />
