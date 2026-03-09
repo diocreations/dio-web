@@ -5,6 +5,56 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Critical Resume Editor Bugs Fixed ✅
+**Date: Mar 9, 2025 (Iteration 38)**
+
+**Issues Fixed (Req #20 - P0 Critical):**
+
+1. **#20A. Photo-Enabled Templates Multi-Page Support - FIXED**
+   - **Problem:** Professional templates with two-column sidebar layout truncated resumes to single page
+   - **Solution:** Refactored `ProfessionalTemplate.jsx` from two-column flex layout to single-column layout
+   - **Changes:**
+     - Header section with photo (inline with name/title/contact)
+     - Main content flows vertically for natural page breaks
+     - Skills displayed in horizontal grid (2 columns)
+     - Experience, education sections use `pageBreakInside: 'avoid'`
+   - **Templates Fixed:** professional, professional-blue, professional-minimal
+
+2. **#20B. Poor PDF Export Formatting - FIXED**
+   - **Problem:** Downloaded PDFs had major layout/spacing issues for professional templates
+   - **Solution:** Added separate PDF generation logic for professional templates
+   - **Changes in `handleDownloadPDF()`:**
+     - Detects professional template and uses custom HTML structure
+     - Header section with photo (rounded, border with accent color)
+     - Contact info horizontal with icons
+     - Skills as styled tags
+     - Experience with proper job header layout
+     - Professional styling matching template colors
+
+3. **#20C. Editor Toolbar Positioned Incorrectly - FIXED**
+   - **Problem:** Sticky toolbar appeared in main page header instead of within editor
+   - **Solution:** Changed toolbar from sticky positioning to regular positioning within flex container
+   - **Changes in `RichEditor.jsx`:**
+     - Removed `sticky top-0` from toolbar
+     - Toolbar now fixed within editor component using flex layout
+     - z-index reduced to z-10 (only needs to be above editor content)
+
+4. **#20D. Editor Not Full-Width - FIXED**
+   - **Problem:** Editor constrained to max-w-5xl even in editing mode
+   - **Solution:** Content section expands when in text editing mode
+   - **Changes in `ResumeOptimizerPage.jsx`:**
+     - Content section class: `max-w-5xl` → `max-w-7xl` when `editorMode === "text"`
+     - Provides more space for editing long resumes
+
+**Files Modified:**
+- `/app/frontend/src/components/resume/ProfessionalTemplate.jsx` - Single-column layout
+- `/app/frontend/src/components/resume/RichEditor.jsx` - Toolbar positioning
+- `/app/frontend/src/pages/ResumeOptimizerPage.jsx` - Width expansion, PDF generation
+
+**Test Report:** `/app/test_reports/iteration_38.json` - 100% pass rate
+
+---
+
 ### Resume Editor & Invitation Signup Fixes ✅
 **Date: Mar 9, 2025**
 
