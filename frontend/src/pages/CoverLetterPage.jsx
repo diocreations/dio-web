@@ -50,6 +50,49 @@ const CoverLetterPage = () => {
     }
   };
 
+  // Fetch job description from URL
+  const handleFetchJobUrl = async () => {
+    if (!jobUrl.trim()) {
+      toast.error("Please enter a job posting URL");
+      return;
+    }
+    
+    // Basic URL validation
+    try {
+      new URL(jobUrl);
+    } catch {
+      toast.error("Please enter a valid URL (e.g., https://company.com/job/123)");
+      return;
+    }
+    
+    setFetchingUrl(true);
+    try {
+      const res = await fetch(`${API_URL}/api/cover-letter/fetch-job`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: jobUrl }),
+      });
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.detail || "Failed to fetch job details");
+      
+      // Auto-fill the form with extracted data
+      setForm((f) => ({
+        ...f,
+        job_description: data.job_description || f.job_description,
+        job_title: data.job_title || f.job_title,
+        company_name: data.company_name || f.company_name,
+      }));
+      
+      toast.success("Job details extracted successfully!");
+      setJobUrl(""); // Clear the URL input after success
+    } catch (err) {
+      toast.error(err.message || "Could not fetch job details from URL");
+    } finally {
+      setFetchingUrl(false);
+    }
+  };
+
   const handleGenerate = async () => {
     if (!form.job_description && !form.resume_text) {
       toast.error("Provide a job description or upload your resume");
