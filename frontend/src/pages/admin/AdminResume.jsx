@@ -29,14 +29,16 @@ const AdminResume = () => {
 
   const fetchData = async () => {
     try {
-      const [pricingRes, analyticsRes, resumesRes] = await Promise.all([
+      const [pricingRes, analyticsRes, resumesRes, paidUsersRes] = await Promise.all([
         fetch(`${API_URL}/api/admin/resume/pricing`, { credentials: "include" }),
         fetch(`${API_URL}/api/admin/resume/analytics`, { credentials: "include" }),
         fetch(`${API_URL}/api/admin/resume/list`, { credentials: "include" }),
+        fetch(`${API_URL}/api/admin/resume/paid-users`, { credentials: "include" }),
       ]);
       setPricing(await pricingRes.json());
       setAnalytics(await analyticsRes.json());
       setResumes(await resumesRes.json());
+      if (paidUsersRes.ok) setPaidUsers(await paidUsersRes.json());
     } catch {
       toast.error("Failed to load data");
     } finally {
