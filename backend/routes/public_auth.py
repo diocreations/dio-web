@@ -201,3 +201,97 @@ async def google_callback_public(data: dict, response: Response):
         "picture": user.get("picture"),
         "session_token": session_token,
     }
+
+
+@router.post("/user/forgot-password")
+async def forgot_password(data: dict, background_tasks: BackgroundTasks):
+    """Request a password reset email"""
+    email = data.get("email", "").strip().lower()
+    origin_url = data.get("origin_url", "https://www.diocreations.eu")
+    
+    if not email:
+        raise HTTPException(status_code=400, detail="Email is required")
+    
+    # Check if user exists and has email auth
+    user = await db.public_users.find_one({"email": email}, {"_id": 0})
+    
+    # Always return success to prevent email enumeration
+    if not user:
+        return {"message": "If an account exists with this email, you will receive a password reset link."}
+    
+    # Check if user registered with Google (no password to reset)
+    if user.get("auth_type") == "google" and not user.get("password_hash"):
+        return {"message": "If an account exists with this email, you will receive a password reset link."}
+    
+    # Generate reset token
+    reset_token = f"rst_{uuid.uuid4().hex}"
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+    
+    # Store reset token
+    await db.password_reset_tokens.delete_many({"email": email})  # Remove old tokens
+    await db.password_reset_tokens.insert_one({
+        "email": email,
+        "token": reset_token,
+        "expires_at": expires_at.isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "used": False,
+    })
+    
+    # Send email in background
+    background_tasks.add_task(send_password_reset_email, email, reset_token, origin_url)
+    
+    return {"message": "If an account exists with this email, you will receive a password reset link."}
+
+
+@router.post("/user/reset-password")
+async def reset_password(data: dict):
+    """Reset password using the token from email"""
+    token = data.get("token", "").strip()
+    new_password = data.get("password", "")
+    
+    if not token:
+        raise HTTPException(status_code=400, detail="Reset token is required")
+    if not new_password or len(new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    
+    # Find valid token
+    reset_doc = await db.password_reset_tokens.find_one({
+        "token": token,
+        "used": False,
+    }, {"_id": 0})
+    
+    if not reset_doc:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset link")
+    
+    # Check expiration
+    expires_at = datetime.fromisoformat(reset_doc["expires_at"].replace("Z", "+00:00"))
+    if datetime.now(timezone.utc) > expires_at:
+        raise HTTPException(status_code=400, detail="Reset link has expired. Please request a new one.")
+    
+    email = reset_doc["email"]
+    
+    # Update user password
+    result = await db.public_users.update_one(
+        {"email": email},
+        {"$set": {
+            "password_hash": hash_password(new_password),
+            "auth_type": "email",  # Ensure they can now login with email
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=400, detail="Failed to update password")
+    
+    # Mark token as used
+    await db.password_reset_tokens.update_one(
+        {"token": token},
+        {"$set": {"used": True}}
+    )
+    
+    # Invalidate all existing sessions for security
+    user = await db.public_users.find_one({"email": email}, {"_id": 0})
+    if user:
+        await db.public_sessions.delete_many({"user_id": user["user_id"]})
+    
+    return {"message": "Password reset successful. You can now log in with your new password."}
