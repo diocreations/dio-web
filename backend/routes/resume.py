@@ -267,6 +267,84 @@ async def delete_resume(resume_id: str, user: dict = Depends(get_current_user)):
     return {"message": "Resume and associated data deleted"}
 
 
+@router.get("/admin/resume/paid-users")
+async def get_paid_users(user: dict = Depends(get_current_user)):
+    """Get list of all users who have paid for Resume AI"""
+    payments = await db.resume_payments.find(
+        {"status": "paid"}, 
+        {"_id": 0}
+    ).sort("paid_at", -1).to_list(500)
+    
+    # Enrich with resume and user info
+    result = []
+    for payment in payments:
+        resume_id = payment.get("resume_id")
+        upload = await db.resume_uploads.find_one({"resume_id": resume_id}, {"_id": 0, "filename": 1, "user_email": 1})
+        analysis = await db.resume_analyses.find_one({"resume_id": resume_id}, {"_id": 0, "overall_score": 1})
+        
+        result.append({
+            "resume_id": resume_id,
+            "email": payment.get("email") or (upload.get("user_email") if upload else None),
+            "filename": upload.get("filename") if upload else "Unknown",
+            "amount": payment.get("amount"),
+            "currency": payment.get("currency", "EUR"),
+            "paid_at": payment.get("paid_at"),
+            "overall_score": analysis.get("overall_score") if analysis else None,
+            "session_id": payment.get("session_id"),
+        })
+    
+    return result
+
+
+@router.post("/admin/resume/grant-access")
+async def grant_resume_access(data: dict, user: dict = Depends(get_current_user)):
+    """Manually grant paid access to a resume"""
+    resume_id = data.get("resume_id")
+    email = data.get("email", "")
+    
+    if not resume_id:
+        raise HTTPException(status_code=400, detail="resume_id is required")
+    
+    # Check if resume exists
+    resume = await db.resume_uploads.find_one({"resume_id": resume_id}, {"_id": 0})
+    if not resume:
+        raise HTTPException(status_code=404, detail="Resume not found")
+    
+    # Check if already paid
+    existing = await db.resume_payments.find_one({"resume_id": resume_id, "status": "paid"})
+    if existing:
+        raise HTTPException(status_code=400, detail="This resume already has paid access")
+    
+    # Create manual payment record
+    payment_doc = {
+        "session_id": f"manual_{uuid.uuid4().hex[:12]}",
+        "resume_id": resume_id,
+        "amount": 0,
+        "currency": "EUR",
+        "email": email or resume.get("user_email", ""),
+        "status": "paid",
+        "paid_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "granted_by": user.get("email", "admin"),
+        "is_manual_grant": True,
+    }
+    await db.resume_payments.insert_one(payment_doc)
+    
+    return {"message": "Access granted successfully", "resume_id": resume_id}
+
+
+@router.delete("/admin/resume/revoke-access/{resume_id}")
+async def revoke_resume_access(resume_id: str, user: dict = Depends(get_current_user)):
+    """Revoke paid access from a resume"""
+    # Delete the payment record (or mark as revoked)
+    result = await db.resume_payments.delete_one({"resume_id": resume_id, "status": "paid"})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="No paid access found for this resume")
+    
+    return {"message": "Access revoked", "resume_id": resume_id}
+
+
 @router.post("/resume/upload")
 async def upload_resume(file: UploadFile = File(...), user_id: str = None, user_email: str = None):
     if not file.filename:
