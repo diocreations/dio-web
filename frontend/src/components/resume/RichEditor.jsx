@@ -3,9 +3,14 @@ import {
   Bold, Italic, List, ListOrdered, Heading1, Heading2, Underline, Strikethrough,
   Minus, Undo, Redo, Palette, AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Link, Unlink, Indent, Outdent, RemoveFormatting, Type, Highlighter,
-  Copy, Scissors, Clipboard, Table, Trash2, Quote, Subscript, Superscript,
+  Copy, Scissors, Clipboard, Table, Quote, Subscript, Superscript,
   MoreHorizontal, ChevronDown,
 } from "lucide-react";
+
+// A4 dimensions
+const A4_WIDTH = 794;
+const A4_HEIGHT = 1123;
+const PAGE_PADDING = 48;
 
 const FONT_COLORS = [
   { label: "Black", value: "#1a1a2e" },
@@ -64,17 +69,38 @@ const Sep = () => <div className="w-px h-5 bg-slate-300 mx-0.5" />;
 
 const RichEditor = ({ value, onChange, placeholder = "Edit your resume..." }) => {
   const editorRef = useRef(null);
+  const containerRef = useRef(null);
+  const toolbarRef = useRef(null);
   const isInternalUpdate = useRef(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showFontSize, setShowFontSize] = useState(false);
   const [showFontFamily, setShowFontFamily] = useState(false);
   const [showHighlight, setShowHighlight] = useState(false);
   const [showMoreTools, setShowMoreTools] = useState(false);
+  const [toolbarSticky, setToolbarSticky] = useState(false);
   const colorRef = useRef(null);
   const fontSizeRef = useRef(null);
   const fontFamilyRef = useRef(null);
   const highlightRef = useRef(null);
   const moreRef = useRef(null);
+
+  // Handle sticky toolbar within container
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const handleScroll = () => {
+      if (toolbarRef.current && container) {
+        const containerRect = container.getBoundingClientRect();
+        const toolbarHeight = toolbarRef.current.offsetHeight;
+        // Make toolbar sticky when scrolled past the top of the editor container
+        setToolbarSticky(containerRect.top < 60);
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll, true);
+    return () => window.removeEventListener('scroll', handleScroll, true);
+  }, []);
 
   useEffect(() => {
     if (editorRef.current && value && !editorRef.current.innerHTML.trim()) {
@@ -162,8 +188,6 @@ const RichEditor = ({ value, onChange, placeholder = "Edit your resume..." }) =>
   const insertLink = () => {
     const selection = window.getSelection();
     let currentUrl = "";
-    
-    // Check if selection is already a link to pre-fill the URL
     if (selection.rangeCount) {
       let node = selection.getRangeAt(0).startContainer;
       while (node && node !== editorRef.current) {
@@ -174,27 +198,20 @@ const RichEditor = ({ value, onChange, placeholder = "Edit your resume..." }) =>
         node = node.parentNode;
       }
     }
-    
     const url = prompt("Enter URL:", currentUrl);
     if (url) {
-      // If editing existing link, remove it first to prevent format issues
-      if (currentUrl) {
-        exec("unlink");
-      }
+      if (currentUrl) exec("unlink");
       exec("createLink", url);
-      // Ensure no formatting is applied to the link text
       editorRef.current?.focus();
     }
   };
 
   const removeLink = () => {
     exec("unlink");
-    // Also remove any formatting that might have been applied
     const selection = window.getSelection();
     if (selection.rangeCount) {
       const range = selection.getRangeAt(0);
       if (range.collapsed) {
-        // If no selection, try to find and unlink the parent anchor
         let node = range.startContainer;
         while (node && node !== editorRef.current) {
           if (node.nodeType === 1 && node.tagName === "A") {
@@ -209,10 +226,7 @@ const RichEditor = ({ value, onChange, placeholder = "Edit your resume..." }) =>
     }
   };
 
-  const clearFormatting = () => {
-    exec("removeFormat");
-    exec("formatBlock", "p");
-  };
+  const clearFormatting = () => { exec("removeFormat"); exec("formatBlock", "p"); };
 
   const insertTable = () => {
     const rows = prompt("Number of rows:", "3");
@@ -232,14 +246,11 @@ const RichEditor = ({ value, onChange, placeholder = "Edit your resume..." }) =>
   };
 
   const insertBlockquote = () => exec("formatBlock", "blockquote");
-
   const handleCopy = () => document.execCommand("copy");
   const handleCut = () => document.execCommand("cut");
   const handlePaste = async () => {
-    try {
-      const text = await navigator.clipboard.readText();
-      exec("insertText", text);
-    } catch { document.execCommand("paste"); }
+    try { const text = await navigator.clipboard.readText(); exec("insertText", text); } 
+    catch { document.execCommand("paste"); }
   };
 
   const selectAll = () => {
@@ -257,10 +268,21 @@ const RichEditor = ({ value, onChange, placeholder = "Edit your resume..." }) =>
   );
 
   return (
-    <div className="border rounded-lg bg-white h-full flex flex-col relative" data-testid="rich-editor">
-      {/* Main Toolbar - Fixed to top of editor container */}
-      <div className="flex items-center gap-0.5 px-2 py-1.5 border-b bg-slate-50 flex-wrap flex-shrink-0 z-10 shadow-sm"
-           style={{ backgroundColor: '#f8fafc' }}>
+    <div 
+      ref={containerRef}
+      className="relative flex flex-col h-full"
+      style={{ backgroundColor: '#e5e7eb' }}
+      data-testid="rich-editor"
+    >
+      {/* Toolbar - stays at top of editor area */}
+      <div 
+        ref={toolbarRef}
+        className={`flex items-center gap-0.5 px-3 py-2 bg-white border-b flex-wrap z-20 shadow-sm ${toolbarSticky ? 'sticky top-[60px]' : ''}`}
+        style={{ 
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid #e2e8f0',
+        }}
+      >
         {/* Font Family */}
         <div className="relative" ref={fontFamilyRef}>
           <button type="button" onMouseDown={(e) => { e.preventDefault(); setShowFontFamily(!showFontFamily); }}
@@ -410,38 +432,58 @@ const RichEditor = ({ value, onChange, placeholder = "Edit your resume..." }) =>
         </div>
       </div>
 
-      {/* Editor Area */}
-      <div
-        ref={editorRef}
-        contentEditable
-        suppressContentEditableWarning
-        onInput={handleInput}
-        data-testid="resume-edit-area"
-        data-placeholder={placeholder}
-        className="flex-1 min-h-[650px] p-8 outline-none prose prose-sm max-w-none overflow-y-auto
-          [&_h2]:text-sm [&_h2]:font-bold [&_h2]:uppercase [&_h2]:tracking-[2px] [&_h2]:text-slate-800 [&_h2]:border-b [&_h2]:border-slate-300 [&_h2]:pb-1 [&_h2]:mb-2 [&_h2]:mt-4
-          [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:text-slate-700 [&_h3]:mb-1 [&_h3]:mt-3
-          [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-slate-700 [&_p]:my-0.5
-          [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-1
-          [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-1
-          [&_li]:text-sm [&_li]:leading-relaxed [&_li]:text-slate-700
-          [&_hr]:my-3 [&_hr]:border-slate-300
-          [&_b]:font-bold [&_strong]:font-bold
-          [&_a]:text-blue-600 [&_a]:underline
-          [&_s]:line-through [&_strike]:line-through
-          [&_blockquote]:border-l-4 [&_blockquote]:border-slate-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-slate-600 [&_blockquote]:my-2
-          [&_table]:border-collapse [&_table]:w-full [&_table]:my-3
-          [&_td]:border [&_td]:border-slate-300 [&_td]:p-2 [&_td]:text-sm
-          [&_th]:border [&_th]:border-slate-300 [&_th]:p-2 [&_th]:text-sm [&_th]:bg-slate-100 [&_th]:font-semibold
-          empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 empty:before:pointer-events-none
-        "
-        style={{ fontFamily: "'Segoe UI', Calibri, Arial, sans-serif", fontSize: "13px" }}
-      />
+      {/* A4 Document Container */}
+      <div 
+        className="flex-1 overflow-auto py-6"
+        style={{ backgroundColor: '#e5e7eb' }}
+      >
+        <div 
+          className="mx-auto shadow-xl bg-white"
+          style={{
+            width: `${A4_WIDTH}px`,
+            minHeight: `${A4_HEIGHT}px`,
+          }}
+        >
+          {/* Editor Area styled as A4 document */}
+          <div
+            ref={editorRef}
+            contentEditable
+            suppressContentEditableWarning
+            onInput={handleInput}
+            data-testid="resume-edit-area"
+            data-placeholder={placeholder}
+            className="outline-none prose prose-sm max-w-none
+              [&_h2]:text-xs [&_h2]:font-bold [&_h2]:uppercase [&_h2]:tracking-[2px] [&_h2]:text-slate-800 [&_h2]:border-b [&_h2]:border-slate-300 [&_h2]:pb-1 [&_h2]:mb-2 [&_h2]:mt-4
+              [&_h3]:text-xs [&_h3]:font-semibold [&_h3]:text-slate-700 [&_h3]:mb-1 [&_h3]:mt-3
+              [&_p]:text-xs [&_p]:leading-relaxed [&_p]:text-slate-700 [&_p]:my-0.5
+              [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-1
+              [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-1
+              [&_li]:text-xs [&_li]:leading-relaxed [&_li]:text-slate-700
+              [&_hr]:my-3 [&_hr]:border-slate-300
+              [&_b]:font-bold [&_strong]:font-bold
+              [&_a]:text-blue-600 [&_a]:underline
+              [&_s]:line-through [&_strike]:line-through
+              [&_blockquote]:border-l-4 [&_blockquote]:border-slate-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-slate-600 [&_blockquote]:my-2
+              [&_table]:border-collapse [&_table]:w-full [&_table]:my-3
+              [&_td]:border [&_td]:border-slate-300 [&_td]:p-2 [&_td]:text-xs
+              [&_th]:border [&_th]:border-slate-300 [&_th]:p-2 [&_th]:text-xs [&_th]:bg-slate-100 [&_th]:font-semibold
+              empty:before:content-[attr(data-placeholder)] empty:before:text-slate-400 empty:before:pointer-events-none
+            "
+            style={{ 
+              fontFamily: "'Segoe UI', Calibri, Arial, sans-serif", 
+              fontSize: "11px",
+              padding: `${PAGE_PADDING}px`,
+              minHeight: `${A4_HEIGHT}px`,
+              lineHeight: 1.6,
+            }}
+          />
+        </div>
+      </div>
 
       {/* Status bar */}
-      <div className="flex items-center justify-between px-3 py-1.5 border-t bg-slate-50 text-xs text-slate-500 flex-shrink-0">
-        <span>Tip: Use keyboard shortcuts - Ctrl+B (Bold), Ctrl+I (Italic), Ctrl+U (Underline)</span>
-        <span>Click "Edit Text" to modify, "Done Editing" when finished</span>
+      <div className="flex items-center justify-between px-4 py-2 bg-white border-t text-xs text-slate-500">
+        <span>Tip: Use Ctrl+B (Bold), Ctrl+I (Italic), Ctrl+U (Underline)</span>
+        <span>A4 Document • 794 × 1123px</span>
       </div>
     </div>
   );
