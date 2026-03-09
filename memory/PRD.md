@@ -47,13 +47,21 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
    - <30% similarity = Different resume (blocked for same account)
    - One resume per account policy for Resume Analyzer
 
+7. **Re-Analysis Consistency for Downloaded Resumes (Req #11)**
+   - Improved PDF text extraction using block-based parsing for better structure
+   - Added `clean_extracted_text()` function to remove PDF artifacts
+   - Normalized section headers during extraction (EXPERIENCE, EDUCATION, SKILLS, etc.)
+   - Added `detect_platform_resume()` to identify well-formatted resumes
+   - Updated AI analysis prompt with fair scoring guidelines
+   - Platform-generated resumes now parse correctly and maintain strong ATS scores
+
 **Files Created:**
 - `/app/frontend/src/pages/ResetPasswordPage.jsx`
 
 **Files Modified:**
 - `/app/frontend/src/pages/UserLoginPage.jsx` - Diocreations branding, forgot password UI
 - `/app/backend/routes/public_auth.py` - Forgot/reset password endpoints
-- `/app/backend/routes/resume.py` - Paid users endpoints, similarity-based deduplication
+- `/app/backend/routes/resume.py` - Paid users endpoints, similarity-based deduplication, improved PDF extraction
 - `/app/frontend/src/pages/admin/AdminResume.jsx` - Paid Users tab with grant/revoke
 - `/app/frontend/src/pages/ResumeOptimizerPage.jsx` - Handle upload error for blocked resumes
 - `/app/frontend/src/App.js` - Added /reset-password route
