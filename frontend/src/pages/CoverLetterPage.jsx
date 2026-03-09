@@ -38,13 +38,23 @@ const CoverLetterPage = () => {
     fd.append("file", file);
     try {
       const res = await fetch(`${API_URL}/api/resume/upload`, { method: "POST", body: fd });
+      
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || `Upload failed (${res.status})`);
+      }
+      
       const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Upload failed");
       setResumeFile({ name: file.name, resume_id: data.resume_id });
       setForm((f) => ({ ...f, resume_text: data.text_preview }));
       toast.success("Resume uploaded!");
     } catch (err) {
-      toast.error(err.message);
+      console.error("Resume upload error:", err);
+      if (err.message === "Failed to fetch" || err.name === "TypeError") {
+        toast.error("Unable to connect to the server. Please check your internet connection.");
+      } else {
+        toast.error(err.message || "Failed to upload resume. Please try again.");
+      }
     } finally {
       setUploading(false);
     }
