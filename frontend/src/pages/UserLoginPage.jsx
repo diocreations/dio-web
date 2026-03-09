@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
-import { LogIn, UserPlus, Loader2, Mail, Lock, User } from "lucide-react";
+import { LogIn, UserPlus, Loader2, Mail, Lock, User, ArrowLeft, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -19,6 +19,10 @@ const UserLoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [form, setForm] = useState({ email: "", password: "", name: "" });
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotSent, setForgotSent] = useState(false);
 
   // Handle Google OAuth callback (session_id in URL fragment)
   useEffect(() => {
