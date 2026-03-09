@@ -875,13 +875,14 @@ const ResumeOptimizerPage = () => {
         <style>
           *{margin:0;padding:0;box-sizing:border-box}
           body{font-family:'Segoe UI',Calibri,sans-serif;color:#374151;font-size:10pt;line-height:1.5;}
-          .header{background:${headerBg};padding:20px;border-bottom:3px solid ${accent};}
-          .header-content{display:flex;gap:16px;align-items:center;}
-          .header-text{flex:1;}
-          .name{font-size:20pt;font-weight:700;color:#374151;margin-bottom:2px;}
-          .title{font-size:10pt;color:${accent};margin-bottom:8px;}
-          .contact{font-size:8pt;color:#666;display:flex;flex-wrap:wrap;gap:8px;}
-          .main{padding:20px;}
+          .header{background:${headerBg};padding:20px 24px;border-bottom:3px solid ${accent};}
+          .header-content{display:flex;gap:20px;align-items:flex-start;}
+          .header-photo{flex-shrink:0;}
+          .header-text{flex:1;min-width:0;}
+          .name{font-size:22pt;font-weight:700;color:#1f2937;margin-bottom:2px;line-height:1.2;}
+          .title{font-size:11pt;font-weight:600;color:${accent};margin-bottom:10px;}
+          .contact{font-size:9pt;color:#4b5563;display:flex;flex-wrap:wrap;gap:12px;line-height:1.4;}
+          .main{padding:20px 24px;}
           .section{margin-bottom:14px;}
           h2{font-size:9pt;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:${accent};border-bottom:1px solid ${accent};padding-bottom:3px;margin-bottom:8px;}
           p{margin:0 0 6px;font-size:9pt;}
@@ -891,9 +892,10 @@ const ResumeOptimizerPage = () => {
         <div>
           <div class="header">
             <div class="header-content">
-              ${photoHtml}
+              <div class="header-photo">${photoHtml}</div>
               <div class="header-text">
                 <div class="name">${data.name}</div>
+                ${data.experience[0]?.title ? `<div class="title">${data.experience[0].title}</div>` : ''}
                 ${data.experience[0]?.title ? `<div class="title">${data.experience[0].title}</div>` : ''}
                 <div class="contact">${contactHtml}</div>
               </div>
