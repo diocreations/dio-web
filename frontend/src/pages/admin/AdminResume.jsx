@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Save, FileText, Users, DollarSign, TrendingUp, Trash2, CheckCircle, XCircle, Calendar, Loader2, Settings, Database, AlertTriangle } from "lucide-react";
+import { Save, FileText, Users, DollarSign, TrendingUp, Trash2, CheckCircle, XCircle, Calendar, Loader2, Settings, Database, AlertTriangle, Mail, CreditCard, UserCheck, UserX, Search, Linkedin } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
