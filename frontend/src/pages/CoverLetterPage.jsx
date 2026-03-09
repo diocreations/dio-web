@@ -103,6 +103,7 @@ const CoverLetterPage = () => {
     try {
       const body = { ...form };
       if (resumeFile?.resume_id) body.resume_id = resumeFile.resume_id;
+      
       const res = await fetch(`${API_URL}/api/cover-letter/generate`, {
         method: "POST",
         headers: {
@@ -112,12 +113,25 @@ const CoverLetterPage = () => {
         credentials: "include",
         body: JSON.stringify(body),
       });
+      
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || `Server error (${res.status})`);
+      }
+      
       const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Failed");
       setResult(data);
       toast.success("Cover letter generated!");
     } catch (err) {
-      toast.error(err.message);
+      console.error("Cover letter generation error:", err);
+      // Provide user-friendly error messages
+      if (err.message === "Failed to fetch" || err.name === "TypeError") {
+        toast.error("Unable to connect to the server. Please check your internet connection and try again.");
+      } else if (err.message.includes("timeout") || err.message.includes("Timeout")) {
+        toast.error("Request timed out. The server may be busy - please try again.");
+      } else {
+        toast.error(err.message || "Unable to generate cover letter. Please try again or contact support.");
+      }
     } finally {
       setLoading(false);
     }
