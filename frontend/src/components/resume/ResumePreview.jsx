@@ -1,149 +1,383 @@
 import RichEditor from "./RichEditor";
-import ProfessionalTemplate from "./ProfessionalTemplate";
+import { User, Mail, Phone, MapPin, Linkedin, Globe } from "lucide-react";
 
-function parseSections(text) {
-  const lines = (text || "").split("\n");
+// A4 dimensions
+const A4_WIDTH = 794;
+const A4_HEIGHT = 1123;
+const PAGE_PADDING = 48;
+
+// Template configurations
+const TEMPLATE_CONFIGS = {
+  classic: { font: "Georgia, 'Times New Roman', serif", accent: "#1a1a2e", nameSize: 24, sectionSize: 11, bodySize: 11, nameAlign: "center" },
+  modern: { font: "'Segoe UI', Calibri, Arial, sans-serif", accent: "#2563eb", nameSize: 26, sectionSize: 11, bodySize: 11, nameAlign: "left" },
+  executive: { font: "'Segoe UI', Calibri, sans-serif", accent: "#d97706", nameSize: 26, sectionSize: 11, bodySize: 11, nameAlign: "left", headerBg: "#1e293b", headerColor: "#ffffff" },
+  minimal: { font: "'Helvetica Neue', Helvetica, Arial, sans-serif", accent: "#6b7280", nameSize: 22, sectionSize: 10, bodySize: 11, nameAlign: "left" },
+  bold: { font: "'Inter', 'Segoe UI', sans-serif", accent: "#dc2626", nameSize: 28, sectionSize: 11, bodySize: 11, nameAlign: "left" },
+  elegant: { font: "Georgia, 'Palatino Linotype', serif", accent: "#0d9488", nameSize: 24, sectionSize: 11, bodySize: 11, nameAlign: "center" },
+  corporate: { font: "'Segoe UI', Calibri, Arial, sans-serif", accent: "#1e3a5f", nameSize: 24, sectionSize: 11, bodySize: 11, nameAlign: "left", leftBorder: true },
+  creative: { font: "'Inter', 'Segoe UI', sans-serif", accent: "#7c3aed", nameSize: 28, sectionSize: 11, bodySize: 11, nameAlign: "left" },
+  professional: { font: "'Segoe UI', Calibri, Arial, sans-serif", accent: "#a78bfa", nameSize: 24, sectionSize: 10, bodySize: 10, nameAlign: "left", headerBg: "#f8f7ff", hasPhoto: true },
+  "professional-blue": { font: "'Segoe UI', Calibri, Arial, sans-serif", accent: "#3b82f6", nameSize: 24, sectionSize: 10, bodySize: 10, nameAlign: "left", headerBg: "#f0f7ff", hasPhoto: true },
+  "professional-minimal": { font: "'Segoe UI', Calibri, Arial, sans-serif", accent: "#64748b", nameSize: 24, sectionSize: 10, bodySize: 10, nameAlign: "left", headerBg: "#f8fafc", hasPhoto: true },
+};
+
+// Parse resume content
+function parseContent(text) {
+  if (!text) return { name: "", contact: "", sections: [] };
+  
+  const isHtml = text.includes("<") && (text.includes("<p>") || text.includes("<h2>") || text.includes("<li>"));
+  
+  const normalizeHtml = (html) => {
+    let normalized = html.replace(/<br\s*\/?>/gi, '\n');
+    normalized = normalized.replace(/<\/(p|div|h[1-6])>/gi, '\n\n');
+    normalized = normalized.replace(/<li[^>]*>/gi, '\n• ');
+    const div = document.createElement('div');
+    div.innerHTML = normalized;
+    return (div.textContent || div.innerText || '').trim();
+  };
+  
+  const plainText = isHtml ? normalizeHtml(text) : text;
+  const lines = plainText.split('\n').map(l => l.trim()).filter(l => l);
+  
+  const sectionPatterns = {
+    'PROFESSIONAL SUMMARY': /^(SUMMARY|PROFESSIONAL\s*SUMMARY|PROFILE|ABOUT|OBJECTIVE|CAREER\s*SUMMARY)/i,
+    'WORK EXPERIENCE': /^(EXPERIENCE|WORK\s*EXPERIENCE|EMPLOYMENT|PROFESSIONAL\s*EXPERIENCE|CAREER\s*HISTORY)/i,
+    'EDUCATION': /^(EDUCATION|ACADEMIC|QUALIFICATIONS|EDUCATIONAL\s*BACKGROUND)/i,
+    'SKILLS': /^(SKILLS|TECHNICAL\s*SKILLS|CORE\s*COMPETENCIES|EXPERTISE|KEY\s*SKILLS)/i,
+    'CERTIFICATIONS': /^(CERTIFICATIONS|CERTIFICATES|LICENSES|CREDENTIALS)/i,
+    'LANGUAGES': /^(LANGUAGES|LANGUAGE\s*SKILLS)/i,
+  };
+  
+  const isHeader = (line) => {
+    return Object.values(sectionPatterns).some(p => p.test(line)) ||
+      (line.length < 50 && line === line.toUpperCase() && /^[A-Z][A-Z\s\/&,]+$/.test(line) && !line.includes("@"));
+  };
+  
+  let name = "", contact = "", contentStartIdx = 0;
+  
+  for (let i = 0; i < Math.min(lines.length, 5); i++) {
+    const line = lines[i];
+    if (!isHeader(line)) {
+      if (!name && line.length > 2 && line.length < 60 && !/[@|•]/.test(line) && !/\d{4}/.test(line)) {
+        name = line;
+        contentStartIdx = i + 1;
+      } else if (name && !contact && (line.includes("@") || line.includes("|") || /\+?\d[\d\s\-()]{6,}/.test(line))) {
+        contact = line;
+        contentStartIdx = i + 1;
+      }
+    } else {
+      contentStartIdx = i;
+      break;
+    }
+  }
+  
   const sections = [];
   let currentSection = null;
-  let nameLines = [];
-  let foundFirstSection = false;
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    const isHeader = /^[A-Z][A-Z\s\/&,]{3,}$/.test(trimmed) && !trimmed.includes("@") && !trimmed.includes("|") && !trimmed.includes(".com") && !trimmed.match(/\+?\d[\d\s\-()]{6,}/);
-    if (isHeader) {
-      foundFirstSection = true;
+  
+  for (let i = contentStartIdx; i < lines.length; i++) {
+    const line = lines[i];
+    if (isHeader(line)) {
       if (currentSection) sections.push(currentSection);
-      currentSection = { title: trimmed, lines: [] };
-    } else if (!foundFirstSection) {
-      nameLines.push(trimmed);
+      let sectionTitle = line;
+      for (const [normalized, pattern] of Object.entries(sectionPatterns)) {
+        if (pattern.test(line)) { sectionTitle = normalized; break; }
+      }
+      currentSection = { title: sectionTitle, content: [] };
     } else if (currentSection) {
-      currentSection.lines.push(trimmed);
+      const isBullet = /^[-*•]\s*/.test(line);
+      const hasDate = /\d{4}\s*[-–—]\s*(present|\d{4})/i.test(line);
+      currentSection.content.push({
+        type: isBullet ? 'bullet' : hasDate ? 'job' : 'text',
+        text: line.replace(/^[-*•]\s*/, ''),
+        raw: line
+      });
     }
   }
   if (currentSection) sections.push(currentSection);
-  return { nameLines, sections };
+  
+  return { name, contact, sections };
 }
 
-function isHtml(text) {
-  return text && (text.includes("<h2>") || text.includes("<p>") || text.includes("<li>") || text.includes("<strong>") || text.includes("<b>"));
-}
-
-function renderHtmlContent(html, tplId, fSize) {
-  const fs = `${fSize}px`;
-  const contactFs = `${Math.max(10, fSize - 3)}px`; // Smaller contact info
+// A4 Page wrapper
+const A4Page = ({ children, templateId, showPageNumber = false, pageNumber = 1 }) => {
+  const config = TEMPLATE_CONFIGS[templateId] || TEMPLATE_CONFIGS.classic;
   
-  const fonts = {
-    classic: "Georgia, 'Times New Roman', serif",
-    modern: "'Segoe UI', Calibri, Arial, sans-serif",
-    executive: "'Segoe UI', Calibri, sans-serif",
-    minimal: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-    bold: "'Inter', 'Segoe UI', sans-serif",
-    elegant: "Georgia, 'Palatino Linotype', serif",
-    corporate: "'Segoe UI', Calibri, Arial, sans-serif",
-    creative: "'Inter', 'Segoe UI', sans-serif",
-  };
-  const accents = { classic: "#1a1a2e", modern: "#2563eb", executive: "#d97706", minimal: "#6b7280", bold: "#dc2626", elegant: "#0d9488", corporate: "#1e3a5f", creative: "#7c3aed" };
-  const accent = accents[tplId] || accents.classic;
-  const font = fonts[tplId] || fonts.classic;
-
-  // Template-specific h2 styles - STRUCTURALLY DIFFERENT
-  let h2Style;
-  if (tplId === "bold") {
-    // Bold: Red background badge style
-    h2Style = `font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:${Math.max(10, fSize - 2)}px;color:#ffffff;background:${accent};padding:6px 12px;border-radius:4px;margin:18px 0 10px;display:inline-block;`;
-  } else if (tplId === "minimal") {
-    // Minimal: Subtle, spaced out
-    h2Style = `font-weight:400;text-transform:uppercase;letter-spacing:4px;font-size:${Math.max(9, fSize - 4)}px;color:${accent};margin:20px 0 12px;border-bottom:none;`;
-  } else if (tplId === "modern") {
-    // Modern: Left border accent
-    h2Style = `font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:${Math.max(10, fSize - 2)}px;color:${accent};border-left:3px solid ${accent};padding-left:10px;margin:18px 0 10px;border-bottom:none;`;
-  } else if (tplId === "creative") {
-    // Creative: Gradient underline effect
-    h2Style = `font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:${Math.max(10, fSize - 2)}px;color:${accent};border-bottom:2px solid #e9d5ff;padding-bottom:4px;margin:18px 0 10px;`;
-  } else {
-    // Default style for classic, elegant, corporate, executive
-    h2Style = `font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:${Math.max(10, fSize - 2)}px;color:${accent};border-bottom:2px solid ${accent}30;padding-bottom:4px;margin:18px 0 10px;`;
-  }
-
-  let styledHtml = html
-    .replace(/<h2>/g, `<h2 style="${h2Style}">`)
-    .replace(/<p>/g, `<p style="font-size:${fs};line-height:1.6;color:#374151;margin:3px 0;">`)
-    .replace(/<ul>/g, `<ul style="padding-left:20px;margin:4px 0;list-style-type:disc;">`)
-    .replace(/<li>/g, `<li style="font-size:${fs};line-height:1.6;color:#374151;margin-bottom:3px;">`)
-    .replace(/<hr>/g, `<hr style="border:none;border-top:1px solid ${accent}30;margin:12px 0;">`)
-    .replace(/<hr\/>/g, `<hr style="border:none;border-top:1px solid ${accent}30;margin:12px 0;">`);
-
-  // Name styling - detect first <p> as name, second as contact
-  const nameColor = tplId === "modern" || tplId === "creative" ? accent : tplId === "bold" ? "#1f2937" : tplId === "elegant" ? "#115e59" : tplId === "corporate" ? "#1e3a5f" : "#1a1a2e";
-  const nameSize = tplId === "bold" || tplId === "creative" ? fSize + 12 : fSize + 8;
-  let firstPDone = false;
-  let contactDone = false;
-  
-  styledHtml = styledHtml.replace(/<p style="[^"]*">([\s\S]*?)<\/p>/gi, (match, content) => {
-    const text = content.replace(/<[^>]*>/g, "").trim();
-    if (!firstPDone && text && !/^[A-Z][A-Z\s\/&,]{3,}$/.test(text) && !text.startsWith("-")) {
-      firstPDone = true;
-      return `<div style="font-size:${nameSize}px;font-weight:700;color:${nameColor};margin-bottom:4px;">${content}</div>`;
-    }
-    if (firstPDone && !contactDone && (text.includes("@") || text.includes("|") || /\+?\d[\d\s\-()]{5,}/.test(text))) {
-      contactDone = true;
-      // Contact info with smaller font size
-      return `<div style="font-size:${contactFs};color:#6b7280;margin-bottom:14px;line-height:1.4;">${content}</div>`;
-    }
-    return match;
-  });
-
-  // Executive template: dark header block
-  if (tplId === "executive") {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(styledHtml, "text/html");
-    const firstH2 = doc.querySelector("h2");
-    const nameEls = [];
-    let el = doc.body.firstChild;
-    while (el && el !== firstH2) {
-      nameEls.push(el);
-      el = el.nextSibling;
-    }
-    if (nameEls.length > 0) {
-      const headerDiv = document.createElement("div");
-      headerDiv.style.cssText = `background:#1e293b;color:white;padding:24px 32px 20px;margin:-32px -32px 20px;`;
-      nameEls.forEach((n, idx) => {
-        const clone = n.cloneNode(true);
-        if (clone.style) {
-          clone.style.color = idx === 0 ? "#ffffff" : "rgba(255,255,255,0.7)";
-        }
-        headerDiv.appendChild(clone);
-      });
-      nameEls.forEach((n) => n.remove());
-      doc.body.insertBefore(headerDiv, doc.body.firstChild);
-      styledHtml = doc.body.innerHTML;
-    }
-  }
-
-  // Corporate template: Left border accent
-  const wrapperStyle = tplId === "corporate" 
-    ? { fontFamily: font, borderLeft: `5px solid ${accent}`, paddingLeft: "20px" }
-    : { fontFamily: font };
-
   return (
-    <div
-      className="bg-white p-8 md:p-8 max-w-[780px] mx-auto"
-      style={wrapperStyle}
+    <div 
+      className="a4-page bg-white shadow-lg mx-auto relative"
+      style={{
+        width: `${A4_WIDTH}px`,
+        minHeight: `${A4_HEIGHT}px`,
+        fontFamily: config.font,
+        pageBreakAfter: 'always',
+      }}
       data-testid="resume-preview"
-      dangerouslySetInnerHTML={{ __html: styledHtml }}
-    />
+    >
+      <div 
+        style={{
+          padding: config.headerBg && !config.hasPhoto ? '0' : `${PAGE_PADDING}px`,
+          minHeight: `${A4_HEIGHT - 2}px`,
+          borderLeft: config.leftBorder ? `5px solid ${config.accent}` : 'none',
+        }}
+      >
+        {children}
+      </div>
+      {showPageNumber && (
+        <div className="absolute bottom-4 right-6 text-xs text-slate-400">
+          Page {pageNumber}
+        </div>
+      )}
+    </div>
   );
-}
+};
 
+// Unified Resume Renderer
+const UnifiedResumeRenderer = ({ text, templateId, fontSize = 11, photo }) => {
+  const config = TEMPLATE_CONFIGS[templateId] || TEMPLATE_CONFIGS.classic;
+  const parsed = parseContent(text);
+  const hasPhoto = config.hasPhoto && photo;
+  
+  // Section heading renderer
+  const renderHeading = (title) => {
+    const styles = {
+      classic: { borderBottom: `2px solid ${config.accent}30`, paddingBottom: '4px' },
+      modern: { borderLeft: `3px solid ${config.accent}`, paddingLeft: '10px', borderBottom: 'none' },
+      executive: { borderBottom: `2px solid ${config.accent}40` },
+      minimal: { letterSpacing: '4px', fontWeight: 400, borderBottom: 'none' },
+      bold: { background: config.accent, color: '#ffffff', padding: '6px 12px', borderRadius: '4px', display: 'inline-block' },
+      elegant: { borderBottom: `1px solid ${config.accent}40` },
+      corporate: { borderBottom: `2px solid ${config.accent}` },
+      creative: { borderBottom: `2px solid #e9d5ff` },
+      professional: { borderBottom: `1px solid ${config.accent}` },
+      "professional-blue": { borderBottom: `1px solid ${config.accent}` },
+      "professional-minimal": { borderBottom: `1px solid ${config.accent}` },
+    };
+    
+    const style = styles[templateId] || styles.classic;
+    
+    return (
+      <h2 
+        style={{
+          fontSize: `${config.sectionSize}px`,
+          fontWeight: templateId === 'minimal' ? 400 : 700,
+          textTransform: 'uppercase',
+          letterSpacing: templateId === 'minimal' ? '4px' : '2px',
+          color: templateId === 'bold' ? '#ffffff' : config.accent,
+          marginTop: '14px',
+          marginBottom: '8px',
+          ...style,
+        }}
+      >
+        {title}
+      </h2>
+    );
+  };
+  
+  // Render content item
+  const renderItem = (item, idx) => {
+    if (item.type === 'bullet') {
+      return (
+        <div 
+          key={idx}
+          style={{ 
+            fontSize: `${config.bodySize}px`,
+            lineHeight: 1.5,
+            paddingLeft: '16px',
+            position: 'relative',
+            marginBottom: '3px',
+            color: '#374151',
+          }}
+        >
+          <span style={{ position: 'absolute', left: 0, color: config.accent }}>•</span>
+          {item.text}
+        </div>
+      );
+    }
+    
+    if (item.type === 'job') {
+      const dateMatch = item.text.match(/(\w+\s+\d{4}\s*[-–—]\s*(?:Present|\w+\s+\d{4}))/i);
+      let remaining = item.text;
+      let dateStr = '';
+      if (dateMatch) {
+        dateStr = dateMatch[1];
+        remaining = item.text.replace(dateMatch[0], '').trim().replace(/\|$/, '').replace(/,$/, '').trim();
+      }
+      
+      return (
+        <div 
+          key={idx}
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            fontSize: `${config.bodySize}px`,
+            marginTop: '8px',
+            marginBottom: '4px',
+            pageBreakInside: 'avoid',
+          }}
+        >
+          <strong style={{ color: '#1f2937' }}>{remaining}</strong>
+          {dateStr && (
+            <span style={{ 
+              fontSize: `${config.bodySize - 1}px`,
+              color: '#6b7280',
+              fontStyle: 'italic',
+              whiteSpace: 'nowrap',
+              marginLeft: '8px',
+            }}>
+              {dateStr}
+            </span>
+          )}
+        </div>
+      );
+    }
+    
+    return (
+      <div 
+        key={idx}
+        style={{
+          fontSize: `${config.bodySize}px`,
+          lineHeight: 1.6,
+          color: '#374151',
+          marginBottom: '3px',
+        }}
+      >
+        {item.text}
+      </div>
+    );
+  };
+  
+  return (
+    <A4Page templateId={templateId}>
+      {/* Header with Photo */}
+      {hasPhoto ? (
+        <div 
+          style={{
+            background: config.headerBg,
+            padding: '16px 20px',
+            margin: `-${PAGE_PADDING}px -${PAGE_PADDING}px 16px`,
+            borderBottom: `3px solid ${config.accent}`,
+            display: 'flex',
+            gap: '16px',
+            alignItems: 'center',
+          }}
+        >
+          <img 
+            src={photo} 
+            alt="Profile"
+            style={{
+              width: '70px',
+              height: '70px',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: `3px solid ${config.accent}`,
+            }}
+          />
+          <div style={{ flex: 1 }}>
+            <div style={{ 
+              fontSize: `${config.nameSize}px`, 
+              fontWeight: 700, 
+              color: '#374151',
+              marginBottom: '4px',
+            }}>
+              {parsed.name}
+            </div>
+            {parsed.contact && (
+              <div style={{ 
+                fontSize: `${config.bodySize - 2}px`, 
+                color: '#6b7280',
+              }}>
+                {parsed.contact.replace(/\|/g, ' • ')}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : config.headerBg && !config.hasPhoto ? (
+        /* Executive style header */
+        <div 
+          style={{
+            background: config.headerBg,
+            color: config.headerColor,
+            padding: '24px 32px 20px',
+            marginBottom: '16px',
+          }}
+        >
+          <div style={{ fontSize: `${config.nameSize}px`, fontWeight: 700, marginBottom: '4px' }}>
+            {parsed.name}
+          </div>
+          {parsed.contact && (
+            <div style={{ fontSize: `${config.bodySize - 2}px`, color: 'rgba(255,255,255,0.7)' }}>
+              {parsed.contact.replace(/\|/g, ' • ')}
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Standard header */
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{ 
+            fontSize: `${config.nameSize}px`, 
+            fontWeight: 700, 
+            textAlign: config.nameAlign,
+            color: templateId === 'modern' || templateId === 'creative' ? config.accent : '#1a1a2e',
+            marginBottom: '4px',
+          }}>
+            {parsed.name}
+          </div>
+          {parsed.contact && (
+            <div style={{ 
+              fontSize: `${config.bodySize - 2}px`, 
+              textAlign: config.nameAlign,
+              color: '#6b7280',
+              marginBottom: '8px',
+            }}>
+              {parsed.contact.replace(/\|/g, ' • ')}
+            </div>
+          )}
+          {/* Accent bar */}
+          <div style={{
+            height: templateId === 'minimal' ? '1px' : templateId === 'bold' ? '4px' : '2px',
+            background: templateId === 'creative' 
+              ? `linear-gradient(90deg, ${config.accent}, #a78bfa)`
+              : templateId === 'elegant'
+              ? `linear-gradient(90deg, transparent, ${config.accent}, transparent)`
+              : config.accent,
+            width: templateId === 'modern' || templateId === 'creative' ? '60px' : '100%',
+            margin: config.nameAlign === 'center' ? '12px auto' : '12px 0',
+            borderRadius: ['modern', 'creative', 'bold'].includes(templateId) ? '2px' : '0',
+          }} />
+        </div>
+      )}
+      
+      {/* Sections */}
+      <div style={{ padding: hasPhoto || (config.headerBg && !config.hasPhoto) ? `0 ${PAGE_PADDING}px ${PAGE_PADDING}px` : '0' }}>
+        {parsed.sections.map((section, sIdx) => (
+          <div 
+            key={sIdx}
+            style={{ 
+              marginBottom: '14px',
+              pageBreakInside: 'avoid',
+            }}
+          >
+            {renderHeading(section.title)}
+            <div>
+              {section.content.map((item, iIdx) => renderItem(item, iIdx))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </A4Page>
+  );
+};
+
+// Main ResumePreview component
 const ResumePreview = ({ 
   text, 
   templateId, 
   editing, 
   onTextChange, 
-  fontSize = 13,
-  // New props for professional templates
+  fontSize = 11,
+  photo,
+  // Backward compatibility props
   personalInfo,
   skills,
   education,
@@ -151,204 +385,35 @@ const ResumePreview = ({
   certifications,
   languages,
   hobbies,
-  photo,
   summary,
 }) => {
   if (!text && !personalInfo?.name) return null;
   const tpl = templateId || "classic";
 
-  // Rich text editing mode - always show RichEditor when editing is true
+  // Rich text editing mode
   if (editing) {
     return (
-      <div className="w-full min-h-[700px] relative" data-testid="resume-editor">
+      <div className="w-full" style={{ minHeight: `${A4_HEIGHT + 100}px` }} data-testid="resume-editor">
         <RichEditor value={text} onChange={onTextChange} placeholder="Edit your resume content here..." />
       </div>
     );
   }
 
-  // Professional templates with photo support (preview mode only)
-  if (tpl === "professional" || tpl === "professional-blue" || tpl === "professional-minimal") {
-    return (
-      <ProfessionalTemplate
-        text={text}
-        templateId={tpl}
-        personalInfo={personalInfo}
-        skills={skills}
-        education={education}
-        experience={experience}
-        certifications={certifications}
-        languages={languages}
-        hobbies={hobbies}
-        photo={photo}
-        summary={summary}
-        fontSize={fontSize}
-      />
-    );
-  }
-
-  // If content is HTML (from rich editor), render with styling
-  if (isHtml(text)) {
-    return renderHtmlContent(text, tpl, fontSize);
-  }
-
-  // Plain text fallback rendering
-  const { nameLines, sections } = parseSections(text);
-  const fs = `${fontSize}px`;
-  const nameFs = `${fontSize + 11}px`;
-  const headerFs = `${Math.max(9, fontSize - 2)}px`;
-
-  const renderBullet = (line, key, bulletClass, textClass) => {
-    if (line.startsWith("- ") || line.startsWith("* ") || line.startsWith("\u2022 ")) {
-      const content = line.replace(/^[-*\u2022]\s+/, "");
-      return <li key={key} className={`${textClass} list-disc ml-5`} style={{ fontSize: fs }}>{content}</li>;
-    }
-    // Check for date patterns in lines (job titles)
-    const hasDate = /\d{4}\s*[-\u2013]\s*(present|\d{4})/i.test(line);
-    if (hasDate) {
-      return <div key={key} className={`${textClass} font-semibold`} style={{ fontSize: fs }}>{line}</div>;
-    }
-    return <div key={key} className={textClass} style={{ fontSize: fs }}>{line}</div>;
-  };
-
-  if (tpl === "classic") {
-    return (
-      <div className="bg-white p-8 md:p-12 max-w-[780px] mx-auto font-serif" data-testid="resume-preview" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
-        {nameLines[0] && <div className="text-center font-bold tracking-wide text-slate-900 mb-1" style={{ fontSize: nameFs }}>{nameLines[0]}</div>}
-        {nameLines.slice(1).map((l, i) => <div key={i} className="text-center text-slate-500 tracking-wide" style={{ fontSize: `${fontSize - 2}px` }}>{l}</div>)}
-        {nameLines.length > 0 && <div className="border-b-2 border-slate-800 mt-4 mb-2" />}
-        {sections.map((s, si) => (
-          <div key={si} className="mb-4">
-            <div className="font-bold tracking-[3px] uppercase text-slate-800 border-b border-slate-300 pb-1 mb-2" style={{ fontSize: headerFs }}>{s.title}</div>
-            <ul className="list-none">{s.lines.map((l, li) => renderBullet(l, li, "bg-slate-600", "leading-relaxed text-slate-700"))}</ul>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (tpl === "modern") {
-    return (
-      <div className="bg-white p-8 md:p-12 max-w-[780px] mx-auto" data-testid="resume-preview" style={{ fontFamily: "'Segoe UI', Calibri, Arial, sans-serif" }}>
-        {nameLines[0] && <div className="font-extrabold text-blue-600 mb-0.5" style={{ fontSize: `${fontSize + 14}px` }}>{nameLines[0]}</div>}
-        {nameLines.slice(1).map((l, i) => <div key={i} className="text-slate-500" style={{ fontSize: `${fontSize - 1}px` }}>{l}</div>)}
-        {nameLines.length > 0 && <div className="h-1 bg-blue-600 mt-3 mb-4 w-20 rounded-full" />}
-        {sections.map((s, si) => (
-          <div key={si} className="mb-5">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="h-1 w-3 bg-blue-600 rounded-full" />
-              <div className="font-bold tracking-[2px] uppercase text-blue-600" style={{ fontSize: headerFs }}>{s.title}</div>
-            </div>
-            <ul className="list-none">{s.lines.map((l, li) => renderBullet(l, li, "bg-blue-500", "leading-relaxed text-slate-700"))}</ul>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (tpl === "executive") {
-    return (
-      <div className="max-w-[780px] mx-auto overflow-hidden" data-testid="resume-preview" style={{ fontFamily: "'Segoe UI', Calibri, sans-serif" }}>
-        <div className="bg-slate-800 text-white px-8 md:px-12 py-8">
-          {nameLines[0] && <div className="font-bold tracking-wide" style={{ fontSize: `${fontSize + 14}px` }}>{nameLines[0]}</div>}
-          {nameLines.slice(1).map((l, i) => <div key={i} className="text-slate-300 mt-1" style={{ fontSize: `${fontSize - 1}px` }}>{l}</div>)}
-        </div>
-        <div className="bg-white px-8 md:px-12 py-6">
-          {sections.map((s, si) => (
-            <div key={si} className="mb-5">
-              <div className="font-bold tracking-[3px] uppercase text-amber-600 border-b-2 border-amber-500/30 pb-1 mb-2" style={{ fontSize: headerFs }}>{s.title}</div>
-              <ul className="list-none">{s.lines.map((l, li) => renderBullet(l, li, "bg-amber-500", "leading-relaxed text-slate-700"))}</ul>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (tpl === "minimal") {
-    return (
-      <div className="bg-white p-8 md:p-14 max-w-[780px] mx-auto" data-testid="resume-preview" style={{ fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
-        {nameLines[0] && <div className="font-light tracking-[4px] uppercase text-slate-900 mb-1" style={{ fontSize: `${fontSize + 5}px` }}>{nameLines[0]}</div>}
-        {nameLines.slice(1).map((l, i) => <div key={i} className="text-slate-400 tracking-wide" style={{ fontSize: `${fontSize - 2}px` }}>{l}</div>)}
-        {nameLines.length > 0 && <div className="border-b border-slate-200 mt-6 mb-6" />}
-        {sections.map((s, si) => (
-          <div key={si} className="mb-6">
-            <div className="font-medium tracking-[4px] uppercase text-slate-400 mb-3" style={{ fontSize: `${fontSize - 3}px` }}>{s.title}</div>
-            <ul className="list-none">{s.lines.map((l, li) => renderBullet(l, li, "bg-slate-300", "leading-[1.8] text-slate-600 font-light"))}</ul>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (tpl === "elegant") {
-    return (
-      <div className="bg-white p-8 md:p-12 max-w-[780px] mx-auto" data-testid="resume-preview" style={{ fontFamily: "Georgia, 'Palatino Linotype', serif" }}>
-        {nameLines[0] && <div className="font-bold text-teal-800 tracking-wide mb-1" style={{ fontSize: nameFs }}>{nameLines[0]}</div>}
-        {nameLines.slice(1).map((l, i) => <div key={i} className="text-teal-600/70 tracking-wide" style={{ fontSize: `${fontSize - 2}px` }}>{l}</div>)}
-        {nameLines.length > 0 && <div className="border-b-2 border-teal-600/40 mt-4 mb-3" />}
-        {sections.map((s, si) => (
-          <div key={si} className="mb-5">
-            <div className="font-semibold tracking-[2px] uppercase text-teal-700 border-b border-teal-300/50 pb-1 mb-2" style={{ fontSize: headerFs }}>{s.title}</div>
-            <ul className="list-none">{s.lines.map((l, li) => renderBullet(l, li, "bg-teal-500", "leading-relaxed text-slate-700"))}</ul>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (tpl === "corporate") {
-    return (
-      <div className="max-w-[780px] mx-auto flex" data-testid="resume-preview" style={{ fontFamily: "'Segoe UI', Calibri, Arial, sans-serif" }}>
-        <div className="w-2 bg-[#1e3a5f] flex-shrink-0" />
-        <div className="flex-1 bg-white p-8 md:p-10">
-          {nameLines[0] && <div className="font-bold text-[#1e3a5f] mb-0.5" style={{ fontSize: nameFs }}>{nameLines[0]}</div>}
-          {nameLines.slice(1).map((l, i) => <div key={i} className="text-slate-500" style={{ fontSize: `${fontSize - 1}px` }}>{l}</div>)}
-          {nameLines.length > 0 && <div className="h-0.5 bg-[#1e3a5f]/20 mt-3 mb-4" />}
-          {sections.map((s, si) => (
-            <div key={si} className="mb-5">
-              <div className="font-bold tracking-[2px] uppercase text-[#1e3a5f] mb-2 flex items-center gap-2" style={{ fontSize: headerFs }}>
-                <div className="w-2 h-2 bg-[#1e3a5f] rounded-sm" />{s.title}
-              </div>
-              <ul className="list-none">{s.lines.map((l, li) => renderBullet(l, li, "bg-[#1e3a5f]", "leading-relaxed text-slate-700"))}</ul>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (tpl === "creative") {
-    return (
-      <div className="bg-white p-8 md:p-12 max-w-[780px] mx-auto" data-testid="resume-preview" style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
-        {nameLines[0] && <div className="font-extrabold text-purple-700 mb-0.5" style={{ fontSize: `${fontSize + 14}px` }}>{nameLines[0]}</div>}
-        {nameLines.slice(1).map((l, i) => <div key={i} className="text-purple-400" style={{ fontSize: `${fontSize - 1}px` }}>{l}</div>)}
-        {nameLines.length > 0 && <div className="h-1 bg-gradient-to-r from-purple-600 to-violet-400 mt-3 mb-4 w-32 rounded-full" />}
-        {sections.map((s, si) => (
-          <div key={si} className="mb-5">
-            <div className="font-bold tracking-[2px] uppercase text-purple-600 border-b-2 border-purple-200 pb-1 mb-2" style={{ fontSize: headerFs }}>{s.title}</div>
-            <ul className="list-none">{s.lines.map((l, li) => renderBullet(l, li, "bg-purple-500", "leading-relaxed text-slate-700"))}</ul>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  // BOLD template
+  // Preview mode - render with unified A4 renderer
   return (
-    <div className="bg-white p-8 md:p-12 max-w-[780px] mx-auto" data-testid="resume-preview" style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
-      {nameLines[0] && <div className="font-black text-slate-900 mb-1" style={{ fontSize: `${fontSize + 18}px` }}>{nameLines[0]}</div>}
-      {nameLines.slice(1).map((l, i) => <div key={i} className="text-slate-500 font-medium" style={{ fontSize: `${fontSize - 1}px` }}>{l}</div>)}
-      {nameLines.length > 0 && <div className="h-1.5 bg-red-600 mt-3 mb-5 w-full rounded-full" />}
-      {sections.map((s, si) => (
-        <div key={si} className="mb-5">
-          <div className="bg-red-600 text-white font-bold tracking-[2px] uppercase px-3 py-1.5 rounded mb-2 inline-block" style={{ fontSize: headerFs }}>{s.title}</div>
-          <div className="mt-1">
-            <ul className="list-none">{s.lines.map((l, li) => renderBullet(l, li, "bg-red-500", "leading-relaxed text-slate-700"))}</ul>
-          </div>
-        </div>
-      ))}
+    <div 
+      className="resume-preview-container py-6"
+      style={{ backgroundColor: '#e5e7eb' }}
+    >
+      <UnifiedResumeRenderer 
+        text={text} 
+        templateId={tpl} 
+        fontSize={fontSize}
+        photo={photo}
+      />
     </div>
   );
 };
 
 export default ResumePreview;
+export { A4_WIDTH, A4_HEIGHT, PAGE_PADDING, TEMPLATE_CONFIGS, parseContent };
