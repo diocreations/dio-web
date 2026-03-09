@@ -5,6 +5,43 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Auth, Password Reset, Google Login & Invitation Flow Fixes ✅
+**Date: Mar 9, 2025**
+
+**Issues Fixed (Req #16):**
+
+1. **A. User Sign-Up Error Fix**
+   - Improved error handling with user-friendly messages
+   - Shows "Unable to connect to server. Please check your internet connection." instead of raw errors
+   - Note: The "Unable to connect" on LIVE is due to deployment needed
+
+2. **B. Google Sign-In/Sign-Up**
+   - Google OAuth button present and working
+   - Redirects correctly to auth.emergentagent.com
+   - Auto-registers new Google users
+
+3. **C. Forgot Password Email Fix**
+   - Password reset email now has **clickable button** AND **plaintext URL fallback**
+   - Uses production URL (diocreations.eu) even if called from preview/localhost
+   - Logging added for debugging
+   - Email includes: button link + "Or copy this link: [URL]"
+
+4. **D. Invitation Link Sign-Up Fix**
+   - Invitation URL now includes email: `/login?invite=TOKEN&email=EMAIL`
+   - Email field is **pre-filled** with invited email
+   - Email field is **locked/readonly** (prevents changing)
+   - Shows "🎉 You've been invited!" notice with invited email
+   - Shows "Email is locked to the invited address" hint
+   - Validates email on submit - blocks if different from invited email
+   - Toast error if user tries to modify locked email
+
+**Files Modified:**
+- `/app/backend/routes/public_auth.py` - Password reset email with URL fallback
+- `/app/backend/routes/invitations.py` - Invitation email with email parameter
+- `/app/frontend/src/pages/UserLoginPage.jsx` - Invitation handling, email lock
+
+---
+
 ### Authentication Fixes & User Invitation System ✅
 **Date: Mar 9, 2025**
 
