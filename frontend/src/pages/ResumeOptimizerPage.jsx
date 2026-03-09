@@ -684,6 +684,11 @@ const ResumeOptimizerPage = () => {
     const filename = extractResumeFilename(editedText);
     const tpl = activeVisualTemplate || "classic";
 
+    // A4 dimensions
+    const A4_WIDTH = 794;
+    const A4_HEIGHT = 1123;
+    const PAGE_PADDING = 48;
+
     // Check if using professional template (with photo support)
     const isProfessional = ['professional', 'professional-blue', 'professional-minimal'].includes(tpl);
     
