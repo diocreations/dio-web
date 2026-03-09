@@ -249,45 +249,97 @@ const UnifiedResumeRenderer = ({ text, templateId, fontSize = 11, photo }) => {
   
   return (
     <A4Page templateId={templateId}>
-      {/* Header with Photo */}
+      {/* Header with Photo - Side by Side Layout */}
       {hasPhoto ? (
         <div 
           style={{
             background: config.headerBg,
-            padding: '16px 20px',
+            padding: '20px 24px',
             margin: `-${PAGE_PADDING}px -${PAGE_PADDING}px 16px`,
             borderBottom: `3px solid ${config.accent}`,
             display: 'flex',
-            gap: '16px',
-            alignItems: 'center',
+            gap: '20px',
+            alignItems: 'flex-start',
           }}
         >
-          <img 
-            src={photo} 
-            alt="Profile"
-            style={{
-              width: '70px',
-              height: '70px',
-              borderRadius: '50%',
-              objectFit: 'cover',
-              border: `3px solid ${config.accent}`,
-            }}
-          />
-          <div style={{ flex: 1 }}>
+          {/* Left: Profile Photo */}
+          <div style={{ flexShrink: 0 }}>
+            <img 
+              src={photo} 
+              alt="Profile"
+              style={{
+                width: '85px',
+                height: '85px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: `3px solid ${config.accent}`,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              }}
+            />
+          </div>
+          
+          {/* Right: Name, Title, and Contact Details */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {/* Name */}
             <div style={{ 
               fontSize: `${config.nameSize}px`, 
               fontWeight: 700, 
-              color: '#374151',
-              marginBottom: '4px',
+              color: '#1f2937',
+              marginBottom: '2px',
+              lineHeight: 1.2,
             }}>
               {parsed.name}
             </div>
+            
+            {/* Job Title - Extract from first experience or content */}
+            {parsed.sections?.[0]?.content?.[0]?.type === 'job' && (
+              <div style={{ 
+                fontSize: `${config.bodySize + 1}px`, 
+                fontWeight: 500,
+                color: config.accent,
+                marginBottom: '8px',
+              }}>
+                {parsed.sections[0].content[0].text.split(/[-–—]/)[0].trim()}
+              </div>
+            )}
+            
+            {/* Contact Information - Horizontal with Icons */}
             {parsed.contact && (
               <div style={{ 
-                fontSize: `${config.bodySize - 2}px`, 
-                color: '#6b7280',
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '12px',
+                fontSize: `${config.bodySize - 1}px`,
+                color: '#4b5563',
               }}>
-                {parsed.contact.replace(/\|/g, ' • ')}
+                {/* Email */}
+                {parsed.contact.includes('@') && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ color: config.accent }}>✉</span>
+                    <span>{(parsed.contact.match(/[\w.-]+@[\w.-]+\.\w+/) || [''])[0]}</span>
+                  </div>
+                )}
+                {/* Phone */}
+                {/\+?\d[\d\s\-()]{6,}/.test(parsed.contact) && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ color: config.accent }}>📞</span>
+                    <span>{(parsed.contact.match(/\+?[\d\s\-()]{10,}/) || [''])[0]?.trim()}</span>
+                  </div>
+                )}
+                {/* LinkedIn */}
+                {parsed.contact.toLowerCase().includes('linkedin') && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ color: config.accent }}>🔗</span>
+                    <span>{(parsed.contact.match(/linkedin\.com\/in\/[\w-]+/i) || ['LinkedIn'])[0]}</span>
+                  </div>
+                )}
+                {/* Location - check for common location patterns */}
+                {/[A-Z][a-z]+,?\s+[A-Z]{2}/.test(parsed.contact) && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ color: config.accent }}>📍</span>
+                    <span>{(parsed.contact.match(/[A-Z][a-z]+,?\s+[A-Z]{2}/) || [''])[0]}</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
