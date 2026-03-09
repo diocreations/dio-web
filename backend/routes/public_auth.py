@@ -22,7 +22,14 @@ async def send_password_reset_email(email: str, reset_token: str, origin_url: st
         import resend
         resend.api_key = resend_key
         
+        # Use production URL if origin_url is empty or localhost
+        if not origin_url or "localhost" in origin_url or "preview.emergentagent" in origin_url:
+            origin_url = "https://www.diocreations.eu"
+        
         reset_link = f"{origin_url}/reset-password?token={reset_token}"
+        
+        # Log for debugging
+        logger.info(f"Password reset link generated: {reset_link}")
         
         html_content = f'''
         <div style="max-width:600px;margin:0 auto;font-family:'Segoe UI',Arial,sans-serif;background:#ffffff;">
@@ -41,6 +48,10 @@ async def send_password_reset_email(email: str, reset_token: str, origin_url: st
                         Reset Password
                     </a>
                 </div>
+                <p style="color:#6b7280;font-size:14px;line-height:1.6;text-align:center;">
+                    Or copy and paste this link in your browser:<br/>
+                    <a href="{reset_link}" style="color:#7c3aed;word-break:break-all;">{reset_link}</a>
+                </p>
                 <p style="color:#6b7280;font-size:14px;line-height:1.6;">
                     This link will expire in 1 hour for security reasons.
                 </p>
