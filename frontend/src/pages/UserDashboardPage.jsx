@@ -65,6 +65,37 @@ const UserDashboardPage = () => {
     toast.success("Referral link copied!");
   };
 
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [sendingInvite, setSendingInvite] = useState(false);
+  
+  const handleSendInvite = async () => {
+    if (!inviteEmail || !inviteEmail.includes("@")) {
+      toast.error("Please enter a valid email");
+      return;
+    }
+    setSendingInvite(true);
+    const token = localStorage.getItem("pub_session_token");
+    try {
+      const res = await fetch(`${API_URL}/api/user/invite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        credentials: "include",
+        body: JSON.stringify({ email: inviteEmail }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(data.message || "Invitation sent!");
+        setInviteEmail("");
+      } else {
+        toast.error(data.detail || "Failed to send invitation");
+      }
+    } catch {
+      toast.error("Failed to send invitation");
+    } finally {
+      setSendingInvite(false);
+    }
+  };
+
   const handleLogout = async () => {
     const token = localStorage.getItem("pub_session_token");
     await fetch(`${API_URL}/api/user/logout`, {
