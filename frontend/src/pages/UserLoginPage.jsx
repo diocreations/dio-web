@@ -353,7 +353,7 @@ const UserLoginPage = () => {
                   </form>
                 </TabsContent>
 
-                <TabsContent value="register">
+                <TabsContent value="signup">
                   <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Invitation notice */}
                     {inviteToken && inviteEmail && (
