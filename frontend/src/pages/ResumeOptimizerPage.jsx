@@ -943,6 +943,58 @@ const ResumeOptimizerPage = () => {
                         </div>
                       </div>
                     )}
+                    
+                    {/* Upload Error with Support Options */}
+                    {uploadError && (
+                      <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg text-left">
+                        <div className="flex items-start gap-3">
+                          <div className="p-2 bg-red-100 rounded-full">
+                            <AlertTriangle size={18} className="text-red-600" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-red-800 mb-1">Resume Processing Error</h4>
+                            <p className="text-sm text-red-700 mb-3">
+                              {uploadError.message}
+                            </p>
+                            {uploadError.filename && (
+                              <p className="text-xs text-red-600 mb-3">File: {uploadError.filename}</p>
+                            )}
+                            <div className="flex flex-col sm:flex-row gap-2">
+                              <a
+                                href="/contact"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-red-200 rounded-lg text-sm font-medium text-red-700 hover:bg-red-50 transition-colors"
+                                data-testid="error-contact-link"
+                              >
+                                <Mail size={14} />
+                                Contact Support
+                              </a>
+                              <button
+                                onClick={() => {
+                                  // Open Dio chatbot if available
+                                  const chatButton = document.querySelector('[data-testid="chatbot-trigger"]');
+                                  if (chatButton) chatButton.click();
+                                  else window.location.href = '/contact';
+                                }}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                                data-testid="error-chatbot-btn"
+                              >
+                                <MessageCircle size={14} />
+                                Chat with Dio
+                              </button>
+                            </div>
+                            <p className="text-xs text-red-600 mt-3">
+                              Please mention subject: <span className="font-semibold">"Resume Error"</span>
+                            </p>
+                          </div>
+                          <button 
+                            onClick={() => setUploadError(null)}
+                            className="p-1 hover:bg-red-100 rounded"
+                          >
+                            <X size={16} className="text-red-400" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
                 
