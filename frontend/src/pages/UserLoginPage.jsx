@@ -81,6 +81,33 @@ const UserLoginPage = () => {
     window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
   };
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    if (!forgotEmail || !forgotEmail.includes("@")) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/user/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          email: forgotEmail,
+          origin_url: window.location.origin 
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Failed");
+      setForgotSent(true);
+      toast.success("Check your email for reset instructions");
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   if (googleLoading) {
     return (
       <Layout>
