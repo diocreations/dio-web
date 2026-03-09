@@ -374,6 +374,14 @@ const AppRouter = () => {
         }
       />
       <Route
+        path="/admin/invitations"
+        element={
+          <ProtectedRoute>
+            <AdminInvitations />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/admin/about"
         element={
           <ProtectedRoute>
