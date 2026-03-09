@@ -877,7 +877,7 @@ const ResumeOptimizerPage = () => {
         </section>
 
         {/* Content */}
-        <section className="max-w-5xl mx-auto px-4 py-12">
+        <section className={`mx-auto px-4 py-12 ${(step === 4 || (step === 3 && improved)) && editorMode === "text" ? "max-w-7xl" : "max-w-5xl"}`}>
           <AnimatePresence mode="wait">
             {/* STEP 1: Upload */}
             {step === 1 && (
