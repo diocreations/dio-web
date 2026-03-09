@@ -323,15 +323,28 @@ const ResumeOptimizerPage = () => {
     
     try {
       const res = await fetch(`${API_URL}/api/resume/upload`, { method: "POST", body: formData });
+      const data = await res.json();
+      
+      // Handle blocked upload (different resume for same account)
+      if (data.error) {
+        toast.error(data.message || "Upload blocked", { duration: 8000 });
+        if (data.existing_resume_id) {
+          toast.info(`You can load your existing resume: ${data.existing_filename}`, { duration: 6000 });
+        }
+        setUploading(false);
+        return;
+      }
+      
       if (res.ok) {
-        const data = await res.json();
         setResumeId(data.resume_id);
         setTextPreview(data.text_preview);
         setWordCount(data.word_count);
         
         // Handle existing resume with payment status
         if (data.is_existing) {
-          if (data.is_paid) {
+          if (data.is_updated) {
+            toast.success(data.message || "Resume updated with new content!");
+          } else if (data.is_paid) {
             toast.success("Welcome back! Loading your paid resume...");
             setHasDownloadAccess(true);
           } else {
@@ -352,8 +365,7 @@ const ResumeOptimizerPage = () => {
         });
         if (analysisRes.ok) setAnalysis(await analysisRes.json());
       } else {
-        const err = await res.json();
-        toast.error(err.detail || "Upload failed");
+        toast.error(data.detail || "Upload failed");
       }
     } catch { toast.error("Upload failed. Please try again."); }
     finally { setUploading(false); setAnalyzing(false); }
