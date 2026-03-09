@@ -72,9 +72,13 @@ const CoverLetterPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: jobUrl }),
       });
-      const data = await res.json();
       
-      if (!res.ok) throw new Error(data.detail || "Failed to fetch job details");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || `Failed to fetch (${res.status})`);
+      }
+      
+      const data = await res.json();
       
       // Auto-fill the form with extracted data
       setForm((f) => ({
@@ -84,10 +88,25 @@ const CoverLetterPage = () => {
         company_name: data.company_name || f.company_name,
       }));
       
-      toast.success("Job details extracted successfully!");
+      // Check if we got meaningful data
+      if (!data.job_description && !data.job_title) {
+        toast.warning("Could not extract job details. Please paste the job description manually.");
+      } else {
+        toast.success("Job details extracted successfully!");
+      }
       setJobUrl(""); // Clear the URL input after success
     } catch (err) {
-      toast.error(err.message || "Could not fetch job details from URL");
+      console.error("Job URL fetch error:", err);
+      // Provide user-friendly error messages
+      if (err.message === "Failed to fetch" || err.name === "TypeError") {
+        toast.error("Unable to connect to the server. Please check your internet connection and try again.");
+      } else if (err.message.includes("timeout") || err.message.includes("Timeout")) {
+        toast.error("Request timed out. The website may be slow - please try again or paste manually.");
+      } else if (err.message.includes("Could not access")) {
+        toast.error("Could not access the job posting. Please paste the job description manually.");
+      } else {
+        toast.error(err.message || "Could not fetch job details. Please paste manually.");
+      }
     } finally {
       setFetchingUrl(false);
     }
