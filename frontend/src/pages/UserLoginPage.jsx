@@ -405,13 +405,23 @@ const UserLoginPage = () => {
                         <Input id="reg-password" type="password" placeholder="Min 6 characters" className="pl-10" required minLength={6} data-testid="register-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
                       </div>
                     </div>
-                    <Button type="submit" className="w-full" disabled={loading || (inviteToken && inviteValid === false)} data-testid="register-submit">
+                    <Button 
+                      type="submit" 
+                      className="w-full" 
+                      disabled={loading || (inviteToken && inviteValid === false)} 
+                      data-testid="register-submit"
+                    >
                       {loading ? <Loader2 className="animate-spin mr-2" size={16} /> : <UserPlus size={16} className="mr-2" />}
-                      {inviteToken ? "Create Account" : "Create Account"}
+                      Create Account
                     </Button>
                     {inviteToken && inviteValid === false && (
                       <p className="text-xs text-red-500 text-center mt-2">
                         Invalid or expired invitation. Please request a new one.
+                      </p>
+                    )}
+                    {inviteToken && inviteValid === null && (
+                      <p className="text-xs text-muted-foreground text-center mt-2">
+                        Verifying invitation...
                       </p>
                     )}
                   </form>
