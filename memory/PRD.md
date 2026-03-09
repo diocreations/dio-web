@@ -106,6 +106,7 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 - `GET /api/admin/resume/paid-users` - List all paid users
 - `POST /api/admin/resume/grant-access` - Manually grant access
 - `DELETE /api/admin/resume/revoke-access/{resume_id}` - Revoke paid access
+- `POST /api/cover-letter/fetch-job` - Fetch and extract job details from URL
 
 ---
 
