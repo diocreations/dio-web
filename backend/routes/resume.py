@@ -579,13 +579,26 @@ async def analyze_resume(data: dict):
     if existing:
         return existing
     text = upload["text"][:6000]
+    
+    # Check if this looks like a platform-generated resume (well-formatted with standard sections)
+    is_well_formatted = detect_platform_resume(text)
+    
     prompt = f"""Analyze this resume and return ONLY valid JSON (no markdown, no code blocks):
 {{"overall_score": <0-100>, "ats_score": <0-100>, "strengths": ["s1","s2","s3"], "weaknesses": ["w1","w2","w3"], "missing_keywords": ["k1","k2","k3"], "formatting_issues": ["i1","i2"], "suggestions": ["s1","s2","s3","s4"]}}
+
+SCORING GUIDELINES:
+- ATS Score: Focus on keyword usage, section headers, chronological order, quantified achievements
+- Overall Score: Balance of content quality, formatting, completeness, and impact
+- If the resume has clear section headers (EXPERIENCE, EDUCATION, SKILLS) in ALL CAPS, and uses bullet points with action verbs and metrics, give high ATS scores (80+)
+- A well-structured resume with standard sections should score at least 75+ on ATS
+- Only report formatting_issues if there are ACTUAL problems (e.g., missing contact info, unclear dates)
+- Do NOT penalize for plain text formatting - it's ATS-friendly
+
 Be concise. Max 3-4 items per array.
 RESUME TEXT:
 {text}"""
     try:
-        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"resume_analysis_{resume_id}", system_message="You are a professional resume analyst. Return ONLY valid JSON.").with_model("gemini", "gemini-2.0-flash")
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"resume_analysis_{resume_id}", system_message="You are a professional resume analyst. Return ONLY valid JSON. Be fair and consistent in scoring - well-formatted plain text resumes should score highly for ATS compatibility.").with_model("gemini", "gemini-2.0-flash")
         response = await chat.send_message(UserMessage(text=prompt))
         cleaned = response.strip()
         if cleaned.startswith("```"):
