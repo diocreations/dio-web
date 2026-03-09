@@ -315,7 +315,7 @@ const UserLoginPage = () => {
                   <TabsTrigger value="login" data-testid="tab-login">
                     <LogIn size={16} className="mr-2" /> Sign In
                   </TabsTrigger>
-                  <TabsTrigger value="register" data-testid="tab-register">
+                  <TabsTrigger value="signup" data-testid="tab-register">
                     <UserPlus size={16} className="mr-2" /> Sign Up
                   </TabsTrigger>
                 </TabsList>
