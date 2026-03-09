@@ -114,6 +114,7 @@ async def get_resume_pricing():
             "discount_enabled": False,
             "discount_percent": 0,
             "linkedin_enabled": True,
+            "linkedin_public_access": False,  # If True, LinkedIn Optimizer is available to all users
             "features": ["AI Resume Analysis (Free)", "ATS-Optimized Resume Rewrite", "LinkedIn Profile Optimization", "Download as PDF"],
         }
     return pricing
