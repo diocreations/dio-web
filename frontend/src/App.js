@@ -53,6 +53,7 @@ const AdminTemplates = lazy(() => import("./pages/admin/AdminTemplates"));
 const AdminSeo = lazy(() => import("./pages/admin/AdminSeo"));
 const AdminCoverLetter = lazy(() => import("./pages/admin/AdminCoverLetter"));
 const AdminNewsletter = lazy(() => import("./pages/admin/AdminNewsletter"));
+const AdminInvitations = lazy(() => import("./pages/admin/AdminInvitations"));
 const AdminLandingPages = lazy(() => import("./pages/admin/AdminLandingPages"));
 const AdminCustomPages = lazy(() => import("./pages/admin/AdminCustomPages"));
 const AdminContactSettings = lazy(() => import("./pages/admin/AdminContactSettings"));
