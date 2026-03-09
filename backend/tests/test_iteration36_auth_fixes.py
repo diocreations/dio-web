@@ -227,7 +227,7 @@ class TestAdminInvitations:
             "password": "adminpassword"
         })
         if response.status_code == 200:
-            return response.json().get("token")
+            return response.json().get("session_token")
         pytest.skip("Admin authentication failed")
     
     def test_admin_login(self):
@@ -238,14 +238,15 @@ class TestAdminInvitations:
         })
         assert response.status_code == 200
         data = response.json()
-        assert "token" in data
-        print(f"✓ Admin login success")
+        assert "session_token" in data
+        assert data["role"] == "admin"
+        print(f"✓ Admin login success: role={data['role']}")
     
     def test_admin_get_invitations(self, admin_token):
         """GET /api/admin/invitations - returns invitations list with stats"""
         response = requests.get(
             f"{BASE_URL}/api/admin/invitations",
-            headers={"Authorization": f"Bearer {admin_token}"}
+            headers={"Cookie": f"session_token={admin_token}"}
         )
         assert response.status_code == 200
         data = response.json()
@@ -258,7 +259,7 @@ class TestAdminInvitations:
         """POST /api/admin/invitations/send - returns 400 without email"""
         response = requests.post(
             f"{BASE_URL}/api/admin/invitations/send",
-            headers={"Authorization": f"Bearer {admin_token}"},
+            headers={"Cookie": f"session_token={admin_token}"},
             json={}
         )
         assert response.status_code == 400
@@ -268,7 +269,7 @@ class TestAdminInvitations:
         """POST /api/admin/invitations/send - returns 400 with invalid email"""
         response = requests.post(
             f"{BASE_URL}/api/admin/invitations/send",
-            headers={"Authorization": f"Bearer {admin_token}"},
+            headers={"Cookie": f"session_token={admin_token}"},
             json={"email": "invalid-email"}
         )
         assert response.status_code == 400
