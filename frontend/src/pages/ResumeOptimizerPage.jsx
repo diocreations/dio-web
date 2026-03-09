@@ -12,7 +12,7 @@ import { useSearchParams } from "react-router-dom";
 import {
   Upload, FileText, Zap, Download, CheckCircle, XCircle, AlertTriangle,
   Loader2, Lock, Star, Sparkles, Target, ArrowRight, Linkedin, HardDrive, RotateCcw, Share2, Link,
-  Layers, Type, Camera, User, Trash2, History,
+  Layers, Type, Camera, User, Trash2, History, Mail, MessageCircle, X,
 } from "lucide-react";
 import { toast } from "sonner";
 import html2pdf from "html2pdf.js";
