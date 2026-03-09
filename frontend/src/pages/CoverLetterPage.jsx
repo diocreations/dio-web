@@ -212,6 +212,40 @@ const CoverLetterPage = () => {
                   </div>
                 </div>
 
+                {/* Job URL Import */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
+                  <Label className="flex items-center gap-2 text-blue-700 mb-2">
+                    <Globe size={14} />
+                    Import Job from URL
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Paste job posting URL (e.g., linkedin.com/jobs/...)"
+                      className="flex-1 bg-white"
+                      data-testid="job-url-input"
+                      value={jobUrl}
+                      onChange={(e) => setJobUrl(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleFetchJobUrl()}
+                    />
+                    <Button
+                      variant="outline"
+                      onClick={handleFetchJobUrl}
+                      disabled={fetchingUrl || !jobUrl.trim()}
+                      className="bg-white hover:bg-blue-50"
+                      data-testid="fetch-job-btn"
+                    >
+                      {fetchingUrl ? (
+                        <Loader2 className="animate-spin" size={16} />
+                      ) : (
+                        <><Link size={14} className="mr-1" /> Fetch</>
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-blue-600 mt-1.5">
+                    Auto-extracts job title, company, and description from LinkedIn, Indeed, Glassdoor, etc.
+                  </p>
+                </div>
+
                 {/* Job Description */}
                 <div>
                   <Label htmlFor="jd">Job Description</Label>
