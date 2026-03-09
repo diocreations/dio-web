@@ -817,6 +817,7 @@ const ResumeOptimizerPage = () => {
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, logging: false },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'], after: ['h2'] },
       };
       await html2pdf().set(opt).from(container.querySelector("div")).save();
       toast.success("PDF downloaded successfully!");
