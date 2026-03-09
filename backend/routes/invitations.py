@@ -27,7 +27,14 @@ async def send_invitation_email(to_email: str, inviter_name: str, inviter_email:
         
         # Generate unique invitation token
         invite_token = f"inv_{uuid.uuid4().hex[:16]}"
-        registration_link = f"https://www.diocreations.eu/login?invite={invite_token}"
+        
+        # Include invited email in the URL so it's pre-filled and locked
+        import urllib.parse
+        encoded_email = urllib.parse.quote(to_email.lower().strip())
+        registration_link = f"https://www.diocreations.eu/login?invite={invite_token}&email={encoded_email}"
+        
+        # Log for debugging
+        logger.info(f"Invitation link generated: {registration_link}")
         
         # Store invitation in database
         invite_doc = {
@@ -69,8 +76,12 @@ async def send_invitation_email(to_email: str, inviter_name: str, inviter_email:
                         Create Your Account
                     </a>
                 </div>
+                <p style="color:#6b7280;font-size:14px;line-height:1.6;text-align:center;">
+                    Or copy and paste this link in your browser:<br/>
+                    <a href="{registration_link}" style="color:#7c3aed;word-break:break-all;">{registration_link}</a>
+                </p>
                 <p style="color:#6b7280;font-size:14px;line-height:1.6;">
-                    This invitation link expires in 7 days.
+                    This invitation is for <strong>{to_email}</strong> and expires in 7 days.
                 </p>
                 <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">
                 <p style="color:#9ca3af;font-size:12px;text-align:center;">
