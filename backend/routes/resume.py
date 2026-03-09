@@ -88,12 +88,70 @@ async def send_payment_receipt(email: str, amount: float, currency: str, resume_
 
 
 def extract_text_from_pdf(file_bytes: bytes) -> str:
+    """Extract text from PDF with improved structure preservation"""
     doc = fitz.open(stream=file_bytes, filetype="pdf")
-    text = ""
+    text_blocks = []
+    
     for page in doc:
-        text += page.get_text()
+        # Get text with block structure to preserve layout
+        blocks = page.get_text("blocks")
+        for block in blocks:
+            if block[6] == 0:  # Type 0 = text block
+                block_text = block[4].strip()
+                if block_text:
+                    text_blocks.append(block_text)
+    
     doc.close()
-    return text[:8000]
+    
+    # Join blocks with newlines to preserve structure
+    raw_text = "\n".join(text_blocks)
+    
+    # Clean common PDF extraction artifacts
+    cleaned = clean_extracted_text(raw_text)
+    
+    return cleaned[:8000]
+
+
+def clean_extracted_text(text: str) -> str:
+    """Clean up common artifacts from PDF text extraction"""
+    import re
+    
+    # Remove excessive whitespace while preserving paragraph breaks
+    text = re.sub(r'[ \t]+', ' ', text)  # Normalize spaces
+    text = re.sub(r'\n{3,}', '\n\n', text)  # Max 2 newlines
+    
+    # Fix common PDF artifacts
+    text = re.sub(r'(\w)-\n(\w)', r'\1\2', text)  # Fix hyphenated words across lines
+    text = re.sub(r'\s*\|\s*', ' | ', text)  # Normalize pipe separators
+    text = re.sub(r'\s*•\s*', '\n• ', text)  # Normalize bullets
+    text = re.sub(r'\s*–\s*', ' – ', text)  # Normalize dashes
+    
+    # Recognize standard resume section headers (including those from our templates)
+    section_headers = [
+        'PROFESSIONAL SUMMARY', 'SUMMARY', 'OBJECTIVE', 'PROFILE',
+        'WORK EXPERIENCE', 'EXPERIENCE', 'EMPLOYMENT HISTORY', 'WORK HISTORY',
+        'EDUCATION', 'ACADEMIC BACKGROUND', 'QUALIFICATIONS',
+        'SKILLS', 'TECHNICAL SKILLS', 'CORE COMPETENCIES', 'KEY SKILLS',
+        'CERTIFICATIONS', 'CERTIFICATES', 'LICENSES',
+        'PROJECTS', 'KEY PROJECTS', 'NOTABLE PROJECTS',
+        'ACHIEVEMENTS', 'ACCOMPLISHMENTS', 'AWARDS',
+        'LANGUAGES', 'LANGUAGE SKILLS',
+        'INTERESTS', 'HOBBIES', 'ADDITIONAL INFORMATION',
+        'REFERENCES', 'PROFESSIONAL REFERENCES',
+        'VOLUNTEER', 'VOLUNTEER EXPERIENCE', 'COMMUNITY INVOLVEMENT',
+        'PUBLICATIONS', 'RESEARCH'
+    ]
+    
+    # Ensure section headers are on their own lines with consistent formatting
+    for header in section_headers:
+        # Match header with possible variations (case-insensitive, with optional colon/underscores)
+        pattern = r'(?i)(?:^|\n)\s*' + re.escape(header) + r'\s*:?\s*(?:\n|$)'
+        text = re.sub(pattern, f'\n\n{header}\n', text)
+    
+    # Clean up any doubled newlines after normalization
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    
+    return text.strip()
 
 
 def extract_text_from_docx(file_bytes: bytes) -> str:
