@@ -896,7 +896,6 @@ const ResumeOptimizerPage = () => {
               <div class="header-text">
                 <div class="name">${data.name}</div>
                 ${data.experience[0]?.title ? `<div class="title">${data.experience[0].title}</div>` : ''}
-                ${data.experience[0]?.title ? `<div class="title">${data.experience[0].title}</div>` : ''}
                 <div class="contact">${contactHtml}</div>
               </div>
             </div>
