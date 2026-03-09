@@ -1417,14 +1417,14 @@ const ResumeOptimizerPage = () => {
                         )}
                         
                         {/* Editor Content Area */}
-                        <Card className="border-0 shadow-lg overflow-visible">
-                          <CardContent className="p-0">
+                        <Card className="border-0 shadow-lg overflow-visible w-full">
+                          <CardContent className="p-0 w-full">
                             {editorMode === "sections" ? (
-                              <div className="p-4 bg-slate-50 min-h-[700px] max-h-[900px] overflow-y-auto">
+                              <div className="p-4 bg-slate-50 min-h-[700px] max-h-[900px] overflow-y-auto w-full">
                                 <SectionEditor value={editedText} onChange={setEditedText} />
                               </div>
                             ) : (
-                              <div className="min-h-[700px] h-auto">
+                              <div className="min-h-[700px] h-auto w-full">
                                 <ResumePreview 
                                   text={editedText} 
                                   templateId={activeVisualTemplate} 
