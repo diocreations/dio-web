@@ -16,10 +16,16 @@ const AdminResume = () => {
   const [pricing, setPricing] = useState(null);
   const [analytics, setAnalytics] = useState(null);
   const [resumes, setResumes] = useState([]);
+  const [paidUsers, setPaidUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(null);
   const [deletingAll, setDeletingAll] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [grantingAccess, setGrantingAccess] = useState(null);
+  const [revokingAccess, setRevokingAccess] = useState(null);
+  const [grantEmail, setGrantEmail] = useState("");
+  const [grantResumeId, setGrantResumeId] = useState("");
 
   const fetchData = async () => {
     try {
