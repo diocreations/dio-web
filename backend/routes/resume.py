@@ -606,7 +606,7 @@ async def analyze_resume(data: dict):
     text = upload["text"][:6000]
     
     # Check if this looks like a platform-generated resume (well-formatted with standard sections)
-    is_well_formatted = detect_platform_resume(text)
+    _ = detect_platform_resume(text)  # For future use in scoring adjustments
     
     prompt = f"""Analyze this resume and return ONLY valid JSON (no markdown, no code blocks):
 {{"overall_score": <0-100>, "ats_score": <0-100>, "strengths": ["s1","s2","s3"], "weaknesses": ["w1","w2","w3"], "missing_keywords": ["k1","k2","k3"], "formatting_issues": ["i1","i2"], "suggestions": ["s1","s2","s3","s4"]}}
