@@ -316,8 +316,8 @@ const ProfessionalTemplate = ({
       style={{ fontFamily: "'Segoe UI', Calibri, Arial, sans-serif", fontSize: `${fontSize}px` }}
       data-testid="resume-preview"
     >
-      <div className="flex" style={{ minHeight: '1000px' }}>
-        {/* Left Sidebar - auto height to match content */}
+      <div className="flex min-h-[1000px]" style={{ alignItems: 'stretch' }}>
+        {/* Left Sidebar - stretches to match main content height */}
         <div 
           className="w-[35%] p-6 flex-shrink-0"
           style={{ backgroundColor: colors.sidebar }}
