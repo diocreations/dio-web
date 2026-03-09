@@ -315,6 +315,7 @@ const ResumeOptimizerPage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setUploadError(null); // Clear any previous errors
     const formData = new FormData();
     formData.append("file", file);
     
@@ -366,9 +367,23 @@ const ResumeOptimizerPage = () => {
         });
         if (analysisRes.ok) setAnalysis(await analysisRes.json());
       } else {
-        toast.error(data.detail || "Upload failed");
+        // Show detailed error with support options
+        const errorMessage = data.detail || "Upload failed";
+        setUploadError({
+          message: errorMessage,
+          filename: file.name,
+        });
+        toast.error(errorMessage);
       }
-    } catch { toast.error("Upload failed. Please try again."); }
+    } catch (err) {
+      // Network or parsing error - show support options
+      setUploadError({
+        message: "There was an issue processing your resume file. Please contact our support team for assistance.",
+        filename: file.name,
+        isParsingError: true,
+      });
+      toast.error("Upload failed. Please try again or contact support.");
+    }
     finally { setUploading(false); setAnalyzing(false); }
   };
 
