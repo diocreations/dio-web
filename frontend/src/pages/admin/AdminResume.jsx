@@ -292,6 +292,160 @@ const AdminResume = () => {
             </Card>
           </TabsContent>
 
+          {/* Paid Users Tab */}
+          <TabsContent value="paid-users">
+            <div className="space-y-4">
+              {/* Grant Access Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><UserCheck size={18} /> Grant Paid Access</CardTitle>
+                  <CardDescription>Manually grant paid access to a user's resume</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1">
+                      <Label className="text-xs text-muted-foreground mb-1 block">Resume ID</Label>
+                      <Input
+                        placeholder="e.g. resume_abc123..."
+                        value={grantResumeId}
+                        onChange={(e) => setGrantResumeId(e.target.value)}
+                        data-testid="grant-resume-id"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Label className="text-xs text-muted-foreground mb-1 block">User Email (optional)</Label>
+                      <Input
+                        type="email"
+                        placeholder="user@example.com"
+                        value={grantEmail}
+                        onChange={(e) => setGrantEmail(e.target.value)}
+                        data-testid="grant-email"
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <Button
+                        onClick={() => handleGrantAccess(grantResumeId, grantEmail)}
+                        disabled={!grantResumeId || grantingAccess}
+                        className="gap-2"
+                        data-testid="grant-access-btn"
+                      >
+                        {grantingAccess ? <Loader2 size={14} className="animate-spin" /> : <UserCheck size={14} />}
+                        Grant Access
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Paid Users List */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2"><CreditCard size={18} /> Paid Users List</CardTitle>
+                      <CardDescription>{paidUsers.length} users have paid for Resume AI</CardDescription>
+                    </div>
+                    <div className="relative">
+                      <Search size={14} className="absolute left-3 top-2.5 text-muted-foreground" />
+                      <Input
+                        placeholder="Search by email or resume..."
+                        className="pl-9 w-64"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        data-testid="paid-users-search"
+                      />
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {filteredPaidUsers.length === 0 ? (
+                    <p className="text-center text-muted-foreground py-8">
+                      {searchTerm ? "No matching paid users found" : "No paid users yet"}
+                    </p>
+                  ) : (
+                    <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                      {filteredPaidUsers.map((user, idx) => (
+                        <div key={user.resume_id || idx} className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-50 transition-colors">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className="p-2 rounded-lg bg-green-100">
+                              <CreditCard size={16} className="text-green-600" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium text-sm truncate flex items-center gap-1">
+                                  <Mail size={12} className="text-muted-foreground" />
+                                  {user.email || "No email"}
+                                </p>
+                                {user.amount && (
+                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                    {user.currency || "EUR"} {user.amount}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                                <span className="flex items-center gap-1" title="Resume ID">
+                                  <FileText size={10} /> {user.filename || user.resume_id?.slice(0, 20) + "..."}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Calendar size={10} /> Paid: {formatDate(user.paid_at)}
+                                </span>
+                                {user.overall_score !== null && (
+                                  <span className={user.overall_score >= 70 ? "text-green-600" : "text-amber-600"}>
+                                    Score: {user.overall_score}%
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-500 hover:text-red-600 hover:bg-red-50 gap-1"
+                            onClick={() => handleRevokeAccess(user.resume_id)}
+                            disabled={revokingAccess === user.resume_id}
+                            data-testid={`revoke-access-${user.resume_id}`}
+                          >
+                            {revokingAccess === user.resume_id ? (
+                              <Loader2 size={14} className="animate-spin" />
+                            ) : (
+                              <><UserX size={14} /> Revoke</>
+                            )}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* LinkedIn Access Toggle */}
+              <Card className="border-blue-200 bg-blue-50/30">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><Linkedin size={18} className="text-blue-600" /> LinkedIn Optimizer Access</CardTitle>
+                  <CardDescription>Control who can access the LinkedIn Optimizer feature</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">Public Access</p>
+                      <p className="text-sm text-muted-foreground">
+                        {pricing?.linkedin_public_access ? "Available to all users" : "Only available to paid Resume AI users"}
+                      </p>
+                    </div>
+                    <Switch
+                      checked={pricing?.linkedin_public_access || false}
+                      onCheckedChange={(c) => setPricing({ ...pricing, linkedin_public_access: c })}
+                      data-testid="linkedin-public-access-toggle"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    Note: Save pricing settings to apply this change.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
           {/* Pricing Tab */}
           <TabsContent value="pricing">
             <Card>
