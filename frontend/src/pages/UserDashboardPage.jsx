@@ -336,7 +336,41 @@ const UserDashboardPage = () => {
 
           {/* Referral Program */}
           <TabsContent value="referral">
-            <h2 className="text-lg font-semibold mb-4" data-testid="section-referral">Referral Program</h2>
+            <h2 className="text-lg font-semibold mb-4" data-testid="section-referral">Referral & Invitations</h2>
+            
+            {/* Invite Friend Card */}
+            <Card className="mb-4 bg-gradient-to-r from-violet-50 to-purple-50 border-violet-200">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-violet-100 rounded-lg">
+                    <Send size={18} className="text-violet-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Invite a Friend</h3>
+                    <p className="text-xs text-muted-foreground">Send an email invitation directly</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    type="email"
+                    placeholder="friend@example.com"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    className="bg-white"
+                    data-testid="invite-email-input"
+                  />
+                  <Button
+                    onClick={handleSendInvite}
+                    disabled={sendingInvite || !inviteEmail.includes("@")}
+                    className="bg-violet-600 hover:bg-violet-700"
+                    data-testid="send-invite-btn"
+                  >
+                    {sendingInvite ? <Loader2 size={14} className="animate-spin" /> : <Mail size={14} />}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card className="border-2 border-primary/10">
               <CardContent className="p-6 space-y-6">
                 <div className="text-center">
