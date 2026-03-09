@@ -1623,26 +1623,24 @@ const ResumeOptimizerPage = () => {
                           </Card>
                         )}
                         
-                        {/* Editor Content Area */}
-                        <div className="border-0 shadow-lg rounded-lg overflow-visible w-full">
-                          <div className="p-0 w-full">
-                            {editorMode === "sections" ? (
-                              <div className="p-4 bg-slate-50 min-h-[700px] max-h-[900px] overflow-y-auto w-full">
-                                <SectionEditor value={editedText} onChange={setEditedText} />
-                              </div>
-                            ) : (
-                              <div className="min-h-[700px] h-auto w-full overflow-visible">
-                                <ResumePreview 
-                                  text={editedText} 
-                                  templateId={activeVisualTemplate} 
-                                  editing={editorMode === "text"} 
-                                  onTextChange={setEditedText} 
-                                  fontSize={fontSize}
-                                  photo={profilePhoto}
-                                />
-                              </div>
-                            )}
-                          </div>
+                        {/* Editor Content Area - A4 Document Style */}
+                        <div className="rounded-lg overflow-visible">
+                          {editorMode === "sections" ? (
+                            <div className="p-4 bg-slate-50 min-h-[700px] max-h-[900px] overflow-y-auto rounded-lg border">
+                              <SectionEditor value={editedText} onChange={setEditedText} />
+                            </div>
+                          ) : (
+                            <div className="min-h-[800px] h-auto overflow-visible">
+                              <ResumePreview 
+                                text={editedText} 
+                                templateId={activeVisualTemplate} 
+                                editing={editorMode === "text"} 
+                                onTextChange={setEditedText} 
+                                fontSize={fontSize}
+                                photo={profilePhoto}
+                              />
+                            </div>
+                          )}
                         </div>
                         
                         {!hasDownloadAccess && <p className="text-center text-sm text-muted-foreground">Edit your resume freely. Switch templates instantly. Pay only to download the final version.</p>}
