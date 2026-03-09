@@ -121,6 +121,89 @@ const UserLoginPage = () => {
     );
   }
 
+  // Forgot Password View
+  if (showForgotPassword) {
+    return (
+      <Layout>
+        <div className="min-h-[80vh] flex items-center justify-center px-4 py-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-md"
+          >
+            <Card className="border-0 shadow-xl">
+              <CardContent className="p-6">
+                <button
+                  onClick={() => { setShowForgotPassword(false); setForgotSent(false); setForgotEmail(""); }}
+                  className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
+                  data-testid="back-to-login"
+                >
+                  <ArrowLeft size={14} /> Back to login
+                </button>
+                
+                {forgotSent ? (
+                  <div className="text-center py-6">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle className="text-green-600" size={32} />
+                    </div>
+                    <h2 className="text-xl font-bold mb-2">Check Your Email</h2>
+                    <p className="text-muted-foreground text-sm mb-4">
+                      If an account exists with <span className="font-medium">{forgotEmail}</span>, you'll receive a password reset link shortly.
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Don't see it? Check your spam folder or try again.
+                    </p>
+                    <Button
+                      variant="outline"
+                      className="mt-4"
+                      onClick={() => { setForgotSent(false); setForgotEmail(""); }}
+                    >
+                      Try another email
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-center mb-6">
+                      <h2 className="text-xl font-bold">Reset Your Password</h2>
+                      <p className="text-muted-foreground text-sm mt-1">
+                        Enter your email and we'll send you a reset link
+                      </p>
+                    </div>
+                    <form onSubmit={handleForgotPassword} className="space-y-4">
+                      <div>
+                        <Label htmlFor="forgot-email">Email Address</Label>
+                        <div className="relative mt-1">
+                          <Mail size={16} className="absolute left-3 top-3 text-muted-foreground" />
+                          <Input
+                            id="forgot-email"
+                            type="email"
+                            placeholder="you@example.com"
+                            className="pl-10"
+                            required
+                            data-testid="forgot-email-input"
+                            value={forgotEmail}
+                            onChange={(e) => setForgotEmail(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <Button type="submit" className="w-full" disabled={forgotLoading} data-testid="forgot-submit">
+                        {forgotLoading ? (
+                          <><Loader2 className="animate-spin mr-2" size={16} /> Sending...</>
+                        ) : (
+                          <>Send Reset Link</>
+                        )}
+                      </Button>
+                    </form>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="min-h-[80vh] flex items-center justify-center px-4 py-16">
