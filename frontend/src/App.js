@@ -28,6 +28,7 @@ import CoverLetterPage from "./pages/CoverLetterPage";
 import ResumeBuilderLandingPage from "./pages/ResumeBuilderLandingPage";
 import ResumeAnalyzerLandingPage from "./pages/ResumeAnalyzerLandingPage";
 import CoverLetterLandingPage from "./pages/CoverLetterLandingPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 // Admin Pages (lazy loaded)
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
