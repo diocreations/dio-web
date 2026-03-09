@@ -117,9 +117,12 @@ async def generate_cover_letter(data: dict, user=Depends(optional_public_user)):
     # If resume_id provided, load text from DB
     resume_id = data.get("resume_id")
     if resume_id and not resume_text:
-        upload = await db.resume_uploads.find_one({"resume_id": resume_id}, {"_id": 0})
-        if upload:
-            resume_text = upload.get("text", "")[:4000]
+        try:
+            upload = await db.resume_uploads.find_one({"resume_id": resume_id}, {"_id": 0})
+            if upload:
+                resume_text = upload.get("text", "")[:4000]
+        except Exception as e:
+            logger.warning(f"Failed to load resume from DB: {e}")
 
     prompt = f"""Write a professional cover letter based on the following information. Return ONLY the cover letter text (no JSON, no markdown code blocks).
 
@@ -144,7 +147,7 @@ Write a compelling, personalized cover letter (3-4 paragraphs). Be specific abou
         cover_letter_text = await chat.send_message(UserMessage(text=prompt))
     except Exception as e:
         logger.error(f"Cover letter generation failed: {e}")
-        raise HTTPException(status_code=500, detail="Generation failed. Please try again.")
+        raise HTTPException(status_code=500, detail="Unable to generate cover letter at the moment. Please try again later.")
 
     letter_id = f"cl_{uuid.uuid4().hex[:12]}"
     doc = {
@@ -157,7 +160,12 @@ Write a compelling, personalized cover letter (3-4 paragraphs). Be specific abou
         "user_id": user["user_id"] if user else None,
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
-    await db.cover_letters.insert_one(doc)
+    
+    try:
+        await db.cover_letters.insert_one(doc)
+    except Exception as e:
+        logger.warning(f"Failed to save cover letter to DB: {e}")
+    
     doc.pop("_id", None)
     return doc
 
