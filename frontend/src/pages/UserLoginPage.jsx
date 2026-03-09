@@ -99,7 +99,7 @@ const UserLoginPage = () => {
           className="w-full max-w-md"
         >
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold" data-testid="login-heading">Your Account</h1>
+            <h1 className="text-3xl font-bold" data-testid="login-heading">Diocreations Login</h1>
             <p className="text-muted-foreground mt-2">Access your resume analyses, cover letters, and more</p>
           </div>
 
