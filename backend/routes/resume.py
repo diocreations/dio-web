@@ -174,16 +174,9 @@ def detect_platform_resume(text: str) -> bool:
     # Check for ATS-friendly formatting indicators
     has_bullet_points = '•' in text or '- ' in text or text.count('\n- ') > 2
     has_dates = bool(re.search(r'\d{4}\s*[-–]\s*(present|\d{4})', text, re.I))
-    has_contact_info = bool(re.search(r'[\w.-]+@[\w.-]+\.\w+', text))  # Email
     
-    # A well-formatted resume has at least 3 standard sections, bullets, dates, and contact
-    is_well_formatted = (
-        sections_found >= 3 and 
-        has_bullet_points and 
-        has_dates
-    )
-    
-    return is_well_formatted
+    # A well-formatted resume has at least 3 standard sections, bullets, and dates
+    return sections_found >= 3 and has_bullet_points and has_dates
 
 
 def extract_text_from_docx(file_bytes: bytes) -> str:
