@@ -56,6 +56,7 @@ const AdminLayout = ({ children }) => {
     { name: "Landing Pages", path: "/admin/landing-pages", icon: Layers },
     { name: "Custom Pages", path: "/admin/custom-pages", icon: Globe },
     { name: "Newsletter", path: "/admin/newsletter", icon: Mail },
+    { name: "Invitations", path: "/admin/invitations", icon: Send },
     { name: "Templates", path: "/admin/templates", icon: LayoutIcon },
     { name: "Menus", path: "/admin/menus", icon: Navigation },
     { name: "Currency", path: "/admin/currency", icon: DollarSign },
