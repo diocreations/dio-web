@@ -5,6 +5,51 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Authentication Fixes & User Invitation System ✅
+**Date: Mar 9, 2025**
+
+**Features Implemented:**
+
+1. **Authentication Error Handling (Req #14)**
+   - Improved error messages in UserLoginPage.jsx
+   - "Failed to fetch" now shows: "Unable to connect to server. Please check your internet connection and try again."
+   - Proper validation and user-friendly error messages throughout
+
+2. **User Invitation System (Req #15)**
+   - **Admin Features:**
+     - Single invitation: Send to one person by email
+     - Bulk invitations: Enter multiple emails (comma or newline separated)
+     - CSV Upload: Upload file with email addresses (max 100 per upload)
+     - Invitation list: View all invitations with status (pending/accepted/expired)
+     - Resend/Delete: Manage pending invitations
+     - Stats dashboard: Total sent, pending, accepted, expired counts
+   - **User Features:**
+     - Invite friends from User Dashboard (Referral tab)
+     - Simple email input with send button
+   - **Email Invitations:**
+     - Professional invitation email via Resend
+     - Includes platform benefits, registration link
+     - Links expire after 7 days
+     - Tracking: who invited whom, status, dates
+
+**New Files Created:**
+- `/app/backend/routes/invitations.py` - Invitation system backend
+- `/app/frontend/src/pages/admin/AdminInvitations.jsx` - Admin invitations UI
+
+**API Endpoints:**
+- `POST /api/admin/invitations/send` - Send single invitation
+- `POST /api/admin/invitations/bulk` - Send bulk invitations
+- `POST /api/admin/invitations/csv` - Upload CSV with emails
+- `GET /api/admin/invitations` - Get all invitations with stats
+- `DELETE /api/admin/invitations/{invite_id}` - Delete invitation
+- `POST /api/admin/invitations/resend/{invite_id}` - Resend invitation
+- `POST /api/user/invite` - User sends invitation (requires auth)
+- `GET /api/user/invitations` - User's sent invitations
+- `GET /api/invitation/verify/{invite_id}` - Verify invitation (public)
+- `POST /api/invitation/accept/{invite_id}` - Mark invitation accepted
+
+---
+
 ### User Authentication & Admin Paid Users Management ✅
 **Date: Mar 9, 2025**
 
