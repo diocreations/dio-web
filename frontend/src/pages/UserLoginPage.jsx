@@ -355,6 +355,13 @@ const UserLoginPage = () => {
 
                 <TabsContent value="register">
                   <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* Invitation notice */}
+                    {inviteToken && inviteEmail && (
+                      <div className="p-3 bg-violet-50 border border-violet-200 rounded-lg text-sm">
+                        <p className="text-violet-700 font-medium">🎉 You've been invited!</p>
+                        <p className="text-violet-600 text-xs mt-1">This invitation is for <strong>{inviteEmail}</strong></p>
+                      </div>
+                    )}
                     <div>
                       <Label htmlFor="reg-name">Name</Label>
                       <div className="relative mt-1">
@@ -366,8 +373,30 @@ const UserLoginPage = () => {
                       <Label htmlFor="reg-email">Email</Label>
                       <div className="relative mt-1">
                         <Mail size={16} className="absolute left-3 top-3 text-muted-foreground" />
-                        <Input id="reg-email" type="email" placeholder="you@example.com" className="pl-10" required data-testid="register-email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                        <Input 
+                          id="reg-email" 
+                          type="email" 
+                          placeholder="you@example.com" 
+                          className={`pl-10 ${inviteToken && inviteEmail ? 'bg-slate-100 cursor-not-allowed' : ''}`}
+                          required 
+                          data-testid="register-email" 
+                          value={form.email} 
+                          onChange={(e) => {
+                            // If invitation, prevent changing email
+                            if (inviteToken && inviteEmail) {
+                              toast.error(`You can only sign up with ${inviteEmail}`);
+                              return;
+                            }
+                            setForm({ ...form, email: e.target.value });
+                          }}
+                          readOnly={!!(inviteToken && inviteEmail)}
+                        />
                       </div>
+                      {inviteToken && inviteEmail && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Email is locked to the invited address
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="reg-password">Password</Label>
@@ -376,7 +405,7 @@ const UserLoginPage = () => {
                         <Input id="reg-password" type="password" placeholder="Min 6 characters" className="pl-10" required minLength={6} data-testid="register-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
                       </div>
                     </div>
-                    <Button type="submit" className="w-full" disabled={loading} data-testid="register-submit">
+                    <Button type="submit" className="w-full" disabled={loading || (inviteToken && inviteValid === false)} data-testid="register-submit">
                       {loading ? <Loader2 className="animate-spin mr-2" size={16} /> : <UserPlus size={16} className="mr-2" />}
                       Create Account
                     </Button>
