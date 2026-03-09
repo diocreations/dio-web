@@ -160,11 +160,54 @@ const RichEditor = ({ value, onChange, placeholder = "Edit your resume..." }) =>
   };
 
   const insertLink = () => {
-    const url = prompt("Enter URL:");
-    if (url) exec("createLink", url);
+    const selection = window.getSelection();
+    let currentUrl = "";
+    
+    // Check if selection is already a link to pre-fill the URL
+    if (selection.rangeCount) {
+      let node = selection.getRangeAt(0).startContainer;
+      while (node && node !== editorRef.current) {
+        if (node.nodeType === 1 && node.tagName === "A") {
+          currentUrl = node.href || "";
+          break;
+        }
+        node = node.parentNode;
+      }
+    }
+    
+    const url = prompt("Enter URL:", currentUrl);
+    if (url) {
+      // If editing existing link, remove it first to prevent format issues
+      if (currentUrl) {
+        exec("unlink");
+      }
+      exec("createLink", url);
+      // Ensure no formatting is applied to the link text
+      editorRef.current?.focus();
+    }
   };
 
-  const removeLink = () => exec("unlink");
+  const removeLink = () => {
+    exec("unlink");
+    // Also remove any formatting that might have been applied
+    const selection = window.getSelection();
+    if (selection.rangeCount) {
+      const range = selection.getRangeAt(0);
+      if (range.collapsed) {
+        // If no selection, try to find and unlink the parent anchor
+        let node = range.startContainer;
+        while (node && node !== editorRef.current) {
+          if (node.nodeType === 1 && node.tagName === "A") {
+            const text = document.createTextNode(node.textContent);
+            node.replaceWith(text);
+            handleInput();
+            return;
+          }
+          node = node.parentNode;
+        }
+      }
+    }
+  };
 
   const clearFormatting = () => {
     exec("removeFormat");
