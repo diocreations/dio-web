@@ -101,6 +101,15 @@ const UserLoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate invitation email if signing up with invitation
+    if (tab === "signup" && inviteToken && inviteEmail) {
+      if (form.email.toLowerCase().trim() !== inviteEmail.toLowerCase().trim()) {
+        toast.error(`This invitation is only valid for ${inviteEmail}. Please use the invited email address.`);
+        return;
+      }
+    }
+    
     setLoading(true);
     const endpoint = tab === "login" ? "/api/user/login" : "/api/user/register";
     try {
@@ -114,6 +123,12 @@ const UserLoginPage = () => {
       if (!res.ok) throw new Error(data.detail || "Authentication failed. Please try again.");
       localStorage.setItem("pub_user", JSON.stringify(data));
       localStorage.setItem("pub_session_token", data.session_token);
+      
+      // Mark invitation as accepted
+      if (inviteToken && tab === "signup") {
+        fetch(`${API_URL}/api/invitation/accept/${inviteToken}`, { method: "POST" }).catch(() => {});
+      }
+      
       toast.success(tab === "login" ? "Welcome back!" : "Account created!");
       navigate("/dashboard");
     } catch (err) {
