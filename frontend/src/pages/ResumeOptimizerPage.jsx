@@ -1626,13 +1626,16 @@ const ResumeOptimizerPage = () => {
                         )}
                         
                         {/* Editor Content Area - A4 Document Style */}
-                        <div className="rounded-lg overflow-visible">
+                        <div className="rounded-lg overflow-visible flex justify-center">
                           {editorMode === "sections" ? (
-                            <div className="p-4 bg-slate-50 min-h-[700px] max-h-[900px] overflow-y-auto rounded-lg border">
+                            <div 
+                              className="p-4 bg-slate-50 min-h-[700px] max-h-[900px] overflow-y-auto rounded-lg border"
+                              style={{ width: '794px', maxWidth: '100%' }}
+                            >
                               <SectionEditor value={editedText} onChange={setEditedText} />
                             </div>
                           ) : (
-                            <div className="min-h-[800px] h-auto overflow-visible">
+                            <div className="min-h-[800px] h-auto overflow-visible w-full">
                               <ResumePreview 
                                 text={editedText} 
                                 templateId={activeVisualTemplate} 
