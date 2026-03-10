@@ -418,8 +418,13 @@ const UnifiedResumeRenderer = ({ text, templateId, fontSize = 11, photo }) => {
           }}
         >
           <div style={{ fontSize: `${config.nameSize}px`, fontWeight: 700, marginBottom: '4px' }}>
-            {parsed.name}
+            {parsed.name || 'Your Name'}
           </div>
+          {parsed.title && (
+            <div style={{ fontSize: `${config.bodySize}px`, color: 'rgba(255,255,255,0.8)', marginBottom: '4px' }}>
+              {parsed.title}
+            </div>
+          )}
           {parsed.contact && (
             <div style={{ fontSize: `${config.bodySize - 2}px`, color: 'rgba(255,255,255,0.7)' }}>
               {parsed.contact.replace(/\|/g, ' • ')}
@@ -436,8 +441,19 @@ const UnifiedResumeRenderer = ({ text, templateId, fontSize = 11, photo }) => {
             color: templateId === 'modern' || templateId === 'creative' ? config.accent : '#1a1a2e',
             marginBottom: '4px',
           }}>
-            {parsed.name}
+            {parsed.name || 'Your Name'}
           </div>
+          {parsed.title && (
+            <div style={{ 
+              fontSize: `${config.bodySize}px`, 
+              textAlign: config.nameAlign,
+              color: config.accent,
+              marginBottom: '4px',
+              fontWeight: 500,
+            }}>
+              {parsed.title}
+            </div>
+          )}
           {parsed.contact && (
             <div style={{ 
               fontSize: `${config.bodySize - 2}px`, 
