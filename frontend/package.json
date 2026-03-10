@@ -66,7 +66,31 @@
   "scripts": {
     "start": "craco start",
     "build": "craco build",
+    "postbuild": "react-snap",
     "test": "craco test"
+  },
+  "reactSnap": {
+    "source": "build",
+    "inlineCss": true,
+    "puppeteerArgs": ["--no-sandbox", "--disable-setuid-sandbox"],
+    "skipThirdPartyRequests": true,
+    "cacheAjaxRequests": true,
+    "include": [
+      "/",
+      "/about",
+      "/services",
+      "/products",
+      "/portfolio",
+      "/blog",
+      "/contact",
+      "/resume-optimizer",
+      "/resume-builder",
+      "/resume-builder-info",
+      "/resume-analyzer-info",
+      "/cover-letter-info",
+      "/privacy",
+      "/terms"
+    ]
   },
   "browserslist": {
     "production": [
