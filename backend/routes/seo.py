@@ -197,7 +197,9 @@ async def get_sitemap(request: Request):
         xml += f'  <url>\n    <loc>{site_url}{p["loc"]}</loc>\n    <changefreq>{p["changefreq"]}</changefreq>\n    <priority>{p["priority"]}</priority>\n  </url>\n'
 
     for post in blog_posts:
-        xml += f'  <url>\n    <loc>{site_url}/blog/{post["slug"]}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>\n'
+        lastmod = post.get("updated_at", "")
+        lastmod_tag = f'\n    <lastmod>{lastmod}</lastmod>' if lastmod else ''
+        xml += f'  <url>\n    <loc>{site_url}/blog/{post["slug"]}</loc>{lastmod_tag}\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>\n'
 
     for s in services:
         if s.get("slug"):
