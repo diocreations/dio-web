@@ -281,3 +281,49 @@ async def prerender_blog_list(request: Request):
     site_url = "https://www.diocreations.eu"
     html_content = generate_blog_list_html(posts, site_url)
     return HTMLResponse(content=html_content)
+
+
+# SSR endpoint - serves full HTML page that can replace index.html for blog routes
+@router.get("/ssr/blog/{slug}", response_class=HTMLResponse)
+async def ssr_blog_post(slug: str, request: Request):
+    """
+    Server-Side Rendered blog post - returns complete HTML with content visible in page source.
+    This endpoint should be used with Cloudflare Workers or nginx to serve to search bots.
+    """
+    post = await db.blog.find_one({"slug": slug}, {"_id": 0})
+    if not post:
+        return HTMLResponse(
+            content="""<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>404 - Not Found</title></head>
+<body><h1>Page Not Found</h1></body>
+</html>""",
+            status_code=404
+        )
+    
+    site_url = "https://www.diocreations.eu"
+    html_content = generate_blog_html(post, site_url)
+    return HTMLResponse(content=html_content)
+
+
+# Endpoint to get blog content as JSON for client-side hydration
+@router.get("/blog-seo/{slug}")
+async def get_blog_seo_data(slug: str):
+    """
+    Returns blog post data with SEO-ready HTML snippet.
+    Frontend can use this to inject content into the page.
+    """
+    post = await db.blog.find_one({"slug": slug}, {"_id": 0})
+    if not post:
+        return {"error": "not_found"}
+    
+    return {
+        "title": post.get("title", ""),
+        "description": strip_html_tags(post.get("excerpt") or post.get("content", ""))[:160],
+        "content": post.get("content", ""),
+        "author": post.get("author", "DIOCREATIONS"),
+        "category": post.get("category", "General"),
+        "featured_image": post.get("featured_image", ""),
+        "published_at": post.get("published_at", post.get("created_at", "")),
+        "slug": slug
+    }
