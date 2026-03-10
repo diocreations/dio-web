@@ -165,29 +165,37 @@ async def update_global_seo(data: dict, user: dict = Depends(get_current_user)):
 
 @router.get("/sitemap.xml", response_class=Response)
 async def get_sitemap(request: Request):
-    """Generate dynamic XML sitemap"""
-    base_url = str(request.base_url).rstrip("/").replace("/api", "")
-    settings = await db.settings.find_one({"settings_id": "site_settings"}, {"_id": 0})
-    site_url = (settings or {}).get("site_url", base_url)
-
+    """Generate dynamic XML sitemap with all blog posts"""
+    # Always use the production domain
+    site_url = "https://www.diocreations.eu"
+    
     # Static pages
     static_pages = [
         {"loc": "/", "priority": "1.0", "changefreq": "weekly"},
         {"loc": "/about", "priority": "0.8", "changefreq": "monthly"},
-        {"loc": "/services", "priority": "0.8", "changefreq": "weekly"},
+        {"loc": "/services", "priority": "0.9", "changefreq": "weekly"},
         {"loc": "/products", "priority": "0.8", "changefreq": "weekly"},
         {"loc": "/portfolio", "priority": "0.7", "changefreq": "weekly"},
-        {"loc": "/blog", "priority": "0.7", "changefreq": "daily"},
+        {"loc": "/blog", "priority": "0.9", "changefreq": "daily"},
         {"loc": "/contact", "priority": "0.6", "changefreq": "monthly"},
         {"loc": "/resume-optimizer", "priority": "0.9", "changefreq": "weekly"},
+        {"loc": "/resume-builder", "priority": "0.9", "changefreq": "weekly"},
         {"loc": "/cover-letter", "priority": "0.8", "changefreq": "monthly"},
+        {"loc": "/resume-builder-info", "priority": "0.8", "changefreq": "monthly"},
+        {"loc": "/resume-analyzer-info", "priority": "0.8", "changefreq": "monthly"},
+        {"loc": "/cover-letter-info", "priority": "0.8", "changefreq": "monthly"},
         {"loc": "/privacy", "priority": "0.3", "changefreq": "yearly"},
         {"loc": "/terms", "priority": "0.3", "changefreq": "yearly"},
     ]
 
-    # Dynamic pages from DB
-    blog_posts = await db.blog.find({"is_published": True}, {"_id": 0, "slug": 1, "updated_at": 1}).to_list(500)
-    services = await db.services.find({}, {"_id": 0, "slug": 1}).to_list(100)
+    # Dynamic pages from DB - include ALL blog posts (published or with slug)
+    # Query for posts that are either published OR have a slug (fallback)
+    blog_posts = await db.blog.find(
+        {"$or": [{"is_published": True}, {"slug": {"$exists": True, "$ne": ""}}]},
+        {"_id": 0, "slug": 1, "updated_at": 1, "created_at": 1}
+    ).to_list(500)
+    
+    services = await db.services.find({"slug": {"$exists": True, "$ne": ""}}, {"_id": 0, "slug": 1}).to_list(100)
     portfolio = await db.portfolio.find({}, {"_id": 0, "portfolio_id": 1}).to_list(100)
 
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -196,17 +204,21 @@ async def get_sitemap(request: Request):
     for p in static_pages:
         xml += f'  <url>\n    <loc>{site_url}{p["loc"]}</loc>\n    <changefreq>{p["changefreq"]}</changefreq>\n    <priority>{p["priority"]}</priority>\n  </url>\n'
 
+    # Add all blog posts with their slugs
     for post in blog_posts:
-        lastmod = post.get("updated_at", "")
-        lastmod_tag = f'\n    <lastmod>{lastmod}</lastmod>' if lastmod else ''
-        xml += f'  <url>\n    <loc>{site_url}/blog/{post["slug"]}</loc>{lastmod_tag}\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>\n'
+        slug = post.get("slug", "")
+        if slug:  # Only include posts with valid slugs
+            lastmod = post.get("updated_at") or post.get("created_at", "")
+            lastmod_tag = f'\n    <lastmod>{lastmod}</lastmod>' if lastmod else ''
+            xml += f'  <url>\n    <loc>{site_url}/blog/{slug}</loc>{lastmod_tag}\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>\n'
 
     for s in services:
         if s.get("slug"):
             xml += f'  <url>\n    <loc>{site_url}/services/{s["slug"]}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>\n'
 
     for p in portfolio:
-        xml += f'  <url>\n    <loc>{site_url}/portfolio/{p["portfolio_id"]}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>\n'
+        if p.get("portfolio_id"):
+            xml += f'  <url>\n    <loc>{site_url}/portfolio/{p["portfolio_id"]}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>\n'
 
     xml += '</urlset>'
     return Response(content=xml, media_type="application/xml")
