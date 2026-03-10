@@ -11,52 +11,6 @@ import re
 
 app = FastAPI()
 
-# Bot user agents for SEO pre-rendering
-BOT_USER_AGENTS = [
-    'googlebot', 'google-inspectiontool', 'bingbot', 'slurp', 'duckduckbot',
-    'baiduspider', 'yandexbot', 'sogou', 'exabot', 'facebot', 'facebookexternalhit',
-    'ia_archiver', 'linkedinbot', 'twitterbot', 'applebot', 'semrushbot',
-    'ahrefsbot', 'mj12bot', 'petalbot', 'dotbot', 'rogerbot'
-]
-
-def is_bot(user_agent: str) -> bool:
-    """Check if request is from a search engine bot"""
-    if not user_agent:
-        return False
-    ua_lower = user_agent.lower()
-    return any(bot in ua_lower for bot in BOT_USER_AGENTS)
-
-# SEO Bot Detection Middleware - Serve pre-rendered HTML to crawlers
-@app.middleware("http")
-async def seo_prerender_middleware(request: Request, call_next):
-    """Redirect search engine bots to pre-rendered pages for proper indexing"""
-    user_agent = request.headers.get("user-agent", "")
-    path = request.url.path
-    
-    # Only intercept frontend blog routes (not API routes)
-    if is_bot(user_agent) and not path.startswith("/api"):
-        # Check for blog post URLs: /blog/{slug}
-        blog_post_match = re.match(r'^/blog/([a-zA-Z0-9_-]+)$', path)
-        if blog_post_match:
-            slug = blog_post_match.group(1)
-            # Redirect to pre-rendered version
-            logger.info(f"Bot detected ({user_agent[:50]}...) - serving pre-rendered: /blog/{slug}")
-            return RedirectResponse(
-                url=f"/api/prerender/blog/{slug}",
-                status_code=200  # Use 200 internally, the prerender endpoint returns proper HTML
-            )
-        
-        # Check for blog listing: /blog
-        if path == "/blog" or path == "/blog/":
-            logger.info(f"Bot detected ({user_agent[:50]}...) - serving pre-rendered blog list")
-            return RedirectResponse(
-                url="/api/prerender/blog",
-                status_code=200
-            )
-    
-    response = await call_next(request)
-    return response
-
 # Subdomain middleware - serve resume-only mode for resume.diocreations.eu
 @app.middleware("http")
 async def subdomain_handler(request, call_next):
