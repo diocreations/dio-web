@@ -5,6 +5,47 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Google AdSense Integration Fixed ✅
+**Date: Mar 10, 2025 (Iteration 45 - Req #30)**
+
+**Issue:** AdSense ads were not displaying inside blog content even though the code was saved successfully.
+
+**Root Cause Analysis:**
+1. React's `dangerouslySetInnerHTML` only inserts HTML as text - `<script>` tags do NOT execute
+2. Global AdSense script was not loaded on the page
+3. `(adsbygoogle = window.adsbygoogle || []).push({})` was never called to initialize ads
+
+**Solution Implemented:**
+1. Created new `AdSenseUnit.jsx` component that:
+   - Parses pasted AdSense code to extract `data-ad-client` and `data-ad-slot` attributes
+   - Dynamically loads the Google AdSense library script
+   - Creates proper `<ins class="adsbygoogle">` elements programmatically
+   - Calls `window.adsbygoogle.push()` to initialize ad units
+   - Has error handling with silent fail for end users
+
+2. Updated `BlogPostPage.jsx` to use `AdSenseUnit` component instead of raw `dangerouslySetInnerHTML`
+
+3. Added placeholder AdSense script tag in `index.html`
+
+**Files Created/Modified:**
+- `/app/frontend/src/components/AdSenseUnit.jsx` - NEW component
+- `/app/frontend/src/pages/BlogPostPage.jsx` - Updated to use AdSenseUnit
+- `/app/frontend/public/index.html` - Added script placeholder
+
+**How It Works:**
+1. Admin pastes AdSense code in blog editor (AdSense tab)
+2. Code is saved to `adsense_code` field with position in `adsense_position`
+3. When blog post renders, `AdSenseUnit` parses the code
+4. Global AdSense script is loaded dynamically
+5. Ad unit is initialized with `push()`
+6. Google serves ads (requires valid AdSense account + approved domain)
+
+**Note:** Actual ads only display with a valid Google AdSense account and approved domain. The preview environment will show console errors for invalid publisher IDs - this is expected.
+
+**Test Report:** `/app/test_reports/iteration_45.json` - 100% pass rate
+
+---
+
 ### New ATS Resume Creation Workflow ✅
 **Date: Mar 10, 2025 (Iteration 44 - Req #29)**
 
