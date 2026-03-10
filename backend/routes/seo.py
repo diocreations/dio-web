@@ -186,7 +186,7 @@ async def get_sitemap(request: Request):
     ]
 
     # Dynamic pages from DB
-    blog_posts = await db.blog.find({"status": "published"}, {"_id": 0, "slug": 1, "updated_at": 1}).to_list(500)
+    blog_posts = await db.blog.find({"is_published": True}, {"_id": 0, "slug": 1, "updated_at": 1}).to_list(500)
     services = await db.services.find({}, {"_id": 0, "slug": 1}).to_list(100)
     portfolio = await db.portfolio.find({}, {"_id": 0, "portfolio_id": 1}).to_list(100)
 
