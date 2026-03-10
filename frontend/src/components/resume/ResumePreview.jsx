@@ -23,7 +23,7 @@ const TEMPLATE_CONFIGS = {
 
 // Parse resume content
 function parseContent(text) {
-  if (!text) return { name: "", contact: "", sections: [] };
+  if (!text) return { name: "", contact: "", sections: [], title: "" };
   
   const isHtml = text.includes("<") && (text.includes("<p>") || text.includes("<h2>") || text.includes("<li>"));
   
@@ -46,6 +46,7 @@ function parseContent(text) {
     'SKILLS': /^(SKILLS|TECHNICAL\s*SKILLS|CORE\s*COMPETENCIES|EXPERTISE|KEY\s*SKILLS)/i,
     'CERTIFICATIONS': /^(CERTIFICATIONS|CERTIFICATES|LICENSES|CREDENTIALS)/i,
     'LANGUAGES': /^(LANGUAGES|LANGUAGE\s*SKILLS)/i,
+    'PROJECTS': /^(PROJECTS|KEY\s*PROJECTS|PERSONAL\s*PROJECTS)/i,
   };
   
   const isHeader = (line) => {
@@ -53,21 +54,83 @@ function parseContent(text) {
       (line.length < 50 && line === line.toUpperCase() && /^[A-Z][A-Z\s\/&,]+$/.test(line) && !line.includes("@"));
   };
   
-  let name = "", contact = "", contentStartIdx = 0;
+  // Check if a line looks like a job title (contains role keywords)
+  const isJobTitle = (line) => {
+    const jobKeywords = /\b(developer|engineer|manager|director|analyst|consultant|designer|specialist|lead|senior|junior|architect|administrator|coordinator|executive|associate|intern|assistant|officer|ceo|cto|cfo|vp|president|head\s+of)\b/i;
+    return jobKeywords.test(line) && line.length < 60 && !line.includes("@");
+  };
   
-  for (let i = 0; i < Math.min(lines.length, 5); i++) {
+  // Check if line is contact info
+  const isContactInfo = (line) => {
+    return line.includes("@") || 
+           line.includes("|") || 
+           /\+?\d[\d\s\-()]{6,}/.test(line) ||
+           /linkedin\.com/i.test(line) ||
+           /github\.com/i.test(line);
+  };
+  
+  let name = "", contact = "", title = "", contentStartIdx = 0;
+  
+  // First pass: Look for name in the first few lines
+  // The name should be the first non-header, non-contact, non-job-title line
+  for (let i = 0; i < Math.min(lines.length, 8); i++) {
     const line = lines[i];
-    if (!isHeader(line)) {
-      if (!name && line.length > 2 && line.length < 60 && !/[@|•]/.test(line) && !/\d{4}/.test(line)) {
-        name = line;
-        contentStartIdx = i + 1;
-      } else if (name && !contact && (line.includes("@") || line.includes("|") || /\+?\d[\d\s\-()]{6,}/.test(line))) {
+    
+    // Skip if it's a section header
+    if (isHeader(line)) {
+      contentStartIdx = i;
+      break;
+    }
+    
+    // If it's contact info, save it
+    if (isContactInfo(line)) {
+      if (!contact) {
         contact = line;
         contentStartIdx = i + 1;
       }
-    } else {
-      contentStartIdx = i;
-      break;
+      continue;
+    }
+    
+    // If it looks like a job title and we already have a name
+    if (isJobTitle(line) && name) {
+      if (!title) {
+        title = line;
+        contentStartIdx = i + 1;
+      }
+      continue;
+    }
+    
+    // First proper line that's not contact or job title is likely the name
+    if (!name && line.length > 2 && line.length < 60 && !/[@|•]/.test(line) && !/\d{4}/.test(line)) {
+      // Check if this line is a proper name (typically 2-4 words, capitalized)
+      const words = line.split(/\s+/);
+      const looksLikeName = words.length >= 1 && words.length <= 5 && 
+                           words.every(w => /^[A-Z][a-z]*\.?$/.test(w) || /^[A-Z]+$/.test(w));
+      
+      if (looksLikeName || !isJobTitle(line)) {
+        name = line;
+        contentStartIdx = i + 1;
+      }
+    }
+  }
+  
+  // If we still don't have a name but have other data, use the first line as name
+  if (!name && lines.length > 0 && !isHeader(lines[0]) && !isContactInfo(lines[0])) {
+    name = lines[0];
+    contentStartIdx = 1;
+  }
+  
+  // Second pass: Look for title if not found
+  if (!title) {
+    for (let i = contentStartIdx; i < Math.min(lines.length, 6); i++) {
+      const line = lines[i];
+      if (isHeader(line)) break;
+      if (isContactInfo(line)) continue;
+      if (isJobTitle(line)) {
+        title = line;
+        contentStartIdx = i + 1;
+        break;
+      }
     }
   }
   
@@ -95,7 +158,7 @@ function parseContent(text) {
   }
   if (currentSection) sections.push(currentSection);
   
-  return { name, contact, sections };
+  return { name, contact, sections, title };
 }
 
 // A4 Page wrapper
