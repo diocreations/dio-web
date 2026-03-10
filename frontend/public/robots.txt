@@ -1,8 +1,8 @@
 User-agent: *
 Allow: /
 
-# Sitemap
-Sitemap: https://www.diocreations.eu/sitemap.xml
+# Sitemap - Dynamic (includes all blog posts automatically)
+Sitemap: https://www.diocreations.eu/api/sitemap.xml
 
 # Crawl-delay for bots
 Crawl-delay: 1
