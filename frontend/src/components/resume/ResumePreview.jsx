@@ -49,9 +49,42 @@ function parseContent(text) {
     'PROJECTS': /^(PROJECTS|KEY\s*PROJECTS|PERSONAL\s*PROJECTS)/i,
   };
   
+  // Known section header keywords - these should NOT be treated as names
+  const sectionKeywords = /^(SUMMARY|PROFESSIONAL|PROFILE|ABOUT|OBJECTIVE|CAREER|EXPERIENCE|WORK|EMPLOYMENT|EDUCATION|ACADEMIC|QUALIFICATIONS|SKILLS|TECHNICAL|CORE|EXPERTISE|CERTIFICATIONS|CERTIFICATES|LICENSES|CREDENTIALS|LANGUAGES|PROJECTS|ACHIEVEMENTS|AWARDS|PUBLICATIONS|REFERENCES|INTERESTS|HOBBIES|ACTIVITIES)/i;
+  
   const isHeader = (line) => {
-    return Object.values(sectionPatterns).some(p => p.test(line)) ||
-      (line.length < 50 && line === line.toUpperCase() && /^[A-Z][A-Z\s\/&,]+$/.test(line) && !line.includes("@"));
+    // First check if it matches known section patterns
+    if (Object.values(sectionPatterns).some(p => p.test(line))) return true;
+    
+    // Check if it's an all-caps line that looks like a section header (contains keywords)
+    if (line.length < 50 && line === line.toUpperCase() && /^[A-Z][A-Z\s\/&,]+$/.test(line) && !line.includes("@")) {
+      // Only treat as header if it contains section keywords
+      return sectionKeywords.test(line);
+    }
+    return false;
+  };
+  
+  // Check if a line looks like a person's name
+  const isLikelyName = (line) => {
+    // Names are typically 2-4 words, each word starts with capital
+    const words = line.split(/\s+/);
+    if (words.length < 1 || words.length > 5) return false;
+    if (line.length < 3 || line.length > 50) return false;
+    
+    // Check if it contains section keywords - if so, it's not a name
+    if (sectionKeywords.test(line)) return false;
+    
+    // Names don't typically contain these characters
+    if (/[@|•\d,:]/.test(line)) return false;
+    if (/\d{4}/.test(line)) return false; // Contains a year
+    
+    // ALL CAPS names are valid (e.g., MARIA NIKITA)
+    // Mixed case names are valid (e.g., Maria Nikita)
+    // Each word should look like a name component
+    return words.every(w => {
+      const clean = w.replace(/[.,]/g, '');
+      return /^[A-Z][a-zA-Z]*$/.test(clean) || /^[A-Z]+$/.test(clean);
+    });
   };
   
   // Check if a line looks like a job title (contains role keywords)
