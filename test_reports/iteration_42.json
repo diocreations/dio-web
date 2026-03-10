@@ -1,0 +1,103 @@
+{
+  "summary": "Iteration 42: Testing Resume Header Data Loss and Editor Width Issues (Req #27). CRITICAL BUG FOUND - Name parsing fails when name is in ALL CAPS (e.g., 'MARIA NIKITA'). The parseContent function incorrectly treats uppercase names as section headers, causing 'Your Name' placeholder to display instead of actual name. Editor width is consistent across modes but Edit Text mode has different visual appearance due to RichEditor's internal styling.",
+
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "ResumePreview.jsx - parseContent function",
+        "issue": "Name parsing fails when name is in ALL CAPS. 'MARIA NIKITA' is treated as a section header instead of a name, causing 'Your Name' placeholder to display",
+        "selector": "[data-testid='resume-preview']",
+        "priority": "CRITICAL",
+        "location": "/app/frontend/src/components/resume/ResumePreview.jsx lines 52-55, 76-115",
+        "root_cause": "The isHeader() function at line 52-55 checks if a line is all uppercase and matches pattern ^[A-Z][A-Z\\s\\/&,]+$. 'MARIA NIKITA' matches this pattern, so it's treated as a section header instead of a name."
+      },
+      {
+        "component": "ResumePreview.jsx - Standard header",
+        "issue": "Job title (e.g., 'Senior AEM Developer') is not displayed in the header for non-photo templates (Classic, Modern, etc.)",
+        "selector": "[data-testid='resume-preview']",
+        "priority": "HIGH",
+        "location": "/app/frontend/src/components/resume/ResumePreview.jsx lines 434-479",
+        "root_cause": "The standard header section (lines 434-479) does display the title when parsed.title exists, but the title is not being parsed correctly because the name parsing fails first"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Edit Text mode",
+        "issues": ["Edit Text mode has slightly different visual appearance than Preview mode due to RichEditor's internal styling, but width is consistent at 794px"]
+      }
+    ]
+  },
+
+  "passed_tests": [
+    "Resume upload works correctly",
+    "AI analysis returns scores (92 Overall, 95 ATS)",
+    "Fix My Resume button triggers AI optimization",
+    "Template switching works (Classic, Modern, Executive, etc.)",
+    "Edit Text mode loads RichEditor with proper A4 width (794px)",
+    "Edit Sections mode loads SectionEditor with proper width (794px)",
+    "Preview mode displays resume with proper A4 width (794px)",
+    "Editor container is centered with flex justify-center",
+    "Contact information is parsed correctly (email, phone, LinkedIn, location)"
+  ],
+
+  "failed_tests": [
+    "Name parsing for ALL CAPS names - FAILED (shows 'Your Name' instead of 'Maria Nikita')",
+    "Job title display in header for Classic template - FAILED (title not visible in header)"
+  ],
+
+  "test_report_links": [
+    "/app/frontend/src/components/resume/ResumePreview.jsx",
+    "/app/frontend/src/components/resume/RichEditor.jsx",
+    "/app/frontend/src/pages/ResumeOptimizerPage.jsx"
+  ],
+
+  "action_items": [
+    "FIX CRITICAL: Update parseContent() function in ResumePreview.jsx to handle ALL CAPS names. The isHeader() function should not treat the first line as a section header if it appears before any actual section headers (like PROFESSIONAL SUMMARY, WORK EXPERIENCE, etc.)",
+    "Suggested fix: Add a check in the name parsing loop (lines 76-115) to not skip the first line even if it matches isHeader pattern, OR modify isHeader() to exclude lines that look like names (2-3 words, no section keywords)",
+    "Verify job title is displayed correctly in header after name parsing is fixed"
+  ],
+
+  "critical_code_review_comments": [
+    "ResumePreview.jsx line 52-55: isHeader() function is too aggressive - treats any ALL CAPS line as a section header, including names like 'MARIA NIKITA'",
+    "ResumePreview.jsx line 80-83: The loop breaks when isHeader() returns true, but this happens on the first line if the name is in ALL CAPS, so name is never set",
+    "ResumePreview.jsx line 354, 421, 444: Fallback 'Your Name' is displayed when parsed.name is empty - this is correct behavior but the parsing is wrong"
+  ],
+
+  "updated_files": [],
+
+  "success_rate": {
+    "backend": "N/A (frontend only testing)",
+    "frontend": "70% (Name parsing and title display failing)"
+  },
+
+  "test_credentials": {
+    "admin_email": "admin@diocreations.com",
+    "admin_password": "adminpassword"
+  },
+
+  "seed_data_creation": "Test resume PDF created at /tmp/test_resume_maria.pdf with 'Maria Nikita' as name and 'Senior AEM Developer' as title",
+
+  "retest_needed": true,
+
+  "should_main_agent_self_test": false,
+
+  "context_for_next_testing_agent": "Iteration 42 found CRITICAL bug in name parsing. When AI optimization returns name in ALL CAPS (e.g., 'MARIA NIKITA'), the parseContent() function treats it as a section header instead of a name. This causes 'Your Name' placeholder to display. The fix should be in ResumePreview.jsx parseContent() function - either modify isHeader() to exclude name-like patterns, or add special handling for the first line before any section headers.",
+
+  "rca_of_the_issue": {
+    "bug_description": "Resume header shows 'Your Name' placeholder instead of actual candidate name when name is in ALL CAPS",
+    "reproduction_steps": [
+      "1. Upload a resume with name 'Maria Nikita'",
+      "2. Click 'Fix My Resume' to trigger AI optimization",
+      "3. AI returns optimized text with 'MARIA NIKITA' in ALL CAPS",
+      "4. Observe header shows 'Your Name' instead of 'Maria Nikita'"
+    ],
+    "root_cause": "The isHeader() function in parseContent() (line 52-55) checks if a line is all uppercase and matches pattern ^[A-Z][A-Z\\s\\/&,]+$. 'MARIA NIKITA' matches this pattern, so the name parsing loop (line 80-83) breaks immediately, leaving name as empty string. The fallback 'Your Name' is then displayed.",
+    "suggested_fix": "Modify the name parsing logic to: 1) Check if the first line is a name before checking if it's a header, OR 2) Add a list of known section header keywords and only treat lines as headers if they match those keywords, OR 3) Add a check that the line doesn't look like a person's name (2-3 words, no common section keywords like SUMMARY, EXPERIENCE, EDUCATION, etc.)"
+  }
+}
