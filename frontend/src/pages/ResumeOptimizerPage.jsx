@@ -1402,6 +1402,24 @@ const ResumeOptimizerPage = () => {
                       </CardContent>
                     </Card>
 
+                    {/* Create ATS Resume CTA - Side-by-side builder */}
+                    <Card className="border-2 border-purple-200 shadow-xl bg-gradient-to-r from-purple-50 to-indigo-50">
+                      <CardContent className="p-8">
+                        <div className="flex flex-col md:flex-row items-center gap-6">
+                          <div className="w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                            <Wand2 size={32} className="text-purple-600" />
+                          </div>
+                          <div className="flex-1 text-center md:text-left">
+                            <h3 className="text-xl font-bold mb-1">Create ATS-Optimized Resume</h3>
+                            <p className="text-muted-foreground text-sm">Build a new resume using our structured ATS-safe format. Copy content from your original resume into organized sections with keyword optimization.</p>
+                          </div>
+                          <Button onClick={() => setShowATSBuilder(true)} size="lg" className="rounded-full px-8 bg-purple-600 hover:bg-purple-700 text-white shadow-lg flex-shrink-0" data-testid="create-ats-resume-btn">
+                            <Wand2 size={18} className="mr-2" />Create ATS Resume
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+
                     {/* Divider */}
                     <div className="relative my-2"><div className="absolute inset-0 flex items-center"><div className="w-full border-t" /></div><div className="relative flex justify-center"><span className="bg-white px-4 text-sm text-muted-foreground font-medium">or choose a different template</span></div></div>
 
