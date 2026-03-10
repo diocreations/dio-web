@@ -64,6 +64,10 @@ const ResumeOptimizerPage = () => {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   
+  // ATS Resume Builder mode
+  const [showATSBuilder, setShowATSBuilder] = useState(false);
+  const [atsResumeData, setAtsResumeData] = useState(null);
+  
   // Check if selected template requires photo
   const isProfessionalTemplate = (templateId) => {
     return ['professional', 'professional-blue', 'professional-minimal'].includes(templateId);
