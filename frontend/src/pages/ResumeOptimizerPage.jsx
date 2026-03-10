@@ -1898,6 +1898,61 @@ const ResumeOptimizerPage = () => {
         )}
       </AnimatePresence>
 
+      {/* ATS Resume Builder Full Screen Modal */}
+      <AnimatePresence>
+        {showATSBuilder && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowATSBuilder(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl h-[90vh] overflow-hidden flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b bg-slate-50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
+                    <Wand2 size={20} className="text-purple-600" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-lg">ATS Resume Builder</h2>
+                    <p className="text-xs text-muted-foreground">Create a structured ATS-optimized resume</p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="icon" onClick={() => setShowATSBuilder(false)} data-testid="close-ats-builder">
+                  <X size={20} />
+                </Button>
+              </div>
+              
+              {/* Content - Side by Side */}
+              <div className="flex-1 overflow-hidden p-4">
+                <ATSResumeBuilder
+                  originalResume={textPreview}
+                  analysis={analysis}
+                  onClose={() => setShowATSBuilder(false)}
+                  onSave={(atsText, formData) => {
+                    setEditedText(atsText);
+                    setAtsResumeData(formData);
+                    setImproved({ improved_text: atsText, resume_id: resumeId, is_preview: false });
+                    setOriginalImprovedText(atsText);
+                    setShowATSBuilder(false);
+                    setStep(4);
+                    toast.success("ATS Resume created! You can now preview and download.");
+                  }}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </Layout>
   );
 };
