@@ -12,7 +12,7 @@ import { useSearchParams } from "react-router-dom";
 import {
   Upload, FileText, Zap, Download, CheckCircle, XCircle, AlertTriangle,
   Loader2, Lock, Star, Sparkles, Target, ArrowRight, Linkedin, HardDrive, RotateCcw, Share2, Link,
-  Layers, Type, Camera, User, Trash2, History, Mail, MessageCircle, X,
+  Layers, Type, Camera, User, Trash2, History, Mail, MessageCircle, X, Wand2,
 } from "lucide-react";
 import { toast } from "sonner";
 import html2pdf from "html2pdf.js";
@@ -21,6 +21,7 @@ import { ScoreRing } from "@/components/resume/ScoreRing";
 import ResumePreview from "@/components/resume/ResumePreview";
 import ScoreComparison from "@/components/resume/ScoreComparison";
 import SectionEditor from "@/components/resume/SectionEditor";
+import ATSResumeBuilder from "@/components/resume/ATSResumeBuilder";
 import { VISUAL_TEMPLATES, STEPS } from "@/components/resume/constants";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
