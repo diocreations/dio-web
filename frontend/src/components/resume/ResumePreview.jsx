@@ -524,7 +524,7 @@ const ResumePreview = ({
   // Rich text editing mode
   if (editing) {
     return (
-      <div className="w-full" style={{ minHeight: `${A4_HEIGHT + 100}px` }} data-testid="resume-editor">
+      <div className="w-full flex justify-center" style={{ minHeight: `${A4_HEIGHT + 100}px` }} data-testid="resume-editor">
         <RichEditor value={text} onChange={onTextChange} placeholder="Edit your resume content here..." />
       </div>
     );
@@ -533,7 +533,7 @@ const ResumePreview = ({
   // Preview mode - render with unified A4 renderer
   return (
     <div 
-      className="resume-preview-container py-6"
+      className="resume-preview-container py-6 flex justify-center"
       style={{ backgroundColor: '#e5e7eb' }}
     >
       <UnifiedResumeRenderer 
