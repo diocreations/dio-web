@@ -343,7 +343,7 @@ const UnifiedResumeRenderer = ({ text, templateId, fontSize = 11, photo }) => {
           
           {/* Right: Name, Title, and Contact Details */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            {/* Name */}
+            {/* Name - Always show */}
             <div style={{ 
               fontSize: `${config.nameSize}px`, 
               fontWeight: 700, 
@@ -351,18 +351,18 @@ const UnifiedResumeRenderer = ({ text, templateId, fontSize = 11, photo }) => {
               marginBottom: '2px',
               lineHeight: 1.2,
             }}>
-              {parsed.name}
+              {parsed.name || 'Your Name'}
             </div>
             
-            {/* Job Title - Extract from first experience or content */}
-            {parsed.sections?.[0]?.content?.[0]?.type === 'job' && (
+            {/* Job Title - Use parsed title or fallback to first job entry */}
+            {(parsed.title || parsed.sections?.[0]?.content?.[0]?.type === 'job') && (
               <div style={{ 
                 fontSize: `${config.bodySize + 1}px`, 
                 fontWeight: 500,
                 color: config.accent,
                 marginBottom: '8px',
               }}>
-                {parsed.sections[0].content[0].text.split(/[-–—]/)[0].trim()}
+                {parsed.title || parsed.sections[0].content[0].text.split(/[-–—]/)[0].trim()}
               </div>
             )}
             
