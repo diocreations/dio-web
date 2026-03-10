@@ -1,8 +1,11 @@
 User-agent: *
 Allow: /
 
-# Sitemap - Dynamic (includes all blog posts automatically)
+# Primary Sitemap (dynamic, includes all blog posts)
 Sitemap: https://www.diocreations.eu/api/sitemap.xml
+
+# Alternate sitemap location
+Sitemap: https://www.diocreations.eu/sitemap.xml
 
 # Crawl-delay for bots
 Crawl-delay: 1
