@@ -5,6 +5,53 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### SEO Indexing Fix - Soft 404 Issue Resolved ✅
+**Date: Mar 10, 2025 (Req #31)**
+
+**Issue:** Blog pages showing "Soft 404" in Google Search Console due to client-side rendering (CSR). Googlebot sees empty HTML before JavaScript loads content.
+
+**Solution Implemented:**
+
+1. **Google Search Console Verification File**
+   - Added: `/app/frontend/public/google8f93273662f01f93.html`
+   - URL: `https://www.diocreations.eu/google8f93273662f01f93.html`
+
+2. **Dynamic Sitemap (Auto-updates with new content)**
+   - Endpoint: `/api/sitemap.xml`
+   - URL: `https://www.diocreations.eu/api/sitemap.xml`
+   - Includes: All blog posts, services, portfolio items with `lastmod` timestamps
+   - Auto-fetches from database on each request
+
+3. **SEO Pre-render Endpoints (For search engine bots)**
+   - Blog post: `/api/prerender/blog/{slug}`
+   - Blog list: `/api/prerender/blog`
+   - Returns full HTML with article content, meta tags, structured data (JSON-LD)
+
+4. **Enhanced React Helmet SEO for Blog Posts**
+   - Dynamic meta tags (title, description, canonical URL)
+   - Open Graph tags for social sharing
+   - Twitter Card meta tags
+   - Article Schema.org structured data
+   - BreadcrumbList structured data
+
+5. **Updated robots.txt**
+   - Points to dynamic sitemap: `https://www.diocreations.eu/api/sitemap.xml`
+
+**Files Created/Modified:**
+- `/app/frontend/public/google8f93273662f01f93.html` - NEW (Google verification)
+- `/app/backend/routes/prerender.py` - NEW (Pre-render endpoints)
+- `/app/backend/routes/seo.py` - Fixed sitemap query
+- `/app/backend/server.py` - Added prerender router
+- `/app/frontend/src/pages/BlogPostPage.jsx` - Added Helmet SEO tags
+- `/app/frontend/public/robots.txt` - Updated sitemap URL
+
+**Next Steps for User:**
+1. Verify site in Google Search Console using the verification file
+2. Submit sitemap: `https://www.diocreations.eu/api/sitemap.xml`
+3. Request re-indexing for blog pages via URL Inspection tool
+
+---
+
 ### Google AdSense Integration Fixed ✅
 **Date: Mar 10, 2025 (Iteration 45 - Req #30)**
 
