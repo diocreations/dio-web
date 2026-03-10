@@ -229,7 +229,7 @@ async def get_robots():
     """Generate robots.txt"""
     global_seo = await db.seo_global.find_one({"config_id": "global_seo"}, {"_id": 0})
     extra = (global_seo or {}).get("robots_extra", "")
-    txt = "User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\n\nSitemap: /api/sitemap.xml\n"
+    txt = "User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\n\nSitemap: https://www.diocreations.eu/api/sitemap.xml\n"
     if extra:
         txt += f"\n{extra}\n"
     return txt
