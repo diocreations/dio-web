@@ -35,8 +35,8 @@ def strip_html_tags(text: str) -> str:
     clean = html.unescape(clean)
     return clean[:160].strip()
 
-def generate_blog_html(post: dict, site_url: str = "https://www.diocreations.eu") -> str:
-    """Generate SEO-optimized HTML for a blog post"""
+def generate_blog_html(post: dict, site_url: str = "https://www.diocreations.eu", include_react_hydration: bool = False) -> str:
+    """Generate SEO-optimized HTML for a blog post with full content visible in source"""
     title = html.escape(post.get('title', 'Blog Post'))
     description = strip_html_tags(post.get('excerpt') or post.get('content', ''))[:160]
     content = post.get('content', '')
