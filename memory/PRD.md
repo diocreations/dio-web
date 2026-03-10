@@ -5,6 +5,37 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Resume Header Data Loss & Editor Width Fixed ✅
+**Date: Mar 10, 2025 (Iteration 43 - Req #27)**
+
+**Issue A: Candidate Name Not Showing**
+- **Problem:** ALL CAPS names (e.g., 'MARIA NIKITA') were treated as section headers
+- **Root Cause:** `isHeader()` function matched any ALL CAPS line as section header
+- **Fix:** Added `sectionKeywords` pattern to distinguish section headers from names
+  - Only ALL CAPS lines containing keywords like SUMMARY, EXPERIENCE, EDUCATION etc. are headers
+  - Added `isLikelyName()` function to validate name patterns (2-5 words, proper capitalization)
+
+**Issue B: Editor Width Inconsistent**
+- **Problem:** Editor width changed when switching between Preview/Edit Text/Edit Sections
+- **Fix:** 
+  - Editor container uses `flex justify-center`
+  - SectionEditor has fixed width of 794px
+  - All modes maintain consistent A4 document width
+
+**Header Data Now Preserved:**
+- ✅ Candidate Name (including ALL CAPS)
+- ✅ Job Title (below name)
+- ✅ Email, Phone, LinkedIn, Location
+- ✅ Data consistent across template switches and editing modes
+
+**Files Modified:**
+- `/app/frontend/src/components/resume/ResumePreview.jsx` - parseContent() with improved parsing
+- `/app/frontend/src/pages/ResumeOptimizerPage.jsx` - Editor container centering
+
+**Test Report:** `/app/test_reports/iteration_43.json` - 100% pass rate
+
+---
+
 ### Photo Template Header Layout Improved ✅
 **Date: Mar 9, 2025 (Iteration 41 - Req #26)**
 
