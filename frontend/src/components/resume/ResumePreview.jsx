@@ -105,11 +105,11 @@ function parseContent(text) {
   let name = "", contact = "", title = "", contentStartIdx = 0;
   
   // First pass: Look for name in the first few lines
-  // The name should be the first non-header, non-contact, non-job-title line
+  // The name should be the first non-header, non-contact line that looks like a name
   for (let i = 0; i < Math.min(lines.length, 8); i++) {
     const line = lines[i];
     
-    // Skip if it's a section header
+    // Skip if it's a section header (contains section keywords)
     if (isHeader(line)) {
       contentStartIdx = i;
       break;
@@ -124,33 +124,47 @@ function parseContent(text) {
       continue;
     }
     
+    // Check if this is the name (before job title check)
+    if (!name && isLikelyName(line)) {
+      name = line;
+      contentStartIdx = i + 1;
+      continue;
+    }
+    
     // If it looks like a job title and we already have a name
-    if (isJobTitle(line) && name) {
-      if (!title) {
+    if (isJobTitle(line)) {
+      if (name && !title) {
         title = line;
         contentStartIdx = i + 1;
+      } else if (!name) {
+        // If no name yet but this is a job title, the previous line might be the name
+        // This handles cases where name parsing failed
+        if (i > 0 && !isContactInfo(lines[i-1]) && !isHeader(lines[i-1])) {
+          name = lines[i-1];
+          title = line;
+          contentStartIdx = i + 1;
+        }
       }
       continue;
     }
     
-    // First proper line that's not contact or job title is likely the name
+    // First proper line that's not contact, not a header, not a job title
     if (!name && line.length > 2 && line.length < 60 && !/[@|•]/.test(line) && !/\d{4}/.test(line)) {
-      // Check if this line is a proper name (typically 2-4 words, capitalized)
-      const words = line.split(/\s+/);
-      const looksLikeName = words.length >= 1 && words.length <= 5 && 
-                           words.every(w => /^[A-Z][a-z]*\.?$/.test(w) || /^[A-Z]+$/.test(w));
-      
-      if (looksLikeName || !isJobTitle(line)) {
-        name = line;
-        contentStartIdx = i + 1;
-      }
+      name = line;
+      contentStartIdx = i + 1;
     }
   }
   
-  // If we still don't have a name but have other data, use the first line as name
-  if (!name && lines.length > 0 && !isHeader(lines[0]) && !isContactInfo(lines[0])) {
-    name = lines[0];
-    contentStartIdx = 1;
+  // Fallback: If we still don't have a name, use the first non-header, non-contact line
+  if (!name && lines.length > 0) {
+    for (let i = 0; i < Math.min(lines.length, 5); i++) {
+      const line = lines[i];
+      if (!isHeader(line) && !isContactInfo(line) && line.length > 2 && line.length < 60) {
+        name = line;
+        contentStartIdx = i + 1;
+        break;
+      }
+    }
   }
   
   // Second pass: Look for title if not found
