@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, User, Tag, Share2 } from "lucide-react";
 import NewsletterSubscribe from "@/components/NewsletterSubscribe";
 import AdSenseUnit from "@/components/AdSenseUnit";
+import { Helmet } from "react-helmet-async";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+const SITE_URL = "https://www.diocreations.eu";
 
 // Component to inject AdSense within content
 const BlogContentWithAds = ({ content, adsenseCode, position }) => {
