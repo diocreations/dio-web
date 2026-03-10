@@ -28,7 +28,7 @@ const AdSenseUnit = ({ adsenseCode, className = "" }) => {
       // If no ins element, it might be a different ad format
       // Try to render the raw HTML and execute scripts manually
       try {
-        renderRawAdCode();
+        renderRawAdCodeFn();
       } catch (err) {
         setError("Invalid AdSense code format");
       }
@@ -68,6 +68,38 @@ const AdSenseUnit = ({ adsenseCode, className = "" }) => {
       setError("Failed to initialize ad");
     }
 
+    // Inline function to render raw ad code (avoids dependency warning)
+    function renderRawAdCodeFn() {
+      if (!adRef.current || !adsenseCode) return;
+
+      const container = adRef.current;
+      
+      // Extract any script src from the code
+      const srcMatch = adsenseCode.match(/src="([^"]+pagead2\.googlesyndication\.com[^"]+)"/);
+      if (srcMatch) {
+        loadAdSenseScriptFromSrc(srcMatch[1]);
+      }
+
+      // Insert the HTML (without script tags, as they won't execute)
+      const cleanHtml = adsenseCode
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+        .trim();
+      
+      container.innerHTML = cleanHtml;
+
+      // Try to push to adsbygoogle
+      setTimeout(() => {
+        try {
+          if (container.querySelector(".adsbygoogle")) {
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+            setIsLoaded(true);
+          }
+        } catch (err) {
+          console.error("AdSense push error:", err);
+        }
+      }, 100);
+    }
+
   }, [adsenseCode]);
 
   // Function to load the global AdSense script if not already loaded
@@ -96,38 +128,6 @@ const AdSenseUnit = ({ adsenseCode, className = "" }) => {
     } else {
       document.head.appendChild(script);
     }
-  };
-
-  // Fallback function to render raw ad code
-  const renderRawAdCode = () => {
-    if (!adRef.current || !adsenseCode) return;
-
-    const container = adRef.current;
-    
-    // Extract any script src from the code
-    const srcMatch = adsenseCode.match(/src="([^"]+pagead2\.googlesyndication\.com[^"]+)"/);
-    if (srcMatch) {
-      loadAdSenseScriptFromSrc(srcMatch[1]);
-    }
-
-    // Insert the HTML (without script tags, as they won't execute)
-    const cleanHtml = adsenseCode
-      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
-      .trim();
-    
-    container.innerHTML = cleanHtml;
-
-    // Try to push to adsbygoogle
-    setTimeout(() => {
-      try {
-        if (container.querySelector(".adsbygoogle")) {
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
-          setIsLoaded(true);
-        }
-      } catch (err) {
-        console.error("AdSense push error:", err);
-      }
-    }, 100);
   };
 
   // Load AdSense script from a full URL
