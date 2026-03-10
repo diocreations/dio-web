@@ -53,7 +53,7 @@ def generate_blog_html(post: dict, site_url: str = "https://www.diocreations.eu"
             dt = datetime.fromisoformat(published_at.replace('Z', '+00:00'))
             date_iso = dt.strftime('%Y-%m-%dT%H:%M:%S+00:00')
             date_display = dt.strftime('%B %d, %Y')
-        except:
+        except (ValueError, AttributeError):
             date_iso = published_at
             date_display = published_at
     else:
