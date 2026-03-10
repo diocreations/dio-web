@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useCallback } from "react";
 
 /**
  * AdSenseUnit Component
@@ -11,143 +11,117 @@ import { useEffect, useRef, useState } from "react";
  */
 const AdSenseUnit = ({ adsenseCode, className = "" }) => {
   const adRef = useRef(null);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (!adsenseCode || !adRef.current) return;
-
-    // Parse the AdSense code to extract the ins element attributes
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(adsenseCode, "text/html");
-    
-    // Find the <ins> element (the actual ad container)
-    const insElement = doc.querySelector("ins.adsbygoogle");
-    
-    if (!insElement) {
-      // If no ins element, it might be a different ad format
-      // Try to render the raw HTML and execute scripts manually
-      try {
-        renderRawAdCodeFn();
-      } catch (err) {
-        setError("Invalid AdSense code format");
-      }
-      return;
-    }
-
-    // Extract attributes from the ins element
-    const adClient = insElement.getAttribute("data-ad-client");
-    const adSlot = insElement.getAttribute("data-ad-slot");
-    const adFormat = insElement.getAttribute("data-ad-format") || "auto";
-    const fullWidthResponsive = insElement.getAttribute("data-full-width-responsive") || "true";
-    const style = insElement.getAttribute("style") || "display:block";
-
-    // Ensure the global AdSense script is loaded
-    loadAdSenseScript(adClient);
-
-    // Create the ad container
-    const container = adRef.current;
-    container.innerHTML = "";
-
-    // Create and append the ins element
-    const ins = document.createElement("ins");
-    ins.className = "adsbygoogle";
-    ins.style.cssText = style;
-    if (adClient) ins.setAttribute("data-ad-client", adClient);
-    if (adSlot) ins.setAttribute("data-ad-slot", adSlot);
-    ins.setAttribute("data-ad-format", adFormat);
-    ins.setAttribute("data-full-width-responsive", fullWidthResponsive);
-    container.appendChild(ins);
-
-    // Push to adsbygoogle to initialize the ad
-    try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-      setIsLoaded(true);
-    } catch (err) {
-      console.error("AdSense initialization error:", err);
-      setError("Failed to initialize ad");
-    }
-
-    // Inline function to render raw ad code (avoids dependency warning)
-    function renderRawAdCodeFn() {
-      if (!adRef.current || !adsenseCode) return;
-
-      const container = adRef.current;
-      
-      // Extract any script src from the code
-      const srcMatch = adsenseCode.match(/src="([^"]+pagead2\.googlesyndication\.com[^"]+)"/);
-      if (srcMatch) {
-        loadAdSenseScriptFromSrc(srcMatch[1]);
-      }
-
-      // Insert the HTML (without script tags, as they won't execute)
-      const cleanHtml = adsenseCode
-        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
-        .trim();
-      
-      container.innerHTML = cleanHtml;
-
-      // Try to push to adsbygoogle
-      setTimeout(() => {
-        try {
-          if (container.querySelector(".adsbygoogle")) {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-            setIsLoaded(true);
-          }
-        } catch (err) {
-          console.error("AdSense push error:", err);
-        }
-      }, 100);
-    }
-
-  }, [adsenseCode]);
+  const isInitialized = useRef(false);
 
   // Function to load the global AdSense script if not already loaded
-  const loadAdSenseScript = (adClient) => {
-    if (!adClient) return;
-    
-    // Check if script is already loaded
-    const existingScript = document.getElementById("adsense-script");
-    if (existingScript && existingScript.src) return;
+  const loadAdSenseScript = useCallback((adClient) => {
+    return new Promise((resolve) => {
+      if (!adClient) {
+        resolve(false);
+        return;
+      }
+      
+      // Check for any existing adsbygoogle script
+      const scripts = document.querySelectorAll('script[src*="pagead2.googlesyndication.com"]');
+      if (scripts.length > 0) {
+        // Script already exists, wait a bit for it to be ready
+        setTimeout(resolve, 100, true);
+        return;
+      }
 
-    // Check for any existing adsbygoogle script
-    const scripts = document.querySelectorAll('script[src*="pagead2.googlesyndication.com"]');
-    if (scripts.length > 0) return;
-
-    // Create and load the script
-    const script = document.createElement("script");
-    script.async = true;
-    script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`;
-    script.crossOrigin = "anonymous";
-    
-    // Replace the placeholder script or append to head
-    if (existingScript) {
-      existingScript.src = script.src;
-      existingScript.async = true;
-      existingScript.crossOrigin = "anonymous";
-    } else {
+      // Create and load the script
+      const script = document.createElement("script");
+      script.async = true;
+      script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`;
+      script.crossOrigin = "anonymous";
+      
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      
       document.head.appendChild(script);
-    }
-  };
+    });
+  }, []);
 
-  // Load AdSense script from a full URL
-  const loadAdSenseScriptFromSrc = (src) => {
-    const scripts = document.querySelectorAll('script[src*="pagead2.googlesyndication.com"]');
-    if (scripts.length > 0) return;
+  useEffect(() => {
+    if (!adsenseCode || !adRef.current || isInitialized.current) return;
 
-    const script = document.createElement("script");
-    script.async = true;
-    script.src = src;
-    script.crossOrigin = "anonymous";
-    document.head.appendChild(script);
-  };
+    const initializeAd = async () => {
+      // Parse the AdSense code to extract the ins element attributes
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(adsenseCode, "text/html");
+      
+      // Find the <ins> element (the actual ad container)
+      const insElement = doc.querySelector("ins.adsbygoogle");
+      
+      // Extract ad client from either ins element or script tag
+      let adClient = insElement?.getAttribute("data-ad-client");
+      if (!adClient) {
+        // Try to extract from script src
+        const srcMatch = adsenseCode.match(/client=([a-z]+-pub-\d+)/i);
+        if (srcMatch) {
+          adClient = srcMatch[1];
+        }
+      }
 
-  if (error) {
-    return (
-      <div className={`text-center text-sm text-muted-foreground py-4 ${className}`}>
-        {/* Silent fail - don't show error to end users */}
-      </div>
-    );
+      if (!adClient) {
+        console.warn("AdSense: No valid ad client found in code");
+        return;
+      }
+
+      // Load the AdSense script first
+      await loadAdSenseScript(adClient);
+
+      // Get container and clear it
+      const container = adRef.current;
+      if (!container) return;
+      container.innerHTML = "";
+
+      // Create and append the ins element
+      const ins = document.createElement("ins");
+      ins.className = "adsbygoogle";
+      ins.style.cssText = insElement?.getAttribute("style") || "display:block";
+      ins.setAttribute("data-ad-client", adClient);
+      
+      const adSlot = insElement?.getAttribute("data-ad-slot");
+      if (adSlot) {
+        ins.setAttribute("data-ad-slot", adSlot);
+      }
+      
+      ins.setAttribute("data-ad-format", insElement?.getAttribute("data-ad-format") || "auto");
+      ins.setAttribute("data-full-width-responsive", insElement?.getAttribute("data-full-width-responsive") || "true");
+      
+      container.appendChild(ins);
+
+      // Mark as initialized BEFORE pushing to prevent duplicates
+      isInitialized.current = true;
+
+      // Wait a tick for DOM to update, then push
+      requestAnimationFrame(() => {
+        try {
+          // Check if this specific ins element already has an ad
+          if (ins.getAttribute("data-adsbygoogle-status")) {
+            return; // Already processed
+          }
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (err) {
+          // Silently handle - common errors include "already have ads" which is fine
+          if (!err.message?.includes("already have ads")) {
+            console.warn("AdSense push warning:", err.message);
+          }
+        }
+      });
+    };
+
+    initializeAd();
+
+    // Cleanup on unmount
+    return () => {
+      isInitialized.current = false;
+    };
+  }, [adsenseCode, loadAdSenseScript]);
+
+  if (!adsenseCode) {
+    return null;
   }
 
   return (
