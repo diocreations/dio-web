@@ -5,6 +5,49 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### New ATS Resume Creation Workflow ✅
+**Date: Mar 10, 2025 (Iteration 44 - Req #29)**
+
+**New Feature:** Structured ATS Resume Builder with side-by-side workspace
+
+**Workflow Steps:**
+1. **Upload Resume** - User uploads their existing resume
+2. **AI Analysis** - System analyzes for ATS compatibility, missing keywords, improvements
+3. **Choose Path** - User can either:
+   - **Fix My Resume** - One-click AI fixes to original
+   - **Create ATS Resume** - Opens structured builder (NEW)
+4. **ATS Builder** - Side-by-side workspace:
+   - Left Panel: Original resume content with "Copy All" button
+   - Right Panel: Structured form builder
+5. **Preview & Download** - ATS-safe resume ready for download
+
+**ATS Builder Features:**
+- **Contact Section:** Name, Title, Email, Phone, Location, LinkedIn
+- **Professional Summary:** Text area for career summary
+- **Skills:** Tag-based adding/removing with recommended keywords from analysis
+- **Work Experience:** Multiple entries with job title, company, dates, bullets
+- **Education:** Degree, school, year, GPA
+- **Certifications:** List of professional certifications
+- **Languages:** Language proficiencies
+
+**Keyword Optimization:**
+- Displays recommended keywords from AI analysis
+- Click to add keyword directly to skills section
+- Visual feedback with toast notifications
+
+**ATS-Safe Output:**
+- Uses standardized section headings (PROFESSIONAL SUMMARY, WORK EXPERIENCE, etc.)
+- No complex tables or overlapping elements
+- Consistent formatting across editor, preview, and PDF
+
+**Files Created/Modified:**
+- `/app/frontend/src/components/resume/ATSResumeBuilder.jsx` - NEW component
+- `/app/frontend/src/pages/ResumeOptimizerPage.jsx` - Added button and modal
+
+**Test Report:** `/app/test_reports/iteration_44.json` - 100% pass rate
+
+---
+
 ### Resume Header Data Loss & Editor Width Fixed ✅
 **Date: Mar 10, 2025 (Iteration 43 - Req #27)**
 
