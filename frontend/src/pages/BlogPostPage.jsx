@@ -102,8 +102,104 @@ const BlogPostPage = () => {
     );
   }
 
+  // Generate clean excerpt for meta description
+  const metaDescription = post?.excerpt 
+    ? post.excerpt.replace(/<[^>]+>/g, '').substring(0, 160) 
+    : post?.content?.replace(/<[^>]+>/g, '').substring(0, 160) || '';
+  
+  const featuredImage = post?.featured_image || `${SITE_URL}/og-blog.png`;
+  const canonicalUrl = `${SITE_URL}/blog/${slug}`;
+  const publishedDate = post?.published_at || post?.created_at || new Date().toISOString();
+
   return (
     <Layout>
+      {/* SEO Meta Tags */}
+      {post && (
+        <Helmet>
+          <title>{post.title} | DIOCREATIONS Blog</title>
+          <meta name="description" content={metaDescription} />
+          <meta name="author" content={post.author || 'DIOCREATIONS'} />
+          <link rel="canonical" href={canonicalUrl} />
+          
+          {/* Open Graph */}
+          <meta property="og:type" content="article" />
+          <meta property="og:url" content={canonicalUrl} />
+          <meta property="og:title" content={post.title} />
+          <meta property="og:description" content={metaDescription} />
+          <meta property="og:image" content={featuredImage} />
+          <meta property="og:site_name" content="DIOCREATIONS" />
+          <meta property="article:published_time" content={publishedDate} />
+          <meta property="article:author" content={post.author || 'DIOCREATIONS'} />
+          <meta property="article:section" content={post.category || 'General'} />
+          
+          {/* Twitter */}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:url" content={canonicalUrl} />
+          <meta name="twitter:title" content={post.title} />
+          <meta name="twitter:description" content={metaDescription} />
+          <meta name="twitter:image" content={featuredImage} />
+          
+          {/* Structured Data - Article */}
+          <script type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": post.title,
+              "description": metaDescription,
+              "image": featuredImage,
+              "author": {
+                "@type": "Person",
+                "name": post.author || "DIOCREATIONS"
+              },
+              "publisher": {
+                "@type": "Organization",
+                "name": "DIOCREATIONS",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": `${SITE_URL}/logo.png`
+                }
+              },
+              "datePublished": publishedDate,
+              "dateModified": post.updated_at || publishedDate,
+              "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": canonicalUrl
+              },
+              "articleSection": post.category || "General",
+              "keywords": post.tags?.join(', ') || post.category || "General"
+            })}
+          </script>
+          
+          {/* BreadcrumbList Schema */}
+          <script type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": SITE_URL
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "name": "Blog",
+                  "item": `${SITE_URL}/blog`
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 3,
+                  "name": post.title,
+                  "item": canonicalUrl
+                }
+              ]
+            })}
+          </script>
+        </Helmet>
+      )}
+      
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0 gradient-violet-subtle" />
