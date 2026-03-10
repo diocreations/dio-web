@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, User, Tag, Share2 } from "lucide-react";
 import NewsletterSubscribe from "@/components/NewsletterSubscribe";
+import AdSenseUnit from "@/components/AdSenseUnit";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -40,7 +41,9 @@ const BlogContentWithAds = ({ content, adsenseCode, position }) => {
       [&_pre]:bg-slate-900 [&_pre]:text-slate-100 [&_pre]:rounded-lg [&_pre]:p-4
     ">
       <div dangerouslySetInnerHTML={{ __html: beforeAd }} />
-      <div className="my-6 p-4 bg-slate-50 rounded-lg" dangerouslySetInnerHTML={{ __html: adsenseCode }} />
+      <div className="my-6">
+        <AdSenseUnit adsenseCode={adsenseCode} className="bg-slate-50 rounded-lg p-4" />
+      </div>
       <div dangerouslySetInnerHTML={{ __html: afterAd }} />
     </div>
   );
@@ -168,7 +171,9 @@ const BlogPostPage = () => {
         <div className="max-w-4xl mx-auto px-6 md:px-12">
           {/* AdSense: Before Content */}
           {post.adsense_code && post.adsense_position === "before_content" && (
-            <div className="my-6" dangerouslySetInnerHTML={{ __html: post.adsense_code }} />
+            <div className="my-6">
+              <AdSenseUnit adsenseCode={post.adsense_code} />
+            </div>
           )}
 
           {/* Render content with AdSense injection based on position */}
@@ -191,7 +196,9 @@ const BlogPostPage = () => {
 
           {/* AdSense: After Content */}
           {post.adsense_code && post.adsense_position === "after_content" && (
-            <div className="my-8 p-4 bg-slate-50 rounded-lg" dangerouslySetInnerHTML={{ __html: post.adsense_code }} />
+            <div className="my-8">
+              <AdSenseUnit adsenseCode={post.adsense_code} className="bg-slate-50 rounded-lg p-4" />
+            </div>
           )}
 
           {/* Tags */}
