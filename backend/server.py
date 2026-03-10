@@ -50,6 +50,7 @@ from routes.referral import router as referral_router
 from routes.builder import router as builder_router
 from routes.newsletter import router as newsletter_router
 from routes.invitations import router as invitations_router
+from routes.prerender import router as prerender_router
 
 app.include_router(auth_router)
 app.include_router(admin_router)
