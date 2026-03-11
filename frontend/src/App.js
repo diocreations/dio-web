@@ -456,6 +456,14 @@ const AppRouter = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/faq"
+        element={
+          <ProtectedRoute>
+            <AdminFAQ />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
     </Suspense>
   );
