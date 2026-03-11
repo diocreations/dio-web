@@ -5,6 +5,45 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### UI/UX Updates - Header, Chat, and Legal Pages ✅
+**Date: Mar 11, 2025 (Req #32)**
+
+**Changes Implemented:**
+
+1. **Header Navigation Cleanup**
+   - Removed Google Sign-In button from header
+   - Simplified to single "Sign In" link
+   - Added "Log Out" button for logged-in users (with red hover state)
+
+2. **DioChat Renamed**
+   - Changed "Chat with Dio" to "Ask Dio"
+
+3. **Cookie Policy Page**
+   - Created new `/cookies` page with comprehensive policy
+   - Added to footer: Privacy Policy | Terms of Service | Cookie Policy
+   - Added to sitemap
+
+4. **Internal Linking for SEO**
+   - Added "Related Services & Products" section to all blog posts
+   - Category-based linking (Web Dev, SEO, AI, Business, Career, E-commerce)
+   - Links to relevant services and products for each blog category
+
+5. **SEO for Crawlers (Blog Pages)**
+   - Added `<noscript>` tags with full article content for crawlers
+   - Added hidden semantic `<div>` with Schema.org microdata
+   - SSR endpoints available at `/api/ssr/blog/{slug}`
+
+**Files Modified:**
+- `/app/frontend/src/components/Navbar.jsx` - Removed Google button, added logout
+- `/app/frontend/src/components/DioChat.jsx` - "Ask Dio" label
+- `/app/frontend/src/pages/CookiePolicyPage.jsx` - NEW
+- `/app/frontend/src/pages/BlogPostPage.jsx` - Added internal linking, SEO content
+- `/app/frontend/src/components/Footer.jsx` - Added Cookie Policy link
+- `/app/frontend/src/App.js` - Added cookie route
+- `/app/backend/routes/seo.py` - Added cookies to sitemap
+
+---
+
 ### SEO Indexing Fix - Soft 404 Issue Resolved ✅
 **Date: Mar 10, 2025 (Req #31)**
 
