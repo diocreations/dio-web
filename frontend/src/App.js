@@ -236,6 +236,7 @@ const AppRouter = () => {
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
+      <Route path="/cookies" element={<CookiePolicyPage />} />
       <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
       <Route path="/builder" element={<BuilderPage />} />
       <Route path="/builder/success" element={<BuilderSuccessPage />} />
