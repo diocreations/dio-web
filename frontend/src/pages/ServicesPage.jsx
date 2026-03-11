@@ -183,6 +183,9 @@ const ServicesPage = () => {
           </Button>
         </div>
       </section>
+      
+      {/* FAQ Section */}
+      <FAQSection pageType="services" />
     </Layout>
   );
 };
