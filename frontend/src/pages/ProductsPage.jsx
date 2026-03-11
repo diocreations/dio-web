@@ -504,6 +504,9 @@ const ProductsPage = () => {
           </div>
         </DialogContent>
       </Dialog>
+      
+      {/* FAQ Section */}
+      <FAQSection pageType="products" />
     </Layout>
   );
 };
