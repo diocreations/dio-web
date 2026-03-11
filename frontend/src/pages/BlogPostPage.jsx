@@ -260,9 +260,30 @@ const BlogPostPage = () => {
   const featuredImage = post?.featured_image || `${SITE_URL}/og-blog.png`;
   const canonicalUrl = `${SITE_URL}/blog/${slug}`;
   const publishedDate = post?.published_at || post?.created_at || new Date().toISOString();
+  
+  // Clean content for noscript (remove scripts, keep text)
+  const cleanContentForCrawlers = post?.content?.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') || '';
 
   return (
     <Layout>
+      {/* SEO Content for Crawlers - visible without JavaScript */}
+      <noscript>
+        <article style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+          <h1>{post.title}</h1>
+          <p><strong>Author:</strong> {post.author || 'DIOCREATIONS'}</p>
+          <p><strong>Category:</strong> {post.category || 'General'}</p>
+          <p><strong>Published:</strong> {formatDate(post.published_at || post.created_at)}</p>
+          <hr />
+          <div dangerouslySetInnerHTML={{ __html: cleanContentForCrawlers }} />
+          <hr />
+          <p>
+            <a href="/blog">← Back to Blog</a> | 
+            <a href="/services">Our Services</a> | 
+            <a href="/contact">Contact Us</a>
+          </p>
+        </article>
+      </noscript>
+      
       {/* SEO Meta Tags */}
       {post && (
         <Helmet>
