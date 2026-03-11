@@ -58,6 +58,7 @@ const AdminInvitations = lazy(() => import("./pages/admin/AdminInvitations"));
 const AdminLandingPages = lazy(() => import("./pages/admin/AdminLandingPages"));
 const AdminCustomPages = lazy(() => import("./pages/admin/AdminCustomPages"));
 const AdminContactSettings = lazy(() => import("./pages/admin/AdminContactSettings"));
+const AdminFAQ = lazy(() => import("./pages/admin/AdminFAQ"));
 import CustomPage from "./pages/CustomPage";
 
 const queryClient = new QueryClient();
