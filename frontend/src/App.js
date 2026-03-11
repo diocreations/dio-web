@@ -17,6 +17,7 @@ import BlogPostPage from "./pages/BlogPostPage";
 import ContactPage from "./pages/ContactPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
+import CookiePolicyPage from "./pages/CookiePolicyPage";
 import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
 import BuilderPage from "./pages/BuilderPage";
 import BuilderSuccessPage from "./pages/BuilderSuccessPage";
