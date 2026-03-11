@@ -3,13 +3,163 @@ import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, User, Tag, Share2 } from "lucide-react";
+import { ArrowLeft, Calendar, User, Tag, Share2, ArrowRight, Package, Wrench } from "lucide-react";
 import NewsletterSubscribe from "@/components/NewsletterSubscribe";
 import AdSenseUnit from "@/components/AdSenseUnit";
 import { Helmet } from "react-helmet-async";
+import { Card, CardContent } from "@/components/ui/card";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const SITE_URL = "https://www.diocreations.eu";
+
+// Category to related content mapping for internal linking
+const CATEGORY_LINKS = {
+  "Web Development": {
+    services: [
+      { name: "Web & Mobile Development", slug: "web-mobile-development", description: "Custom websites and applications" },
+      { name: "AI Solutions", slug: "ai-solutions", description: "Intelligent automation for your business" },
+    ],
+    products: [
+      { name: "Website Builder", path: "/builder", description: "Build your website in minutes" },
+    ]
+  },
+  "SEO": {
+    services: [
+      { name: "SEO Services", slug: "seo-services", description: "Improve your search rankings" },
+      { name: "Local SEO", slug: "local-seo", description: "Dominate local search results" },
+    ],
+    products: [
+      { name: "Resume Optimizer", path: "/resume-optimizer", description: "AI-powered resume analysis" },
+    ]
+  },
+  "AI": {
+    services: [
+      { name: "AI Solutions", slug: "ai-solutions", description: "Custom AI implementations" },
+      { name: "Private LLMs", slug: "private-llms", description: "Secure AI for enterprise" },
+    ],
+    products: [
+      { name: "Resume AI", path: "/resume-optimizer", description: "AI resume optimization" },
+      { name: "Cover Letter Generator", path: "/cover-letter", description: "AI-powered cover letters" },
+    ]
+  },
+  "Business": {
+    services: [
+      { name: "Marketing Automation", slug: "marketing-automation", description: "Automate your marketing" },
+      { name: "Email Marketing", slug: "email-marketing", description: "Engage your audience" },
+    ],
+    products: [
+      { name: "Website Builder", path: "/builder", description: "Launch your business online" },
+    ]
+  },
+  "Career": {
+    services: [
+      { name: "Web Development", slug: "web-mobile-development", description: "Portfolio websites" },
+    ],
+    products: [
+      { name: "Resume Optimizer", path: "/resume-optimizer", description: "Beat ATS systems" },
+      { name: "Resume Builder", path: "/resume-builder", description: "Create professional resumes" },
+      { name: "Cover Letter Generator", path: "/cover-letter", description: "Stand out applications" },
+    ]
+  },
+  "E-commerce": {
+    services: [
+      { name: "Web Development", slug: "web-mobile-development", description: "E-commerce solutions" },
+      { name: "SEO Services", slug: "seo-services", description: "Drive organic traffic" },
+    ],
+    products: [
+      { name: "Website Builder", path: "/builder", description: "Launch your store" },
+    ]
+  },
+  "default": {
+    services: [
+      { name: "Web Development", slug: "web-mobile-development", description: "Custom web solutions" },
+      { name: "SEO Services", slug: "seo-services", description: "Improve visibility" },
+    ],
+    products: [
+      { name: "Website Builder", path: "/builder", description: "Build your online presence" },
+      { name: "Resume Optimizer", path: "/resume-optimizer", description: "AI-powered tools" },
+    ]
+  }
+};
+
+// Related Content Component for internal linking
+const RelatedContent = ({ category }) => {
+  const links = CATEGORY_LINKS[category] || CATEGORY_LINKS["default"];
+  
+  return (
+    <section className="py-12 bg-slate-50 mt-12">
+      <div className="max-w-4xl mx-auto px-6 md:px-12">
+        <h2 className="font-heading font-bold text-2xl text-foreground mb-8 text-center">
+          Related Services & Products
+        </h2>
+        
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Services */}
+          <div>
+            <h3 className="flex items-center gap-2 font-semibold text-lg mb-4">
+              <Wrench size={20} className="text-primary" />
+              Our Services
+            </h3>
+            <div className="space-y-3">
+              {links.services.map((service, i) => (
+                <Link 
+                  key={i}
+                  to={`/services/${service.slug}`}
+                  className="block p-4 bg-white rounded-lg border hover:border-primary hover:shadow-md transition-all group"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-foreground group-hover:text-primary transition-colors">
+                        {service.name}
+                      </p>
+                      <p className="text-sm text-muted-foreground">{service.description}</p>
+                    </div>
+                    <ArrowRight size={18} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+          
+          {/* Products */}
+          <div>
+            <h3 className="flex items-center gap-2 font-semibold text-lg mb-4">
+              <Package size={20} className="text-primary" />
+              Our Products
+            </h3>
+            <div className="space-y-3">
+              {links.products.map((product, i) => (
+                <Link 
+                  key={i}
+                  to={product.path}
+                  className="block p-4 bg-white rounded-lg border hover:border-primary hover:shadow-md transition-all group"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-foreground group-hover:text-primary transition-colors">
+                        {product.name}
+                      </p>
+                      <p className="text-sm text-muted-foreground">{product.description}</p>
+                    </div>
+                    <ArrowRight size={18} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        {/* CTA */}
+        <div className="mt-8 text-center">
+          <p className="text-muted-foreground mb-4">Need help with your project?</p>
+          <Button asChild>
+            <Link to="/contact">Get in Touch <ArrowRight size={16} className="ml-2" /></Link>
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 // Component to inject AdSense within content
 const BlogContentWithAds = ({ content, adsenseCode, position }) => {
