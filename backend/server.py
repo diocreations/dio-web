@@ -77,6 +77,7 @@ app.include_router(builder_router)
 app.include_router(newsletter_router)
 app.include_router(invitations_router)
 app.include_router(prerender_router, prefix="/api")
+app.include_router(faq_router)
 
 
 # Root endpoint
