@@ -140,7 +140,6 @@ const BlogEditor = ({ value, onChange, placeholder = "Write your blog post conte
         contentEditable
         suppressContentEditableWarning
         onInput={handleInput}
-        dangerouslySetInnerHTML={{ __html: value || "" }}
         data-placeholder={placeholder}
         className="min-h-[400px] p-4 outline-none prose prose-sm max-w-none
           [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4 [&_h1]:mt-6
