@@ -465,6 +465,14 @@ const AppRouter = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/user-management"
+        element={
+          <ProtectedRoute>
+            <AdminUserManagement />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
     </Suspense>
   );
