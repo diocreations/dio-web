@@ -196,26 +196,8 @@ const AdminLayout = ({ children }) => {
         </div>
 
         {/* Scrollable nav */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setSidebarOpen(false)}
-                data-testid={`admin-nav-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm ${
-                  isActive(item.path)
-                    ? "bg-white/20 text-white"
-                    : "text-slate-300 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                <Icon size={18} />
-                <span className="font-medium">{item.name}</span>
-              </Link>
-            );
-          })}
+        <nav className="flex-1 overflow-y-auto p-3">
+          {menuSections.map(renderSection)}
         </nav>
 
         {/* User profile - always visible at bottom */}
