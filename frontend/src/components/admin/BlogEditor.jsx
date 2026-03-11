@@ -35,12 +35,34 @@ const Sep = () => <div className="w-px h-5 bg-slate-300 mx-1" />;
 
 const BlogEditor = ({ value, onChange, placeholder = "Write your blog post content..." }) => {
   const editorRef = useRef(null);
+  const isInitialized = useRef(false);
   const [showImageDialog, setShowImageDialog] = useState(false);
   const [showLinkDialog, setShowLinkDialog] = useState(false);
   const [imageData, setImageData] = useState({
     url: "", alt: "", size: "600", link: "", openInNewTab: true,
   });
   const [linkData, setLinkData] = useState({ url: "", text: "", openInNewTab: true });
+
+  // Initialize editor content only once or when value changes externally (e.g., loading a post)
+  useEffect(() => {
+    if (editorRef.current) {
+      // Only set content if editor is empty or this is initial load
+      if (!isInitialized.current || editorRef.current.innerHTML === "") {
+        editorRef.current.innerHTML = value || "";
+        isInitialized.current = true;
+      }
+    }
+  }, [value]);
+
+  // Reset initialization flag when value is cleared (new post)
+  useEffect(() => {
+    if (value === "" || value === null || value === undefined) {
+      isInitialized.current = false;
+      if (editorRef.current) {
+        editorRef.current.innerHTML = "";
+      }
+    }
+  }, [value]);
 
   const exec = useCallback((cmd, val = null) => {
     document.execCommand(cmd, false, val);
