@@ -182,25 +182,28 @@ const Navbar = () => {
                 </div>
               ))}
               {pubUser ? (
-                <Button asChild variant="outline" className="w-full rounded-full">
-                  <Link to="/dashboard" onClick={() => setIsOpen(false)}>Dashboard</Link>
-                </Button>
-              ) : (
                 <div className="space-y-2">
+                  <Button asChild variant="outline" className="w-full rounded-full">
+                    <Link to="/dashboard" onClick={() => setIsOpen(false)}>Dashboard</Link>
+                  </Button>
                   <Button
-                    className="w-full rounded-full bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+                    variant="ghost"
+                    className="w-full rounded-full text-red-600 hover:bg-red-50"
                     onClick={() => {
                       setIsOpen(false);
-                      const redirectUrl = `${window.location.origin}/login`;
-                      window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+                      localStorage.removeItem("pub_user");
+                      localStorage.removeItem("pub_token");
+                      setPubUser(null);
+                      navigate("/");
                     }}
                   >
-                    <GoogleIcon size={18} /> Continue with Google
-                  </Button>
-                  <Button asChild variant="outline" className="w-full rounded-full">
-                    <Link to="/login" onClick={() => setIsOpen(false)}>Sign In with Email</Link>
+                    <LogOut size={16} className="mr-2" /> Log Out
                   </Button>
                 </div>
+              ) : (
+                <Button asChild variant="outline" className="w-full rounded-full">
+                  <Link to="/login" onClick={() => setIsOpen(false)}>Sign In</Link>
+                </Button>
               )}
               <Button asChild className="w-full bg-primary text-primary-foreground rounded-full">
                 <Link to="/contact" onClick={() => setIsOpen(false)}>Get Started</Link>
