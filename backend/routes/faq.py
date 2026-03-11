@@ -195,24 +195,40 @@ async def get_public_faqs(page_type: str = "both"):
     if page_type != "both":
         category_filter["$or"] = [{"page_type": page_type}, {"page_type": "both"}]
     
-    categories = await db.faq_categories.find(category_filter, {"_id": 0}).sort("order", 1).to_list(100)
+    categories_cursor = db.faq_categories.find(category_filter, {"_id": 0}).sort("order", 1)
+    categories = await categories_cursor.to_list(100)
     
     if not categories:
         # Initialize with defaults if empty
-        await db.faq_categories.insert_many(DEFAULT_CATEGORIES)
-        await db.faqs.insert_many(DEFAULT_FAQS)
-        categories = DEFAULT_CATEGORIES
+        for cat in DEFAULT_CATEGORIES:
+            await db.faq_categories.update_one(
+                {"category_id": cat["category_id"]},
+                {"$set": cat},
+                upsert=True
+            )
+        for faq in DEFAULT_FAQS:
+            await db.faqs.update_one(
+                {"faq_id": faq["faq_id"]},
+                {"$set": faq},
+                upsert=True
+            )
+        categories = [dict(c) for c in DEFAULT_CATEGORIES]
+    else:
+        categories = [dict(c) for c in categories]
     
     category_slugs = [c["slug"] for c in categories]
     
     # Get FAQs for those categories
-    faqs = await db.faqs.find(
+    faqs_cursor = db.faqs.find(
         {"category": {"$in": category_slugs}, "is_active": True},
         {"_id": 0}
-    ).sort("order", 1).to_list(500)
+    ).sort("order", 1)
+    faqs = await faqs_cursor.to_list(500)
     
     if not faqs:
-        faqs = [f for f in DEFAULT_FAQS if f["category"] in category_slugs]
+        faqs = [dict(f) for f in DEFAULT_FAQS if f["category"] in category_slugs]
+    else:
+        faqs = [dict(f) for f in faqs]
     
     # Group by category
     result = []
