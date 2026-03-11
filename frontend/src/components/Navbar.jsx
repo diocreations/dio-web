@@ -97,39 +97,41 @@ const Navbar = () => {
               </div>
             ))}
             {pubUser ? (
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full"
-                onClick={() => navigate("/dashboard")}
-                data-testid="nav-dashboard"
-              >
-                <User size={14} className="mr-1" /> {pubUser.name || "Dashboard"}
-              </Button>
-            ) : (
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="rounded-full border-slate-200 hover:bg-slate-50"
-                  onClick={() => {
-                    const redirectUrl = `${window.location.origin}/login`;
-                    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
-                  }}
-                  data-testid="nav-google-signin"
+                  className="rounded-full"
+                  onClick={() => navigate("/dashboard")}
+                  data-testid="nav-dashboard"
                 >
-                  <GoogleIcon size={16} /> Google
+                  <User size={14} className="mr-1" /> {pubUser.name || "Dashboard"}
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-muted-foreground hover:text-foreground"
-                  onClick={() => navigate("/login")}
-                  data-testid="nav-login"
+                  className="text-muted-foreground hover:text-red-600"
+                  onClick={() => {
+                    localStorage.removeItem("pub_user");
+                    localStorage.removeItem("pub_token");
+                    setPubUser(null);
+                    navigate("/");
+                  }}
+                  data-testid="nav-logout"
                 >
-                  <LogIn size={14} className="mr-1" /> Sign In
+                  <LogOut size={14} className="mr-1" /> Log Out
                 </Button>
               </div>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-foreground"
+                onClick={() => navigate("/login")}
+                data-testid="nav-login"
+              >
+                <LogIn size={14} className="mr-1" /> Sign In
+              </Button>
             )}
             <Button
               asChild
