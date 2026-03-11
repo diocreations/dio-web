@@ -186,6 +186,7 @@ async def get_sitemap(request: Request):
         {"loc": "/cover-letter-info", "priority": "0.8", "changefreq": "monthly"},
         {"loc": "/privacy", "priority": "0.3", "changefreq": "yearly"},
         {"loc": "/terms", "priority": "0.3", "changefreq": "yearly"},
+        {"loc": "/cookies", "priority": "0.3", "changefreq": "yearly"},
     ]
 
     # Dynamic pages from DB - include ALL blog posts (published or with slug)
