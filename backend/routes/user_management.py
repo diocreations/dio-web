@@ -94,15 +94,20 @@ async def get_resume_users(user: dict = Depends(get_current_user)):
     # Merge all users
     all_emails = set()
     for u in analyzer_users:
-        if u["_id"]: all_emails.add(u["_id"])
+        if u["_id"]:
+            all_emails.add(u["_id"])
     for u in upload_users:
-        if u["_id"]: all_emails.add(u["_id"])
+        if u["_id"]:
+            all_emails.add(u["_id"])
     for u in builder_users:
-        if u["_id"]: all_emails.add(u["_id"])
+        if u["_id"]:
+            all_emails.add(u["_id"])
     for u in cover_letter_users:
-        if u["_id"]: all_emails.add(u["_id"])
+        if u["_id"]:
+            all_emails.add(u["_id"])
     for u in linkedin_users:
-        if u["_id"]: all_emails.add(u["_id"])
+        if u["_id"]:
+            all_emails.add(u["_id"])
     
     # Build user list with aggregated data
     users = []
