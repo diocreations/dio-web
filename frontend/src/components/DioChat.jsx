@@ -505,7 +505,7 @@ const DioChat = () => {
                 >
                   <div className="bg-white rounded-xl shadow-lg px-4 py-2.5 border border-primary/20 whitespace-nowrap">
                     <p className="text-sm font-medium text-slate-700">
-                      Chat with <span className="font-bold bg-gradient-to-r from-primary to-pink-500 bg-clip-text text-transparent">Dio</span>
+                      Ask <span className="font-bold bg-gradient-to-r from-primary to-pink-500 bg-clip-text text-transparent">Dio</span>
                     </p>
                   </div>
                   <div className="absolute top-1/2 -right-2 -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-white" />
