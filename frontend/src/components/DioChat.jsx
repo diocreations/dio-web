@@ -255,7 +255,7 @@ const DioChat = () => {
       });
   };
 
-  // Show "Chat with Dio" label after delay when closed
+  // Show "Ask Dio" label after delay when closed
   useEffect(() => {
     if (!isOpen) {
       const timer = setTimeout(() => setShowLabel(true), 1500);
