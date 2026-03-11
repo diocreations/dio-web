@@ -246,20 +246,28 @@ async def get_public_faqs(page_type: str = "both"):
 @router.get("/admin/all")
 async def get_all_faqs():
     """Get all FAQs for admin"""
-    faqs = await db.faqs.find({}, {"_id": 0}).sort("order", 1).to_list(500)
+    faqs_cursor = db.faqs.find({}, {"_id": 0}).sort("order", 1)
+    faqs = await faqs_cursor.to_list(500)
     if not faqs:
-        await db.faqs.insert_many(DEFAULT_FAQS)
-        faqs = DEFAULT_FAQS
+        for faq in DEFAULT_FAQS:
+            await db.faqs.update_one({"faq_id": faq["faq_id"]}, {"$set": faq}, upsert=True)
+        faqs = [dict(f) for f in DEFAULT_FAQS]
+    else:
+        faqs = [dict(f) for f in faqs]
     return faqs
 
 
 @router.get("/admin/categories")
 async def get_all_categories():
     """Get all FAQ categories for admin"""
-    categories = await db.faq_categories.find({}, {"_id": 0}).sort("order", 1).to_list(100)
+    categories_cursor = db.faq_categories.find({}, {"_id": 0}).sort("order", 1)
+    categories = await categories_cursor.to_list(100)
     if not categories:
-        await db.faq_categories.insert_many(DEFAULT_CATEGORIES)
-        categories = DEFAULT_CATEGORIES
+        for cat in DEFAULT_CATEGORIES:
+            await db.faq_categories.update_one({"category_id": cat["category_id"]}, {"$set": cat}, upsert=True)
+        categories = [dict(c) for c in DEFAULT_CATEGORIES]
+    else:
+        categories = [dict(c) for c in categories]
     return categories
 
 
