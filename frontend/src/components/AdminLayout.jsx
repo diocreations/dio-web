@@ -87,7 +87,7 @@ const AdminLayout = ({ children }) => {
       title: "Users & Contacts",
       key: "users",
       items: [
-        { name: "Users", path: "/admin/users", icon: UserCog },
+        { name: "User Management", path: "/admin/user-management", icon: Users },
         { name: "Invitations", path: "/admin/invitations", icon: Send },
         { name: "Contacts", path: "/admin/contacts", icon: MessageSquare },
         { name: "Leads", path: "/admin/leads", icon: Users },
