@@ -483,8 +483,11 @@ const BlogPostPage = () => {
         </div>
       </section>
 
+      {/* Related Services & Products - Internal Linking */}
+      <RelatedContent category={post.category} />
+
       {/* Newsletter CTA */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
           <h2 className="font-heading font-bold text-2xl md:text-3xl text-foreground mb-4">
             Enjoyed this article?
