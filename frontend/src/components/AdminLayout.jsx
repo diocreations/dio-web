@@ -29,6 +29,9 @@ import {
   Globe,
   SlidersHorizontal,
   Send,
+  HelpCircle,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -37,33 +40,78 @@ const AdminLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
+    content: true,
+    resume: true,
+    users: false,
+    system: false
+  });
 
-  const menuItems = [
-    { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
-    { name: "Homepage", path: "/admin/homepage", icon: Home },
-    { name: "Services", path: "/admin/services", icon: Briefcase },
-    { name: "Products", path: "/admin/products", icon: Package },
-    { name: "Portfolio", path: "/admin/portfolio", icon: FolderKanban },
-    { name: "Blog", path: "/admin/blog", icon: FileText },
-    { name: "Testimonials", path: "/admin/testimonials", icon: Star },
-    { name: "Contacts", path: "/admin/contacts", icon: MessageSquare },
-    { name: "Contact Settings", path: "/admin/contact-settings", icon: SlidersHorizontal },
-    { name: "Leads", path: "/admin/leads", icon: Users },
-    { name: "Chatbot", path: "/admin/chatbot", icon: Bot },
-    { name: "Resume AI", path: "/admin/resume", icon: FileSearch },
-    { name: "Resume Builder", path: "/admin/resume-builder", icon: FileText },
-    { name: "Cover Letter", path: "/admin/cover-letter", icon: PenLine },
-    { name: "Landing Pages", path: "/admin/landing-pages", icon: Layers },
-    { name: "Custom Pages", path: "/admin/custom-pages", icon: Globe },
-    { name: "Newsletter", path: "/admin/newsletter", icon: Mail },
-    { name: "Invitations", path: "/admin/invitations", icon: Send },
-    { name: "Templates", path: "/admin/templates", icon: LayoutIcon },
-    { name: "Menus", path: "/admin/menus", icon: Navigation },
-    { name: "Currency", path: "/admin/currency", icon: DollarSign },
-    { name: "SEO Manager", path: "/admin/seo", icon: Search },
-    { name: "About Page", path: "/admin/about", icon: Info },
-    { name: "Users", path: "/admin/users", icon: UserCog },
-    { name: "Settings", path: "/admin/settings", icon: Settings },
+  const toggleSection = (section) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const menuSections = [
+    {
+      title: "Overview",
+      items: [
+        { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
+        { name: "Homepage", path: "/admin/homepage", icon: Home },
+      ]
+    },
+    {
+      title: "Content",
+      key: "content",
+      items: [
+        { name: "Services", path: "/admin/services", icon: Briefcase },
+        { name: "Products", path: "/admin/products", icon: Package },
+        { name: "Portfolio", path: "/admin/portfolio", icon: FolderKanban },
+        { name: "Blog", path: "/admin/blog", icon: FileText },
+        { name: "Testimonials", path: "/admin/testimonials", icon: Star },
+        { name: "FAQ", path: "/admin/faq", icon: HelpCircle },
+        { name: "Landing Pages", path: "/admin/landing-pages", icon: Layers },
+        { name: "Custom Pages", path: "/admin/custom-pages", icon: Globe },
+        { name: "About Page", path: "/admin/about", icon: Info },
+      ]
+    },
+    {
+      title: "Resume Tools",
+      key: "resume",
+      items: [
+        { name: "Resume Analyzer", path: "/admin/resume", icon: FileSearch },
+        { name: "Resume Builder", path: "/admin/resume-builder", icon: FileText },
+        { name: "Cover Letter", path: "/admin/cover-letter", icon: PenLine },
+      ]
+    },
+    {
+      title: "Users & Contacts",
+      key: "users",
+      items: [
+        { name: "Users", path: "/admin/users", icon: UserCog },
+        { name: "Invitations", path: "/admin/invitations", icon: Send },
+        { name: "Contacts", path: "/admin/contacts", icon: MessageSquare },
+        { name: "Leads", path: "/admin/leads", icon: Users },
+      ]
+    },
+    {
+      title: "Communication",
+      items: [
+        { name: "Chatbot", path: "/admin/chatbot", icon: Bot },
+        { name: "Newsletter", path: "/admin/newsletter", icon: Mail },
+        { name: "Contact Settings", path: "/admin/contact-settings", icon: SlidersHorizontal },
+      ]
+    },
+    {
+      title: "System",
+      key: "system",
+      items: [
+        { name: "Templates", path: "/admin/templates", icon: LayoutIcon },
+        { name: "Menus", path: "/admin/menus", icon: Navigation },
+        { name: "Currency", path: "/admin/currency", icon: DollarSign },
+        { name: "SEO Manager", path: "/admin/seo", icon: Search },
+        { name: "Settings", path: "/admin/settings", icon: Settings },
+      ]
+    },
   ];
 
   const isActive = (path) => {
@@ -74,6 +122,50 @@ const AdminLayout = ({ children }) => {
   const handleLogout = async () => {
     await logout();
     window.location.href = "/admin/login";
+  };
+
+  const renderMenuItem = (item) => (
+    <Link
+      key={item.path}
+      to={item.path}
+      onClick={() => setSidebarOpen(false)}
+      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+        isActive(item.path)
+          ? "bg-primary text-primary-foreground"
+          : "text-slate-600 hover:bg-slate-100"
+      }`}
+    >
+      <item.icon size={18} />
+      <span>{item.name}</span>
+    </Link>
+  );
+
+  const renderSection = (section, index) => {
+    const isExpandable = section.key;
+    const isExpanded = !isExpandable || expandedSections[section.key];
+    
+    return (
+      <div key={index} className="mb-4">
+        {isExpandable ? (
+          <button
+            onClick={() => toggleSection(section.key)}
+            className="flex items-center justify-between w-full px-3 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider hover:text-slate-600"
+          >
+            <span>{section.title}</span>
+            {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+          </button>
+        ) : (
+          <p className="px-3 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            {section.title}
+          </p>
+        )}
+        {isExpanded && (
+          <div className="space-y-1 mt-1">
+            {section.items.map(renderMenuItem)}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
