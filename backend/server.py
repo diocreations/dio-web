@@ -53,6 +53,7 @@ from routes.builder import router as builder_router
 from routes.newsletter import router as newsletter_router
 from routes.invitations import router as invitations_router
 from routes.prerender import router as prerender_router
+from routes.faq import router as faq_router
 
 app.include_router(auth_router)
 app.include_router(admin_router)
