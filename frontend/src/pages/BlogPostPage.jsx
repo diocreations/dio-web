@@ -373,6 +373,20 @@ const BlogPostPage = () => {
       
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
+        {/* Hidden SEO content for crawlers - rendered in DOM but visually hidden */}
+        <div 
+          className="sr-only" 
+          aria-hidden="true"
+          itemScope 
+          itemType="https://schema.org/Article"
+        >
+          <meta itemProp="headline" content={post.title} />
+          <meta itemProp="author" content={post.author || 'DIOCREATIONS'} />
+          <meta itemProp="datePublished" content={publishedDate} />
+          <meta itemProp="image" content={featuredImage} />
+          <div itemProp="articleBody" dangerouslySetInnerHTML={{ __html: cleanContentForCrawlers }} />
+        </div>
+        
         <div className="absolute inset-0 gradient-violet-subtle" />
         <div className="max-w-4xl mx-auto px-6 md:px-12 relative z-10">
           <Link
