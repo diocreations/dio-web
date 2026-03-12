@@ -8,8 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import {
-  Sparkles, Loader2, Eye, Palette, Edit3, Rocket, ArrowRight, Home, Info,
+  Loader2, Eye, Palette, Edit3, Rocket, ArrowRight, Home, Info,
   Briefcase, Mail, FileText, Check, ChevronLeft, ChevronRight, Globe,
   Star, Shield, Zap, Users, Heart, MapPin, Phone, Clock, Facebook,
   Instagram, Linkedin, Menu, X, Download, Server, ExternalLink, MessageCircle,
