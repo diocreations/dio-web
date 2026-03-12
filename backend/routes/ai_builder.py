@@ -280,10 +280,15 @@ async def update_website(website_id: str, content: dict):
     return {"success": True}
 
 
+class ThemeUpdateRequest(BaseModel):
+    theme: str
+
+
 @router.put("/website/{website_id}/theme")
-async def update_theme(website_id: str, theme: str):
+async def update_theme(website_id: str, request: ThemeUpdateRequest):
     """Update website theme (no AI call)"""
     valid_themes = ["modern", "corporate", "startup", "minimal"]
+    theme = request.theme
     if theme not in valid_themes:
         raise HTTPException(status_code=400, detail=f"Invalid theme. Choose from: {valid_themes}")
     
