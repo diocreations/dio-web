@@ -5,7 +5,76 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
-### AI Website Builder ✅
+### AI Website Builder - Extended Features ✅
+**Date: Mar 12, 2025 (Req #35)**
+
+**New Features Implemented:**
+
+1. **Customer Email Collection & User Registration**
+   - Email field added as first required input
+   - Automatically registers users in `public_users` collection
+   - Source tracked as "ai_builder"
+
+2. **AI Image Generation**
+   - Hero image generated with Gemini Nano Banana
+   - Service icons generated (3-4 icons per website)
+   - Images cached and included in ZIP export
+   - Single AI call for all images to minimize credits
+
+3. **Two Publishing Options**
+
+   **Option A: Host with Diocreations**
+   - Domain registration link (configurable by admin)
+   - Manual domain entry after purchase
+   - Plan selection: WaaS ($29.99/mo) or e-WaaS ($49.99/mo)
+   - Stripe payment links (admin configurable)
+   - DNS configuration instructions with support contact
+   
+   **Option B: Host Yourself / Download**
+   - One-time payment ($19.99, configurable)
+   - Download cPanel-compatible ZIP file
+   - Multi-page static HTML (index, about, services, blog, contact)
+   - Includes CSS, JS, images, and README
+
+4. **Admin Management Panel** (`/admin/ai-websites`)
+   - Stats dashboard: Total, Preview, Deployed, Downloaded, Pending Payment
+   - Websites table with search, download, delete actions
+   - Settings tab to configure:
+     - Domain registration URL
+     - WaaS/e-WaaS/Download pricing
+     - Stripe payment links
+     - DNS server IP
+     - WhatsApp support number
+     - Support email
+
+5. **Diocreations Branding Badge**
+   - Animated butterfly SVG in all generated website footers
+   - Links to https://diocreations.eu
+   - Included in both preview and exported files
+
+**New Files Created:**
+- `/app/frontend/src/pages/admin/AdminAIWebsites.jsx` - Admin management panel
+
+**New API Endpoints:**
+- `GET /api/ai-builder/settings` - Public settings (prices, URLs)
+- `POST /api/ai-builder/website/{id}/submit-domain` - Submit purchased domain
+- `POST /api/ai-builder/website/{id}/select-hosting` - Select hosting plan
+- `POST /api/ai-builder/website/{id}/confirm-payment` - Confirm payment
+- `GET /api/ai-builder/website/{id}/download` - Download ZIP file
+- `GET /api/ai-builder/admin/websites` - List all websites
+- `GET /api/ai-builder/admin/stats` - Dashboard statistics
+- `GET/PUT /api/ai-builder/admin/settings` - Admin settings
+
+**Database Collections:**
+- `ai_websites` - Generated websites with hosting status
+- `ai_builder_settings` - Admin configuration
+- `public_users` - Registered customers (from AI builder)
+
+**Test Report:** `/app/test_reports/iteration_47.json` - 95% pass rate
+
+---
+
+### AI Website Builder (Initial) ✅
 **Date: Mar 12, 2025 (Req #34)**
 
 **Features Implemented:**
