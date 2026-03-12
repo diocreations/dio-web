@@ -1082,11 +1082,12 @@ async def get_resume_og_meta(resume_id: str):
         title = f"📊 Resume Score: {overall_score}/100"
         desc = "See this resume's detailed AI analysis. Get your own free resume score and improvement tips at DioAI!"
     
+    frontend_url = os.environ.get("FRONTEND_URL", "https://www.diocreations.eu")
     return {
         "title": title,
         "description": desc,
         "score": overall_score,
         "ats_score": ats_score,
         "filename": filename,
-        "image": "https://www.diocreations.eu/og-resume.jpg",
+        "image": f"{frontend_url}/og-resume.jpg",
     }
