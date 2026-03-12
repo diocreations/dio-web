@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import {
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const AdminAIWebsites = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("websites");
   const [websites, setWebsites] = useState([]);
   const [stats, setStats] = useState(null);
