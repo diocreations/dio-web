@@ -5,6 +5,43 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### AI Website Builder - UX Improvements ✅
+**Date: Mar 12, 2025 (Req #36)**
+
+**Improvements Implemented:**
+
+1. **Business Description Guidance**
+   - Example placeholder: "e.g., We are a local bakery in London specializing in handmade cakes, pastries, and custom birthday desserts for families and events."
+   - Helper text: "Describe what your business does, who your customers are, and what services you offer."
+
+2. **Branded Loading Animation**
+   - Replaced generic star/sparkles with Diocreations animated butterfly SVG
+   - Colorful butterfly with wing flapping animation
+   - Floating effect for visual appeal
+
+3. **Rotating Loading Messages**
+   - Messages rotate every 2 seconds:
+     - "Analyzing your business details..."
+     - "Designing your homepage..."
+     - "Creating service sections..."
+     - "Generating hero imagery..."
+     - "Crafting compelling headlines..."
+     - "Building your about page..."
+     - "Setting up contact information..."
+     - "Adding finishing touches..."
+     - "Preparing your website preview..."
+   - Smooth fade animation between messages
+
+4. **Additional UX Polish**
+   - Time estimate: "This usually takes 15-20 seconds"
+   - Animated gradient progress bar
+   - Percentage complete indicator
+
+**Files Modified:**
+- `/app/frontend/src/pages/AIBuilderPage.jsx` - Added LoadingButterfly component, LOADING_MESSAGES array, rotating message logic
+
+---
+
 ### AI Website Builder - Extended Features ✅
 **Date: Mar 12, 2025 (Req #35)**
 
