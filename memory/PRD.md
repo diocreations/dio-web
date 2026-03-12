@@ -5,6 +5,55 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### AI Website Builder ✅
+**Date: Mar 12, 2025 (Req #34)**
+
+**Features Implemented:**
+
+1. **Instant Website Generation**
+   - Single AI call using Gemini 2.5 Flash
+   - Generates complete multi-page website (Home, About, Services, Blog, Contact)
+   - Takes ~10-15 seconds to generate
+   - Input: Business name, type, description, location
+
+2. **Multi-Page Preview**
+   - 5-page website with navigation tabs
+   - Live page switching with smooth animations
+   - Full website header and footer
+
+3. **Theme Customization**
+   - 4 themes: Modern, Corporate, Startup, Minimal
+   - Real-time theme switching
+   - Theme saved to database
+
+4. **Inline Editing**
+   - Edit headlines, descriptions, and content directly
+   - Yellow highlight on editable fields
+   - Save changes to database
+
+5. **Publish/Export Options**
+   - Download as standalone HTML file (includes Tailwind CDN)
+   - Copy HTML code to clipboard
+   - Link to professional help (contact page)
+
+**Files Created:**
+- `/app/frontend/src/pages/AIBuilderPage.jsx` - Complete AI Builder UI
+- `/app/backend/routes/ai_builder.py` - Generation and storage endpoints
+
+**API Endpoints:**
+- `GET /api/ai-builder/business-types` - List 15 business categories
+- `POST /api/ai-builder/generate` - Generate website with AI
+- `GET /api/ai-builder/website/{id}` - Fetch cached website
+- `PUT /api/ai-builder/website/{id}` - Update website content
+- `PUT /api/ai-builder/website/{id}/theme` - Update theme
+
+**Database:**
+- `ai_websites` collection - Caches generated websites
+
+**Test Report:** `/app/test_reports/iteration_46.json` - 100% pass rate
+
+---
+
 ### Admin User Management System ✅
 **Date: Mar 11, 2025 (Req #33)**
 
