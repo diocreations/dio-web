@@ -414,10 +414,13 @@ const AIBuilderPage = () => {
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe what your business does..."
+                  placeholder="e.g., We are a local bakery in London specializing in handmade cakes, pastries, and custom birthday desserts for families and events."
                   className="mt-1.5 min-h-[100px]"
                   data-testid="ai-builder-description"
                 />
+                <p className="text-xs text-slate-500 mt-1.5">
+                  Describe what your business does, who your customers are, and what services you offer.
+                </p>
               </div>
 
               <div>
