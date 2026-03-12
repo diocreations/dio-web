@@ -534,6 +534,7 @@ const AIBuilderPage = () => {
                   size="sm"
                   onClick={() => setCurrentPage(page.id)}
                   className={currentPage === page.id ? `bg-gradient-to-r ${theme.gradient}` : ""}
+                  data-testid={`ai-builder-page-${page.id}`}
                 >
                   <page.icon size={14} className="mr-1" /> {page.label}
                 </Button>
