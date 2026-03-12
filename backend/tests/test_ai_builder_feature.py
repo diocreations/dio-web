@@ -242,7 +242,7 @@ class TestAIBuilderTheme:
         
         response = requests.put(
             f"{BASE_URL}/api/ai-builder/website/{website_id}/theme",
-            json="modern"
+            json={"theme": "modern"}
         )
         
         assert response.status_code == 200
@@ -257,7 +257,7 @@ class TestAIBuilderTheme:
         
         response = requests.put(
             f"{BASE_URL}/api/ai-builder/website/{website_id}/theme",
-            json="corporate"
+            json={"theme": "corporate"}
         )
         
         assert response.status_code == 200
@@ -271,7 +271,7 @@ class TestAIBuilderTheme:
         
         response = requests.put(
             f"{BASE_URL}/api/ai-builder/website/{website_id}/theme",
-            json="startup"
+            json={"theme": "startup"}
         )
         
         assert response.status_code == 200
@@ -285,7 +285,7 @@ class TestAIBuilderTheme:
         
         response = requests.put(
             f"{BASE_URL}/api/ai-builder/website/{website_id}/theme",
-            json="minimal"
+            json={"theme": "minimal"}
         )
         
         assert response.status_code == 200
@@ -299,7 +299,7 @@ class TestAIBuilderTheme:
         
         response = requests.put(
             f"{BASE_URL}/api/ai-builder/website/{website_id}/theme",
-            json="invalid_theme"
+            json={"theme": "invalid_theme"}
         )
         
         assert response.status_code == 400
@@ -308,7 +308,7 @@ class TestAIBuilderTheme:
         """PUT /api/ai-builder/website/{website_id}/theme returns 404 for invalid ID"""
         response = requests.put(
             f"{BASE_URL}/api/ai-builder/website/site_nonexistent123/theme",
-            json="modern"
+            json={"theme": "modern"}
         )
         
         assert response.status_code == 404
