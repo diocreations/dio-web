@@ -214,16 +214,19 @@ const AIBuilderPage = () => {
     // Simulate progress for content + images
     let messageIndex = 0;
     const progressInterval = setInterval(() => {
-      setProgress(prev => Math.min(prev + 5, 90));
-    }, 800);
+      setProgress(prev => Math.min(prev + 3, 85));
+    }, 1000);
     
     // Rotate loading messages
     const messageInterval = setInterval(() => {
       messageIndex = (messageIndex + 1) % LOADING_MESSAGES.length;
       setLoadingMessage(LOADING_MESSAGES[messageIndex]);
-    }, 2000);
+    }, 2500);
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
+      
       const response = await fetch(`${API_URL}/api/ai-builder/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -233,17 +236,36 @@ const AIBuilderPage = () => {
           description: description,
           location: location,
           customer_email: customerEmail
-        })
+        }),
+        signal: controller.signal
       });
 
+      clearTimeout(timeoutId);
       clearInterval(progressInterval);
       clearInterval(messageInterval);
 
+      // Check response status
       if (!response.ok) {
-        throw new Error("Generation failed");
+        const errorText = await response.text();
+        console.error("Generation API error:", response.status, errorText);
+        throw new Error(`Generation failed: ${response.status}`);
       }
 
-      const data = await response.json();
+      // Parse response
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        console.error("Failed to parse response:", parseError);
+        throw new Error("Invalid response from server");
+      }
+
+      // Validate response has required fields
+      if (!data.website_id || !data.content) {
+        console.error("Invalid response data:", data);
+        throw new Error("Invalid website data received");
+      }
+
       setProgress(100);
       setLoadingMessage("Preparing your website preview...");
       
@@ -261,7 +283,14 @@ const AIBuilderPage = () => {
       clearInterval(messageInterval);
       setGenerating(false);
       setStep("input");
-      toast.error("Website generation failed. Please try again.");
+      
+      // More specific error messages
+      if (error.name === 'AbortError') {
+        toast.error("Generation timed out. Please try again.");
+      } else {
+        console.error("Generation error:", error);
+        toast.error("Website generation failed. Please try again.");
+      }
     }
   };
 
