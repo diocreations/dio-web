@@ -1,6 +1,6 @@
 """Slim server.py - App init, middleware, router includes, startup/shutdown"""
 from fastapi import FastAPI, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 from database import db, logger
 from datetime import datetime, timezone, timedelta
@@ -10,6 +10,12 @@ import asyncio
 import re
 
 app = FastAPI()
+
+# Health check endpoint for Kubernetes probes
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for deployment probes"""
+    return JSONResponse(content={"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat()}, status_code=200)
 
 # Subdomain middleware - serve resume-only mode for resume.diocreations.eu
 @app.middleware("http")
