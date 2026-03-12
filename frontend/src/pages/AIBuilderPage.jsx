@@ -444,70 +444,94 @@ const AIBuilderPage = () => {
 
   const theme = themes[currentTheme];
 
+  // Small butterfly icon for the header
+  const HeaderButterfly = () => (
+    <svg className="w-8 h-8" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+      <style>{`
+        .header-right-wing { animation: header-flap-r 0.4s ease-in-out infinite alternate; transform-origin: 10px 10px; }
+        .header-left-wing { animation: header-flap-l 0.4s ease-in-out infinite alternate; transform-origin: 10px 10px; }
+        @keyframes header-flap-r { from { transform: rotate(0deg); } to { transform: rotate(20deg); } }
+        @keyframes header-flap-l { from { transform: rotate(0deg); } to { transform: rotate(-20deg); } }
+      `}</style>
+      <g className="header-right-wing">
+        <path fill="#fff" fillOpacity="0.9" d="M12.7,16.16c-2.36-2.36-2.64-6.14-2.64-6.14s3.98,0.48,6.14,2.64c1.27,1.28,1.52,3.09,0.56,4.06S13.97,17.43,12.7,16.16z"/>
+        <path fill="#fff" fillOpacity="0.8" d="M16.26,12.5c-3.34,0-6.2-2.48-6.2-2.48s3.16-2.48,6.2-2.48c1.8,0,3.26,1.11,3.26,2.48S18.07,12.5,16.26,12.5z"/>
+        <path fill="#fff" fillOpacity="0.7" d="M16.19,7.39c-2.36,2.36-6.14,2.64-6.14,2.64s0.48-3.99,2.64-6.14c1.27-1.27,3.09-1.52,4.05-0.56S17.47,6.12,16.19,7.39z"/>
+      </g>
+      <g className="header-left-wing">
+        <path fill="#fff" fillOpacity="0.9" d="M7.3,16.11c2.36-2.36,2.64-6.14,2.64-6.14s-3.98,0.48-6.14,2.64c-1.27,1.27-1.52,3.09-0.56,4.06S6.03,17.39,7.3,16.11z"/>
+        <path fill="#fff" fillOpacity="0.8" d="M3.74,12.45c3.34,0,6.2-2.48,6.2-2.48S6.78,7.5,3.74,7.5c-1.8,0-3.26,1.11-3.26,2.47S1.93,12.45,3.74,12.45z"/>
+        <path fill="#fff" fillOpacity="0.7" d="M3.81,7.34c2.36,2.36,6.14,2.64,6.14,2.64S9.46,6,7.3,3.84C6.03,2.57,4.21,2.32,3.25,3.29S2.53,6.07,3.81,7.34z"/>
+      </g>
+    </svg>
+  );
+
   // Input Step
   if (step === "input") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-lg"
-        >
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-600 mb-4">
-              <Sparkles className="w-8 h-8 text-white" />
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
+        <Navbar />
+        <div className="pt-24 pb-16 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-lg"
+          >
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-600 mb-4">
+                <HeaderButterfly />
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">
+                Build Your Website with AI
+              </h1>
+              <p className="text-lg text-slate-600">
+                Create a complete multi-page website in seconds
+              </p>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">
-              Build Your Website with AI
-            </h1>
-            <p className="text-lg text-slate-600">
-              Create a complete multi-page website in seconds
-            </p>
-          </div>
 
-          <Card className="shadow-xl border-0">
-            <CardContent className="p-6 space-y-5">
-              <div>
-                <Label htmlFor="customerEmail" className="text-sm font-medium">
-                  Your Email <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="customerEmail"
-                  type="email"
-                  value={customerEmail}
-                  onChange={(e) => setCustomerEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="mt-1.5"
-                  data-testid="ai-builder-email"
-                />
-                <p className="text-xs text-slate-500 mt-1">We'll send your website details here</p>
-              </div>
-              
-              <div>
-                <Label htmlFor="businessName" className="text-sm font-medium">
-                  Business Name <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="businessName"
-                  value={businessName}
-                  onChange={(e) => setBusinessName(e.target.value)}
-                  placeholder="e.g., Acme Solutions"
-                  className="mt-1.5"
-                  data-testid="ai-builder-business-name"
-                />
-              </div>
+            <Card className="shadow-xl border-0">
+              <CardContent className="p-6 space-y-5">
+                <div>
+                  <Label htmlFor="customerEmail" className="text-sm font-medium">
+                    Your Email <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="customerEmail"
+                    type="email"
+                    value={customerEmail}
+                    onChange={(e) => setCustomerEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="mt-1.5"
+                    data-testid="ai-builder-email"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">We'll send your website details here</p>
+                </div>
+                
+                <div>
+                  <Label htmlFor="businessName" className="text-sm font-medium">
+                    Business Name <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="businessName"
+                    value={businessName}
+                    onChange={(e) => setBusinessName(e.target.value)}
+                    placeholder="e.g., Acme Solutions"
+                    className="mt-1.5"
+                    data-testid="ai-builder-business-name"
+                  />
+                </div>
 
-              <div>
-                <Label htmlFor="businessType" className="text-sm font-medium">
-                  Business Type <span className="text-red-500">*</span>
-                </Label>
-                <Select value={businessType} onValueChange={setBusinessType}>
-                  <SelectTrigger className="mt-1.5" data-testid="ai-builder-business-type">
-                    <SelectValue placeholder="Select your business type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {businessTypes.map((type) => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                <div>
+                  <Label htmlFor="businessType" className="text-sm font-medium">
+                    Business Type <span className="text-red-500">*</span>
+                  </Label>
+                  <Select value={businessType} onValueChange={setBusinessType}>
+                    <SelectTrigger className="mt-1.5" data-testid="ai-builder-business-type">
+                      <SelectValue placeholder="Select your business type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {businessTypes.map((type) => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
