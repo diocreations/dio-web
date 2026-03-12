@@ -5,6 +5,52 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### AI Website Builder - Bug Fixes ✅
+**Date: Mar 12, 2025 (Req #38)**
+
+**Issues Fixed:**
+
+1. **ISSUE 1 - False Error Message**
+   - Added 2-minute timeout with AbortController to prevent premature errors
+   - Improved response validation (checks for website_id and content)
+   - Better error handling with specific messages for budget/rate limit issues
+   - Console logging for debugging
+
+2. **ISSUE 2 - Admin Preview Button**
+   - Added Preview button (eye icon) to admin panel
+   - Created `/ai-builder/preview/:websiteId` route
+   - New `AIBuilderPreview.jsx` component with full website preview
+   - Preview opens in new tab from admin panel
+
+3. **ISSUE 3 - Download Works for All Websites**
+   - Each website generates unique ZIP from its stored MongoDB document
+   - ZIP contains: 5 HTML pages, CSS, JS, images, README
+   - Verified working for multiple different websites
+
+4. **ISSUE 4 - Unique Website Designs**
+   - Added random template theme assignment during generation
+   - Themes: modern, corporate, startup, minimal
+   - Each theme has unique primary colors
+   - Brand colors updated based on assigned theme
+
+5. **ISSUE 6 - Admin Panel Data**
+   - All data displaying correctly: name, email, type, domain, plan, date
+   - Preview button opens website preview
+   - Download button exports unique ZIP per website
+
+6. **Budget Error Handling**
+   - Backend returns 503 for budget exceeded (not 500)
+   - Frontend shows "AI service temporarily unavailable" message
+   - 429 handling for rate limits
+
+**New Files:**
+- `/app/frontend/src/pages/AIBuilderPreview.jsx` - Standalone preview page
+
+**Routes Added:**
+- `GET /ai-builder/preview/:websiteId` - Website preview route
+
+---
+
 ### Deployment Fix - Health Check Endpoint ✅
 **Date: Mar 12, 2025 (Req #37)**
 
