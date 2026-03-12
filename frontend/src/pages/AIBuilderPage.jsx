@@ -152,6 +152,7 @@ const AIBuilderPage = () => {
   const [businessTypes, setBusinessTypes] = useState([]);
   const [generating, setGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0]);
   const [builderSettings, setBuilderSettings] = useState(null);
   
   // Form state
