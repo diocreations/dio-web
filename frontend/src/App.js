@@ -241,7 +241,8 @@ const AppRouter = () => {
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/cookies" element={<CookiePolicyPage />} />
       <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
-      <Route path="/builder" element={<BuilderPage />} />
+      <Route path="/builder" element={<Navigate to="/ai-builder" replace />} />
+      <Route path="/ai-builder" element={<AIBuilderPage />} />
       <Route path="/builder/success" element={<BuilderSuccessPage />} />
       <Route path="/resume-optimizer" element={<ResumeOptimizerPage />} />
       <Route path="/resume-builder" element={<ResumeBuilderPage />} />
