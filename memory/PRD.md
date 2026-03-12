@@ -5,6 +5,31 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### AI Website Builder - Temporarily Paused ⏸️
+**Date: Mar 12, 2025 (Req #40)**
+
+**Action Taken:** Removed all public-facing links to AI Builder while keeping the code intact.
+
+**Links Removed:**
+- ❌ Navbar navigation (`/ai-builder` link commented out)
+- ❌ Blog internal linking (Website Builder product links removed)
+
+**What Still Works (for admin/testing):**
+- ✅ Direct URL access: `/ai-builder`
+- ✅ Admin panel: `/admin/ai-websites` 
+- ✅ Preview page: `/ai-builder/preview/:websiteId`
+- ✅ All backend API endpoints
+
+**Files Modified:**
+- `/app/frontend/src/components/Navbar.jsx` - AI Builder link commented out
+- `/app/frontend/src/pages/BlogPostPage.jsx` - Website Builder links removed from internal linking
+
+**To Re-enable:**
+1. Uncomment AI Builder in `Navbar.jsx` line 47
+2. Restore Website Builder links in `BlogPostPage.jsx`
+
+---
+
 ### AI Website Builder - UI & Admin Improvements ✅
 **Date: Mar 12, 2025 (Req #39)**
 
