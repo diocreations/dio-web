@@ -532,14 +532,14 @@ async def download_website_zip(website_id: str):
             try:
                 hero_bytes = base64.b64decode(images["hero"])
                 zf.writestr("assets/images/hero.png", hero_bytes)
-            except:
+            except Exception:
                 pass
         
         for i, icon in enumerate(images.get("service_icons", [])):
             try:
                 icon_bytes = base64.b64decode(icon)
                 zf.writestr(f"assets/images/icon_{i+1}.png", icon_bytes)
-            except:
+            except Exception:
                 pass
         
         # Add README
