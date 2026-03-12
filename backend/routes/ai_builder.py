@@ -1121,3 +1121,111 @@ async def get_admin_stats():
         "downloaded": downloaded_count,
         "pending_payment": pending_payment
     }
+
+
+
+# ============ USER MANAGEMENT ENDPOINTS ============
+
+class UserStatusUpdate(BaseModel):
+    status: str  # "active" or "paused"
+
+
+class WebsiteReassign(BaseModel):
+    new_owner_email: str
+
+
+@router.get("/admin/users")
+async def get_ai_builder_users():
+    """Get all AI builder users (from public_users with source='ai_builder')"""
+    users = await db.public_users.find(
+        {"source": "ai_builder"},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(1000)
+    
+    # Enrich with website count
+    for user in users:
+        website_count = await db.ai_websites.count_documents({"customer_email": user.get("email")})
+        user["websites_generated"] = website_count
+        if "status" not in user:
+            user["status"] = "active"
+    
+    return {"users": users}
+
+
+@router.put("/admin/user/{email}/status")
+async def update_user_status(email: str, request: UserStatusUpdate):
+    """Update user status (active/paused)"""
+    from urllib.parse import unquote
+    email = unquote(email)
+    
+    if request.status not in ["active", "paused"]:
+        raise HTTPException(status_code=400, detail="Status must be 'active' or 'paused'")
+    
+    result = await db.public_users.update_one(
+        {"email": email, "source": "ai_builder"},
+        {"$set": {"status": request.status, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # If paused, also pause all their websites
+    if request.status == "paused":
+        await db.ai_websites.update_many(
+            {"customer_email": email, "hosting_status": "deployed"},
+            {"$set": {"hosting_status": "paused"}}
+        )
+    elif request.status == "active":
+        await db.ai_websites.update_many(
+            {"customer_email": email, "hosting_status": "paused"},
+            {"$set": {"hosting_status": "deployed"}}
+        )
+    
+    return {"success": True}
+
+
+@router.delete("/admin/user/{email}")
+async def delete_user(email: str):
+    """Delete an AI builder user and all their websites"""
+    from urllib.parse import unquote
+    email = unquote(email)
+    
+    # Delete user's websites
+    await db.ai_websites.delete_many({"customer_email": email})
+    
+    # Delete user
+    result = await db.public_users.delete_one({"email": email, "source": "ai_builder"})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"success": True}
+
+
+@router.put("/admin/website/{website_id}/reassign")
+async def reassign_website(website_id: str, request: WebsiteReassign):
+    """Reassign a website to a different user"""
+    # Check if new owner exists
+    new_owner = await db.public_users.find_one({"email": request.new_owner_email})
+    if not new_owner:
+        # Create the user if they don't exist
+        await db.public_users.insert_one({
+            "email": request.new_owner_email,
+            "source": "ai_builder",
+            "status": "active",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "websites_generated": 0
+        })
+    
+    result = await db.ai_websites.update_one(
+        {"website_id": website_id},
+        {"$set": {
+            "customer_email": request.new_owner_email,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Website not found")
+    
+    return {"success": True}
