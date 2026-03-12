@@ -474,10 +474,10 @@ const AIBuilderPage = () => {
         <div className="fixed top-0 left-0 right-0 bg-white border-b z-50 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => setStep("input")}>
+              <Button variant="ghost" size="sm" onClick={() => setStep("input")} data-testid="ai-builder-back-btn">
                 <ChevronLeft size={16} className="mr-1" /> Back
               </Button>
-              <span className="text-sm font-medium text-slate-600 hidden sm:block">
+              <span className="text-sm font-medium text-slate-600 hidden sm:block" data-testid="ai-builder-editing-label">
                 Editing: {brand.name}
               </span>
             </div>
