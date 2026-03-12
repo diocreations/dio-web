@@ -231,6 +231,23 @@ Make the content professional, engaging, and specific to a {request.business_typ
         website_id = f"site_{uuid.uuid4().hex[:12]}"
         generated_at = datetime.now(timezone.utc).isoformat()
         
+        # Randomly assign a template theme for visual uniqueness
+        import random
+        template_themes = ["modern", "corporate", "startup", "minimal"]
+        assigned_theme = random.choice(template_themes)
+        
+        # Template-specific color schemes (applied to brand)
+        theme_colors = {
+            "modern": "#7c3aed",
+            "corporate": "#1e40af", 
+            "startup": "#059669",
+            "minimal": "#18181b"
+        }
+        
+        # Update brand color based on assigned theme
+        if "brand" in content:
+            content["brand"]["primary_color"] = theme_colors.get(assigned_theme, "#7c3aed")
+        
         # Cache the generated website
         website_doc = {
             "website_id": website_id,
@@ -241,7 +258,7 @@ Make the content professional, engaging, and specific to a {request.business_typ
             "location": request.location,
             "content": content,
             "images": images,
-            "theme": "modern",
+            "theme": assigned_theme,  # Randomly assigned for uniqueness
             "hosting_status": "preview",  # preview, pending_domain, pending_payment, deployed, downloaded
             "hosting_type": None,  # waas, ewaas, download
             "domain": None,
