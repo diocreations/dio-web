@@ -20,7 +20,8 @@ const CATEGORY_LINKS = {
       { name: "AI Solutions", slug: "ai-solutions", description: "Intelligent automation for your business" },
     ],
     products: [
-      { name: "Website Builder", path: "/builder", description: "Build your website in minutes" },
+      // AI Builder temporarily paused
+      { name: "Resume Optimizer", path: "/resume-optimizer", description: "AI-powered resume analysis" },
     ]
   },
   "SEO": {
@@ -48,7 +49,8 @@ const CATEGORY_LINKS = {
       { name: "Email Marketing", slug: "email-marketing", description: "Engage your audience" },
     ],
     products: [
-      { name: "Website Builder", path: "/builder", description: "Launch your business online" },
+      // AI Builder temporarily paused
+      { name: "Web Development", path: "/services/web-mobile-development", description: "Launch your business online" },
     ]
   },
   "Career": {
@@ -67,7 +69,8 @@ const CATEGORY_LINKS = {
       { name: "SEO Services", slug: "seo-services", description: "Drive organic traffic" },
     ],
     products: [
-      { name: "Website Builder", path: "/builder", description: "Launch your store" },
+      // AI Builder temporarily paused
+      { name: "Web Development", path: "/services/web-mobile-development", description: "Launch your store" },
     ]
   },
   "default": {
@@ -76,7 +79,7 @@ const CATEGORY_LINKS = {
       { name: "SEO Services", slug: "seo-services", description: "Improve visibility" },
     ],
     products: [
-      { name: "Website Builder", path: "/builder", description: "Build your online presence" },
+      // AI Builder temporarily paused
       { name: "Resume Optimizer", path: "/resume-optimizer", description: "AI-powered tools" },
     ]
   }
