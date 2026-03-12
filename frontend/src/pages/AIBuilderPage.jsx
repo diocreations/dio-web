@@ -157,7 +157,7 @@ const AIBuilderPage = () => {
         await fetch(`${API_URL}/api/ai-builder/website/${websiteId}/theme`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(theme)
+          body: JSON.stringify({ theme })
         });
       } catch {
         // Silent fail - theme is already updated locally
