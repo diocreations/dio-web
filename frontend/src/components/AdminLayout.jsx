@@ -60,6 +60,12 @@ const AdminLayout = ({ children }) => {
       ]
     },
     {
+      title: "AI Website Builder",
+      items: [
+        { name: "Generated Websites", path: "/admin/ai-websites", icon: Globe },
+      ]
+    },
+    {
       title: "Content",
       key: "content",
       items: [
