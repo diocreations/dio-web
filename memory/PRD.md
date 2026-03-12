@@ -5,6 +5,55 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### AI Website Builder - UI & Admin Improvements ✅
+**Date: Mar 12, 2025 (Req #39)**
+
+**Issues Fixed:**
+
+1. **ISSUE 1 - Navigation Missing**
+   - Added Diocreations Navbar to `/ai-builder` page
+   - Added Footer to `/ai-builder` page
+   - Admin panel now uses AdminLayout with full sidebar navigation
+
+2. **ISSUE 2 - Builder Page Icon**
+   - Replaced star icon with animated Diocreations butterfly SVG
+   - Butterfly centered in purple square above heading
+   - Animated wing flapping effect (white on purple background)
+
+3. **ISSUE 3 - Generation Loading Screen**
+   - Loading butterfly remains centered with floating animation
+   - Progress bar and rotating messages working correctly
+
+4. **ISSUE 4 - Admin Pricing Currency Logic**
+   - Currency fetched from main site settings (`/api/settings`)
+   - Currency symbol displayed throughout admin panel
+   - "Hosting Plans & Pricing (€)" shows dynamic currency
+
+5. **ISSUE 5 - User Management for AI Builder**
+   - New "Users" tab in admin panel
+   - Shows all AI builder users with website count
+   - Pause/Activate service for users
+   - Delete users (also removes their websites)
+   - Reassign website ownership to different users
+
+6. **ISSUE 6 - Consistent Admin Structure**
+   - Admin panel wrapped in AdminLayout component
+   - Sidebar navigation matches other admin pages
+   - Consistent table layouts, button styles, cards
+
+**New Backend Endpoints:**
+- `GET /api/ai-builder/admin/users` - List AI builder users
+- `PUT /api/ai-builder/admin/user/{email}/status` - Pause/activate user
+- `DELETE /api/ai-builder/admin/user/{email}` - Delete user and websites
+- `PUT /api/ai-builder/admin/website/{id}/reassign` - Reassign website owner
+
+**Files Modified:**
+- `/app/frontend/src/pages/AIBuilderPage.jsx` - Added Navbar, Footer, butterfly icon
+- `/app/frontend/src/pages/admin/AdminAIWebsites.jsx` - Complete rewrite with AdminLayout, Users tab, currency logic
+- `/app/backend/routes/ai_builder.py` - Added user management endpoints
+
+---
+
 ### AI Website Builder - Bug Fixes ✅
 **Date: Mar 12, 2025 (Req #38)**
 
