@@ -276,8 +276,16 @@ Make the content professional, engaging, and specific to a {request.business_typ
         )
         
     except Exception as e:
-        logger.error(f"Website generation failed: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
+        error_msg = str(e)
+        logger.error(f"Website generation failed: {error_msg}")
+        
+        # Provide more specific error messages
+        if "Budget has been exceeded" in error_msg or "budget" in error_msg.lower():
+            raise HTTPException(status_code=503, detail="AI service temporarily unavailable. Please try again later.")
+        elif "rate limit" in error_msg.lower():
+            raise HTTPException(status_code=429, detail="Too many requests. Please wait a moment and try again.")
+        else:
+            raise HTTPException(status_code=500, detail="Website generation failed. Please try again.")
 
 
 async def generate_website_images(api_key: str, business_name: str, business_type: str, description: str) -> dict:
