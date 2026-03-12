@@ -193,6 +193,133 @@ const AIBuilderPage = () => {
     setEditingField(null);
   };
 
+  // Generate standalone HTML for export
+  const generateExportHTML = (content, brand, theme) => {
+    const themeColors = themes[currentTheme] || themes.modern;
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${brand?.name || 'My Website'}</title>
+  <meta name="description" content="${content?.homepage?.subheadline || ''}">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .gradient-primary { background: linear-gradient(135deg, ${themeColors.primary}, ${themeColors.secondary}); }
+  </style>
+</head>
+<body class="bg-white text-slate-900">
+  <!-- Header -->
+  <header class="gradient-primary text-white">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/></svg>
+        <span class="font-bold text-lg">${brand?.name || 'Business Name'}</span>
+      </div>
+      <nav class="hidden md:flex items-center gap-6">
+        <a href="#home" class="text-sm font-medium hover:opacity-80">Home</a>
+        <a href="#about" class="text-sm font-medium hover:opacity-80">About</a>
+        <a href="#services" class="text-sm font-medium hover:opacity-80">Services</a>
+        <a href="#contact" class="text-sm font-medium hover:opacity-80">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="home" class="gradient-primary text-white py-20 px-6">
+    <div class="max-w-4xl mx-auto text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">${content?.homepage?.headline || 'Welcome'}</h1>
+      <p class="text-xl opacity-90 mb-8 max-w-2xl mx-auto">${content?.homepage?.subheadline || ''}</p>
+      <a href="#contact" class="inline-block px-8 py-3 bg-white text-slate-900 rounded-lg font-semibold hover:bg-slate-100 transition">
+        ${content?.homepage?.cta_text || 'Get Started'}
+      </a>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="py-16 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl font-bold text-center mb-12">Why Choose Us</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        ${(content?.homepage?.features || []).map(f => `
+        <div class="text-center p-6 rounded-xl border hover:shadow-lg transition">
+          <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl gradient-primary text-white mb-4">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <h3 class="font-semibold text-lg mb-2">${f.title}</h3>
+          <p class="text-slate-600">${f.description}</p>
+        </div>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-16 px-6 bg-slate-50">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl font-bold text-center mb-8">${content?.about?.headline || 'About Us'}</h2>
+      <p class="text-lg text-slate-700 leading-relaxed whitespace-pre-line">${content?.about?.content || ''}</p>
+      ${content?.about?.mission ? `
+      <div class="mt-8 p-6 bg-white rounded-xl">
+        <h3 class="font-semibold text-lg mb-2">Our Mission</h3>
+        <p class="text-slate-600">${content.about.mission}</p>
+      </div>` : ''}
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services" class="py-16 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl font-bold text-center mb-4">${content?.services?.headline || 'Our Services'}</h2>
+      <p class="text-center text-slate-600 mb-12">${content?.services?.description || ''}</p>
+      <div class="grid md:grid-cols-2 gap-6">
+        ${(content?.services?.services || []).map(s => `
+        <div class="p-6 rounded-xl border hover:shadow-lg transition">
+          <h3 class="font-semibold text-xl mb-2">${s.title}</h3>
+          <p class="text-slate-600 mb-4">${s.description}</p>
+          ${s.price ? `<p class="font-semibold" style="color: ${themeColors.primary}">${s.price}</p>` : ''}
+        </div>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-16 px-6 bg-slate-50">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-3xl font-bold text-center mb-4">${content?.contact?.headline || 'Contact Us'}</h2>
+      <p class="text-center text-slate-600 mb-12">${content?.contact?.description || ''}</p>
+      <div class="grid md:grid-cols-2 gap-12">
+        <div class="space-y-4">
+          ${content?.contact?.email ? `<p><strong>Email:</strong> ${content.contact.email}</p>` : ''}
+          ${content?.contact?.phone ? `<p><strong>Phone:</strong> ${content.contact.phone}</p>` : ''}
+          ${content?.contact?.address ? `<p><strong>Address:</strong> ${content.contact.address}</p>` : ''}
+          ${content?.contact?.hours ? `<p><strong>Hours:</strong> ${content.contact.hours}</p>` : ''}
+        </div>
+        <form class="space-y-4">
+          <input type="text" placeholder="Your Name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500">
+          <input type="email" placeholder="Your Email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500">
+          <textarea placeholder="Your Message" rows="4" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"></textarea>
+          <button type="submit" class="w-full py-3 gradient-primary text-white rounded-lg font-semibold hover:opacity-90 transition">Send Message</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-white py-12 px-6">
+    <div class="max-w-5xl mx-auto text-center">
+      <div class="flex items-center justify-center gap-2 mb-4">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/></svg>
+        <span class="font-bold text-lg">${brand?.name || 'Business Name'}</span>
+      </div>
+      <p class="text-slate-400">${content?.footer?.copyright || `© ${new Date().getFullYear()} ${brand?.name}. All rights reserved.`}</p>
+    </div>
+  </footer>
+</body>
+</html>`;
+  };
+
   const theme = themes[currentTheme];
 
   // Input Step
