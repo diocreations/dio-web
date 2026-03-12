@@ -485,7 +485,7 @@ const AIBuilderPage = () => {
             <div className="flex items-center gap-2">
               {/* Theme Selector */}
               <Select value={currentTheme} onValueChange={handleThemeChange}>
-                <SelectTrigger className="w-32 h-9">
+                <SelectTrigger className="w-32 h-9" data-testid="ai-builder-theme-selector">
                   <Palette size={14} className="mr-1" />
                   <SelectValue />
                 </SelectTrigger>
@@ -500,6 +500,7 @@ const AIBuilderPage = () => {
                 variant={isEditing ? "default" : "outline"}
                 size="sm"
                 onClick={() => isEditing ? saveContent() : setIsEditing(true)}
+                data-testid="ai-builder-edit-btn"
               >
                 {isEditing ? <><Check size={14} className="mr-1" /> Save</> : <><Edit3 size={14} className="mr-1" /> Edit</>}
               </Button>
