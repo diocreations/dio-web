@@ -646,6 +646,7 @@ const AIBuilderPage = () => {
           </p>
         </motion.div>
       </div>
+    </div>
     );
   }
 
