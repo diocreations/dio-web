@@ -22,9 +22,9 @@ async def send_password_reset_email(email: str, reset_token: str, origin_url: st
         import resend
         resend.api_key = resend_key
         
-        # Use production URL if origin_url is empty or localhost
+        # Use FRONTEND_URL from environment, fallback to production URL
         if not origin_url or "localhost" in origin_url or "preview.emergentagent" in origin_url:
-            origin_url = "https://www.diocreations.eu"
+            origin_url = os.environ.get("FRONTEND_URL", "https://www.diocreations.eu")
         
         reset_link = f"{origin_url}/reset-password?token={reset_token}"
         
