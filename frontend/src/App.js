@@ -21,6 +21,7 @@ import CookiePolicyPage from "./pages/CookiePolicyPage";
 import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
 import BuilderPage from "./pages/BuilderPage";
 import BuilderSuccessPage from "./pages/BuilderSuccessPage";
+import AIBuilderPage from "./pages/AIBuilderPage";
 import ResumeOptimizerPage from "./pages/ResumeOptimizerPage";
 import ResumeBuilderPage from "./pages/ResumeBuilderPage";
 import UserLoginPage from "./pages/UserLoginPage";
