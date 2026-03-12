@@ -209,11 +209,19 @@ const AIBuilderPage = () => {
     setStep("generating");
     setGenerating(true);
     setProgress(0);
+    setLoadingMessage(LOADING_MESSAGES[0]);
 
     // Simulate progress for content + images
+    let messageIndex = 0;
     const progressInterval = setInterval(() => {
       setProgress(prev => Math.min(prev + 5, 90));
     }, 800);
+    
+    // Rotate loading messages
+    const messageInterval = setInterval(() => {
+      messageIndex = (messageIndex + 1) % LOADING_MESSAGES.length;
+      setLoadingMessage(LOADING_MESSAGES[messageIndex]);
+    }, 2000);
 
     try {
       const response = await fetch(`${API_URL}/api/ai-builder/generate`, {
@@ -229,6 +237,7 @@ const AIBuilderPage = () => {
       });
 
       clearInterval(progressInterval);
+      clearInterval(messageInterval);
 
       if (!response.ok) {
         throw new Error("Generation failed");
@@ -236,6 +245,7 @@ const AIBuilderPage = () => {
 
       const data = await response.json();
       setProgress(100);
+      setLoadingMessage("Preparing your website preview...");
       
       setTimeout(() => {
         setWebsiteId(data.website_id);
@@ -248,6 +258,7 @@ const AIBuilderPage = () => {
 
     } catch (error) {
       clearInterval(progressInterval);
+      clearInterval(messageInterval);
       setGenerating(false);
       setStep("input");
       toast.error("Website generation failed. Please try again.");
