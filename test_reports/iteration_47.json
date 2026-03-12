@@ -1,0 +1,97 @@
+{
+  "summary": "Iteration 47: Tested AI Website Builder extended features - email collection, hosting options, admin panel, and ZIP download. All backend APIs working (21/22 tests passed). Frontend UI verified: input form with email field, publish modal with Host/Download options, admin panel with stats and settings.",
+
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+
+  "passed_tests": [
+    "GET /api/ai-builder/settings - returns configuration with prices and URLs",
+    "POST /api/ai-builder/generate - requires customer_email field",
+    "POST /api/ai-builder/generate - validates email format",
+    "POST /api/ai-builder/generate - creates website with valid email and registers user",
+    "POST /api/ai-builder/website/{id}/submit-domain - accepts valid domain",
+    "POST /api/ai-builder/website/{id}/submit-domain - rejects invalid domain format",
+    "POST /api/ai-builder/website/{id}/select-hosting - selects WaaS plan",
+    "POST /api/ai-builder/website/{id}/select-hosting - selects e-WaaS plan",
+    "POST /api/ai-builder/website/{id}/select-hosting - selects download option",
+    "POST /api/ai-builder/website/{id}/select-hosting - rejects invalid hosting type",
+    "POST /api/ai-builder/website/{id}/confirm-payment - confirms payment",
+    "GET /api/ai-builder/website/{id}/download - returns valid ZIP file",
+    "ZIP contains 5 HTML pages (index, about, services, blog, contact)",
+    "ZIP contains CSS with butterfly animation",
+    "ZIP contains Diocreations branding badge in footer",
+    "ZIP contains README with deployment instructions",
+    "GET /api/ai-builder/admin/stats - returns website statistics",
+    "GET /api/ai-builder/admin/websites - returns websites list with pagination",
+    "GET /api/ai-builder/admin/settings - returns admin settings",
+    "PUT /api/ai-builder/admin/settings - updates settings successfully",
+    "DELETE /api/ai-builder/admin/website/{id} - returns 404 for invalid ID",
+    "UI: Input form shows email field as first required field",
+    "UI: Generate button triggers AI generation with loading state",
+    "UI: Preview shows generated website with hero image",
+    "UI: Publish modal shows Host with Diocreations option",
+    "UI: Publish modal shows Download option with pricing",
+    "UI: Host flow shows domain registration step",
+    "UI: Admin panel shows stats cards (Total, Preview, Deployed, Downloaded, Pending)",
+    "UI: Admin panel shows websites table with customer email and status",
+    "UI: Admin Settings tab shows all configurable fields"
+  ],
+
+  "failed_tests": [],
+
+  "skipped_tests": [
+    "DELETE /api/ai-builder/admin/website/{id} - skipped due to generation timeout"
+  ],
+
+  "test_report_links": [
+    "/app/backend/tests/test_ai_builder_extended.py",
+    "/app/test_reports/pytest/iteration47_ai_builder_extended.xml"
+  ],
+
+  "action_items": [],
+
+  "critical_code_review_comments": [
+    "Email collection working - customer_email is required and validated",
+    "User registration in public_users collection on website generation",
+    "Hosting flow properly updates hosting_status through stages",
+    "ZIP export includes all 5 pages, CSS, JS, images, and README",
+    "Diocreations branding badge with animated butterfly in footer",
+    "Admin panel properly displays stats and allows settings configuration",
+    "Stripe payment links are configurable but not yet set up (admin can add them)"
+  ],
+
+  "updated_files": [
+    "/app/backend/tests/test_ai_builder_extended.py"
+  ],
+
+  "success_rate": {
+    "backend": "95% (21/22 passed, 1 skipped)",
+    "frontend": "100%"
+  },
+
+  "test_credentials": {
+    "admin_email": "admin@diocreations.com",
+    "admin_password": "adminpassword"
+  },
+
+  "seed_data_creation": "Created test websites: TEST_Email_Collection_Biz, TEST_Hosting_Flow_Biz, TEST_Download_Biz, Playwright Test Cafe",
+
+  "retest_needed": false,
+
+  "should_main_agent_self_test": false,
+
+  "context_for_next_testing_agent": "Iteration 47 verified the extended AI Website Builder features. Email collection is required for generation. Hosting flow has multiple steps: choice → domain → plan → dns (for hosting) OR choice → download (for self-hosting). Admin panel at /admin/ai-websites shows stats and settings. ZIP download includes multi-page static HTML with Diocreations branding badge and animated butterfly. Stripe payment links are configurable in admin settings but not yet set up.",
+
+  "mocked_apis": {
+    "has_mocked_apis": false,
+    "note": "Stripe payment links are configurable but not yet set up - admin can add them in settings. Image generation via Gemini Nano Banana is real."
+  }
+}
