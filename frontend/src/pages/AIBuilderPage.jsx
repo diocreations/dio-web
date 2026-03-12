@@ -287,6 +287,10 @@ const AIBuilderPage = () => {
       // More specific error messages
       if (error.name === 'AbortError') {
         toast.error("Generation timed out. Please try again.");
+      } else if (error.message?.includes("503")) {
+        toast.error("AI service temporarily unavailable. Please try again later.");
+      } else if (error.message?.includes("429")) {
+        toast.error("Too many requests. Please wait a moment and try again.");
       } else {
         console.error("Generation error:", error);
         toast.error("Website generation failed. Please try again.");
