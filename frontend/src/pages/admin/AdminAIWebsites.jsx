@@ -267,6 +267,15 @@ const AdminAIWebsites = () => {
                             <Button
                               variant="ghost"
                               size="sm"
+                              onClick={() => handlePreviewWebsite(website.website_id)}
+                              title="Preview Website"
+                              className="text-violet-600 hover:text-violet-700"
+                            >
+                              <Eye size={16} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               onClick={() => handleDownloadWebsite(website.website_id, website.business_name)}
                               title="Download ZIP"
                             >
