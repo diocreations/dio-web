@@ -537,33 +537,50 @@ const AIBuilderPage = () => {
           animate={{ opacity: 1, scale: 1 }}
           className="text-center"
         >
-          <div className="relative inline-flex items-center justify-center w-24 h-24 mb-6">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 rounded-full border-4 border-violet-200 border-t-violet-600"
-            />
-            <Sparkles className="w-10 h-10 text-violet-600" />
+          {/* Animated Butterfly */}
+          <div className="mb-8">
+            <LoadingButterfly />
           </div>
           
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">
-            Creating Your Website
+          <h2 className="text-2xl font-bold text-slate-900 mb-3">
+            Generating Your Website
           </h2>
-          <p className="text-slate-600 mb-6">
-            AI is generating your content and images...
-          </p>
           
-          <div className="w-64 mx-auto">
-            <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+          {/* Rotating Loading Message */}
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={loadingMessage}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="text-slate-600 mb-6 h-6"
+            >
+              {loadingMessage}
+            </motion.p>
+          </AnimatePresence>
+          
+          <div className="w-72 mx-auto">
+            <div className="h-2.5 bg-slate-200 rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-gradient-to-r from-violet-600 to-purple-600"
+                className="h-full bg-gradient-to-r from-violet-600 via-purple-600 to-violet-600 bg-[length:200%_100%]"
                 initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.3 }}
+                animate={{ 
+                  width: `${progress}%`,
+                  backgroundPosition: ["0% 0%", "100% 0%"]
+                }}
+                transition={{ 
+                  width: { duration: 0.3 },
+                  backgroundPosition: { duration: 2, repeat: Infinity, ease: "linear" }
+                }}
               />
             </div>
-            <p className="text-sm text-slate-500 mt-2">{progress}% complete</p>
+            <p className="text-sm text-slate-500 mt-3">{progress}% complete</p>
           </div>
+          
+          <p className="text-xs text-slate-400 mt-6">
+            This usually takes 15-20 seconds
+          </p>
         </motion.div>
       </div>
     );
