@@ -564,7 +564,7 @@ def generate_static_pages(content: dict, brand: dict, theme: str, images: dict) 
         "startup": {"primary": "#059669", "secondary": "#10b981"},
         "minimal": {"primary": "#18181b", "secondary": "#3f3f46"}
     }
-    colors = theme_colors.get(theme, theme_colors["modern"])
+    _ = theme_colors.get(theme, theme_colors["modern"])  # Colors available for future use
     
     # Common header
     header = f'''<header class="site-header">
