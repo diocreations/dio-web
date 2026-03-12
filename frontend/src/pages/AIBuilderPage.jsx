@@ -12,7 +12,8 @@ import {
   Sparkles, Loader2, Eye, Palette, Edit3, Rocket, ArrowRight, Home, Info,
   Briefcase, Mail, FileText, Check, ChevronLeft, ChevronRight, Globe,
   Star, Shield, Zap, Users, Heart, MapPin, Phone, Clock, Facebook,
-  Instagram, Linkedin, Menu, X
+  Instagram, Linkedin, Menu, X, Download, Server, ExternalLink, MessageCircle,
+  HelpCircle, CreditCard
 } from "lucide-react";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -63,44 +64,84 @@ const themes = {
   }
 };
 
+// Animated Butterfly SVG for branding
+const ButterflyIcon = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+    <style>{`
+      .butterfly-wing { animation: flap 0.4s ease-in-out infinite alternate; }
+      .left-wing { transform-origin: 10px 10px; }
+      .right-wing { transform-origin: 10px 10px; }
+      @keyframes flap { from { transform: rotate(0deg); } to { transform: rotate(-20deg); } }
+    `}</style>
+    <g className="right-wing butterfly-wing" style={{animationDelay: '0s'}}>
+      <path fill="#4D629A" d="M12.7,16.16c-2.36-2.36-2.64-6.14-2.64-6.14s3.98,0.48,6.14,2.64c1.27,1.28,1.52,3.09,0.56,4.06S13.97,17.43,12.7,16.16z"/>
+      <path fill="#00A096" d="M16.26,12.5c-3.34,0-6.2-2.48-6.2-2.48s3.16-2.48,6.2-2.48c1.8,0,3.26,1.11,3.26,2.48S18.07,12.5,16.26,12.5z"/>
+      <path fill="#89BF4A" d="M16.19,7.39c-2.36,2.36-6.14,2.64-6.14,2.64s0.48-3.99,2.64-6.14c1.27-1.27,3.09-1.52,4.05-0.56S17.47,6.12,16.19,7.39z"/>
+    </g>
+    <g className="left-wing butterfly-wing" style={{animationDelay: '0.1s', animationDirection: 'alternate-reverse'}}>
+      <path fill="#8F5398" d="M7.3,16.11c2.36-2.36,2.64-6.14,2.64-6.14s-3.98,0.48-6.14,2.64c-1.27,1.27-1.52,3.09-0.56,4.06S6.03,17.39,7.3,16.11z"/>
+      <path fill="#E16136" d="M3.74,12.45c3.34,0,6.2-2.48,6.2-2.48S6.78,7.5,3.74,7.5c-1.8,0-3.26,1.11-3.26,2.47S1.93,12.45,3.74,12.45z"/>
+      <path fill="#F3BE33" d="M3.81,7.34c2.36,2.36,6.14,2.64,6.14,2.64S9.46,6,7.3,3.84C6.03,2.57,4.21,2.32,3.25,3.29S2.53,6.07,3.81,7.34z"/>
+    </g>
+  </svg>
+);
+
 const AIBuilderPage = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState("input"); // input, generating, preview
   const [businessTypes, setBusinessTypes] = useState([]);
   const [generating, setGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [builderSettings, setBuilderSettings] = useState(null);
   
   // Form state
   const [businessName, setBusinessName] = useState("");
   const [businessType, setBusinessType] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
   
   // Website state
   const [websiteId, setWebsiteId] = useState(null);
   const [websiteContent, setWebsiteContent] = useState(null);
+  const [websiteImages, setWebsiteImages] = useState({});
   const [currentPage, setCurrentPage] = useState("home");
   const [currentTheme, setCurrentTheme] = useState("modern");
   const [isEditing, setIsEditing] = useState(false);
-  const [editingField, setEditingField] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // Publish flow state
   const [showPublishModal, setShowPublishModal] = useState(false);
-  const [publishing, setPublishing] = useState(false);
+  const [publishStep, setPublishStep] = useState("choice"); // choice, domain, plan, dns, download
+  const [hostingChoice, setHostingChoice] = useState(null); // "diocreations" or "self"
+  const [purchasedDomain, setPurchasedDomain] = useState("");
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   useEffect(() => {
-    // Fetch business types
-    fetch(`${API_URL}/api/ai-builder/business-types`)
-      .then(r => r.json())
-      .then(data => setBusinessTypes(data))
-      .catch(() => setBusinessTypes([
+    // Fetch business types and settings
+    Promise.all([
+      fetch(`${API_URL}/api/ai-builder/business-types`).then(r => r.json()),
+      fetch(`${API_URL}/api/ai-builder/settings`).then(r => r.json())
+    ]).then(([types, settings]) => {
+      setBusinessTypes(types);
+      setBuilderSettings(settings);
+    }).catch(() => {
+      setBusinessTypes([
         "Restaurant & Food", "Professional Services", "Retail & E-commerce",
         "Healthcare & Wellness", "Technology & IT", "Creative & Design", "Other"
-      ]));
+      ]);
+    });
   }, []);
 
   const handleGenerate = async () => {
-    if (!businessName.trim() || !businessType || !description.trim()) {
-      toast.error("Please fill in all required fields");
+    if (!businessName.trim() || !businessType || !description.trim() || !customerEmail.trim()) {
+      toast.error("Please fill in all required fields including email");
+      return;
+    }
+    
+    // Basic email validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
+      toast.error("Please enter a valid email address");
       return;
     }
 
@@ -108,10 +149,10 @@ const AIBuilderPage = () => {
     setGenerating(true);
     setProgress(0);
 
-    // Simulate progress
+    // Simulate progress for content + images
     const progressInterval = setInterval(() => {
-      setProgress(prev => Math.min(prev + 10, 90));
-    }, 500);
+      setProgress(prev => Math.min(prev + 5, 90));
+    }, 800);
 
     try {
       const response = await fetch(`${API_URL}/api/ai-builder/generate`, {
@@ -121,7 +162,8 @@ const AIBuilderPage = () => {
           business_name: businessName,
           business_type: businessType,
           description: description,
-          location: location
+          location: location,
+          customer_email: customerEmail
         })
       });
 
@@ -137,6 +179,7 @@ const AIBuilderPage = () => {
       setTimeout(() => {
         setWebsiteId(data.website_id);
         setWebsiteContent(data.content);
+        setWebsiteImages(data.images || {});
         setStep("preview");
         setGenerating(false);
         toast.success("Your website is ready!");
@@ -190,134 +233,106 @@ const AIBuilderPage = () => {
       }
     }
     setIsEditing(false);
-    setEditingField(null);
   };
 
-  // Generate standalone HTML for export
-  const generateExportHTML = (content, brand, theme) => {
-    const themeColors = themes[currentTheme] || themes.modern;
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${brand?.name || 'My Website'}</title>
-  <meta name="description" content="${content?.homepage?.subheadline || ''}">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    .gradient-primary { background: linear-gradient(135deg, ${themeColors.primary}, ${themeColors.secondary}); }
-  </style>
-</head>
-<body class="bg-white text-slate-900">
-  <!-- Header -->
-  <header class="gradient-primary text-white">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/></svg>
-        <span class="font-bold text-lg">${brand?.name || 'Business Name'}</span>
-      </div>
-      <nav class="hidden md:flex items-center gap-6">
-        <a href="#home" class="text-sm font-medium hover:opacity-80">Home</a>
-        <a href="#about" class="text-sm font-medium hover:opacity-80">About</a>
-        <a href="#services" class="text-sm font-medium hover:opacity-80">Services</a>
-        <a href="#contact" class="text-sm font-medium hover:opacity-80">Contact</a>
-      </nav>
-    </div>
-  </header>
+  const handleDomainSubmit = async () => {
+    if (!purchasedDomain.trim()) {
+      toast.error("Please enter your domain");
+      return;
+    }
+    
+    // Basic domain validation
+    const domainPattern = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
+    if (!domainPattern.test(purchasedDomain)) {
+      toast.error("Please enter a valid domain (e.g., yourdomain.com)");
+      return;
+    }
 
-  <!-- Hero Section -->
-  <section id="home" class="gradient-primary text-white py-20 px-6">
-    <div class="max-w-4xl mx-auto text-center">
-      <h1 class="text-4xl md:text-5xl font-bold mb-4">${content?.homepage?.headline || 'Welcome'}</h1>
-      <p class="text-xl opacity-90 mb-8 max-w-2xl mx-auto">${content?.homepage?.subheadline || ''}</p>
-      <a href="#contact" class="inline-block px-8 py-3 bg-white text-slate-900 rounded-lg font-semibold hover:bg-slate-100 transition">
-        ${content?.homepage?.cta_text || 'Get Started'}
-      </a>
-    </div>
-  </section>
+    try {
+      await fetch(`${API_URL}/api/ai-builder/website/${websiteId}/submit-domain`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ website_id: websiteId, domain: purchasedDomain })
+      });
+      setPublishStep("plan");
+    } catch {
+      toast.error("Failed to submit domain");
+    }
+  };
 
-  <!-- Features Section -->
-  <section class="py-16 px-6">
-    <div class="max-w-5xl mx-auto">
-      <h2 class="text-3xl font-bold text-center mb-12">Why Choose Us</h2>
-      <div class="grid md:grid-cols-3 gap-8">
-        ${(content?.homepage?.features || []).map(f => `
-        <div class="text-center p-6 rounded-xl border hover:shadow-lg transition">
-          <div class="inline-flex items-center justify-center w-14 h-14 rounded-xl gradient-primary text-white mb-4">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-          </div>
-          <h3 class="font-semibold text-lg mb-2">${f.title}</h3>
-          <p class="text-slate-600">${f.description}</p>
-        </div>`).join('')}
-      </div>
-    </div>
-  </section>
+  const handlePlanSelect = async (plan) => {
+    setSelectedPlan(plan);
+    
+    try {
+      await fetch(`${API_URL}/api/ai-builder/website/${websiteId}/select-hosting`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ website_id: websiteId, hosting_type: plan })
+      });
+      
+      // Redirect to Stripe payment
+      const stripeLink = plan === "waas" ? builderSettings?.waas_stripe_link : builderSettings?.ewaas_stripe_link;
+      if (stripeLink) {
+        window.open(stripeLink, "_blank");
+        setPublishStep("dns");
+      } else {
+        toast.error("Payment link not configured. Please contact support.");
+      }
+    } catch {
+      toast.error("Failed to select plan");
+    }
+  };
 
-  <!-- About Section -->
-  <section id="about" class="py-16 px-6 bg-slate-50">
-    <div class="max-w-3xl mx-auto">
-      <h2 class="text-3xl font-bold text-center mb-8">${content?.about?.headline || 'About Us'}</h2>
-      <p class="text-lg text-slate-700 leading-relaxed whitespace-pre-line">${content?.about?.content || ''}</p>
-      ${content?.about?.mission ? `
-      <div class="mt-8 p-6 bg-white rounded-xl">
-        <h3 class="font-semibold text-lg mb-2">Our Mission</h3>
-        <p class="text-slate-600">${content.about.mission}</p>
-      </div>` : ''}
-    </div>
-  </section>
+  const handleDownloadPayment = async () => {
+    try {
+      await fetch(`${API_URL}/api/ai-builder/website/${websiteId}/select-hosting`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ website_id: websiteId, hosting_type: "download" })
+      });
+      
+      if (builderSettings?.download_stripe_link) {
+        window.open(builderSettings.download_stripe_link, "_blank");
+        setPublishStep("download");
+      } else {
+        // If no payment link, allow direct download (for testing)
+        handleDownloadWebsite();
+      }
+    } catch {
+      toast.error("Failed to process download");
+    }
+  };
 
-  <!-- Services Section -->
-  <section id="services" class="py-16 px-6">
-    <div class="max-w-5xl mx-auto">
-      <h2 class="text-3xl font-bold text-center mb-4">${content?.services?.headline || 'Our Services'}</h2>
-      <p class="text-center text-slate-600 mb-12">${content?.services?.description || ''}</p>
-      <div class="grid md:grid-cols-2 gap-6">
-        ${(content?.services?.services || []).map(s => `
-        <div class="p-6 rounded-xl border hover:shadow-lg transition">
-          <h3 class="font-semibold text-xl mb-2">${s.title}</h3>
-          <p class="text-slate-600 mb-4">${s.description}</p>
-          ${s.price ? `<p class="font-semibold" style="color: ${themeColors.primary}">${s.price}</p>` : ''}
-        </div>`).join('')}
-      </div>
-    </div>
-  </section>
+  const handleDownloadWebsite = async () => {
+    try {
+      // First confirm payment (in production, this would be webhook-based)
+      await fetch(`${API_URL}/api/ai-builder/website/${websiteId}/confirm-payment`, {
+        method: "POST"
+      });
+      
+      const response = await fetch(`${API_URL}/api/ai-builder/website/${websiteId}/download`);
+      if (!response.ok) throw new Error("Download failed");
+      
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${businessName.toLowerCase().replace(/\s+/g, '-')}-website.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("Website downloaded! Check the README for instructions.");
+      setShowPublishModal(false);
+    } catch (err) {
+      toast.error("Failed to download website");
+    }
+  };
 
-  <!-- Contact Section -->
-  <section id="contact" class="py-16 px-6 bg-slate-50">
-    <div class="max-w-4xl mx-auto">
-      <h2 class="text-3xl font-bold text-center mb-4">${content?.contact?.headline || 'Contact Us'}</h2>
-      <p class="text-center text-slate-600 mb-12">${content?.contact?.description || ''}</p>
-      <div class="grid md:grid-cols-2 gap-12">
-        <div class="space-y-4">
-          ${content?.contact?.email ? `<p><strong>Email:</strong> ${content.contact.email}</p>` : ''}
-          ${content?.contact?.phone ? `<p><strong>Phone:</strong> ${content.contact.phone}</p>` : ''}
-          ${content?.contact?.address ? `<p><strong>Address:</strong> ${content.contact.address}</p>` : ''}
-          ${content?.contact?.hours ? `<p><strong>Hours:</strong> ${content.contact.hours}</p>` : ''}
-        </div>
-        <form class="space-y-4">
-          <input type="text" placeholder="Your Name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500">
-          <input type="email" placeholder="Your Email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500">
-          <textarea placeholder="Your Message" rows="4" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"></textarea>
-          <button type="submit" class="w-full py-3 gradient-primary text-white rounded-lg font-semibold hover:opacity-90 transition">Send Message</button>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="bg-slate-900 text-white py-12 px-6">
-    <div class="max-w-5xl mx-auto text-center">
-      <div class="flex items-center justify-center gap-2 mb-4">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/></svg>
-        <span class="font-bold text-lg">${brand?.name || 'Business Name'}</span>
-      </div>
-      <p class="text-slate-400">${content?.footer?.copyright || `© ${new Date().getFullYear()} ${brand?.name}. All rights reserved.`}</p>
-    </div>
-  </footer>
-</body>
-</html>`;
+  const openWhatsApp = () => {
+    const number = builderSettings?.whatsapp_number?.replace(/[^0-9]/g, '') || '';
+    const message = encodeURIComponent(`Hi! I need help with my AI-generated website (ID: ${websiteId})`);
+    window.open(`https://wa.me/${number}?text=${message}`, "_blank");
   };
 
   const theme = themes[currentTheme];
@@ -345,6 +360,22 @@ const AIBuilderPage = () => {
 
           <Card className="shadow-xl border-0">
             <CardContent className="p-6 space-y-5">
+              <div>
+                <Label htmlFor="customerEmail" className="text-sm font-medium">
+                  Your Email <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="customerEmail"
+                  type="email"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="mt-1.5"
+                  data-testid="ai-builder-email"
+                />
+                <p className="text-xs text-slate-500 mt-1">We'll send your website details here</p>
+              </div>
+              
               <div>
                 <Label htmlFor="businessName" className="text-sm font-medium">
                   Business Name <span className="text-red-500">*</span>
@@ -444,7 +475,7 @@ const AIBuilderPage = () => {
             Creating Your Website
           </h2>
           <p className="text-slate-600 mb-6">
-            AI is generating your complete multi-page website...
+            AI is generating your content and images...
           </p>
           
           <div className="w-64 mx-auto">
@@ -477,13 +508,12 @@ const AIBuilderPage = () => {
               <Button variant="ghost" size="sm" onClick={() => setStep("input")} data-testid="ai-builder-back-btn">
                 <ChevronLeft size={16} className="mr-1" /> Back
               </Button>
-              <span className="text-sm font-medium text-slate-600 hidden sm:block" data-testid="ai-builder-editing-label">
+              <span className="text-sm font-medium text-slate-600 hidden sm:block">
                 Editing: {brand.name}
               </span>
             </div>
             
             <div className="flex items-center gap-2">
-              {/* Theme Selector */}
               <Select value={currentTheme} onValueChange={handleThemeChange}>
                 <SelectTrigger className="w-32 h-9" data-testid="ai-builder-theme-selector">
                   <Palette size={14} className="mr-1" />
@@ -508,7 +538,7 @@ const AIBuilderPage = () => {
               <Button
                 size="sm"
                 className={`bg-gradient-to-r ${theme.gradient} hover:opacity-90`}
-                onClick={() => setShowPublishModal(true)}
+                onClick={() => { setShowPublishModal(true); setPublishStep("choice"); }}
                 data-testid="ai-builder-publish-btn"
               >
                 <Rocket size={14} className="mr-1" /> Publish
@@ -587,9 +617,16 @@ const AIBuilderPage = () => {
                     {/* HOME PAGE */}
                     {currentPage === "home" && content.homepage && (
                       <div>
-                        {/* Hero */}
-                        <section className={`bg-gradient-to-br ${theme.gradient} text-white py-20 px-6`}>
-                          <div className="max-w-4xl mx-auto text-center">
+                        {/* Hero with optional image */}
+                        <section 
+                          className={`bg-gradient-to-br ${theme.gradient} text-white py-20 px-6 relative`}
+                          style={websiteImages?.hero ? {
+                            backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(data:image/png;base64,${websiteImages.hero})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center'
+                          } : {}}
+                        >
+                          <div className="max-w-4xl mx-auto text-center relative z-10">
                             <EditableText
                               value={content.homepage.headline}
                               isEditing={isEditing}
@@ -619,11 +656,20 @@ const AIBuilderPage = () => {
                               <div className="grid md:grid-cols-3 gap-8">
                                 {content.homepage.features.map((feature, i) => {
                                   const Icon = iconMap[feature.icon] || Star;
+                                  const hasGeneratedIcon = websiteImages?.service_icons?.[i];
                                   return (
                                     <Card key={i} className="text-center p-6 hover:shadow-lg transition-shadow">
-                                      <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${theme.gradient} text-white mb-4`}>
-                                        <Icon size={24} />
-                                      </div>
+                                      {hasGeneratedIcon ? (
+                                        <img 
+                                          src={`data:image/png;base64,${websiteImages.service_icons[i]}`}
+                                          alt={feature.title}
+                                          className="w-14 h-14 mx-auto mb-4 rounded-xl object-cover"
+                                        />
+                                      ) : (
+                                        <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${theme.gradient} text-white mb-4`}>
+                                          <Icon size={24} />
+                                        </div>
+                                      )}
                                       <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
                                       <p className="text-slate-600">{feature.description}</p>
                                     </Card>
@@ -711,7 +757,7 @@ const AIBuilderPage = () => {
                                 <h3 className="font-semibold text-xl mb-2">{service.title}</h3>
                                 <p className="text-slate-600 mb-4">{service.description}</p>
                                 {service.price && (
-                                  <p className={`font-semibold`} style={{ color: theme.primary }}>{service.price}</p>
+                                  <p className="font-semibold" style={{ color: theme.primary }}>{service.price}</p>
                                 )}
                               </Card>
                             ))}
@@ -813,7 +859,7 @@ const AIBuilderPage = () => {
                 </AnimatePresence>
               </main>
 
-              {/* Website Footer */}
+              {/* Website Footer with Branding Badge */}
               <footer className="bg-slate-900 text-white py-12 px-6">
                 <div className="max-w-5xl mx-auto">
                   <div className="flex flex-col md:flex-row items-center justify-between gap-6">
@@ -827,8 +873,20 @@ const AIBuilderPage = () => {
                       {content.footer?.social_links?.includes("linkedin") && <Linkedin size={20} className="hover:text-blue-400 cursor-pointer" />}
                     </div>
                   </div>
-                  <div className="mt-8 pt-8 border-t border-slate-800 text-center text-slate-400 text-sm">
-                    {content.footer?.copyright || `© 2025 ${brand.name}. All rights reserved.`}
+                  <div className="mt-8 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <p className="text-slate-400 text-sm">
+                      {content.footer?.copyright || `© 2025 ${brand.name}. All rights reserved.`}
+                    </p>
+                    {/* Diocreations Branding Badge */}
+                    <a 
+                      href="https://diocreations.eu" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
+                    >
+                      <ButterflyIcon className="w-5 h-5" />
+                      <span>Built with Diocreations AI</span>
+                    </a>
                   </div>
                 </div>
               </footer>
@@ -850,97 +908,281 @@ const AIBuilderPage = () => {
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
+                className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
-                data-testid="ai-builder-publish-modal"
               >
-                <h2 className="text-2xl font-bold mb-2">Publish Your Website</h2>
-                <p className="text-slate-600 mb-6">
-                  Export your AI-generated website and bring it to life.
-                </p>
+                {/* Step 1: Choice */}
+                {publishStep === "choice" && (
+                  <div className="p-6">
+                    <h2 className="text-2xl font-bold mb-2">Publish Your Website</h2>
+                    <p className="text-slate-600 mb-6">Choose how you want to host your website</p>
 
-                <div className="space-y-3">
-                  {/* Download HTML */}
-                  <button
-                    onClick={async () => {
-                      setPublishing(true);
-                      try {
-                        const html = generateExportHTML(websiteContent, brand, theme);
-                        const blob = new Blob([html], { type: 'text/html' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `${brand.name.toLowerCase().replace(/\s+/g, '-')}-website.html`;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                        toast.success("Website HTML downloaded!");
-                      } catch (err) {
-                        toast.error("Failed to export website");
-                      }
-                      setPublishing(false);
-                    }}
-                    className="w-full flex items-center gap-3 p-4 rounded-lg border-2 border-slate-200 hover:border-violet-500 hover:bg-violet-50 transition-all text-left"
-                    data-testid="ai-builder-download-html"
-                  >
-                    <div className={`p-2 rounded-lg bg-gradient-to-br ${theme.gradient}`}>
-                      <FileText size={20} className="text-white" />
-                    </div>
-                    <div>
-                      <p className="font-semibold">Download HTML</p>
-                      <p className="text-sm text-slate-500">Single HTML file ready to host</p>
-                    </div>
-                  </button>
+                    <div className="space-y-4">
+                      <button
+                        onClick={() => { setHostingChoice("diocreations"); setPublishStep("domain"); }}
+                        className="w-full flex items-start gap-4 p-4 rounded-lg border-2 border-slate-200 hover:border-violet-500 hover:bg-violet-50 transition-all text-left"
+                        data-testid="publish-host-diocreations"
+                      >
+                        <div className="p-3 rounded-lg bg-gradient-to-br from-violet-600 to-purple-600 shrink-0">
+                          <Server size={24} className="text-white" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-lg">Host with Diocreations</p>
+                          <p className="text-sm text-slate-600">Fully managed hosting with maintenance and updates</p>
+                          <p className="text-xs text-violet-600 mt-1">From €{builderSettings?.waas_price || 29.99}/month</p>
+                        </div>
+                      </button>
 
-                  {/* Copy HTML */}
-                  <button
-                    onClick={async () => {
-                      try {
-                        const html = generateExportHTML(websiteContent, brand, theme);
-                        await navigator.clipboard.writeText(html);
-                        toast.success("HTML copied to clipboard!");
-                      } catch (err) {
-                        toast.error("Failed to copy HTML");
-                      }
-                    }}
-                    className="w-full flex items-center gap-3 p-4 rounded-lg border-2 border-slate-200 hover:border-violet-500 hover:bg-violet-50 transition-all text-left"
-                    data-testid="ai-builder-copy-html"
-                  >
-                    <div className={`p-2 rounded-lg bg-gradient-to-br ${theme.gradient}`}>
-                      <Globe size={20} className="text-white" />
+                      <button
+                        onClick={() => { setHostingChoice("self"); setPublishStep("download"); }}
+                        className="w-full flex items-start gap-4 p-4 rounded-lg border-2 border-slate-200 hover:border-violet-500 hover:bg-violet-50 transition-all text-left"
+                        data-testid="publish-download"
+                      >
+                        <div className="p-3 rounded-lg bg-gradient-to-br from-slate-600 to-slate-800 shrink-0">
+                          <Download size={24} className="text-white" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-lg">Host Yourself / Download</p>
+                          <p className="text-sm text-slate-600">Download files and host anywhere you want</p>
+                          <p className="text-xs text-slate-500 mt-1">One-time payment: €{builderSettings?.download_price || 19.99}</p>
+                        </div>
+                      </button>
                     </div>
-                    <div>
-                      <p className="font-semibold">Copy HTML Code</p>
-                      <p className="text-sm text-slate-500">Paste into any website builder</p>
-                    </div>
-                  </button>
 
-                  {/* Get Professional Help */}
-                  <button
-                    onClick={() => {
-                      setShowPublishModal(false);
-                      navigate("/contact");
-                    }}
-                    className="w-full flex items-center gap-3 p-4 rounded-lg border-2 border-slate-200 hover:border-violet-500 hover:bg-violet-50 transition-all text-left"
-                    data-testid="ai-builder-contact-pro"
-                  >
-                    <div className={`p-2 rounded-lg bg-gradient-to-br ${theme.gradient}`}>
-                      <Users size={20} className="text-white" />
-                    </div>
-                    <div>
-                      <p className="font-semibold">Get Professional Help</p>
-                      <p className="text-sm text-slate-500">We'll build and host it for you</p>
-                    </div>
-                  </button>
-                </div>
+                    <button
+                      onClick={() => setShowPublishModal(false)}
+                      className="w-full mt-4 py-2 text-slate-500 hover:text-slate-700"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
 
-                <button
-                  onClick={() => setShowPublishModal(false)}
-                  className="w-full mt-4 py-2 text-slate-500 hover:text-slate-700"
-                >
-                  Cancel
-                </button>
+                {/* Step 2: Domain Registration */}
+                {publishStep === "domain" && (
+                  <div className="p-6">
+                    <Button variant="ghost" size="sm" onClick={() => setPublishStep("choice")} className="mb-4">
+                      <ChevronLeft size={16} className="mr-1" /> Back
+                    </Button>
+                    
+                    <h2 className="text-2xl font-bold mb-2">Register Your Domain</h2>
+                    <p className="text-slate-600 mb-6">
+                      To host your website with Diocreations, you need a domain name.
+                    </p>
+
+                    <div className="bg-violet-50 border border-violet-200 rounded-lg p-4 mb-6">
+                      <p className="text-sm text-violet-800 mb-3">
+                        <strong>Instructions:</strong>
+                      </p>
+                      <ol className="text-sm text-violet-700 space-y-2 list-decimal pl-4">
+                        <li>Click the button below to open domain registration</li>
+                        <li>Purchase your desired domain name</li>
+                        <li>Return to this page after purchase</li>
+                        <li>Enter your domain below</li>
+                      </ol>
+                    </div>
+
+                    <Button
+                      onClick={() => window.open(builderSettings?.domain_registration_url || "https://www.diocreations.in/products/domain-registration", "_blank")}
+                      className="w-full mb-6 bg-gradient-to-r from-violet-600 to-purple-600"
+                    >
+                      <ExternalLink size={16} className="mr-2" />
+                      Register Domain
+                    </Button>
+
+                    <div className="border-t pt-6">
+                      <Label className="text-sm font-medium">Already purchased? Enter your domain:</Label>
+                      <Input
+                        value={purchasedDomain}
+                        onChange={(e) => setPurchasedDomain(e.target.value)}
+                        placeholder="yourdomain.com"
+                        className="mt-2 mb-4"
+                      />
+                      <Button onClick={handleDomainSubmit} className="w-full">
+                        Continue with this Domain
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3: Plan Selection */}
+                {publishStep === "plan" && (
+                  <div className="p-6">
+                    <Button variant="ghost" size="sm" onClick={() => setPublishStep("domain")} className="mb-4">
+                      <ChevronLeft size={16} className="mr-1" /> Back
+                    </Button>
+                    
+                    <h2 className="text-2xl font-bold mb-2">Select Hosting Plan</h2>
+                    <p className="text-slate-600 mb-2">Domain: <strong>{purchasedDomain}</strong></p>
+                    <p className="text-slate-600 mb-6">Choose the plan that fits your needs</p>
+
+                    <div className="space-y-4">
+                      {/* WaaS */}
+                      <button
+                        onClick={() => handlePlanSelect("waas")}
+                        className="w-full flex items-start gap-4 p-4 rounded-lg border-2 border-slate-200 hover:border-violet-500 hover:bg-violet-50 transition-all text-left"
+                      >
+                        <div className="p-3 rounded-lg bg-gradient-to-br from-violet-600 to-purple-600 shrink-0">
+                          <Globe size={24} className="text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <p className="font-semibold text-lg">WaaS</p>
+                            <p className="font-bold text-violet-600">€{builderSettings?.waas_price || 29.99}/mo</p>
+                          </div>
+                          <p className="text-sm text-slate-600">Website as a Service</p>
+                          <ul className="text-xs text-slate-500 mt-2 space-y-1">
+                            <li>✓ Fully managed hosting</li>
+                            <li>✓ Maintenance & updates</li>
+                            <li>✓ SSL certificate included</li>
+                          </ul>
+                        </div>
+                      </button>
+
+                      {/* e-WaaS */}
+                      <button
+                        onClick={() => handlePlanSelect("ewaas")}
+                        className="w-full flex items-start gap-4 p-4 rounded-lg border-2 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all text-left"
+                      >
+                        <div className="p-3 rounded-lg bg-gradient-to-br from-emerald-600 to-teal-600 shrink-0">
+                          <CreditCard size={24} className="text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <p className="font-semibold text-lg">e-WaaS</p>
+                            <p className="font-bold text-emerald-600">€{builderSettings?.ewaas_price || 49.99}/mo</p>
+                          </div>
+                          <p className="text-sm text-slate-600">eCommerce Website</p>
+                          <ul className="text-xs text-slate-500 mt-2 space-y-1">
+                            <li>✓ Everything in WaaS</li>
+                            <li>✓ Product management</li>
+                            <li>✓ Payment integration</li>
+                          </ul>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 4: DNS Configuration */}
+                {publishStep === "dns" && (
+                  <div className="p-6">
+                    <div className="text-center mb-6">
+                      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
+                        <Check size={32} className="text-green-600" />
+                      </div>
+                      <h2 className="text-2xl font-bold mb-2">Almost There!</h2>
+                      <p className="text-slate-600">Configure your DNS to complete setup</p>
+                    </div>
+
+                    <div className="bg-slate-50 rounded-lg p-4 mb-6">
+                      <h3 className="font-semibold mb-3">DNS Configuration</h3>
+                      <p className="text-sm text-slate-600 mb-4">
+                        Add this A record in your domain's DNS settings:
+                      </p>
+                      <div className="bg-white rounded border p-3 font-mono text-sm">
+                        <p><strong>Type:</strong> A</p>
+                        <p><strong>Host:</strong> @</p>
+                        <p><strong>Points to:</strong> {builderSettings?.dns_server_ip || "[Contact support for IP]"}</p>
+                      </div>
+                    </div>
+
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                      <div className="flex items-start gap-3">
+                        <HelpCircle size={20} className="text-amber-600 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-medium text-amber-800">Need help with DNS?</p>
+                          <p className="text-sm text-amber-700 mt-1">
+                            Our team can assist you with DNS configuration.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      {builderSettings?.whatsapp_number && (
+                        <Button onClick={openWhatsApp} variant="outline" className="flex-1">
+                          <MessageCircle size={16} className="mr-2" />
+                          WhatsApp
+                        </Button>
+                      )}
+                      <Button 
+                        onClick={() => window.open(`mailto:${builderSettings?.support_email || 'support@diocreations.eu'}?subject=DNS Help - ${websiteId}`, "_blank")} 
+                        variant="outline" 
+                        className="flex-1"
+                      >
+                        <Mail size={16} className="mr-2" />
+                        Email
+                      </Button>
+                    </div>
+
+                    <Button 
+                      onClick={() => setShowPublishModal(false)} 
+                      className="w-full mt-4 bg-gradient-to-r from-violet-600 to-purple-600"
+                    >
+                      Done
+                    </Button>
+                  </div>
+                )}
+
+                {/* Download Step */}
+                {publishStep === "download" && (
+                  <div className="p-6">
+                    <Button variant="ghost" size="sm" onClick={() => setPublishStep("choice")} className="mb-4">
+                      <ChevronLeft size={16} className="mr-1" /> Back
+                    </Button>
+                    
+                    <h2 className="text-2xl font-bold mb-2">Download Your Website</h2>
+                    <p className="text-slate-600 mb-6">
+                      Get a complete website package ready for any hosting provider
+                    </p>
+
+                    <div className="bg-slate-50 rounded-lg p-4 mb-6">
+                      <h3 className="font-semibold mb-3">What's Included</h3>
+                      <ul className="text-sm text-slate-600 space-y-2">
+                        <li className="flex items-center gap-2">
+                          <Check size={16} className="text-green-600" />
+                          5 HTML pages (Home, About, Services, Blog, Contact)
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check size={16} className="text-green-600" />
+                          CSS stylesheet with your theme colors
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check size={16} className="text-green-600" />
+                          JavaScript for interactivity
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check size={16} className="text-green-600" />
+                          Generated images (hero & icons)
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check size={16} className="text-green-600" />
+                          README with deployment instructions
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="border-t pt-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-slate-600">One-time payment</span>
+                        <span className="text-2xl font-bold">€{builderSettings?.download_price || 19.99}</span>
+                      </div>
+                      
+                      {builderSettings?.download_stripe_link ? (
+                        <Button onClick={handleDownloadPayment} className="w-full bg-gradient-to-r from-violet-600 to-purple-600">
+                          <CreditCard size={16} className="mr-2" />
+                          Pay & Download
+                        </Button>
+                      ) : (
+                        <Button onClick={handleDownloadWebsite} className="w-full bg-gradient-to-r from-violet-600 to-purple-600">
+                          <Download size={16} className="mr-2" />
+                          Download Website
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                )}
               </motion.div>
             </motion.div>
           )}
