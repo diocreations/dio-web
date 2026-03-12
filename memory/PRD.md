@@ -5,6 +5,29 @@ Build and enhance a "DioAI Resume & LinkedIn Optimizer" tool with core site-wide
 
 ## Latest Updates (Mar 2025)
 
+### Deployment Fix - Health Check Endpoint ✅
+**Date: Mar 12, 2025 (Req #37)**
+
+**Issue:** Kubernetes deployment health checks were failing with `GET /health HTTP/1.0" 404 Not Found`
+
+**Fixes Implemented:**
+
+1. **Added `/health` Endpoint** (`/app/backend/server.py`)
+   - Returns `{"status": "healthy", "timestamp": "..."}` with 200 OK
+   - Placed before middleware to ensure fast response
+
+2. **Fixed Hardcoded URLs** (deployment agent recommendations)
+   - `/app/backend/routes/public_auth.py` line 27: Password reset URL now uses `FRONTEND_URL` env var
+   - `/app/backend/routes/resume.py` line 1091: OG image URL now uses `FRONTEND_URL` env var
+
+**Verification:**
+```bash
+curl http://localhost:8001/health
+# {"status": "healthy", "timestamp": "2026-03-12T07:16:56.027313+00:00"}
+```
+
+---
+
 ### AI Website Builder - UX Improvements ✅
 **Date: Mar 12, 2025 (Req #36)**
 
