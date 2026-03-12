@@ -573,7 +573,7 @@ const AIBuilderPage = () => {
                 className="w-full h-12 text-base bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
                 data-testid="ai-builder-generate-btn"
               >
-                <Sparkles className="w-5 h-5 mr-2" />
+                <Globe className="w-5 h-5 mr-2" />
                 Generate My Website
               </Button>
             </CardContent>
@@ -584,40 +584,44 @@ const AIBuilderPage = () => {
           </p>
         </motion.div>
       </div>
+      <Footer />
+    </div>
     );
   }
 
   // Generating Step
   if (step === "generating") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center"
-        >
-          {/* Animated Butterfly */}
-          <div className="mb-8">
-            <LoadingButterfly />
-          </div>
-          
-          <h2 className="text-2xl font-bold text-slate-900 mb-3">
-            Generating Your Website
-          </h2>
-          
-          {/* Rotating Loading Message */}
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={loadingMessage}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="text-slate-600 mb-6 h-6"
-            >
-              {loadingMessage}
-            </motion.p>
-          </AnimatePresence>
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
+        <Navbar />
+        <div className="pt-24 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center"
+          >
+            {/* Animated Butterfly */}
+            <div className="mb-8 flex items-center justify-center">
+              <LoadingButterfly />
+            </div>
+            
+            <h2 className="text-2xl font-bold text-slate-900 mb-3">
+              Generating Your Website
+            </h2>
+            
+            {/* Rotating Loading Message */}
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={loadingMessage}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="text-slate-600 mb-6 h-6"
+              >
+                {loadingMessage}
+              </motion.p>
+            </AnimatePresence>
           
           <div className="w-72 mx-auto">
             <div className="h-2.5 bg-slate-200 rounded-full overflow-hidden">
