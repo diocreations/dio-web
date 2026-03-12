@@ -476,6 +476,14 @@ const AppRouter = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/ai-websites"
+        element={
+          <ProtectedRoute>
+            <AdminAIWebsites />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
     </Suspense>
   );
