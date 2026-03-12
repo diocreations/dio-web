@@ -380,7 +380,8 @@ const AIBuilderPage = () => {
               <Button
                 size="sm"
                 className={`bg-gradient-to-r ${theme.gradient} hover:opacity-90`}
-                onClick={() => navigate("/products")}
+                onClick={() => setShowPublishModal(true)}
+                data-testid="ai-builder-publish-btn"
               >
                 <Rocket size={14} className="mr-1" /> Publish
               </Button>
