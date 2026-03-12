@@ -707,16 +707,112 @@ const AIBuilderPage = () => {
           </div>
         </div>
 
-        {/* Publish Modal Overlay */}
+        {/* Publish Modal */}
         <AnimatePresence>
-          {false && (
+          {showPublishModal && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+              onClick={() => setShowPublishModal(false)}
             >
-              {/* Publish modal content here */}
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
+                onClick={(e) => e.stopPropagation()}
+                data-testid="ai-builder-publish-modal"
+              >
+                <h2 className="text-2xl font-bold mb-2">Publish Your Website</h2>
+                <p className="text-slate-600 mb-6">
+                  Export your AI-generated website and bring it to life.
+                </p>
+
+                <div className="space-y-3">
+                  {/* Download HTML */}
+                  <button
+                    onClick={async () => {
+                      setPublishing(true);
+                      try {
+                        const html = generateExportHTML(websiteContent, brand, theme);
+                        const blob = new Blob([html], { type: 'text/html' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${brand.name.toLowerCase().replace(/\s+/g, '-')}-website.html`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        toast.success("Website HTML downloaded!");
+                      } catch (err) {
+                        toast.error("Failed to export website");
+                      }
+                      setPublishing(false);
+                    }}
+                    className="w-full flex items-center gap-3 p-4 rounded-lg border-2 border-slate-200 hover:border-violet-500 hover:bg-violet-50 transition-all text-left"
+                    data-testid="ai-builder-download-html"
+                  >
+                    <div className={`p-2 rounded-lg bg-gradient-to-br ${theme.gradient}`}>
+                      <FileText size={20} className="text-white" />
+                    </div>
+                    <div>
+                      <p className="font-semibold">Download HTML</p>
+                      <p className="text-sm text-slate-500">Single HTML file ready to host</p>
+                    </div>
+                  </button>
+
+                  {/* Copy HTML */}
+                  <button
+                    onClick={async () => {
+                      try {
+                        const html = generateExportHTML(websiteContent, brand, theme);
+                        await navigator.clipboard.writeText(html);
+                        toast.success("HTML copied to clipboard!");
+                      } catch (err) {
+                        toast.error("Failed to copy HTML");
+                      }
+                    }}
+                    className="w-full flex items-center gap-3 p-4 rounded-lg border-2 border-slate-200 hover:border-violet-500 hover:bg-violet-50 transition-all text-left"
+                    data-testid="ai-builder-copy-html"
+                  >
+                    <div className={`p-2 rounded-lg bg-gradient-to-br ${theme.gradient}`}>
+                      <Globe size={20} className="text-white" />
+                    </div>
+                    <div>
+                      <p className="font-semibold">Copy HTML Code</p>
+                      <p className="text-sm text-slate-500">Paste into any website builder</p>
+                    </div>
+                  </button>
+
+                  {/* Get Professional Help */}
+                  <button
+                    onClick={() => {
+                      setShowPublishModal(false);
+                      navigate("/contact");
+                    }}
+                    className="w-full flex items-center gap-3 p-4 rounded-lg border-2 border-slate-200 hover:border-violet-500 hover:bg-violet-50 transition-all text-left"
+                    data-testid="ai-builder-contact-pro"
+                  >
+                    <div className={`p-2 rounded-lg bg-gradient-to-br ${theme.gradient}`}>
+                      <Users size={20} className="text-white" />
+                    </div>
+                    <div>
+                      <p className="font-semibold">Get Professional Help</p>
+                      <p className="text-sm text-slate-500">We'll build and host it for you</p>
+                    </div>
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setShowPublishModal(false)}
+                  className="w-full mt-4 py-2 text-slate-500 hover:text-slate-700"
+                >
+                  Cancel
+                </button>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
