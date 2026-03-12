@@ -145,13 +145,6 @@ const LOADING_MESSAGES = [
   "Adding finishing touches...",
   "Preparing your website preview..."
 ];
-    <g className="left-wing butterfly-wing" style={{animationDelay: '0.1s', animationDirection: 'alternate-reverse'}}>
-      <path fill="#8F5398" d="M7.3,16.11c2.36-2.36,2.64-6.14,2.64-6.14s-3.98,0.48-6.14,2.64c-1.27,1.27-1.52,3.09-0.56,4.06S6.03,17.39,7.3,16.11z"/>
-      <path fill="#E16136" d="M3.74,12.45c3.34,0,6.2-2.48,6.2-2.48S6.78,7.5,3.74,7.5c-1.8,0-3.26,1.11-3.26,2.47S1.93,12.45,3.74,12.45z"/>
-      <path fill="#F3BE33" d="M3.81,7.34c2.36,2.36,6.14,2.64,6.14,2.64S9.46,6,7.3,3.84C6.03,2.57,4.21,2.32,3.25,3.29S2.53,6.07,3.81,7.34z"/>
-    </g>
-  </svg>
-);
 
 const AIBuilderPage = () => {
   const navigate = useNavigate();
