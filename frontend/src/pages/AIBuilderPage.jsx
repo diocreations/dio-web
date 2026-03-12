@@ -84,6 +84,8 @@ const AIBuilderPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingField, setEditingField] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showPublishModal, setShowPublishModal] = useState(false);
+  const [publishing, setPublishing] = useState(false);
 
   useEffect(() => {
     // Fetch business types
