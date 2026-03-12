@@ -46,6 +46,11 @@ const AdminAIWebsites = () => {
     setLoading(false);
   };
 
+  const handlePreviewWebsite = (websiteId) => {
+    // Open preview in new tab
+    window.open(`/ai-builder/preview/${websiteId}`, '_blank');
+  };
+
   const handleDownloadWebsite = async (websiteId, businessName) => {
     try {
       const response = await fetch(`${API_URL}/api/ai-builder/website/${websiteId}/download`);
