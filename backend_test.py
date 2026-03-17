@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 class DioCreationsAPITester:
-    def __init__(self, base_url="https://quick-site-maker-19.preview.emergentagent.com"):
+    def __init__(self, base_url="https://web-gen-ai-1.preview.emergentagent.com"):
         self.base_url = base_url
         self.session_token = None
         self.tests_run = 0
