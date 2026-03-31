@@ -39,35 +39,38 @@ const ResumeBuilderPage = () => {
   const [draftId, setDraftId] = useState(null);
   const [pubUser, setPubUser] = useState(null);
   const [pricing, setPricing] = useState(null);
-  const [aiEnabled, setAiEnabled] = useState(true); // AI features visibility
-  
+  const [aiEnabled, setAiEnabled] = useState(true);
+
+  // ✅ NEW STATE: Resume strength meter
+  const [resumeStrength, setResumeStrength] = useState(65);
+
   // Form state
   const [personalInfo, setPersonalInfo] = useState({
     name: "", email: "", phone: "", location: "", linkedin: "", website: ""
   });
-  
+
   const [summary, setSummary] = useState("");
-  
+
   const [experience, setExperience] = useState([
     { id: 1, title: "", company: "", location: "", start_date: "", end_date: "", bullets: [""] }
   ]);
-  
+
   const [education, setEducation] = useState([
     { id: 1, degree: "", school: "", location: "", year: "", gpa: "" }
   ]);
-  
+
   const [skills, setSkills] = useState({ technical: [], soft: [] });
   const [skillInput, setSkillInput] = useState({ technical: "", soft: "" });
-  
+
   const [certifications, setCertifications] = useState([]);
   const [certInput, setCertInput] = useState("");
-  
+
   const [languages, setLanguages] = useState([]);
   const [langInput, setLangInput] = useState({ name: "", level: "Professional" });
-  
+
   const [projects, setProjects] = useState([]);
-  
-  // NEW: Photo and Hobbies for Professional templates
+
+  // Photo and Hobbies for Professional templates
   const [photo, setPhoto] = useState(null);
   const [hobbies, setHobbies] = useState([]);
   const [hobbyInput, setHobbyInput] = useState("");
@@ -78,18 +81,23 @@ const ResumeBuilderPage = () => {
   useEffect(() => {
     const stored = localStorage.getItem("pub_user");
     if (stored) setPubUser(JSON.parse(stored));
-    
-    // Fetch builder pricing to check if AI features should be hidden
+
     fetch(`${API_URL}/api/builder/resume-pricing`)
       .then(r => r.json())
       .then(data => {
         setPricing(data);
-        // If pricing is enabled, hide AI features for non-paying users
-        // If pricing is disabled (enabled: false), show all AI features
         setAiEnabled(data?.enabled === false || data?.enabled === undefined);
       })
-      .catch(() => setAiEnabled(true)); // Default to enabled if fetch fails
+      .catch(() => setAiEnabled(true));
   }, []);
+
+  // ✅ AUTO-SAVE: Debounced save on any form change
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (pubUser) saveDraft();
+    }, 2000);
+    return () => clearTimeout(timeout);
+  }, [personalInfo, summary, experience, education, skills]);
 
   // Auto-save draft
   const saveDraft = async () => {
@@ -97,11 +105,11 @@ const ResumeBuilderPage = () => {
       toast.info("Sign in to save your progress");
       return;
     }
-    
+
     try {
       const res = await fetch(`${API_URL}/api/builder/draft`, {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("pub_token")}`
         },
@@ -240,8 +248,10 @@ const ResumeBuilderPage = () => {
         if (data.experience) setExperience(data.experience.map((e, i) => ({ ...e, id: i + 1 })));
         if (data.skills) setSkills(data.skills);
         if (data.education) setEducation(data.education.map((e, i) => ({ ...e, id: i + 1 })));
-        toast.success("Resume content generated!");
-        setStep(7); // Go to preview
+        // ✅ UPDATED success message + strength boost
+        toast.success("🔥 Resume improved! You're now more ATS-friendly");
+        setResumeStrength(prev => Math.min(prev + 20, 100));
+        setStep(7); // Go to template selection
       }
     } catch (e) {
       toast.error("Failed to generate resume");
@@ -263,7 +273,6 @@ const ResumeBuilderPage = () => {
       });
       const data = await res.json();
       if (data.docx_base64) {
-        // Download file
         const link = document.createElement("a");
         link.href = `data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${data.docx_base64}`;
         link.download = data.filename || "resume.docx";
@@ -280,10 +289,9 @@ const ResumeBuilderPage = () => {
   const exportPdf = async () => {
     setLoading(true);
     toast.info("Generating PDF...", { duration: 2000 });
-    
+
     const filename = personalInfo.name ? `${personalInfo.name.replace(/\s+/g, "_").toLowerCase()}_resume` : "resume";
-    
-    // Build HTML content for PDF
+
     let html = `
       <div style="font-family: Georgia, serif; padding: 40px; max-width: 700px; margin: 0 auto; color: #333; line-height: 1.5;">
         <div style="text-align: center; border-bottom: 2px solid #1a1a2e; padding-bottom: 16px; margin-bottom: 20px;">
@@ -294,8 +302,7 @@ const ResumeBuilderPage = () => {
           ${personalInfo.linkedin ? `<p style="font-size: 9pt; color: #2563eb; margin: 4px 0 0;">${personalInfo.linkedin}</p>` : ""}
         </div>
     `;
-    
-    // Summary
+
     if (summary) {
       html += `
         <div style="margin-bottom: 16px;">
@@ -304,8 +311,7 @@ const ResumeBuilderPage = () => {
         </div>
       `;
     }
-    
-    // Experience
+
     if (experience.some(e => e.title)) {
       html += `<div style="margin-bottom: 16px;"><h2 style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #1a1a2e; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 8px;">Work Experience</h2>`;
       for (const exp of experience.filter(e => e.title)) {
@@ -324,8 +330,7 @@ const ResumeBuilderPage = () => {
       }
       html += `</div>`;
     }
-    
-    // Education
+
     if (education.some(e => e.degree)) {
       html += `<div style="margin-bottom: 16px;"><h2 style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #1a1a2e; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 8px;">Education</h2>`;
       for (const edu of education.filter(e => e.degree)) {
@@ -341,8 +346,7 @@ const ResumeBuilderPage = () => {
       }
       html += `</div>`;
     }
-    
-    // Skills
+
     if (skills.technical.length > 0 || skills.soft.length > 0) {
       html += `<div style="margin-bottom: 16px;"><h2 style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #1a1a2e; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 8px;">Skills</h2>`;
       if (skills.technical.length > 0) {
@@ -353,26 +357,23 @@ const ResumeBuilderPage = () => {
       }
       html += `</div>`;
     }
-    
-    // Certifications
+
     if (certifications.length > 0) {
       html += `<div style="margin-bottom: 16px;"><h2 style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #1a1a2e; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 8px;">Certifications</h2>`;
       html += `<ul style="margin: 0; padding-left: 18px; font-size: 10pt;">${certifications.map(c => `<li>${c}</li>`).join("")}</ul></div>`;
     }
-    
-    // Languages
+
     if (languages.length > 0) {
       html += `<div style="margin-bottom: 16px;"><h2 style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #1a1a2e; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 8px;">Languages</h2>`;
       html += `<p style="font-size: 10pt; margin: 0;">${languages.map(l => `${l.name} (${l.level})`).join(", ")}</p></div>`;
     }
-    
+
     html += `</div>`;
-    
-    // Create container and generate PDF
+
     const container = document.createElement("div");
     container.innerHTML = html;
     document.body.appendChild(container);
-    
+
     try {
       const opt = {
         margin: [0.5, 0.6, 0.5, 0.6],
@@ -395,10 +396,10 @@ const ResumeBuilderPage = () => {
   // Add/Remove helpers
   const addExperience = () => setExperience([...experience, { id: Date.now(), title: "", company: "", location: "", start_date: "", end_date: "", bullets: [""] }]);
   const removeExperience = (id) => setExperience(experience.filter(e => e.id !== id));
-  
+
   const addEducation = () => setEducation([...education, { id: Date.now(), degree: "", school: "", location: "", year: "" }]);
   const removeEducation = (id) => setEducation(education.filter(e => e.id !== id));
-  
+
   const addBullet = (expIndex) => {
     const newExp = [...experience];
     newExp[expIndex].bullets.push("");
@@ -442,42 +443,34 @@ const ResumeBuilderPage = () => {
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    
+
     if (!file.type.startsWith('image/')) {
       toast.error("Please upload an image file");
       return;
     }
-    
+
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Image must be less than 5MB");
       return;
     }
-    
+
     setUploadingPhoto(true);
-    
-    // Convert to base64 for preview (in production, upload to server)
+
     const reader = new FileReader();
     reader.onload = (event) => {
-      // Create an image to resize
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
         const maxSize = 300;
         let width = img.width;
         let height = img.height;
-        
+
         if (width > height) {
-          if (width > maxSize) {
-            height *= maxSize / width;
-            width = maxSize;
-          }
+          if (width > maxSize) { height *= maxSize / width; width = maxSize; }
         } else {
-          if (height > maxSize) {
-            width *= maxSize / height;
-            height = maxSize;
-          }
+          if (height > maxSize) { width *= maxSize / height; height = maxSize; }
         }
-        
+
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
@@ -508,7 +501,7 @@ const ResumeBuilderPage = () => {
           <div className="space-y-4">
             <h2 className="text-xl font-bold">Personal Information</h2>
             <p className="text-muted-foreground text-sm">Start with your basic contact details</p>
-            
+
             {/* Photo Upload for Professional Templates */}
             <Card className="bg-slate-50 border-dashed">
               <CardContent className="p-4">
@@ -539,7 +532,7 @@ const ResumeBuilderPage = () => {
                 </div>
               </CardContent>
             </Card>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>Full Name *</Label>
@@ -568,7 +561,7 @@ const ResumeBuilderPage = () => {
             </div>
           </div>
         );
-      
+
       case 2:
         return (
           <div className="space-y-4">
@@ -584,16 +577,16 @@ const ResumeBuilderPage = () => {
                 </Button>
               )}
             </div>
-            <Textarea 
-              value={summary} 
-              onChange={e => setSummary(e.target.value)} 
-              placeholder="Results-driven professional with X years of experience in..." 
+            <Textarea
+              value={summary}
+              onChange={e => setSummary(e.target.value)}
+              placeholder="Results-driven professional with X years of experience in..."
               rows={5}
               data-testid="textarea-summary"
             />
           </div>
         );
-      
+
       case 3:
         return (
           <div className="space-y-6">
@@ -606,7 +599,7 @@ const ResumeBuilderPage = () => {
                 <Plus size={16} /> Add Position
               </Button>
             </div>
-            
+
             {experience.map((exp, expIndex) => (
               <Card key={exp.id} className="relative">
                 {experience.length > 1 && (
@@ -639,7 +632,7 @@ const ResumeBuilderPage = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <Label>Key Achievements / Responsibilities</Label>
@@ -651,7 +644,8 @@ const ResumeBuilderPage = () => {
                     </div>
                     {exp.bullets.map((bullet, bIndex) => (
                       <div key={bIndex} className="flex gap-2 mb-2">
-                        <Input value={bullet} onChange={e => updateBullet(expIndex, bIndex, e.target.value)} placeholder="Led a team of 5 engineers to deliver..." />
+                        {/* ✅ UPDATED placeholder with concrete example */}
+                        <Input value={bullet} onChange={e => updateBullet(expIndex, bIndex, e.target.value)} placeholder="Example: Increased sales by 30% in 6 months" />
                         {exp.bullets.length > 1 && (
                           <Button variant="ghost" size="icon" onClick={() => removeBullet(expIndex, bIndex)} className="text-red-500"><Trash2 size={14} /></Button>
                         )}
@@ -664,7 +658,7 @@ const ResumeBuilderPage = () => {
             ))}
           </div>
         );
-      
+
       case 4:
         return (
           <div className="space-y-6">
@@ -677,7 +671,7 @@ const ResumeBuilderPage = () => {
                 <Plus size={16} /> Add Education
               </Button>
             </div>
-            
+
             {education.map((edu, eduIndex) => (
               <Card key={edu.id} className="relative">
                 {education.length > 1 && (
@@ -709,7 +703,7 @@ const ResumeBuilderPage = () => {
             ))}
           </div>
         );
-      
+
       case 5:
         return (
           <div className="space-y-6">
@@ -725,7 +719,7 @@ const ResumeBuilderPage = () => {
                 </Button>
               )}
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader className="pb-3">
@@ -746,7 +740,7 @@ const ResumeBuilderPage = () => {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base">Soft Skills</CardTitle>
@@ -769,13 +763,13 @@ const ResumeBuilderPage = () => {
             </div>
           </div>
         );
-      
+
       case 6:
         return (
           <div className="space-y-6">
             <h2 className="text-xl font-bold">Additional Information</h2>
             <p className="text-muted-foreground text-sm">Add certifications, languages, and other details</p>
-            
+
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2"><Award size={18} /> Certifications</CardTitle>
@@ -795,7 +789,7 @@ const ResumeBuilderPage = () => {
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2"><Languages size={18} /> Languages</CardTitle>
@@ -822,8 +816,8 @@ const ResumeBuilderPage = () => {
                 </div>
               </CardContent>
             </Card>
-            
-            {/* Hobbies - NEW */}
+
+            {/* Hobbies */}
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2"><Heart size={18} /> Hobbies & Interests</CardTitle>
@@ -846,13 +840,13 @@ const ResumeBuilderPage = () => {
             </Card>
           </div>
         );
-      
+
       case 7:
         return (
           <div className="space-y-6">
             <h2 className="text-xl font-bold">Choose Your Template</h2>
             <p className="text-muted-foreground text-sm">Select a design that best represents you. Professional templates require a photo.</p>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {VISUAL_TEMPLATES.map((tpl) => (
                 <div
@@ -869,7 +863,7 @@ const ResumeBuilderPage = () => {
                   } ${tpl.hasPhoto && !photo ? "opacity-50" : ""}`}
                   data-testid={`template-${tpl.id}`}
                 >
-                  <div 
+                  <div
                     className="h-24 rounded mb-2 flex items-center justify-center"
                     style={{ backgroundColor: tpl.preview.bg === "#fff" ? "#f8fafc" : tpl.preview.bg }}
                   >
@@ -900,7 +894,7 @@ const ResumeBuilderPage = () => {
                 </div>
               ))}
             </div>
-            
+
             {!photo && (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-700">
                 <strong>Tip:</strong> Upload a photo in Step 1 to unlock Professional templates with two-column layout and skill bars.
@@ -908,16 +902,45 @@ const ResumeBuilderPage = () => {
             )}
           </div>
         );
-      
+
       case 8:
         return (
           <div className="space-y-6">
+            {/* ✅ RESUME STRENGTH METER */}
+            <Card>
+              <CardContent className="p-4">
+                <h3 className="font-semibold mb-2">Resume Strength</h3>
+                <div className="w-full bg-gray-200 h-2 rounded">
+                  <div
+                    className="bg-green-500 h-2 rounded transition-all duration-500"
+                    style={{ width: `${resumeStrength}%` }}
+                  />
+                </div>
+                <p className="text-sm mt-2 text-muted-foreground">
+                  Your resume is <span className="font-semibold text-foreground">{resumeStrength}%</span> complete
+                </p>
+              </CardContent>
+            </Card>
+
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="text-center sm:text-left">
                 <h2 className="text-xl font-bold">Preview & Export</h2>
                 <p className="text-muted-foreground text-sm">Review your resume and download ({VISUAL_TEMPLATES.find(t => t.id === selectedTemplate)?.name || "Classic"} template)</p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                {/* ✅ AI IMPROVE CTA */}
+                {aiEnabled && (
+                  <Button
+                    variant="outline"
+                    onClick={generateFullResume}
+                    disabled={generating}
+                    className="gap-2 w-full sm:w-auto"
+                    data-testid="improve-resume-btn"
+                  >
+                    {generating ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                    Improve Entire Resume
+                  </Button>
+                )}
                 <Button variant="outline" onClick={exportDocx} disabled={loading} className="gap-2 w-full sm:w-auto" data-testid="export-docx-btn">
                   {loading ? <Loader2 className="animate-spin" size={16} /> : <FileText size={16} />}
                   Export DOCX
@@ -928,7 +951,7 @@ const ResumeBuilderPage = () => {
                 </Button>
               </div>
             </div>
-            
+
             {/* Preview using ResumePreview component */}
             <Card className="shadow-lg overflow-hidden" id="resume-preview-container">
               <CardContent className="p-0 bg-white">
@@ -948,9 +971,40 @@ const ResumeBuilderPage = () => {
                 />
               </CardContent>
             </Card>
+
+            {/* ✅ OPTIMIZER BRIDGE — cross-sell to Resume Optimizer */}
+            <Card className="border-primary/30 bg-primary/5">
+              <CardContent className="p-4 text-center space-y-3">
+                <p className="text-sm font-medium">
+                  Your resume can be improved by 40% with AI 🚀
+                </p>
+                <Button
+                  onClick={() => {
+                    localStorage.setItem(
+                      "resume_data",
+                      JSON.stringify({
+                        personalInfo,
+                        summary,
+                        experience,
+                        education,
+                        skills,
+                        certifications,
+                        languages,
+                        projects,
+                      })
+                    );
+                    window.location.href = "/resume-optimizer";
+                  }}
+                  className="w-full"
+                  data-testid="optimize-bridge-btn"
+                >
+                  🚀 Optimize This Resume
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         );
-      
+
       default:
         return null;
     }
@@ -962,7 +1016,7 @@ const ResumeBuilderPage = () => {
         <title>Resume Builder - Create Professional Resume | Diocreations</title>
         <meta name="description" content="Build your professional resume with AI assistance. Create, edit, and export in PDF or DOCX format." />
       </Helmet>
-      
+
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-white">
         {/* Hero */}
         <section className="py-12 lg:py-16">
@@ -974,8 +1028,8 @@ const ResumeBuilderPage = () => {
             <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
               Create a professional resume in minutes. Fill in your details, let AI enhance your content, and export in PDF or DOCX.
             </p>
-            
-            {/* Quick Generate Button - only shown when AI is enabled */}
+
+            {/* Quick Generate Button */}
             {aiEnabled && step === 1 && experience[0]?.title && (
               <Button onClick={generateFullResume} disabled={generating} className="gap-2 mb-8" size="lg" data-testid="generate-full-btn">
                 {generating ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />}
@@ -984,7 +1038,7 @@ const ResumeBuilderPage = () => {
             )}
           </div>
         </section>
-        
+
         {/* Progress Steps */}
         <div className="max-w-4xl mx-auto px-4 mb-8">
           <div className="flex items-center justify-between overflow-x-auto pb-2">
@@ -1006,7 +1060,7 @@ const ResumeBuilderPage = () => {
             })}
           </div>
         </div>
-        
+
         {/* Main Content */}
         <div className="max-w-4xl mx-auto px-4 pb-16">
           <Card className="shadow-lg">
@@ -1022,7 +1076,7 @@ const ResumeBuilderPage = () => {
                   {renderStepContent()}
                 </motion.div>
               </AnimatePresence>
-              
+
               {/* Navigation */}
               <div className="flex justify-between mt-8 pt-6 border-t">
                 <Button
@@ -1034,14 +1088,14 @@ const ResumeBuilderPage = () => {
                 >
                   <ChevronLeft size={16} /> Previous
                 </Button>
-                
+
                 <div className="flex gap-2">
                   {pubUser && (
                     <Button variant="ghost" onClick={saveDraft} className="gap-2" data-testid="save-draft-btn">
                       <Save size={16} /> Save Draft
                     </Button>
                   )}
-                  
+
                   {step < 8 ? (
                     <Button onClick={() => setStep(Math.min(8, step + 1))} className="gap-2" data-testid="next-step-btn">
                       Next <ChevronRight size={16} />
@@ -1056,7 +1110,7 @@ const ResumeBuilderPage = () => {
               </div>
             </CardContent>
           </Card>
-          
+
           {/* Login prompt for guests */}
           {!pubUser && (
             <p className="text-center text-sm text-muted-foreground mt-4">

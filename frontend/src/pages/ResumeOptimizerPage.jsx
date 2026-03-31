@@ -50,6 +50,11 @@ const ResumeOptimizerPage = () => {
   const [editedText, setEditedText] = useState("");
   const [originalImprovedText, setOriginalImprovedText] = useState(""); // For reset functionality
 
+  // ✅ NEW STATES: Job Match & Role
+  const [jobDescription, setJobDescription] = useState("");
+  const [jobMatch, setJobMatch] = useState(null);
+  const [role, setRole] = useState("general");
+
   const [linkedinForm, setLinkedinForm] = useState({ headline: "", about: "", experience: "" });
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [linkedinScraping, setLinkedinScraping] = useState(false);
@@ -411,7 +416,7 @@ const ResumeOptimizerPage = () => {
         if (data.is_paid) {
           setHasDownloadAccess(true);
           if (data.improvement?.improved_text) {
-            setImprovedText(data.improvement.improved_text);
+            setImproved({ improved_text: data.improvement.improved_text, resume_id: data.resume_id, is_preview: false });
             setEditedText(data.improvement.improved_text);
             setOriginalImprovedText(data.improvement.improved_text);
           }
@@ -520,12 +525,42 @@ const ResumeOptimizerPage = () => {
     handleCheckout();
   };
 
+  // ✅ JOB MATCH FUNCTION
+  const handleJobMatch = async () => {
+    if (!jobDescription || !resumeId) return;
+
+    try {
+      const res = await fetch(`${API_URL}/api/resume/job-match`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          resume_id: resumeId,
+          job_description: jobDescription,
+          role: role,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setJobMatch(data);
+      }
+    } catch {
+      toast.error("Job match failed");
+    }
+  };
+
+  // ✅ UPDATED handleImprove WITH ROLE & JOB DESCRIPTION
   const handleImprove = async (forceRegenerate = false) => {
     setImproving(true);
     setImproved(null);
     setStep(3);
     try {
-      const body = { resume_id: resumeId, force_regenerate: forceRegenerate };
+      const body = {
+        resume_id: resumeId,
+        force_regenerate: forceRegenerate,
+        role: role,
+        job_description: jobDescription,
+      };
       if (selectedTemplate) body.template_id = selectedTemplate;
       const res = await fetch(`${API_URL}/api/resume/improve`, {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -1346,6 +1381,60 @@ const ResumeOptimizerPage = () => {
                       </CardContent></Card>
                     </div>
 
+                    {/* ✅ IMPROVED ATS BREAKDOWN */}
+                    <Card>
+                      <CardContent className="p-6">
+                        <h3 className="font-bold mb-4">ATS Breakdown</h3>
+                        <ul className="space-y-2 text-sm">
+                          <li>📄 Formatting: {analysis.formatting_score || 0}/20</li>
+                          <li>🔑 Keywords: {analysis.keyword_score || 0}/30</li>
+                          <li>📚 Structure: {analysis.structure_score || 0}/20</li>
+                          <li>💼 Experience: {analysis.experience_score || 0}/30</li>
+                        </ul>
+                      </CardContent>
+                    </Card>
+
+                    {/* ✅ TARGET JOB OPTIMIZATION */}
+                    <Card className="mb-6">
+                      <CardContent className="p-6 space-y-4">
+                        <h3 className="font-bold text-lg">🎯 Target Job Optimization</h3>
+
+                        <Textarea
+                          placeholder="Paste job description here..."
+                          value={jobDescription}
+                          onChange={(e) => setJobDescription(e.target.value)}
+                        />
+
+                        <select
+                          className="w-full border rounded p-2"
+                          value={role}
+                          onChange={(e) => setRole(e.target.value)}
+                        >
+                          <option value="general">General</option>
+                          <option value="software">Software Engineer</option>
+                          <option value="pm">Project Manager</option>
+                          <option value="marketing">Marketing</option>
+                        </select>
+
+                        <Button onClick={handleJobMatch}>
+                          Analyze Job Match
+                        </Button>
+
+                        {jobMatch && (
+                          <div className="mt-4">
+                            <p className="font-semibold">Match Score: {jobMatch.score}%</p>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {jobMatch.missing_keywords?.map((k, i) => (
+                                <span key={i} className="px-2 py-1 bg-red-100 text-red-600 rounded text-sm">
+                                  {k}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
                     {/* Score Comparison */}
                     <ScoreComparison currentAnalysis={analysis} resumeId={resumeId} onCopyToEditor={(text) => {
                       setEditedText(text);
@@ -1513,6 +1602,19 @@ const ResumeOptimizerPage = () => {
                               </Card>
                             </div>
                           </div>
+
+                          {/* ✅ EARLY PAYWALL CARD (better UX - shown below blurred preview) */}
+                          {improved?.is_preview && !hasDownloadAccess && (
+                            <Card className="bg-yellow-50 border-yellow-200">
+                              <CardContent className="p-6 text-center">
+                                <Lock className="mx-auto mb-2" />
+                                <p className="mb-4">Unlock full optimized resume</p>
+                                <Button onClick={handleCheckout}>
+                                  Unlock Now
+                                </Button>
+                              </CardContent>
+                            </Card>
+                          )}
                         </div>
                       ) : (
                       /* FULL ACCESS MODE: Editing, templates, download */
